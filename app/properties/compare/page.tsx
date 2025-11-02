@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,7 +24,8 @@ import {
   Ruler,
   Save,
   Share2,
-  Info
+  Info,
+  Loader2
 } from 'lucide-react';
 
 interface Property {
@@ -78,7 +79,7 @@ interface ComparisonSave {
 
 const MAX_PROPERTIES = 3;
 
-export default function ComparePropertiesPage() {
+const ComparePropertiesContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated } = useAuth();
@@ -688,5 +689,20 @@ export default function ComparePropertiesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function InquiriesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center h-96 space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading compare...</p>
+        </div>
+      }
+    >
+      <ComparePropertiesContent />
+    </Suspense>
   );
 }

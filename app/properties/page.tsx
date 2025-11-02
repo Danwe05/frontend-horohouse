@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronDown, Grid, List, SlidersHorizontal, Eye, EyeOff, ChevronUp, MapPin, Map } from "lucide-react";
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { ChevronDown, Grid, List, SlidersHorizontal, Eye, EyeOff, ChevronUp, MapPin, Map, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import MapView from "@/components/property/MapView";
 import PropertyCard from "@/components/property/PropertyCard";
@@ -26,7 +26,7 @@ import apiClient from "@/lib/api";
 import { toast } from "sonner";
 import Footer from "@/components/footer";
 
-const Index = () => {
+const IndexContent = () => {
   const searchParams = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [showMap, setShowMap] = useState(true);
@@ -569,4 +569,17 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default function Index() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center h-96 space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading properties...</p>
+        </div>
+      }
+    >
+      <IndexContent />
+    </Suspense>
+  );
+}
