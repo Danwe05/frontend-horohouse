@@ -14,6 +14,7 @@ interface User {
   profilePicture?: string;
   emailVerified: boolean;
   phoneVerified: boolean;
+  onboardingCompleted?: boolean;
 }
 
 interface AuthContextType {

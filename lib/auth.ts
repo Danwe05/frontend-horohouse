@@ -10,6 +10,7 @@ export interface AuthTokens {
     profilePicture?: string;
     emailVerified: boolean;
     phoneVerified: boolean;
+    onboardingCompleted?: boolean;
   };
 }
 
@@ -167,62 +168,61 @@ class AuthService {
     }
   }
 
+  isTokenExpired(): boolean {
+    const accessToken = this.getAccessToken();
+    if (!accessToken) return true;
+    
+    try {
+      // Decode JWT token to check expiration
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      return payload.exp < currentTime;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return true;
+    }
+  }
 
-isTokenExpired(): boolean {
-  const accessToken = this.getAccessToken();
-  if (!accessToken) return true;
-  
-  try {
-    // Decode JWT token to check expiration
-    const payload = JSON.parse(atob(accessToken.split('.')[1]));
-    const currentTime = Date.now() / 1000;
-    return payload.exp < currentTime;
-  } catch (error) {
-    console.error('Error decoding token:', error);
+  async ensureValidToken(): Promise<boolean> {
+    if (!this.isLoggedIn()) return false;
+    
+    if (this.isTokenExpired()) {
+      const newTokens = await this.refreshToken();
+      return !!newTokens;
+    }
+    
     return true;
   }
-}
 
-async ensureValidToken(): Promise<boolean> {
-  if (!this.isLoggedIn()) return false;
-  
-  if (this.isTokenExpired()) {
-    const newTokens = await this.refreshToken();
-    return !!newTokens;
-  }
-  
-  return true;
-}
+  async verifyToken(): Promise<boolean> {
+    const accessToken = this.getAccessToken();
+    if (!accessToken) return false;
 
-async verifyToken(): Promise<boolean> {
-  const accessToken = this.getAccessToken();
-  if (!accessToken) return false;
-
-  // If expired, try refreshing first
-  if (this.isTokenExpired()) {
-    console.warn("Access token expired, attempting refresh...");
-    const refreshed = await this.refreshToken();
-    return !!refreshed;
-  }
-
-  try {
-    const response = await fetch(`${this.baseUrl}/auth/verify-token`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    if (response.status === 401) {
-      console.warn("Access token invalid, attempting refresh...");
+    // If expired, try refreshing first
+    if (this.isTokenExpired()) {
+      console.warn("Access token expired, attempting refresh...");
       const refreshed = await this.refreshToken();
       return !!refreshed;
     }
 
-    return response.ok;
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    return false;
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/verify-token`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (response.status === 401) {
+        console.warn("Access token invalid, attempting refresh...");
+        const refreshed = await this.refreshToken();
+        return !!refreshed;
+      }
+
+      return response.ok;
+    } catch (error) {
+      console.error("Token verification failed:", error);
+      return false;
+    }
   }
-}
 
   async getProfile() {
     const accessToken = this.getAccessToken();
