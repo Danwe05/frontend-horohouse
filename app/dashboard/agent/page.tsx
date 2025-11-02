@@ -8,7 +8,7 @@ const AgentPage = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar fixe à gauche */}
-      <AppSidebar className="fixed left-0 top-0 h-screen w-60" />
+      <AppSidebar />
 
       {/* Conteneur central et partie droite */}
       <div className="flex-1 p-2 lg:p-4 bg-white lg:bg-transparent"> 
