@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
 import { PatternFormat } from 'react-number-format';
 import PromoSection from '@/components/auth/RightSideAuth';
@@ -9,12 +9,9 @@ import { authService } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Eye, EyeOff, User, Mail, Phone, Lock, ChevronDown } from 'lucide-react';
 
-export default function RegisterPage({ 
-  searchParams 
-}: { 
-  searchParams: { [key: string]: string | string[] | undefined } 
-}) {
+export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isAuthenticated, login } = useAuth();
   
   const [showPassword, setShowPassword] = useState(false);
@@ -47,13 +44,6 @@ export default function RegisterPage({
     { code: "+44", label: "UK", flag: "/Flags/uk.jpg" },
   ];
 
-  // TEMPORARILY COMMENTED OUT - Phone registration
-  /*
-  const [registrationMethod, setRegistrationMethod] = useState<'email' | 'phone'>('email');
-  const [phoneStep, setPhoneStep] = useState(1);
-  const [verificationCode, setVerificationCode] = useState('');
-  */
-
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -85,15 +75,7 @@ export default function RegisterPage({
 
   useEffect(() => {
     if (isAuthenticated) {
-      let redirectTo = '/';
-      const redirectParam = searchParams?.redirect;
-
-      if (Array.isArray(redirectParam)) {
-        redirectTo = redirectParam[0] || '/';
-      } else if (typeof redirectParam === 'string') {
-        redirectTo = redirectParam;
-      }
-
+      const redirectTo = searchParams.get('redirect') || '/';
       router.push(redirectTo);
     }
   }, [isAuthenticated, router, searchParams]);
@@ -184,7 +166,6 @@ export default function RegisterPage({
   const handleEmailRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Mark all fields as touched
     setTouched({
       firstName: true,
       lastName: true,
@@ -194,7 +175,6 @@ export default function RegisterPage({
       role: true,
     });
     
-    // Validate all fields
     const isValid = isFormValid();
     
     if (!isValid) {
