@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { authService } from '@/lib/auth';
 
-const AuthCallbackPage = () => {
+const AuthCallbackContent = () => {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Processing authentication...');
   
@@ -130,6 +130,28 @@ const AuthCallbackPage = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+const AuthCallbackPage = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
+          <Card className="w-full max-w-md border-blue-200 bg-blue-50">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              </div>
+              <CardTitle className="text-xl">Loading...</CardTitle>
+              <CardDescription>Please wait</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      }
+    >
+      <AuthCallbackContent />
+    </Suspense>
   );
 };
 
