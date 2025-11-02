@@ -90,6 +90,12 @@ export const PropertyCard = ({
     }
   };
 
+  // Convert price to number for comparisons
+  const getPriceAsNumber = (price: string | number): number => {
+    const numPrice = typeof price === 'number' ? price : parseFloat(String(price));
+    return isNaN(numPrice) ? 0 : numPrice;
+  };
+
   // Format number with fallback
   const formatNumber = (num: number) => {
     if (!num || num === 0) return null;
@@ -222,7 +228,7 @@ export const PropertyCard = ({
     router.push(`/dashboard/analytics?property=${id}`);
   };
 
-  const handleImageError = (e: React.ImgHTMLAttributes<HTMLImageElement>) => {
+  const handleImageError = () => {
     console.error('Failed to load image:', image);
     setImageError(true);
   };
@@ -232,6 +238,7 @@ export const PropertyCard = ({
     : imageArray;
 
   const formattedTimeAgo = formatTimeAgo(timeAgo);
+  const priceValue = getPriceAsNumber(price);
 
   return (
     <Card 
@@ -372,7 +379,7 @@ export const PropertyCard = ({
             <span className="text-blue-600 font-bold text-lg">
               {formatPrice(price)}
             </span>
-            {type === 'rent' && price > 0 && (
+            {type === 'rent' && priceValue > 0 && (
               <span className="text-xs text-muted-foreground">/month</span>
             )}
           </div>

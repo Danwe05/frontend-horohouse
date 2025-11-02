@@ -66,7 +66,7 @@ export default function SavedProperties() {
         {properties.map((property) => (
           <div
             key={property.id}
-            className="flex bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden shadow-lg p-1"
+            className="flex bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden  p-1"
           >
             {/* Image */}
             <div className="relative w-1/2">

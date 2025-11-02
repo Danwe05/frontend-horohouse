@@ -118,12 +118,10 @@ export const SalesChart = React.forwardRef<HTMLDivElement, SalesChartProps>(
       type === 'bar' ? BarChart : 
       ComposedChart;
 
-    const DataComponent = type === 'line' ? Line : Bar;
-
     // Calculate total and average
-    const firstDataKey = dataKeys[0]?.key;
+    const firstDataKey = dataKeys[0]?.key || 'sales';
     const total = data.reduce((sum, item) => {
-      const value = item[firstDataKey];
+      const value = (item as Record<string, string | number>)[firstDataKey];
       return sum + (typeof value === 'number' ? value : 0);
     }, 0);
     const average = Math.round(total / data.length);
@@ -189,8 +187,8 @@ export const SalesChart = React.forwardRef<HTMLDivElement, SalesChartProps>(
                 tick={{ fill: '#64748b' }}
                 tickFormatter={(value) => {
                   if (typeof value === 'number' && value > 1000) {
-                    return `${(value / 1000).toFixed(0)}k`;
-    XAF               }
+                    return `${(value / 1000).toFixed(0)}k XAF`;
+                   }
                   return value;
                 }}
               />
@@ -228,36 +226,39 @@ export const SalesChart = React.forwardRef<HTMLDivElement, SalesChartProps>(
                   );
                 }
 
-                return (
-                  <DataComponent
-                    key={dataKey.key}
-                    type="monotone"
-                    dataKey={dataKey.key}
-                    name={dataKey.label}
-                    stroke={dataKey.color}
-                    fill={dataKey.color}
-                    strokeWidth={type === 'line' ? strokeWidth : 0}
-                    radius={type === 'bar' ? [8, 8, 0, 0] : 0}
-                    dot={
-                      type === 'line'
-                        ? {
-                            fill: dataKey.color,
-                            r: 4,
-                            strokeWidth: 0,
-                          }
-                        : false
-                    }
-                    activeDot={
-                      type === 'line'
-                        ? {
-                            r: 6,
-                            strokeWidth: 0,
-                          }
-                        : { fill: dataKey.color }
-                    }
-                    opacity={0.85}
-                  />
-                );
+                // Render Line or Bar based on type
+                if (type === 'line') {
+                  return (
+                    <Line
+                      key={dataKey.key}
+                      type="monotone"
+                      dataKey={dataKey.key}
+                      name={dataKey.label}
+                      stroke={dataKey.color}
+                      strokeWidth={strokeWidth}
+                      dot={{
+                        fill: dataKey.color,
+                        r: 4,
+                        strokeWidth: 0,
+                      }}
+                      activeDot={{
+                        r: 6,
+                        strokeWidth: 0,
+                      }}
+                    />
+                  );
+                } else {
+                  return (
+                    <Bar
+                      key={dataKey.key}
+                      dataKey={dataKey.key}
+                      name={dataKey.label}
+                      fill={dataKey.color}
+                      radius={[8, 8, 0, 0]}
+                      opacity={0.85}
+                    />
+                  );
+                }
               })}
             </ChartComponent>
           </ResponsiveContainer>

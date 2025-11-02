@@ -23,7 +23,7 @@ const SingleBarChart = () => {
       data = labels.map(() => Math.floor(Math.random() * 100));
     } else if (period === 'week') {
       labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      data = labels.map((_, i) =>
+      data = labels.map((_:any, i:any) =>
         rawSeries.reduce((sum, series) => {
           const val = series[i];
           return sum + (typeof val === 'number' ? val : 0);
@@ -39,7 +39,7 @@ const SingleBarChart = () => {
     }
 
     const maxValue = Math.max(...data);
-    const seriesData = data.map(value => ({
+    const seriesData = data.map((value: any) => ({
       value,
       itemStyle: {
         borderRadius: [100, 100, 100, 100],

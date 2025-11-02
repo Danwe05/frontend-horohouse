@@ -41,6 +41,8 @@ interface BookingPanelProps {
       totalReviews?: number;
     };
     ownerId?: {
+      rating: any;
+      totalReviews: number;
       _id: string;
       name: string;
       email?: string;
