@@ -114,7 +114,7 @@ export const PropertyCard = ({
   };
 
   const handlePropertyClick = () => {
-    router.push(`/property/[${id}]`);
+    router.push(`/properties/${id}`);
   };
 
   const handleFavoriteToggle = async (e: React.MouseEvent) => {

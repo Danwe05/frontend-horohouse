@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Card,
@@ -132,7 +132,7 @@ interface InquiryStats {
   unread: number;
 }
 
-const InquiriesPage = () => {
+const InquiriesContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -957,4 +957,17 @@ const InquiriesPage = () => {
   );
 };
 
-export default InquiriesPage;
+export default function InquiriesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center h-96 space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading inquiries...</p>
+        </div>
+      }
+    >
+      <InquiriesContent />
+    </Suspense>
+  );
+}
