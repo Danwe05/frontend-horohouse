@@ -15,7 +15,8 @@ import {
   Download,
   AlertCircle,
   Users,
-  Loader2
+  Loader2,
+  LucideIcon
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,8 +30,26 @@ import { useRouter } from 'next/navigation';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
+// Type definitions
+interface KPICardProps {
+  title: string;
+  value: string;
+  change?: number;
+  trend?: 'up' | 'down' | 'neutral';
+  icon: LucideIcon;
+  loading?: boolean;
+}
+
+interface DashboardProps {
+  data: any;
+  dateRange: '7days' | '30days' | '90days' | 'custom';
+  setDateRange: (range: '7days' | '30days' | '90days' | 'custom') => void;
+  loading: boolean;
+  onExport: (format: string) => void;
+}
+
 // KPI Card Component
-const KPICard = ({ title, value, change, trend, icon: Icon, loading }: any) => (
+const KPICard = ({ title, value, change, trend, icon: Icon, loading }: KPICardProps) => (
   <Card className="hover:shadow-lg transition-shadow">
     <CardContent className="p-6">
       {loading ? (
@@ -72,7 +91,7 @@ const LoadingSkeleton = () => (
   <div className="space-y-6">
     <div className="h-8 bg-gray-200 rounded w-64 animate-pulse" />
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {[1, 2, 3, 4].map(i => (
+      {[1, 2, 3, 4].map((i) => (
         <div key={i} className="h-32 bg-gray-200 rounded animate-pulse" />
       ))}
     </div>
@@ -84,7 +103,7 @@ const LoadingSkeleton = () => (
 );
 
 // Regular User Dashboard
-const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport }: any) => {
+const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport }: DashboardProps) => {
   if (loading) return <LoadingSkeleton />;
 
   const kpis = [
@@ -139,7 +158,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
       {/* Insights Alerts */}
       {data?.insights && data.insights.length > 0 && (
         <div className="space-y-3">
-          {data.insights.slice(0, 3).map((insight, idx) => (
+          {data.insights.slice(0, 3).map((insight: string, idx: number) => (
             <Alert key={idx} className="border-blue-200 bg-blue-50">
               <AlertCircle className="h-4 w-4 text-blue-600" />
               <AlertDescription className="text-sm font-medium">
@@ -204,12 +223,12 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ type, percentage }) => `${type} ${percentage}%`}
+                    label={({ type, percentage }: any) => `${type} ${percentage}%`}
                     outerRadius={100}
                     fill="#8884d8"
                     dataKey="count"
                   >
-                    {data.propertyTypeInterest.map((entry, index) => (
+                    {data.propertyTypeInterest.map((_entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -234,7 +253,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
         <CardContent>
           {data?.recentActivity && data.recentActivity.length > 0 ? (
             <div className="space-y-3">
-              {data.recentActivity.map(activity => (
+              {data.recentActivity.map((activity: any) => (
                 <div key={activity.id} className="flex items-start justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -267,7 +286,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
 };
 
 // Agent Dashboard
-const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }:any) => {
+const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: DashboardProps) => {
   if (loading) return <LoadingSkeleton />;
 
   const kpis = [
@@ -372,7 +391,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }:any
           <CardContent>
             {data?.topPerformingListings && data.topPerformingListings.length > 0 ? (
               <div className="space-y-4">
-                {data.topPerformingListings.map((listing, idx) => (
+                {data.topPerformingListings.map((listing: any, idx: number) => (
                   <div key={listing.id} className="border-b last:border-0 pb-4 last:pb-0">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1">
@@ -476,22 +495,20 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }:any
 // Main Analytics Page Component
 const AnalyticsPage = () => {
   const [loading, setLoading] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState(null);
-  const [dateRange, setDateRange] = useState('30days');
-  const [userRole, setUserRole] = useState(null);
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [dateRange, setDateRange] = useState<'7days' | '30days' | '90days' | 'custom'>('30days');
+  const [userRole, setUserRole] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const fetchUserAndAnalytics = async () => {
       try {
-        // Check if user is authenticated
         const isValid = await authService.ensureValidToken();
         if (!isValid) {
           router.push('/auth/login');
           return;
         }
 
-        // Get user info
         const user = authService.getStoredUser();
         if (!user) {
           router.push('/auth/login');
@@ -513,9 +530,9 @@ const AnalyticsPage = () => {
     if (userRole) {
       fetchAnalytics(dateRange);
     }
-  }, [dateRange]);
+  }, [dateRange, userRole]);
 
-  const fetchAnalytics = async (range: any) => {
+  const fetchAnalytics = async (range: '7days' | '30days' | '90days' | 'custom') => {
     setLoading(true);
     try {
       const dateParams = analyticsService.getDateRangePreset(range);
@@ -528,7 +545,7 @@ const AnalyticsPage = () => {
     }
   };
 
-  const handleExport = async (format) => {
+  const handleExport = async (format: any) => {
     try {
       const dateParams = analyticsService.getDateRangePreset(dateRange);
       const blob = await analyticsService.exportData({ ...dateParams, format });

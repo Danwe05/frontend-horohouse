@@ -1,187 +1,150 @@
-import { useState } from "react";
-import { Search, Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { Send, Paperclip, Smile, Phone, Video, MoreVertical } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-type Message = {
+interface ConversationProps {
+  participantName: string;
+  participantAvatar: string;
+}
+
+interface Message {
   id: number;
-  name: string;
-  username: string;
-  message: string;
+  text: string;
+  sender: 'me' | 'them';
   time: string;
-  date: string;
-  unread: number;
-  avatar: string;
-  online?: boolean;
-  lastSeen?: string;
-};
-
-interface ConversationItem {
-  id: number;
-  name: string;
-  avatar: string;
 }
 
-interface MessageListProps {
-  onSelectConversation: (conversation: ConversationItem) => void;
-}
+const Conversation = ({ participantName, participantAvatar }: ConversationProps) => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 1,
+      text: "Hey! I'm interested in the property you listed",
+      sender: 'them',
+      time: '10:30 AM'
+    },
+    {
+      id: 2,
+      text: "Hello! Thanks for your interest. Which property are you referring to?",
+      sender: 'me',
+      time: '10:32 AM'
+    },
+    {
+      id: 3,
+      text: "The 3-bedroom apartment in downtown",
+      sender: 'them',
+      time: '10:33 AM'
+    },
+  ]);
+  
+  const [newMessage, setNewMessage] = useState('');
 
-const initialMessages: Message[] = [
-  {
-    id: 1,
-    name: "David Wilson",
-    username: "David_224",
-    message: "Check the photos I sent to you",
-    time: "22:20",
-    date: "09/05",
-    unread: 3,
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    online: true,
-  },
-  {
-    id: 2,
-    name: "Xabi Alonso",
-    username: "Xabi_203",
-    message: "Great, thank you so much!",
-    time: "22:20",
-    date: "09/05",
-    unread: 7,
-    avatar: "https://randomuser.me/api/portraits/men/12.jpg",
-    online: false,
-    lastSeen: "2h ago"
-  },
-  {
-    id: 3,
-    name: "Edward Davison",
-    username: "Edward",
-    message: "Nice one! The property looks amazing",
-    time: "22:20",
-    date: "09/05",
-    unread: 0,
-    avatar: "https://randomuser.me/api/portraits/men/45.jpg",
-    online: true,
-  },
-  {
-    id: 4,
-    name: "Iren Michels",
-    username: "Iren",
-    message: "More of that. When can we schedule a visit?",
-    time: "22:20",
-    date: "09/05",
-    unread: 1,
-    avatar: "https://randomuser.me/api/portraits/women/60.jpg",
-    online: false,
-    lastSeen: "1d ago"
-  },
-];
+  const handleSendMessage = () => {
+    if (newMessage.trim()) {
+      const message: Message = {
+        id: messages.length + 1,
+        text: newMessage,
+        sender: 'me',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages([...messages, message]);
+      setNewMessage('');
+    }
+  };
 
-export default function MessageList({ onSelectConversation }: MessageListProps) {
-  const [messages] = useState<Message[]>(initialMessages);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const filteredMessages = messages.filter(msg =>
-    msg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    msg.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    msg.message.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="p-6 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              {filteredMessages.length} conversations
-            </p>
-          </div>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-            <Plus className="w-4 h-4 mr-2" />
-            New
-          </Button>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            type="text"
-            placeholder="Search conversations..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+        <div className="flex items-center gap-3">
+          <img
+            src={participantAvatar}
+            alt={participantName}
+            className="w-10 h-10 rounded-full object-cover"
           />
+          <div>
+            <h3 className="font-semibold text-gray-900">{participantName}</h3>
+            <p className="text-xs text-gray-500">Online</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
+            <Phone className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
+            <Video className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
+            <MoreVertical className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
-      {/* Messages List */}
-      <div className="flex-1 overflow-y-auto">
-        {filteredMessages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-32 text-gray-500">
-            <p>No conversations found</p>
-            <p className="text-sm">Try adjusting your search</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-100">
-            {filteredMessages.map((msg) => (
-              <div
-                key={msg.id}
-                onClick={() =>
-                  onSelectConversation({
-                    id: msg.id,
-                    name: msg.name,
-                    avatar: msg.avatar,
-                  })
-                }
-                className="flex items-center gap-4 p-4 hover:bg-blue-50/50 cursor-pointer transition-colors group"
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
+                message.sender === 'me'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-900 border border-gray-200'
+              }`}
+            >
+              <p className="text-sm">{message.text}</p>
+              <p
+                className={`text-xs mt-1 ${
+                  message.sender === 'me' ? 'text-blue-100' : 'text-gray-500'
+                }`}
               >
-                {/* Avatar with Online Indicator */}
-                <div className="relative flex-shrink-0">
-                  <img
-                    src={msg.avatar}
-                    alt={msg.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  {msg.online && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                  )}
-                </div>
-
-                {/* Message Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-gray-900 truncate">
-                      {msg.name}
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500 whitespace-nowrap">
-                        {msg.time}
-                      </span>
-                      {msg.unread > 0 && (
-                        <span className="inline-flex items-center justify-center min-w-5 h-5 text-xs font-semibold text-white bg-blue-500 rounded-full px-1">
-                          {msg.unread}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600 truncate flex-1 mr-2">
-                      {msg.message}
-                    </p>
-                    {!msg.online && msg.lastSeen && (
-                      <span className="text-xs text-gray-400 whitespace-nowrap">
-                        {msg.lastSeen}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+                {message.time}
+              </p>
+            </div>
           </div>
-        )}
+        ))}
+      </div>
+
+      {/* Input Area */}
+      <div className="p-4 border-t border-gray-200 bg-white">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
+            <Paperclip className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
+            <Smile className="w-5 h-5" />
+          </Button>
+          
+          <Input
+            type="text"
+            placeholder="Type a message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="flex-1 border-gray-200 focus:border-blue-500"
+          />
+          
+          <Button
+            onClick={handleSendMessage}
+            disabled={!newMessage.trim()}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Send className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Conversation;
