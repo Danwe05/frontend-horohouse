@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaApple } from 'react-icons/fa';
 import PromotionSection from '@/components/auth/RightSideAuth';
@@ -8,7 +8,7 @@ import { authService } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Mail, Lock, Eye, EyeOff, ChevronDown } from 'lucide-react';
 
-export default function Signin() {
+function SigninContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, login } = useAuth();
@@ -360,5 +360,19 @@ export default function Signin() {
 
       <PromotionSection />
     </div>
+  );
+}
+
+export default function Signin() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-white">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+      }
+    >
+      <SigninContent />
+    </Suspense>
   );
 }
