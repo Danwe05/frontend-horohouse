@@ -4,7 +4,7 @@ import { AppSidebar } from '@/components/dashboard/Sidebar';
 import MessageList from '@/components/dashboard/MessageList';
 import ChatIntro from '@/components/dashboard/ChatIntro';
 import Conversation from '@/components/dashboard/Conversation';
-import { SidebarInset } from '@/components/ui/sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
 
 // Définition du type participant
@@ -23,6 +23,7 @@ const MessagePage = () => {
   };
 
   return (
+    <SidebarProvider>
     <div className="flex min-h-screen w-full">
       {/* Sidebar - Slimmer */}
       <AppSidebar />
@@ -56,6 +57,7 @@ const MessagePage = () => {
         </div>
       </SidebarInset>
     </div>
+    </SidebarProvider>
   );
 };
 

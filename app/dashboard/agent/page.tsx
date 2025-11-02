@@ -11,7 +11,7 @@ const AgentPage = () => {
       <div className="flex min-h-screen bg-gray-50">
         {/* Sidebar fixe à gauche */}
         <AppSidebar />
-       
+        <SidebarInset>
           <NavDash />
           {/* Conteneur central et partie droite */}
           <div className="flex-1 p-2 lg:p-4 bg-white lg:bg-transparent">
@@ -20,6 +20,7 @@ const AgentPage = () => {
               <AgentCardGrid />
             </div>
           </div>
+          </SidebarInset>
       </div>
     </SidebarProvider>
   );
