@@ -1,8 +1,7 @@
 'use client';
 import React from 'react';
 import { AppSidebar } from '@/components/dashboard/Sidebar';
-import AgentsGrid from '@/components/dashboard/AgentGrid';
-import AgentCard from '@/components/dashboard/AgentCard';
+import AgentCardGrid from '@/components/dashboard/AgentGrid';
 
 const AgentPage = () => {
   return (
@@ -13,8 +12,8 @@ const AgentPage = () => {
       {/* Conteneur central et partie droite */}
       <div className="flex-1 p-2 lg:p-4 bg-white lg:bg-transparent"> 
         {/* Contenu central */}
-        <div className=" bg-white ">
-          <AgentCard name={''} username={''} role={''} tasks={0} completion={0} imageUrl={''} age={0} gender={''} city={''} state={''} country={''} rent={0} />
+        <div className="bg-white">
+          <AgentCardGrid />
         </div>
       </div>
     </div>
