@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
 import { PatternFormat } from 'react-number-format';
@@ -9,7 +9,7 @@ import { authService } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Eye, EyeOff, User, Mail, Phone, Lock, ChevronDown } from 'lucide-react';
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, login } = useAuth();
@@ -614,5 +614,19 @@ export default function RegisterPage() {
 
       <PromoSection />
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-white">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+      }
+    >
+      <RegisterContent />
+    </Suspense>
   );
 }
