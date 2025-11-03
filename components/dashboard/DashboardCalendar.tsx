@@ -142,18 +142,18 @@ const DashboardCalendar = () => {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <Card className="border-gray-200">
+      <Card className="border-gray-200 shadow-none">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-800">Calendar</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6 w-full">
+        <CardContent className="lg:py-3 px-3 space-y-6 w-full">
           {/* Calendar */}
           <div className="dx justify-center relatdiv " >
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={handleDateSelect}
-              className="rounded-xl border border-gray-200 bg-white p-4"
+              className="rounded-xl  bg-white p-4"
               style={{ width: 'auto' }}
               modifiers={{
                 hasTasks: (date: Date) => {
@@ -168,7 +168,7 @@ const DashboardCalendar = () => {
           </div>
 
           {/* View Toggle */}
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <h3 className="text-gray-800 font-bold text-lg">Activity</h3>
             <div className="flex space-x-1 bg-blue-50 rounded-lg p-1">
               {['day', 'week', 'month', 'year'].map(v => (

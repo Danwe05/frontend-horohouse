@@ -35,7 +35,7 @@ const WelcomeHorohouse = () => {
   const [greeting, setGreeting] = useState('');
   const [greetingIcon, setGreetingIcon] = useState<ReactNode | null>(null);
   const { user } = useAuth();
-  const displayName = user?.name ? String(user.name).split(' ')[0] : 'Danwe';
+  const displayName = user?.name ? String(user.name).split(' ')[0] : 'HoroHouser';
 
   useEffect(() => {
     const updateGreeting = () => {

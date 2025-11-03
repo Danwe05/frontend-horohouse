@@ -265,7 +265,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
     <div className="space-y-6">
       {/* Agent Information Card */}
       {agent && isAuthenticated && (
-        <div className="bg-card rounded-2xl shadow-lg p-6 space-y-4 border border-border/50">
+        <div className="bg-card rounded-2xl p-6 space-y-4 border border-border/50">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-lg">Listed by</h3>
             {agent.rating && (

@@ -149,7 +149,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
       {/* Enhanced Tabs */}
       <Tabs defaultValue="description" className="w-full">
-        <TabsList className="bg-transparent border-b border-border rounded-none w-full justify-start h-auto p-0 gap-6">
+        <TabsList className="bg-transparent border-b border-border overflow-x-scroll rounded-none w-full justify-start h-auto p-0 gap-6">
           <TabsTrigger 
             value="description"
             className="relative data-[state=active]:text-primary data-[state=active]:font-semibold rounded-none pb-4 px-1 transition-all duration-200 hover:text-foreground"

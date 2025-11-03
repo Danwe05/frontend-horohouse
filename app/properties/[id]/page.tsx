@@ -160,7 +160,7 @@ export default function PropertyDetail() {
             <PropertyDetails property={property} />
             <Neighborhood property={property} />
             <PetPolicy />
-            <Reviews propertyId={property._id} />
+            {/* <Reviews propertyId={property._id} /> */}
             <RentalApplication propertyId={property._id} />
           </div>
 

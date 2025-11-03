@@ -11,7 +11,7 @@ const PetPolicy = () => {
   ];
 
   return (
-    <section className="bg-card rounded-2xl p-6 space-y-6">
+    <section className="bg-card rounded-2xl space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Pet Policy</h2>
         <Badge variant="outline" className="bg-success/10 text-success border-success/20">
@@ -48,11 +48,11 @@ const PetPolicy = () => {
         <ul className="space-y-2 text-sm text-muted-foreground">
           <li className="flex items-start gap-2">
             <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
-            <span>Pet deposit: $500 (refundable)</span>
+            <span>Pet deposit: 5.000 XAF (refundable)</span>
           </li>
           <li className="flex items-start gap-2">
             <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
-            <span>Monthly pet rent: $50 per pet</span>
+            <span>Monthly pet rent: 1.00 XAF per pet</span>
           </li>
           <li className="flex items-start gap-2">
             <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />

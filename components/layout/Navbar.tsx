@@ -365,13 +365,13 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                     {t.nav.dashboard}
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer mb-2">
+                  <DropdownMenuItem onClick={() => router.push('/dashboard/settings?tab=profile')} className="cursor-pointer mb-2">
                     <Settings className="mr-2 h-4 w-4 text-gray-600" />
                     {t.nav.settings}
                   </DropdownMenuItem>
 
                   {user?.role === 'agent' && (
-                    <DropdownMenuItem onClick={() => router.push('/properties/new')} className="cursor-pointer mb-2">
+                    <DropdownMenuItem onClick={() => router.push('/dashboard/propertyForm')} className="cursor-pointer mb-2">
                       <Plus className="mr-2 h-4 w-4 text-gray-600" />
                       {t.nav.addProperty}
                     </DropdownMenuItem>

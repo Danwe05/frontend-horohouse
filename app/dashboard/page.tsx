@@ -451,7 +451,7 @@ const Index = () => {
           <NavDash />
 
           <main className="flex-1">
-            <div className="p-6">
+            <div className="lg:p-6 p-3">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {loadingStats ? (
@@ -484,8 +484,8 @@ const Index = () => {
               {/* Property Listings */}
               <div className="grid grid-cols-1 gap-6">
                 <div className="lg:col-span-2">
-                  <div className="bg-card rounded-lg border p-6">
-                    <div className="flex items-center justify-between mb-6">
+                  <div className="bg-card rounded-lg border shadow-none p-3 lg:p-6">
+                    <div className="flex items-center flex-wrap justify-between mb-6">
                       <div className="flex items-center gap-3">
                         <h2 className="text-lg font-semibold">
                           {isAgent ? "My Properties" : "Recommended Properties"}
@@ -499,7 +499,7 @@ const Index = () => {
                       <div className="flex flex-wrap items-center gap-3">
                         {isAgent && (
                           <div className="w-full sm:w-auto">
-                            <Select value={sortBy} onValueChange={setSortBy}>
+                            <Select value={sortBy} onValueChange={setSortBy} >
                               <SelectTrigger className="w-[160px] sm:w-[160px]">
                                 <SelectValue />
                               </SelectTrigger>

@@ -243,7 +243,7 @@ export const PropertyCard = ({
   return (
     <Card 
       className={cn(
-        "overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer pt-0 pb-0 group relative",
+        "overflow-hidden shadow-none hover:shadow-lg transition-all duration-300 cursor-pointer pt-0 pb-0 group relative",
         isDeleting && "opacity-50 pointer-events-none"
       )}
       onClick={handlePropertyClick}

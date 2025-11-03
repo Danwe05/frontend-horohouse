@@ -33,12 +33,12 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
   };
 
   return (
-    <section className="bg-card rounded-2xl p-6 space-y-8">
-      <h2 className="text-2xl font-bold">Neighborhood</h2>
+    <section className="bg-card rounded-2xlspace-y-8">
+      <h2 className="font-semibold text-2xl">Neighborhood</h2>
 
       {/* Walk Score */}
-      <div className="space-y-4">
-        <h3 className="font-semibold text-lg">Walk Score®</h3>
+      <div className="space-y-4 mb-4">
+        <h3 className="ftext-lg">Walk Score®</h3>
         <div className="grid md:grid-cols-3 gap-6">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -71,7 +71,7 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
       <div className="space-y-4 pt-4 border-t border-border">
         <div className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-lg">Location</h3>
+          <h3 className="font-semibold text-2xl">Location</h3>
         </div>
         <div className="">
           {property.neighborhood && (
@@ -94,8 +94,8 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
 
       {/* Nearby Amenities */}
       {property.nearbyAmenities.length > 0 && (
-        <div className="space-y-4 pt-4 border-t border-border">
-          <h3 className="font-semibold text-lg">Nearby Amenities</h3>
+        <div className="pb-4 pt-4 border-t border-border">
+          <h3 className="font-semibold text-2xl pb-4">Nearby Amenities</h3>
           <div className="grid md:grid-cols-2 gap-3">
             {property.nearbyAmenities.map((amenity, index) => {
               const Icon = getAmenityIcon(amenity);
@@ -119,7 +119,7 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
         <div className="space-y-4 pt-4 border-t border-border">
           <div className="flex items-center gap-2">
             <Train className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-lg">Transport Access</h3>
+            <h3 className="font-semibold text-2xl">Transport Access</h3>
           </div>
           <div className="grid md:grid-cols-2 gap-3">
             {property.transportAccess.map((transport, index) => (

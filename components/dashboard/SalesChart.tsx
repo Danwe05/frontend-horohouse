@@ -130,7 +130,7 @@ export const SalesChart = React.forwardRef<HTMLDivElement, SalesChartProps>(
       <Card
         ref={ref}
         className={cn(
-          'overflow-hidden transition-all duration-300 hover:shadow-lg',
+          'overflow-hidden shadow-none transition-all duration-300',
           className
         )}
       >

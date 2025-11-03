@@ -61,36 +61,11 @@ const PropertyDetails = ({ property }: PropertyDetailsProps) => {
   ];
 
   return (
-    <section className="bg-card rounded-2xl p-6 space-y-6">
-      <h2 className="text-2xl font-bold">Property Details</h2>
-      
-      {/* Key Details */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {details.map((detail) => {
-          const Icon = detail.icon;
-          return (
-            <div key={detail.label} className="space-y-2">
-              <Icon className="h-5 w-5 text-primary" />
-              <p className="text-sm text-muted-foreground">{detail.label}</p>
-              <p className="font-semibold">{detail.value}</p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Specifications Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-border">
-        {specs.map((spec) => (
-          <div key={spec.label} className="flex justify-between items-center py-2">
-            <span className="text-muted-foreground">{spec.label}</span>
-            <span className="font-semibold">{spec.value}</span>
-          </div>
-        ))}
-      </div>
+    <section className="bg-card rounded-2xl py- spacef-y-6">
 
       {/* Additional Features */}
       {additionalFeatures.length > 0 && (
-        <div className="pt-4 border-t border-border">
+        <div className="border-t border-border pt-6">
           <h3 className="font-semibold mb-3">Additional Features</h3>
           <div className="flex flex-wrap gap-2">
             {additionalFeatures.map((feature) => {

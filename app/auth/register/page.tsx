@@ -239,7 +239,7 @@ function RegisterContent() {
   return (
     <div className="min-h-screen flex pt-11  relative">
       {/* Language Switch */}
-      <div className="absolute fixed top-6 right-6 z-50">
+      <div className="absolute hidden lg:fixed top-6 right-6 z-50">
         <div
           onClick={() => setShowLangMenu(!showLangMenu)}
           className="flex items-center gap-2 bg-white text-gray-700 font-semibold rounded-xl px-4 py-2.5 text-xs border border-gray-200 cursor-pointer hover:shadow-md transition-all duration-200 hover:border-blue-300"
@@ -292,7 +292,7 @@ function RegisterContent() {
 
           <form className="space-y-5" onSubmit={handleEmailRegister}>
             {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid lg:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
                   First Name
@@ -564,7 +564,7 @@ function RegisterContent() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid lg:grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={handleGoogleRegister}

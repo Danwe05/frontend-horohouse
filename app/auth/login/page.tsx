@@ -145,7 +145,7 @@ function SigninContent() {
   return (
     <div className="min-h-screen flex pt-11 relative">
       {/* Language Switch */}
-      <div className="absolute fixed top-6 right-6 z-50">
+      <div className="absolute lg:fixed hidden top-6 right-6 z-50">
         <div
           onClick={() => setShowLangMenu(!showLangMenu)}
           className="flex items-center gap-2 bg-white text-gray-700 font-semibold rounded-xl px-4 py-2.5 text-xs border border-gray-200 cursor-pointer hover:shadow-md transition-all duration-200 hover:border-blue-300"
@@ -299,7 +299,7 @@ function SigninContent() {
           </p>
 
           <div className="mt-8">
-            <div className="relative flex items-center justify-center mb-6">
+            <div className="relative flex items-center justify-center mb-6 ">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
@@ -308,7 +308,7 @@ function SigninContent() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid lg:grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={handleGoogleLogin}
