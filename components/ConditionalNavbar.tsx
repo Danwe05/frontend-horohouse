@@ -11,6 +11,8 @@ const ConditionalNavbar = () => {
   const hideNavbar = pathname?.startsWith('/auth/login') || 
                      pathname?.startsWith('/auth/register') ||
                      pathname?.startsWith('/dashboard') ||
+                     pathname?.startsWith('/auth/forgot-password') ||
+                     pathname?.startsWith('/auth/reset-password') ||
                      pathname === '/auth/login' ||
                      pathname === '/auth/register';
   

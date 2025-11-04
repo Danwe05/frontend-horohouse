@@ -128,6 +128,60 @@ class AuthService {
     window.location.href = `${this.baseUrl}/auth/google`;
   }
 
+/**
+ * Request password reset
+ */
+async requestPasswordReset(email: string): Promise<{ message: string }> {
+  const response = await fetch(`${this.baseUrl}/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const error: ApiError = await response.json();
+    throw new Error(error.message || "Failed to send password reset email");
+  }
+
+  return response.json();
+}
+
+/**
+ * Validate reset token
+ */
+async validateResetToken(token: string): Promise<{ valid: boolean; email?: string }> {
+  const response = await fetch(`${this.baseUrl}/auth/validate-reset-token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!response.ok) {
+    return { valid: false };
+  }
+
+  return response.json();
+}
+
+/**
+ * Reset password with token
+ */
+async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  const response = await fetch(`${this.baseUrl}/auth/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, newPassword }),
+  });
+
+  if (!response.ok) {
+    const error: ApiError = await response.json();
+    throw new Error(error.message || "Failed to reset password");
+  }
+
+  return response.json();
+}
+
+
   async logout(): Promise<void> {
     const accessToken = this.getAccessToken();
     if (accessToken) {

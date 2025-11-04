@@ -82,10 +82,10 @@ export default function NotificationDropdown() {
       {/* Notification Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-colors"
+        className="relative w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:border-blue-500 hover:bg-blue-50 transition-colors"
         aria-label={`${unreadCount} notifications`}
       >
-        <Bell className="h-4 w-4 text-gray-600" />
+        <Bell className="h-4 w-4 text-blue-600" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-semibold animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}

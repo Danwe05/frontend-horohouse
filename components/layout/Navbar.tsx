@@ -260,33 +260,33 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
           {/* Search Button */}
           <button
             onClick={() => setIsSearchOpen(!isSearchOpen)}
-            className="hidden md:flex w-9 h-9 items-center justify-center rounded-full border border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-colors"
+            className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:cursor hover:border-blue-500 hover:bg-blue-50 transition-colors"
             aria-label="Search properties"
           >
-            <Search className="h-4 w-4 text-gray-600" />
+            <Search className="h-4 w-4 text-blue-600" />
           </button>
 
           {/* Theme Toggle */}
-          <button
+          {/* <button
             onClick={toggleTheme}
-            className="hidden md:flex w-9 h-9 items-center justify-center rounded-full border border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-colors"
+            className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:cursor hover:border-blue-500 hover:bg-blue-50 transition-colors"
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
           >
             {theme === 'light' ? (
-              <Moon className="h-4 w-4 text-gray-600" />
+              <Moon className="h-4 w-4 text-blue-600" />
             ) : (
-              <Sun className="h-4 w-4 text-gray-600" />
+              <Sun className="h-4 w-4 text-blue-600" />
             )}
-          </button>
+          </button> */}
 
           {/* Language Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className="hidden md:flex w-9 h-9 items-center justify-center rounded-full border border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:cursor hover:border-blue-500 hover:bg-blue-50 transition-colors"
                 aria-label="Change language"
               >
-                <span className="text-lg">{languages[language].flag}</span>
+                <span className="text-lg text-blue-600">{languages[language].flag}</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -306,7 +306,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
           {isAuthenticated ? (
             <>
               {/* Notifications */}
-              <div className="hidden md:block">
+              <div className="hiddend md:block">
                 <NotificationDropdown />
               </div>
 
@@ -314,7 +314,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
               {favoritesCount > 0 && (
                 <Link href="/dashboard/property?favorites=true">
                   <button
-                    className="hidden md:flex relative w-9 h-9 items-center justify-center rounded-full bg-red-50 hover:bg-red-100 transition-colors border border-red-200"
+                    className="hidden md:flex relative w-9 h-9 items-center justify-center rounded-full bg-red-50 hover:bg-red-100 transition-colors "
                     aria-label={`${favoritesCount} favorite properties`}
                   >
                     <Heart className="h-4 w-4 text-red-600 fill-red-600" />
@@ -416,7 +416,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t.search.placeholder}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-100 hover:cursor rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                   autoFocus
                   aria-label={t.search.placeholder}
                 />
