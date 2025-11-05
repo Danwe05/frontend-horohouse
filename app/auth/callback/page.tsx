@@ -18,9 +18,9 @@ const AuthCallbackContent = () => {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const token = searchParams?.get('token');
-        const refreshToken = searchParams?.get('refresh');
-        const error = searchParams?.get('error');
+        const token = searchParams.get('token');
+        const refreshToken = searchParams.get('refresh');
+        const error = searchParams.get('error');
 
         console.log('Callback received:', { token: !!token, refreshToken: !!refreshToken, error });
 
