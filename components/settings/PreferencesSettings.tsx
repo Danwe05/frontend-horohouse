@@ -177,7 +177,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
       {/* Search Preferences */}
       <Card>
         <CardHeader>
@@ -186,13 +186,13 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
             <span>Property Search Preferences</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {/* Price Range */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block">Price Range</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="minPrice">Minimum Price</Label>
+                <Label htmlFor="minPrice" className="text-xs sm:text-sm">Minimum Price</Label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
@@ -201,14 +201,14 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                     value={preferences.minPrice}
                     onChange={(e) => handlePreferenceChange('minPrice', parseInt(e.target.value) || 0)}
                     placeholder="0"
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
                 <p className="text-xs text-gray-500">{formatPrice(preferences.minPrice || 0)}</p>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="maxPrice">Maximum Price</Label>
+                <Label htmlFor="maxPrice" className="text-xs sm:text-sm">Maximum Price</Label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
@@ -217,7 +217,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                     value={preferences.maxPrice}
                     onChange={(e) => handlePreferenceChange('maxPrice', parseInt(e.target.value) || 1000000)}
                     placeholder="1000000"
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
                 <p className="text-xs text-gray-500">{formatPrice(preferences.maxPrice || 1000000)}</p>
@@ -228,31 +228,31 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           {/* Property Types */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block">Preferred Property Types</Label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
               {PROPERTY_TYPES.map((type) => (
                 <button
                   key={type.id}
                   onClick={() => handlePropertyTypeToggle(type.id)}
-                  className={`flex items-center space-x-2 p-3 border rounded-lg transition-colors ${
+                  className={`flex items-center space-x-2 p-2 sm:p-3 border rounded-lg transition-colors text-left ${
                     preferences.propertyTypes?.includes(type.id)
                       ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-300 hover:border-gray-400'
                   }`}
                 >
                   {type.icon}
-                  <span className="text-sm font-medium">{type.label}</span>
+                  <span className="text-xs sm:text-sm font-medium flex-1">{type.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Bedrooms & Bathrooms */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-3 block">Bedrooms</Label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="minBedrooms">Minimum</Label>
+                  <Label htmlFor="minBedrooms" className="text-xs sm:text-sm">Minimum</Label>
                   <div className="relative">
                     <Bed className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
@@ -262,13 +262,13 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                       max="10"
                       value={preferences.minBedrooms}
                       onChange={(e) => handlePreferenceChange('minBedrooms', parseInt(e.target.value) || 1)}
-                      className="pl-10"
+                      className="pl-10 text-sm"
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="maxBedrooms">Maximum</Label>
+                  <Label htmlFor="maxBedrooms" className="text-xs sm:text-sm">Maximum</Label>
                   <div className="relative">
                     <Bed className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
@@ -278,7 +278,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                       max="10"
                       value={preferences.maxBedrooms}
                       onChange={(e) => handlePreferenceChange('maxBedrooms', parseInt(e.target.value) || 5)}
-                      className="pl-10"
+                      className="pl-10 text-sm"
                     />
                   </div>
                 </div>
@@ -287,9 +287,9 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
 
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-3 block">Bathrooms</Label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="minBathrooms">Minimum</Label>
+                  <Label htmlFor="minBathrooms" className="text-xs sm:text-sm">Minimum</Label>
                   <div className="relative">
                     <Bath className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
@@ -299,13 +299,13 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                       max="10"
                       value={preferences.minBathrooms}
                       onChange={(e) => handlePreferenceChange('minBathrooms', parseInt(e.target.value) || 1)}
-                      className="pl-10"
+                      className="pl-10 text-sm"
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="maxBathrooms">Maximum</Label>
+                  <Label htmlFor="maxBathrooms" className="text-xs sm:text-sm">Maximum</Label>
                   <div className="relative">
                     <Bath className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
@@ -315,7 +315,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                       max="10"
                       value={preferences.maxBathrooms}
                       onChange={(e) => handlePreferenceChange('maxBathrooms', parseInt(e.target.value) || 4)}
-                      className="pl-10"
+                      className="pl-10 text-sm"
                     />
                   </div>
                 </div>
@@ -326,9 +326,9 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           {/* Area Range */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block">Area Range (sq ft)</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="minArea">Minimum Area</Label>
+                <Label htmlFor="minArea" className="text-xs sm:text-sm">Minimum Area</Label>
                 <div className="relative">
                   <Square className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
@@ -337,13 +337,13 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                     value={preferences.minArea}
                     onChange={(e) => handlePreferenceChange('minArea', parseInt(e.target.value) || 500)}
                     placeholder="500"
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="maxArea">Maximum Area</Label>
+                <Label htmlFor="maxArea" className="text-xs sm:text-sm">Maximum Area</Label>
                 <div className="relative">
                   <Square className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
@@ -352,7 +352,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                     value={preferences.maxArea}
                     onChange={(e) => handlePreferenceChange('maxArea', parseInt(e.target.value) || 5000)}
                     placeholder="5000"
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
               </div>
@@ -374,17 +374,19 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block">Preferred Cities</Label>
             <div className="space-y-3">
-              <div className="flex space-x-2">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                 <Input
                   value={newCity}
                   onChange={(e) => setNewCity(e.target.value)}
                   placeholder="Add a city..."
                   onKeyPress={(e) => e.key === 'Enter' && handleAddCity()}
+                  className="flex-1 text-sm"
                 />
                 <Button
                   type="button"
                   onClick={handleAddCity}
                   disabled={!newCity.trim()}
+                  className="sm:w-auto"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -396,12 +398,12 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                     <Badge
                       key={city}
                       variant="secondary"
-                      className="flex items-center space-x-1 px-3 py-1"
+                      className="flex items-center space-x-1 px-2 sm:px-3 py-1 text-xs"
                     >
-                      <span>{city}</span>
+                      <span className="max-w-[120px] truncate">{city}</span>
                       <button
                         onClick={() => handleRemoveCity(city)}
-                        className="ml-1 hover:text-red-600"
+                        className="ml-1 hover:text-red-600 flex-shrink-0"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -425,7 +427,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
               step="5"
               value={preferences.maxRadius}
               onChange={(e) => handlePreferenceChange('maxRadius', parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>5 km</span>
@@ -444,23 +446,23 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Property Amenities */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-3 block">Property Amenities</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                 {AMENITIES.map((amenity) => (
                   <button
                     key={amenity.id}
                     onClick={() => handleAmenityToggle(amenity.id)}
-                    className={`flex items-center space-x-2 p-3 border rounded-lg transition-colors ${
+                    className={`flex items-center space-x-2 p-2 sm:p-3 border rounded-lg transition-colors text-left ${
                       preferences.amenities?.includes(amenity.id)
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     {amenity.icon}
-                    <span className="text-sm font-medium">{amenity.label}</span>
+                    <span className="text-xs sm:text-sm font-medium flex-1">{amenity.label}</span>
                   </button>
                 ))}
               </div>
@@ -469,19 +471,19 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
             {/* Nearby Amenities */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-3 block">Nearby Amenities</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                 {NEARBY_AMENITIES.map((amenity) => (
                   <button
                     key={amenity.id}
                     onClick={() => handleAmenityToggle(amenity.id)}
-                    className={`flex items-center space-x-2 p-3 border rounded-lg transition-colors ${
+                    className={`flex items-center space-x-2 p-2 sm:p-3 border rounded-lg transition-colors text-left ${
                       preferences.amenities?.includes(amenity.id)
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     {amenity.icon}
-                    <span className="text-sm font-medium">{amenity.label}</span>
+                    <span className="text-xs sm:text-sm font-medium flex-1">{amenity.label}</span>
                   </button>
                 ))}
               </div>
@@ -492,28 +494,29 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
 
       {/* Message Display */}
       {message && (
-        <div className={`p-4 rounded-md ${
+        <div className={`p-3 sm:p-4 rounded-md ${
           message.type === 'success' 
             ? 'bg-green-50 border border-green-200 text-green-800' 
             : 'bg-red-50 border border-red-200 text-red-800'
         }`}>
           <div className="flex items-center space-x-2">
             {message.type === 'success' ? (
-              <Check className="h-4 w-4" />
+              <Check className="h-4 w-4 flex-shrink-0" />
             ) : (
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
             )}
-            <span className="text-sm">{message.text}</span>
+            <span className="text-sm break-words">{message.text}</span>
           </div>
         </div>
       )}
 
       {/* Save Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg shadow-lg sm:shadow-none sm:bg-transparent sm:p-0 sm:static">
         <Button
           onClick={handleSave}
           disabled={isLoading}
-          className="min-w-32"
+          className="w-full sm:w-auto min-w-32"
+          size="lg"
         >
           {isLoading ? (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -523,6 +526,26 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           {isLoading ? 'Saving...' : 'Save Preferences'}
         </Button>
       </div>
+
+      {/* Add CSS for better slider appearance on mobile */}
+      <style jsx>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #3b82f6;
+          cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #3b82f6;
+          cursor: pointer;
+          border: none;
+        }
+      `}</style>
     </div>
   );
 };

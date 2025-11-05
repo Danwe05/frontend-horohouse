@@ -306,7 +306,8 @@ function RegisterContent() {
 
       <div className="w-full md:w-1/2 md:mr-[50%] flex flex-col justify-center items-center px-6 md:px-16 mb-10">
         <div className="w-full max-w-md">
-          <div className="mb-8">
+          <div className="mb-8 flex justify-center content-center flex-col items-center">
+            <a href="/"><img src="/horohouse.png" alt="" className="h-[130px] w-[130px] mb-2  "/></a>
             <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">
               Welcome to HoroHouse! 
             </h1>

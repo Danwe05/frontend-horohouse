@@ -139,7 +139,7 @@ export default function SettingsPage() {
                     <div className="lg:col-span-1">
                       <div className="sticky top-8">
                         <CardContent className="p-0">
-                          <nav className="space-y-1 lg:row-span-6 overflow-x-scroll flex">
+                          <nav className="space-y-1 lg:row-span-6 lg:overflow-auto overflow-x-scroll flex">
                             {settingsTabs.map((tab) => (
                               <button
                                 key={tab.id}

@@ -240,7 +240,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
   }, {} as Record<string, NotificationPreference[]>);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
       {/* Global Settings */}
       <Card>
         <CardHeader>
@@ -250,18 +250,19 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="space-y-3 sm:space-y-4">
+            {/* Email Notifications */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-blue-100">
+                <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
                   <Mail className="h-4 w-4 text-blue-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Email Notifications</h3>
-                  <p className="text-sm text-gray-500">Receive notifications via email</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Email Notifications</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Receive notifications via email</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
                 <input
                   type="checkbox"
                   checked={globalSettings.email}
@@ -272,17 +273,18 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            {/* SMS Notifications */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-green-100">
+                <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
                   <Smartphone className="h-4 w-4 text-green-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">SMS Notifications</h3>
-                  <p className="text-sm text-gray-500">Receive notifications via SMS</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">SMS Notifications</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Receive notifications via SMS</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
                 <input
                   type="checkbox"
                   checked={globalSettings.sms}
@@ -293,17 +295,18 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            {/* Push Notifications */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-purple-100">
+                <div className="p-2 rounded-full bg-purple-100 flex-shrink-0">
                   <Bell className="h-4 w-4 text-purple-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Push Notifications</h3>
-                  <p className="text-sm text-gray-500">Receive push notifications in browser</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Push Notifications</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Receive push notifications in browser</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
                 <input
                   type="checkbox"
                   checked={globalSettings.push}
@@ -321,23 +324,23 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       {Object.entries(groupedPreferences).map(([category, prefs]) => (
         <Card key={category}>
           <CardHeader>
-            <CardTitle className="text-lg">{getCategoryTitle(category)}</CardTitle>
+            <CardTitle className="text-base sm:text-lg">{getCategoryTitle(category)}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {prefs.map((pref) => (
-                <div key={pref.id} className="border rounded-lg p-4">
+                <div key={pref.id} className="border rounded-lg p-3 sm:p-4">
                   <div className="flex items-start space-x-3 mb-3">
-                    <div className="p-2 rounded-full bg-gray-100">
+                    <div className="p-2 rounded-full bg-gray-100 flex-shrink-0">
                       {pref.icon}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">{pref.title}</h3>
-                      <p className="text-sm text-gray-500">{pref.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 text-sm sm:text-base">{pref.title}</h3>
+                      <p className="text-xs sm:text-sm text-gray-500">{pref.description}</p>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-4 ml-11">
+                  <div className="grid grid-cols-1 xs:grid-cols-3 gap-3 sm:gap-4 ml-0 sm:ml-11">
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
@@ -345,11 +348,11 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                         checked={pref.email && globalSettings.email}
                         onChange={(e) => handlePreferenceChange(pref.id, 'email', e.target.checked)}
                         disabled={!globalSettings.email}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                       />
                       <Label 
                         htmlFor={`${pref.id}-email`} 
-                        className={`text-sm ${!globalSettings.email ? 'text-gray-400' : 'text-gray-700'}`}
+                        className={`text-xs sm:text-sm ${!globalSettings.email ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         Email
                       </Label>
@@ -362,11 +365,11 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                         checked={pref.sms && globalSettings.sms}
                         onChange={(e) => handlePreferenceChange(pref.id, 'sms', e.target.checked)}
                         disabled={!globalSettings.sms}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                       />
                       <Label 
                         htmlFor={`${pref.id}-sms`} 
-                        className={`text-sm ${!globalSettings.sms ? 'text-gray-400' : 'text-gray-700'}`}
+                        className={`text-xs sm:text-sm ${!globalSettings.sms ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         SMS
                       </Label>
@@ -379,11 +382,11 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                         checked={pref.push && globalSettings.push}
                         onChange={(e) => handlePreferenceChange(pref.id, 'push', e.target.checked)}
                         disabled={!globalSettings.push}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                       />
                       <Label 
                         htmlFor={`${pref.id}-push`} 
-                        className={`text-sm ${!globalSettings.push ? 'text-gray-400' : 'text-gray-700'}`}
+                        className={`text-xs sm:text-sm ${!globalSettings.push ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         Push
                       </Label>
@@ -406,39 +409,41 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* Quiet Hours */}
             <div>
               <Label className="text-sm font-medium text-gray-700">Quiet Hours</Label>
-              <p className="text-sm text-gray-500 mb-3">
+              <p className="text-xs sm:text-sm text-gray-500 mb-3">
                 Don't send push notifications during these hours
               </p>
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                 <div className="flex items-center space-x-2">
-                  <Label htmlFor="quiet-start" className="text-sm">From:</Label>
+                  <Label htmlFor="quiet-start" className="text-xs sm:text-sm whitespace-nowrap">From:</Label>
                   <input
                     type="time"
                     id="quiet-start"
                     defaultValue="22:00"
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-2 sm:px-3 py-1 sm:py-2 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
                   />
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Label htmlFor="quiet-end" className="text-sm">To:</Label>
+                  <Label htmlFor="quiet-end" className="text-xs sm:text-sm whitespace-nowrap">To:</Label>
                   <input
                     type="time"
                     id="quiet-end"
                     defaultValue="08:00"
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-2 sm:px-3 py-1 sm:py-2 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
                   />
                 </div>
               </div>
             </div>
 
+            {/* Digest Frequency */}
             <div>
               <Label className="text-sm font-medium text-gray-700">Digest Frequency</Label>
-              <p className="text-sm text-gray-500 mb-3">
+              <p className="text-xs sm:text-sm text-gray-500 mb-3">
                 How often would you like to receive summary emails?
               </p>
-              <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select className="px-2 sm:px-3 py-1 sm:py-2 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
                 <option value="immediate">Immediate</option>
                 <option value="daily">Daily digest</option>
                 <option value="weekly">Weekly digest</option>
@@ -451,28 +456,29 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
 
       {/* Message Display */}
       {message && (
-        <div className={`p-4 rounded-md ${
+        <div className={`p-3 sm:p-4 rounded-md ${
           message.type === 'success' 
             ? 'bg-green-50 border border-green-200 text-green-800' 
             : 'bg-red-50 border border-red-200 text-red-800'
         }`}>
           <div className="flex items-center space-x-2">
             {message.type === 'success' ? (
-              <Check className="h-4 w-4" />
+              <Check className="h-4 w-4 flex-shrink-0" />
             ) : (
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
             )}
-            <span className="text-sm">{message.text}</span>
+            <span className="text-sm break-words">{message.text}</span>
           </div>
         </div>
       )}
 
       {/* Save Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg shadow-lg sm:shadow-none sm:bg-transparent sm:p-0 sm:static">
         <Button
           onClick={handleSave}
           disabled={isLoading}
-          className="min-w-32"
+          className="w-full sm:w-auto min-w-32"
+          size="lg"
         >
           {isLoading ? (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>

@@ -95,13 +95,13 @@ export const NavDash = () => {
     <header className="h-16 bg-card/95 backdrop-blur-md border-b border-border flex items-center justify-between px-6 z-50 supports-[backdrop-filter]:bg-card/80">
       <div className="flex items-center gap-4 flex-1 max-w-xl">
         <SidebarTrigger />
-        <div className="relative flex-1">
+        {/* <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search properties, tenants, or documents..."
             className="pl-10 bg-background/50 border-border/50 focus:bg-background transition-all duration-200"
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="flex items-center gap-3">

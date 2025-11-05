@@ -22,6 +22,8 @@ const AuthCallbackContent = () => {
         const refreshToken = searchParams?.get('refresh');
         const error = searchParams?.get('error');
 
+        console.log('Callback received:', { token: !!token, refreshToken: !!refreshToken, error });
+
         if (error) {
           setStatus('error');
           setMessage(`Authentication failed: ${error}`);
@@ -29,43 +31,69 @@ const AuthCallbackContent = () => {
           return;
         }
 
-        if (token && refreshToken) {
+        if (!token || !refreshToken) {
+          setStatus('error');
+          setMessage('Missing authentication tokens');
+          setTimeout(() => router.push('/auth/login'), 4000);
+          return;
+        }
+
+        // Try to decode the JWT token first to get user info
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          
+          const payload = JSON.parse(jsonPayload);
+          console.log('Decoded token payload:', payload);
+          
+          // Create user object from token with all required fields
+          const userFromToken = {
+            id: payload.sub || payload.id || payload.userId,
+            email: payload.email,
+            phoneNumber: payload.phoneNumber || payload.phone,
+            role: payload.role || 'user',
+            name: payload.name || payload.email?.split('@')[0] || 'User',
+            emailVerified: payload.emailVerified ?? false,
+            phoneVerified: payload.phoneVerified ?? false,
+            onboardingCompleted: payload.onboardingCompleted ?? false,
+            profilePicture: payload.profilePicture || payload.picture,
+          };
+
+          console.log('User from token:', userFromToken);
+
           // Store tokens
           localStorage.setItem('accessToken', token);
           localStorage.setItem('refreshToken', refreshToken);
+          localStorage.setItem('user', JSON.stringify(userFromToken));
           
-          // Get user profile from backend
-          const profile = await authService.getProfile();
+          const authTokens = {
+            accessToken: token,
+            refreshToken: refreshToken,
+            user: userFromToken
+          };
           
-          if (profile) {
-            const authTokens = {
-              accessToken: token,
-              refreshToken: refreshToken,
-              user: profile
-            };
-            
-            // Update auth context
-            login(authTokens);
-            
-            setStatus('success');
-            setMessage('Authentication successful! Redirecting...');
-            
-            // Redirect to dashboard after a short delay
-            setTimeout(() => router.push('/dashboard'), 1500);
-          } else {
-            setStatus('error');
-            setMessage('Failed to retrieve user profile');
-            setTimeout(() => router.push('/auth/login'), 4000);
-          }
-        } else {
+          // Update auth context
+          login(authTokens);
+          
+          setStatus('success');
+          setMessage('Authentication successful! Redirecting...');
+          
+          // Redirect to dashboard after a short delay
+          setTimeout(() => router.push('/dashboard'), 1500);
+
+        } catch (decodeError) {
+          console.error('Token decode error:', decodeError);
           setStatus('error');
-          setMessage('Invalid callback parameters');
+          setMessage('Invalid authentication token. Please try logging in again.');
           setTimeout(() => router.push('/auth/login'), 4000);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Callback handling error:', error);
         setStatus('error');
-        setMessage('An error occurred during authentication');
+        setMessage(error.message || 'An error occurred during authentication');
         setTimeout(() => router.push('/auth/login'), 4000);
       }
     };
@@ -123,9 +151,17 @@ const AuthCallbackContent = () => {
             </p>
           )}
           {status === 'error' && (
-            <p className="text-sm text-muted-foreground">
-              You will be redirected to the login page
-            </p>
+            <>
+              <p className="text-sm text-muted-foreground mb-3">
+                You will be redirected to the login page
+              </p>
+              <button
+                onClick={() => router.push('/auth/login')}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium underline"
+              >
+                Go to login now
+              </button>
+            </>
           )}
         </CardContent>
       </Card>

@@ -78,38 +78,38 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
     }));
   };
 
- const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  try {
-    setUploadingImage(true);
-    await apiClient.uploadProfilePicture(file);
-    await refreshAuth();
-    setMessage({ type: 'success', text: 'Profile picture updated successfully' });
-  } catch (error) {
-    setMessage({ type: 'error', text: 'Failed to upload profile picture' });
-  } finally {
-    setUploadingImage(false);
-  }
-};
+    try {
+      setUploadingImage(true);
+      await apiClient.uploadProfilePicture(file);
+      await refreshAuth();
+      setMessage({ type: 'success', text: 'Profile picture updated successfully' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to upload profile picture' });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
- const handleSave = async () => {
-  try {
-    setIsLoading(true);
-    setMessage(null);
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      setMessage(null);
 
-    await apiClient.updateProfile(formData);
-    await refreshAuth();
+      await apiClient.updateProfile(formData);
+      await refreshAuth();
 
-    setMessage({ type: 'success', text: 'Profile updated successfully' });
-  } catch (error) {
-    console.error('Failed to update profile:', error);
-    setMessage({ type: 'error', text: 'Failed to update profile' });
-  } finally {
-    setIsLoading(false);
-  }
-};
+      setMessage({ type: 'success', text: 'Profile updated successfully' });
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      setMessage({ type: 'error', text: 'Failed to update profile' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getUserInitials = (name: string) => {
     return name
@@ -147,7 +147,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
       {/* Profile Picture Section */}
       <Card>
         <CardHeader>
@@ -157,11 +157,11 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-6">
-            <div className="relative">
-              <Avatar className="w-24 h-24">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <div className="relative flex-shrink-0">
+              <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
                 <AvatarImage src={user.profilePicture} alt={user.name} />
-                <AvatarFallback className="text-xl">
+                <AvatarFallback className="text-lg sm:text-xl">
                   {getUserInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
@@ -172,8 +172,8 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
               )}
             </div>
             
-            <div className="flex-1">
-              <h3 className="font-medium text-gray-900">{user.name}</h3>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-gray-900 text-base sm:text-lg truncate">{user.name}</h3>
               <Badge className={`mt-1 ${getRoleBadgeColor(user.role)}`}>
                 {formatRole(user.role)}
               </Badge>
@@ -181,12 +181,13 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                 Upload a new profile picture. Recommended size: 400x400px
               </p>
               
-              <div className="flex space-x-2 mt-4">
+              <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 mt-4">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingImage}
+                  className="w-full sm:w-auto"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   {uploadingImage ? 'Uploading...' : 'Upload New'}
@@ -214,7 +215,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input
@@ -222,6 +223,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 placeholder="Enter your full name"
+                className="w-full"
               />
             </div>
             
@@ -234,6 +236,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   placeholder="Enter your email"
+                  className="w-full pr-10"
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                   {user.emailVerified ? (
@@ -256,6 +259,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                   value={formData.phoneNumber}
                   onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                   placeholder="Enter your phone number"
+                  className="w-full pr-10"
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                   {user.phoneVerified ? (
@@ -277,6 +281,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                 value={formData.website}
                 onChange={(e) => handleInputChange('website', e.target.value)}
                 placeholder="https://yourwebsite.com"
+                className="w-full"
               />
             </div>
           </div>
@@ -288,8 +293,9 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
               value={formData.bio}
               onChange={(e) => handleInputChange('bio', e.target.value)}
               placeholder="Tell us about yourself..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
+              rows={3}
+              maxLength={500}
             />
             <p className="text-xs text-gray-500">
               {formData.bio.length}/500 characters
@@ -307,7 +313,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div className="space-y-2">
               <Label htmlFor="address">Address</Label>
               <Input
@@ -315,6 +321,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                 value={formData.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 placeholder="Street address"
+                className="w-full"
               />
             </div>
             
@@ -325,16 +332,18 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                 value={formData.city}
                 onChange={(e) => handleInputChange('city', e.target.value)}
                 placeholder="City"
+                className="w-full"
               />
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-2 sm:col-span-2 lg:col-span-1">
               <Label htmlFor="country">Country</Label>
               <Input
                 id="country"
                 value={formData.country}
                 onChange={(e) => handleInputChange('country', e.target.value)}
                 placeholder="Country"
+                className="w-full"
               />
             </div>
           </div>
@@ -351,7 +360,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
                 <Label htmlFor="agency">Agency</Label>
                 <Input
@@ -359,6 +368,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                   value={formData.agency}
                   onChange={(e) => handleInputChange('agency', e.target.value)}
                   placeholder="Real estate agency"
+                  className="w-full"
                 />
               </div>
               
@@ -369,6 +379,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                   value={formData.licenseNumber}
                   onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
                   placeholder="Professional license number"
+                  className="w-full"
                 />
               </div>
             </div>
@@ -385,10 +396,10 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <Label className="text-sm font-medium text-gray-700">Account ID</Label>
-              <p className="text-sm text-gray-900 font-mono mt-1">{user.id}</p>
+              <p className="text-sm text-gray-900 font-mono mt-1 break-all">{user.id}</p>
             </div>
             
             <div>
@@ -407,7 +418,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
             
             <div>
               <Label className="text-sm font-medium text-gray-700">Verification Status</Label>
-              <div className="flex items-center space-x-2 mt-1">
+              <div className="flex items-center space-x-4 mt-1">
                 <div className="flex items-center space-x-1">
                   {user.emailVerified ? (
                     <Check className="h-3 w-3 text-green-500" />
@@ -439,21 +450,22 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
         }`}>
           <div className="flex items-center space-x-2">
             {message.type === 'success' ? (
-              <Check className="h-4 w-4" />
+              <Check className="h-4 w-4 flex-shrink-0" />
             ) : (
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
             )}
-            <span className="text-sm">{message.text}</span>
+            <span className="text-sm break-words">{message.text}</span>
           </div>
         </div>
       )}
 
       {/* Save Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg shadow-lg sm:shadow-none sm:bg-transparent sm:p-0 sm:static">
         <Button
           onClick={handleSave}
           disabled={isLoading}
-          className="min-w-32"
+          className="min-w-32 w-full sm:w-auto"
+          size="lg"
         >
           {isLoading ? (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>

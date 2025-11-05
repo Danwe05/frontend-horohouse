@@ -206,7 +206,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
       {/* Account Statistics */}
       <Card>
         <CardHeader>
@@ -216,57 +216,57 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 border rounded-lg">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="p-3 sm:p-4 border rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Calendar className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-gray-700">Account Age</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-700">Account Age</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{accountStats.accountAge}</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">{accountStats.accountAge}</p>
             </div>
 
-            <div className="p-4 border rounded-lg">
+            <div className="p-3 sm:p-4 border rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Activity className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium text-gray-700">Total Logins</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-700">Total Logins</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{accountStats.totalLogins}</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">{accountStats.totalLogins}</p>
             </div>
 
-            <div className="p-4 border rounded-lg">
+            <div className="p-3 sm:p-4 border rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <HardDrive className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium text-gray-700">Storage Used</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-700">Storage Used</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{accountStats.storageUsed}</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">{accountStats.storageUsed}</p>
             </div>
 
-            <div className="p-4 border rounded-lg">
+            <div className="p-3 sm:p-4 border rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Database className="h-4 w-4 text-orange-600" />
-                <span className="text-sm font-medium text-gray-700">Data Usage</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-700">Data Usage</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{accountStats.dataUsage}</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">{accountStats.dataUsage}</p>
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-gray-700">Account Created:</span>
-                <span className="ml-2 text-gray-600">{formatDate(user.createdAt)}</span>
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+              <div className="flex flex-col sm:flex-row">
+                <span className="font-medium text-gray-700 sm:whitespace-nowrap">Account Created:</span>
+                <span className="sm:ml-2 text-gray-600 break-words">{formatDate(user.createdAt)}</span>
               </div>
-              <div>
-                <span className="font-medium text-gray-700">Last Login:</span>
-                <span className="ml-2 text-gray-600">{formatDate(user.lastLoginAt)}</span>
+              <div className="flex flex-col sm:flex-row">
+                <span className="font-medium text-gray-700 sm:whitespace-nowrap">Last Login:</span>
+                <span className="sm:ml-2 text-gray-600 break-words">{formatDate(user.lastLoginAt)}</span>
               </div>
-              <div>
-                <span className="font-medium text-gray-700">Last Backup:</span>
-                <span className="ml-2 text-gray-600">{formatDate(accountStats.lastBackup)}</span>
+              <div className="flex flex-col sm:flex-row">
+                <span className="font-medium text-gray-700 sm:whitespace-nowrap">Last Backup:</span>
+                <span className="sm:ml-2 text-gray-600 break-words">{formatDate(accountStats.lastBackup)}</span>
               </div>
-              <div>
-                <span className="font-medium text-gray-700">Account Status:</span>
-                <Badge className="ml-2 bg-green-100 text-green-800">Active</Badge>
+              <div className="flex flex-col sm:flex-row sm:items-center">
+                <span className="font-medium text-gray-700 sm:whitespace-nowrap">Account Status:</span>
+                <Badge className="sm:ml-2 bg-green-100 text-green-800 text-xs mt-1 sm:mt-0 w-fit">Active</Badge>
               </div>
             </div>
           </div>
@@ -282,22 +282,24 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Export Data */}
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-blue-100">
+                <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
                   <Download className="h-4 w-4 text-blue-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Export Account Data</h3>
-                  <p className="text-sm text-gray-500">Download all your data in JSON format</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Export Account Data</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Download all your data in JSON format</p>
                 </div>
               </div>
               <Button
                 variant="outline"
                 onClick={handleExportData}
                 disabled={isLoading}
+                className="w-full sm:w-auto mt-2 sm:mt-0"
+                size="sm"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Export
@@ -305,14 +307,14 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
             </div>
 
             {/* Import Data */}
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-green-100">
+                <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
                   <Upload className="h-4 w-4 text-green-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Import Account Data</h3>
-                  <p className="text-sm text-gray-500">Restore data from a previous export</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Import Account Data</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Restore data from a previous export</p>
                 </div>
               </div>
               <div>
@@ -328,6 +330,8 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
                   variant="outline"
                   onClick={() => document.getElementById('import-data')?.click()}
                   disabled={isLoading}
+                  className="w-full sm:w-auto mt-2 sm:mt-0"
+                  size="sm"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Import
@@ -336,20 +340,22 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
             </div>
 
             {/* Create Backup */}
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-purple-100">
+                <div className="p-2 rounded-full bg-purple-100 flex-shrink-0">
                   <Shield className="h-4 w-4 text-purple-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Create Backup</h3>
-                  <p className="text-sm text-gray-500">Create a secure backup of your account</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Create Backup</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Create a secure backup of your account</p>
                 </div>
               </div>
               <Button
                 variant="outline"
                 onClick={handleCreateBackup}
                 disabled={isLoading}
+                className="w-full sm:w-auto mt-2 sm:mt-0"
+                size="sm"
               >
                 <Shield className="h-4 w-4 mr-2" />
                 Backup
@@ -368,31 +374,31 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
               <div className="flex items-start space-x-3">
-                <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                <div>
-                  <h3 className="font-medium text-yellow-900">Data Cleanup Options</h3>
-                  <p className="text-sm text-yellow-700 mt-1">
+                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <div className="min-w-0">
+                  <h3 className="font-medium text-yellow-900 text-sm sm:text-base">Data Cleanup Options</h3>
+                  <p className="text-xs sm:text-sm text-yellow-700 mt-1">
                     These actions will permanently delete specific types of data. This cannot be undone.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Button
                 variant="outline"
                 onClick={() => handleClearData('search-history')}
                 disabled={isLoading}
-                className="justify-start h-auto p-4"
+                className="justify-start h-auto p-3 sm:p-4 text-left"
               >
-                <div className="flex items-center space-x-3">
-                  <Trash2 className="h-4 w-4 text-red-600" />
-                  <div className="text-left">
-                    <p className="font-medium">Clear Search History</p>
-                    <p className="text-sm text-gray-500">Remove all search queries</p>
+                <div className="flex items-center space-x-3 w-full">
+                  <Trash2 className="h-4 w-4 text-red-600 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base">Clear Search History</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Remove all search queries</p>
                   </div>
                 </div>
               </Button>
@@ -401,13 +407,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
                 variant="outline"
                 onClick={() => handleClearData('activity-log')}
                 disabled={isLoading}
-                className="justify-start h-auto p-4"
+                className="justify-start h-auto p-3 sm:p-4 text-left"
               >
-                <div className="flex items-center space-x-3">
-                  <Trash2 className="h-4 w-4 text-red-600" />
-                  <div className="text-left">
-                    <p className="font-medium">Clear Activity Log</p>
-                    <p className="text-sm text-gray-500">Remove browsing activity</p>
+                <div className="flex items-center space-x-3 w-full">
+                  <Trash2 className="h-4 w-4 text-red-600 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base">Clear Activity Log</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Remove browsing activity</p>
                   </div>
                 </div>
               </Button>
@@ -416,13 +422,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
                 variant="outline"
                 onClick={() => handleClearData('message-history')}
                 disabled={isLoading}
-                className="justify-start h-auto p-4"
+                className="justify-start h-auto p-3 sm:p-4 text-left"
               >
-                <div className="flex items-center space-x-3">
-                  <Trash2 className="h-4 w-4 text-red-600" />
-                  <div className="text-left">
-                    <p className="font-medium">Clear Messages</p>
-                    <p className="text-sm text-gray-500">Remove all conversations</p>
+                <div className="flex items-center space-x-3 w-full">
+                  <Trash2 className="h-4 w-4 text-red-600 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base">Clear Messages</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Remove all conversations</p>
                   </div>
                 </div>
               </Button>
@@ -431,13 +437,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
                 variant="outline"
                 onClick={() => setShowDataClearModal(true)}
                 disabled={isLoading}
-                className="justify-start h-auto p-4"
+                className="justify-start h-auto p-3 sm:p-4 text-left"
               >
-                <div className="flex items-center space-x-3">
-                  <Trash2 className="h-4 w-4 text-red-600" />
-                  <div className="text-left">
-                    <p className="font-medium">Clear All Data</p>
-                    <p className="text-sm text-gray-500">Remove all user data</p>
+                <div className="flex items-center space-x-3 w-full">
+                  <Trash2 className="h-4 w-4 text-red-600 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base">Clear All Data</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Remove all user data</p>
                   </div>
                 </div>
               </Button>
@@ -455,22 +461,23 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Deactivate Account */}
-            <div className="flex items-center justify-between p-4 border border-orange-200 rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border border-orange-200 rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-orange-100">
+                <div className="p-2 rounded-full bg-orange-100 flex-shrink-0">
                   <Clock className="h-4 w-4 text-orange-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Deactivate Account</h3>
-                  <p className="text-sm text-gray-500">Temporarily disable your account</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Deactivate Account</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Temporarily disable your account</p>
                 </div>
               </div>
               <Button
                 variant="outline"
                 onClick={() => setShowDeactivateModal(true)}
-                className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                className="w-full sm:w-auto mt-2 sm:mt-0 border-orange-300 text-orange-600 hover:bg-orange-50"
+                size="sm"
               >
                 <Clock className="h-4 w-4 mr-2" />
                 Deactivate
@@ -478,20 +485,21 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
             </div>
 
             {/* Delete Account */}
-            <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border border-red-200 rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-red-100">
+                <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
                   <Trash2 className="h-4 w-4 text-red-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Delete Account</h3>
-                  <p className="text-sm text-gray-500">Permanently delete your account and all data</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Delete Account</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Permanently delete your account and all data</p>
                 </div>
               </div>
               <Button
                 variant="outline"
                 onClick={() => window.location.href = '/settings?tab=privacy#delete-account'}
-                className="border-red-300 text-red-600 hover:bg-red-50"
+                className="w-full sm:w-auto mt-2 sm:mt-0 border-red-300 text-red-600 hover:bg-red-50"
+                size="sm"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
@@ -503,38 +511,39 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
 
       {/* Deactivate Account Modal */}
       {showDeactivateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 rounded-full bg-orange-100">
-                <Clock className="h-5 w-5 text-orange-600" />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
+            <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+              <div className="p-2 rounded-full bg-orange-100 flex-shrink-0">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Deactivate Account</h3>
             </div>
             
-            <div className="space-y-4 mb-6">
+            <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
               <p className="text-sm text-gray-600">
                 Your account will be temporarily disabled. You can reactivate it anytime by logging in again.
               </p>
               
               <div className="space-y-2">
-                <Label htmlFor="deactivate-reason">Reason for deactivation (optional)</Label>
+                <Label htmlFor="deactivate-reason" className="text-sm">Reason for deactivation (optional)</Label>
                 <textarea
                   id="deactivate-reason"
                   value={deactivateReason}
                   onChange={(e) => setDeactivateReason(e.target.value)}
                   placeholder="Help us improve by telling us why you're deactivating..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm"
                   rows={3}
                 />
               </div>
             </div>
             
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <Button
                 onClick={handleDeactivateAccount}
                 disabled={isLoading}
                 className="flex-1 bg-orange-600 hover:bg-orange-700"
+                size="lg"
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -547,6 +556,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
                 variant="outline"
                 onClick={() => setShowDeactivateModal(false)}
                 disabled={isLoading}
+                size="lg"
               >
                 Cancel
               </Button>
@@ -557,37 +567,38 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
 
       {/* Clear All Data Modal */}
       {showDataClearModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 rounded-full bg-red-100">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
+            <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+              <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
+                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Clear All Data</h3>
             </div>
             
-            <div className="space-y-4 mb-6">
+            <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
               <p className="text-sm text-gray-600">
                 This will permanently delete all your data including search history, favorites, messages, and activity logs. This action cannot be undone.
               </p>
               
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-800 font-medium">This will delete:</p>
-                <ul className="text-sm text-red-700 mt-2 space-y-1">
-                  <li>• Search history and saved searches</li>
-                  <li>• Favorite properties</li>
-                  <li>• Message conversations</li>
-                  <li>• Activity and browsing logs</li>
-                  <li>• Preferences and settings</li>
+                <ul className="text-xs sm:text-sm text-red-700 mt-2 space-y-1">
+                  <li className="break-words">• Search history and saved searches</li>
+                  <li className="break-words">• Favorite properties</li>
+                  <li className="break-words">• Message conversations</li>
+                  <li className="break-words">• Activity and browsing logs</li>
+                  <li className="break-words">• Preferences and settings</li>
                 </ul>
               </div>
             </div>
             
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <Button
                 onClick={() => handleClearData('all')}
                 disabled={isLoading}
                 className="flex-1 bg-red-600 hover:bg-red-700"
+                size="lg"
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -600,6 +611,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
                 variant="outline"
                 onClick={() => setShowDataClearModal(false)}
                 disabled={isLoading}
+                size="lg"
               >
                 Cancel
               </Button>
@@ -610,18 +622,18 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
 
       {/* Message Display */}
       {message && (
-        <div className={`p-4 rounded-md ${
+        <div className={`p-3 sm:p-4 rounded-md ${
           message.type === 'success' 
             ? 'bg-green-50 border border-green-200 text-green-800' 
             : 'bg-red-50 border border-red-200 text-red-800'
         }`}>
           <div className="flex items-center space-x-2">
             {message.type === 'success' ? (
-              <Check className="h-4 w-4" />
+              <Check className="h-4 w-4 flex-shrink-0" />
             ) : (
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
             )}
-            <span className="text-sm">{message.text}</span>
+            <span className="text-sm break-words">{message.text}</span>
           </div>
         </div>
       )}

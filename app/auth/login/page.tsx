@@ -7,6 +7,7 @@ import PromotionSection from '@/components/auth/RightSideSignin';
 import { authService } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Mail, Lock, Eye, EyeOff, ChevronDown } from 'lucide-react';
+import Image from 'next/image';
 
 function SigninContent() {
   const router = useRouter();
@@ -233,6 +234,9 @@ function SigninContent() {
       <div className="w-full md:w-1/2 md:mr-[50%] flex flex-col justify-center items-center px-6 md:px-16 bg-white mb-10">
         <div className="w-full max-w-md">
           <div className="mb-8">
+          </div>
+          <div className="mb-8 flex justify-center content-center flex-col items-center">
+            <a href="/"><img src="/horohouse.png" alt="" className="h-[130px] w-[130px] mb-2"/></a>
             <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">
               Welcome Back! 
             </h1>

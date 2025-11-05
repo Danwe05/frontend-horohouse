@@ -256,15 +256,15 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   const getLevelBadge = (level: PrivacySetting['level']) => {
     switch (level) {
       case 'public':
-        return <Badge className="bg-red-100 text-red-800">Public</Badge>;
+        return <Badge className="bg-red-100 text-red-800 text-xs">Public</Badge>;
       case 'registered':
-        return <Badge className="bg-yellow-100 text-yellow-800">Registered Users</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800 text-xs">Registered Users</Badge>;
       case 'agents':
-        return <Badge className="bg-blue-100 text-blue-800">Agents Only</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 text-xs">Agents Only</Badge>;
       case 'private':
-        return <Badge className="bg-green-100 text-green-800">Private</Badge>;
+        return <Badge className="bg-green-100 text-green-800 text-xs">Private</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 text-xs">Unknown</Badge>;
     }
   };
 
@@ -277,7 +277,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   }, {} as Record<string, PrivacySetting[]>);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
       {/* Privacy Overview */}
       <Card>
         <CardHeader>
@@ -287,12 +287,12 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
             <div className="flex items-start space-x-3">
-              <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-              <div>
-                <h3 className="font-medium text-blue-900">Your Privacy Matters</h3>
-                <p className="text-sm text-blue-700 mt-1">
+              <Info className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="min-w-0">
+                <h3 className="font-medium text-blue-900 text-sm sm:text-base">Your Privacy Matters</h3>
+                <p className="text-xs sm:text-sm text-blue-700 mt-1">
                   Control who can see your information and how your data is used. 
                   You can change these settings at any time.
                 </p>
@@ -306,31 +306,31 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
       {Object.entries(groupedSettings).map(([category, settings]) => (
         <Card key={category}>
           <CardHeader>
-            <CardTitle className="text-lg">{getCategoryTitle(category)}</CardTitle>
+            <CardTitle className="text-base sm:text-lg">{getCategoryTitle(category)}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {settings.map((setting) => (
-                <div key={setting.id} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3 flex-1">
-                      <div className="p-2 rounded-full bg-gray-100 mt-1">
+                <div key={setting.id} className="border rounded-lg p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
+                    <div className="flex items-start space-x-3 flex-1 min-w-0">
+                      <div className="p-2 rounded-full bg-gray-100 mt-1 flex-shrink-0">
                         {setting.icon}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="font-medium text-gray-900">{setting.title}</h3>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col xs:flex-row xs:items-center space-y-1 xs:space-y-0 xs:space-x-2 mb-1">
+                          <h3 className="font-medium text-gray-900 text-sm sm:text-base break-words">{setting.title}</h3>
                           {getLevelBadge(setting.level)}
                         </div>
-                        <p className="text-sm text-gray-500 mb-3">{setting.description}</p>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-3">{setting.description}</p>
                         
                         {(setting.category === 'profile' || setting.category === 'communication') && (
-                          <div className="flex items-center space-x-4">
-                            <Label className="text-sm font-medium text-gray-700">Visibility:</Label>
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                            <Label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Visibility:</Label>
                             <select
                               value={setting.level}
                               onChange={(e) => handleLevelChange(setting.id, e.target.value as PrivacySetting['level'])}
-                              className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="px-2 sm:px-3 py-1 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
                               disabled={!setting.enabled}
                             >
                               <option value="private">Private</option>
@@ -343,7 +343,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                       </div>
                     </div>
                     
-                    <label className="relative inline-flex items-center cursor-pointer ml-4">
+                    <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto sm:ml-4">
                       <input
                         type="checkbox"
                         checked={setting.enabled}
@@ -369,40 +369,45 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="space-y-3 sm:space-y-4">
+            {/* Export Data */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-blue-100">
+                <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
                   <Download className="h-4 w-4 text-blue-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Export Your Data</h3>
-                  <p className="text-sm text-gray-500">Download a copy of all your data</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Export Your Data</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Download a copy of all your data</p>
                 </div>
               </div>
               <Button
                 variant="outline"
                 onClick={() => setShowDataExportModal(true)}
+                className="w-full sm:w-auto mt-2 sm:mt-0"
+                size="sm"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Export Data
               </Button>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg border-red-200">
+            {/* Delete Account */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg border-red-200 space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-red-100">
+                <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
                   <Trash2 className="h-4 w-4 text-red-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Delete Account</h3>
-                  <p className="text-sm text-gray-500">Permanently delete your account and all data</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Delete Account</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Permanently delete your account and all data</p>
                 </div>
               </div>
               <Button
                 variant="outline"
                 onClick={() => setShowDeleteAccountModal(true)}
-                className="border-red-300 text-red-600 hover:bg-red-50"
+                className="w-full sm:w-auto mt-2 sm:mt-0 border-red-300 text-red-600 hover:bg-red-50"
+                size="sm"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete Account
@@ -414,18 +419,19 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
 
       {/* Data Export Modal */}
       {showDataExportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Export Your Data</h3>
-            <p className="text-sm text-gray-600 mb-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Export Your Data</h3>
+            <p className="text-sm text-gray-600 mb-4 sm:mb-6">
               This will create a downloadable file containing all your personal data, 
               including profile information, search history, favorites, and messages.
             </p>
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <Button
                 onClick={handleDataExport}
                 disabled={isLoading}
                 className="flex-1"
+                size="lg"
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -438,6 +444,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                 variant="outline"
                 onClick={() => setShowDataExportModal(false)}
                 disabled={isLoading}
+                size="lg"
               >
                 Cancel
               </Button>
@@ -448,36 +455,37 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
 
       {/* Delete Account Modal */}
       {showDeleteAccountModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 rounded-full bg-red-100">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
+            <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+              <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
+                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Delete Account</h3>
             </div>
             
-            <div className="space-y-4 mb-6">
+            <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
               <p className="text-sm text-gray-600">
                 This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
               </p>
               
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-800 font-medium">What will be deleted:</p>
-                <ul className="text-sm text-red-700 mt-2 space-y-1">
-                  <li>• Your profile and personal information</li>
-                  <li>• All saved properties and search history</li>
-                  <li>• Messages and communication history</li>
-                  <li>• Account preferences and settings</li>
+                <ul className="text-xs sm:text-sm text-red-700 mt-2 space-y-1">
+                  <li className="break-words">• Your profile and personal information</li>
+                  <li className="break-words">• All saved properties and search history</li>
+                  <li className="break-words">• Messages and communication history</li>
+                  <li className="break-words">• Account preferences and settings</li>
                 </ul>
               </div>
             </div>
             
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <Button
                 onClick={handleDeleteAccount}
                 disabled={isLoading}
                 className="flex-1 bg-red-600 hover:bg-red-700"
+                size="lg"
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -490,6 +498,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                 variant="outline"
                 onClick={() => setShowDeleteAccountModal(false)}
                 disabled={isLoading}
+                size="lg"
               >
                 Cancel
               </Button>
@@ -500,28 +509,29 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
 
       {/* Message Display */}
       {message && (
-        <div className={`p-4 rounded-md ${
+        <div className={`p-3 sm:p-4 rounded-md ${
           message.type === 'success' 
             ? 'bg-green-50 border border-green-200 text-green-800' 
             : 'bg-red-50 border border-red-200 text-red-800'
         }`}>
           <div className="flex items-center space-x-2">
             {message.type === 'success' ? (
-              <Check className="h-4 w-4" />
+              <Check className="h-4 w-4 flex-shrink-0" />
             ) : (
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
             )}
-            <span className="text-sm">{message.text}</span>
+            <span className="text-sm break-words">{message.text}</span>
           </div>
         </div>
       )}
 
       {/* Save Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg shadow-lg sm:shadow-none sm:bg-transparent sm:p-0 sm:static">
         <Button
           onClick={handleSave}
           disabled={isLoading}
-          className="min-w-32"
+          className="w-full sm:w-auto min-w-32"
+          size="lg"
         >
           {isLoading ? (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>

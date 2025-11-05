@@ -243,7 +243,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
   const strengthInfo = getPasswordStrengthLabel(passwordStrength);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
       {/* Password Change */}
       <Card>
         <CardHeader>
@@ -262,6 +262,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                 value={passwordData.currentPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
                 placeholder="Enter your current password"
+                className="w-full pr-10"
               />
               <button
                 type="button"
@@ -282,6 +283,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                 value={passwordData.newPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
                 placeholder="Enter your new password"
+                className="w-full pr-10"
               />
               <button
                 type="button"
@@ -306,33 +308,33 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                       }`}
                     />
                   </div>
-                  <span className={`text-xs font-medium ${strengthInfo.color}`}>
+                  <span className={`text-xs font-medium ${strengthInfo.color} whitespace-nowrap`}>
                     {strengthInfo.label}
                   </span>
                 </div>
                 
                 <div className="text-xs text-gray-500 space-y-1">
                   <p>Password requirements:</p>
-                  <ul className="space-y-1 ml-4">
+                  <ul className="space-y-1 ml-2 sm:ml-4">
                     <li className={`flex items-center space-x-1 ${passwordData.newPassword.length >= 8 ? 'text-green-600' : 'text-gray-400'}`}>
-                      {passwordData.newPassword.length >= 8 ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                      <span>At least 8 characters</span>
+                      {passwordData.newPassword.length >= 8 ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
+                      <span className="break-words">At least 8 characters</span>
                     </li>
                     <li className={`flex items-center space-x-1 ${/[A-Z]/.test(passwordData.newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
-                      {/[A-Z]/.test(passwordData.newPassword) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                      <span>One uppercase letter</span>
+                      {/[A-Z]/.test(passwordData.newPassword) ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
+                      <span className="break-words">One uppercase letter</span>
                     </li>
                     <li className={`flex items-center space-x-1 ${/[a-z]/.test(passwordData.newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
-                      {/[a-z]/.test(passwordData.newPassword) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                      <span>One lowercase letter</span>
+                      {/[a-z]/.test(passwordData.newPassword) ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
+                      <span className="break-words">One lowercase letter</span>
                     </li>
                     <li className={`flex items-center space-x-1 ${/[0-9]/.test(passwordData.newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
-                      {/[0-9]/.test(passwordData.newPassword) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                      <span>One number</span>
+                      {/[0-9]/.test(passwordData.newPassword) ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
+                      <span className="break-words">One number</span>
                     </li>
                     <li className={`flex items-center space-x-1 ${/[^A-Za-z0-9]/.test(passwordData.newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
-                      {/[^A-Za-z0-9]/.test(passwordData.newPassword) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                      <span>One special character</span>
+                      {/[^A-Za-z0-9]/.test(passwordData.newPassword) ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
+                      <span className="break-words">One special character</span>
                     </li>
                   </ul>
                 </div>
@@ -349,6 +351,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                 value={passwordData.confirmPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                 placeholder="Confirm your new password"
+                className="w-full pr-10"
               />
               <button
                 type="button"
@@ -361,7 +364,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
             
             {passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
               <p className="text-xs text-red-600 flex items-center space-x-1">
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3 flex-shrink-0" />
                 <span>Passwords do not match</span>
               </p>
             )}
@@ -370,7 +373,8 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
           <Button
             onClick={handlePasswordChange}
             disabled={isLoading || !passwordData.currentPassword || !passwordData.newPassword || passwordData.newPassword !== passwordData.confirmPassword}
-            className="w-full"
+            className="w-full sm:w-auto"
+            size="lg"
           >
             {isLoading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -391,9 +395,9 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h3 className="font-medium text-gray-900">Authenticator App</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-gray-900 text-base sm:text-lg">Authenticator App</h3>
               <p className="text-sm text-gray-500 mt-1">
                 Add an extra layer of security to your account using an authenticator app.
               </p>
@@ -416,6 +420,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
               onClick={handleToggle2FA}
               disabled={isLoading}
               variant={twoFactorEnabled ? "outline" : "default"}
+              className="w-full sm:w-auto"
             >
               {isLoading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
@@ -436,26 +441,27 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            {/* Email Verification */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className={`p-2 rounded-full ${user.emailVerified ? 'bg-green-100' : 'bg-yellow-100'}`}>
+                <div className={`p-2 rounded-full flex-shrink-0 ${user.emailVerified ? 'bg-green-100' : 'bg-yellow-100'}`}>
                   <Key className={`h-4 w-4 ${user.emailVerified ? 'text-green-600' : 'text-yellow-600'}`} />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Email Verification</h3>
-                  <p className="text-sm text-gray-500">{user.email}</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Email Verification</h3>
+                  <p className="text-sm text-gray-500 truncate">{user.email}</p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center flex-wrap gap-2 space-x-2 sm:pl-4">
                 {user.emailVerified ? (
-                  <Badge className="bg-green-100 text-green-800">
+                  <Badge className="bg-green-100 text-green-800 whitespace-nowrap">
                     <Check className="h-3 w-3 mr-1" />
                     Verified
                   </Badge>
                 ) : (
                   <>
-                    <Badge className="bg-yellow-100 text-yellow-800">
+                    <Badge className="bg-yellow-100 text-yellow-800 whitespace-nowrap">
                       <AlertTriangle className="h-3 w-3 mr-1" />
                       Pending
                     </Badge>
@@ -464,6 +470,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                       variant="outline"
                       onClick={handleResendEmailVerification}
                       disabled={isLoading}
+                      className="whitespace-nowrap"
                     >
                       Resend Email
                     </Button>
@@ -472,26 +479,27 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            {/* Phone Verification */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className={`p-2 rounded-full ${user.phoneVerified ? 'bg-green-100' : 'bg-yellow-100'}`}>
+                <div className={`p-2 rounded-full flex-shrink-0 ${user.phoneVerified ? 'bg-green-100' : 'bg-yellow-100'}`}>
                   <Smartphone className={`h-4 w-4 ${user.phoneVerified ? 'text-green-600' : 'text-yellow-600'}`} />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Phone Verification</h3>
-                  <p className="text-sm text-gray-500">{user.phoneNumber}</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Phone Verification</h3>
+                  <p className="text-sm text-gray-500 truncate">{user.phoneNumber}</p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center flex-wrap gap-2 space-x-2 sm:pl-4">
                 {user.phoneVerified ? (
-                  <Badge className="bg-green-100 text-green-800">
+                  <Badge className="bg-green-100 text-green-800 whitespace-nowrap">
                     <Check className="h-3 w-3 mr-1" />
                     Verified
                   </Badge>
                 ) : (
                   <>
-                    <Badge className="bg-yellow-100 text-yellow-800">
+                    <Badge className="bg-yellow-100 text-yellow-800 whitespace-nowrap">
                       <AlertTriangle className="h-3 w-3 mr-1" />
                       Pending
                     </Badge>
@@ -500,6 +508,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                       variant="outline"
                       onClick={handleResendPhoneVerification}
                       disabled={isLoading}
+                      className="whitespace-nowrap"
                     >
                       Verify Phone
                     </Button>
@@ -514,17 +523,18 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
       {/* Active Sessions */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <CardTitle className="flex items-center space-x-2">
               <Monitor className="h-5 w-5" />
               <span>Active Sessions</span>
             </CardTitle>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={fetchSessions}
                 disabled={sessionsLoading}
+                className="w-full sm:w-auto"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${sessionsLoading ? 'animate-spin' : ''}`} />
                 Refresh
@@ -534,6 +544,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                 size="sm"
                 onClick={handleTerminateAllSessions}
                 disabled={sessionsLoading}
+                className="w-full sm:w-auto"
               >
                 <X className="h-4 w-4 mr-2" />
                 Terminate All Others
@@ -543,37 +554,37 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
         </CardHeader>
         <CardContent>
           {sessionsLoading ? (
-            <div className="flex items-center justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              <span className="ml-2 text-gray-600">Loading sessions...</span>
+            <div className="flex items-center justify-center p-6 sm:p-8">
+              <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-gray-900"></div>
+              <span className="ml-2 text-gray-600 text-sm sm:text-base">Loading sessions...</span>
             </div>
           ) : sessions.length === 0 ? (
-            <div className="text-center p-8 text-gray-500">
-              <Monitor className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>No active sessions found</p>
+            <div className="text-center p-6 sm:p-8 text-gray-500">
+              <Monitor className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
+              <p className="text-sm sm:text-base">No active sessions found</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {sessions.map((session) => (
-                <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={session.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-full ${session.current ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    <div className={`p-2 rounded-full flex-shrink-0 ${session.current ? 'bg-green-100' : 'bg-gray-100'}`}>
                       <Monitor className={`h-4 w-4 ${session.current ? 'text-green-600' : 'text-gray-600'}`} />
                     </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <h3 className="font-medium text-gray-900">{session.device}</h3>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+                        <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate">{session.device}</h3>
                         {session.current && (
-                          <Badge className="bg-green-100 text-green-800 text-xs">
+                          <Badge className="bg-green-100 text-green-800 text-xs w-fit">
                             Current
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-xs sm:text-sm text-gray-500 truncate">
                         {session.location} • {session.ipAddress}
                       </p>
                       <p className="text-xs text-gray-400 flex items-center space-x-1">
-                        <Clock className="h-3 w-3" />
+                        <Clock className="h-3 w-3 flex-shrink-0" />
                         <span>Last active {formatLastActive(session.lastActive)}</span>
                       </p>
                     </div>
@@ -584,6 +595,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                       variant="outline"
                       size="sm"
                       onClick={() => handleTerminateSession(session.id)}
+                      className="w-full sm:w-auto mt-2 sm:mt-0 sm:ml-4"
                     >
                       <X className="h-4 w-4 mr-2" />
                       Terminate
@@ -605,11 +617,11 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
         }`}>
           <div className="flex items-center space-x-2">
             {message.type === 'success' ? (
-              <Check className="h-4 w-4" />
+              <Check className="h-4 w-4 flex-shrink-0" />
             ) : (
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
             )}
-            <span className="text-sm">{message.text}</span>
+            <span className="text-sm break-words">{message.text}</span>
           </div>
         </div>
       )}
