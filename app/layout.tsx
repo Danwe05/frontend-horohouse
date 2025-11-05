@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Toaster } from 'sonner';
 import ConditionalNavbar from "@/components/ConditionalNavbar";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -39,7 +40,7 @@ export default function RootLayout({
      
 
               {children}
-          
+              <SpeedInsights />
               <Toaster
               position="top-right"
               expand={false}
