@@ -6,6 +6,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Toaster } from 'sonner';
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from "@vercel/analytics/next"
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -40,6 +41,7 @@ export default function RootLayout({
      
 
               {children}
+              <Analytics />
               <SpeedInsights />
               <Toaster
               position="top-right"
