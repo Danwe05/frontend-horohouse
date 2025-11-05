@@ -23,7 +23,8 @@ const storeAuthData = (token: string, refreshToken: string, user: any) => {
   const updates = {
     accessToken: token,
     refreshToken: refreshToken,
-    user: JSON.stringify(user)
+    user: JSON.stringify(user),
+    skipVerification: 'true' // CRITICAL: Skip token verification in AuthContext
   };
 
   Object.entries(updates).forEach(([key, value]) => {
@@ -81,7 +82,9 @@ const AuthCallbackContent = () => {
         console.log('✅ Token decoded successfully:', {
           sub: payload.sub,
           email: payload.email,
-          role: payload.role
+          role: payload.role,
+          exp: payload.exp,
+          expiresIn: payload.exp ? `${Math.floor((payload.exp * 1000 - Date.now()) / 1000)}s` : 'unknown'
         });
 
         // Create user object - streamlined
@@ -99,8 +102,9 @@ const AuthCallbackContent = () => {
 
         console.log('👤 User object created:', userFromToken);
 
-        // Batch storage operations - must happen BEFORE login()
-        console.log('💾 Storing auth data in localStorage...');
+        // CRITICAL: Store auth data with skipVerification flag
+        // This tells AuthContext to skip token expiration checks on next mount
+        console.log('💾 Storing auth data in localStorage (with skipVerification flag)...');
         storeAuthData(token, refreshToken, userFromToken);
         console.log('✅ Auth data stored successfully');
 
@@ -116,12 +120,14 @@ const AuthCallbackContent = () => {
         setStatus('success');
         setMessage('Authentication successful! Redirecting...');
 
-        console.log('🚀 Redirecting to dashboard in 800ms...');
-        // Use replace instead of push to prevent back button issues
+        console.log('🚀 Redirecting to dashboard...');
+        
+        // Use window.location.href for immediate redirect
+        // This bypasses Next.js router and ensures clean navigation
         setTimeout(() => {
-          console.log('➡️ Executing router.replace("/dashboard")');
-          router.replace('/dashboard');
-        }, 800);
+          console.log('➡️ Executing window.location.href = "/dashboard"');
+          window.location.href = '/dashboard';
+        }, 500);
 
       } catch (decodeError) {
         console.error('💥 Token decode error:', decodeError);
