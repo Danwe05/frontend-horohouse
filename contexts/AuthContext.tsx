@@ -42,24 +42,48 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Check if this is a fresh OAuth login (skip verification)
+        const skipVerification = localStorage.getItem('skipVerification');
+        
+        if (skipVerification === 'true') {
+          console.log('🔐 OAuth callback detected - skipping token verification');
+          localStorage.removeItem('skipVerification');
+          
+          const storedUser = authService.getStoredUser();
+          if (storedUser) {
+            setUser(storedUser);
+            setIsLoading(false);
+            return;
+          }
+        }
+
         const storedUser = authService.getStoredUser();
         const accessToken = authService.getAccessToken();
 
         if (storedUser && accessToken) {
-          // Verify token is still valid
-          const isValid = await authService.verifyToken();
-          
-          if (isValid) {
-            setUser(storedUser);
-          } else {
-            // Try to refresh token
+          // Check if token is expired first (local check, no API call)
+          if (authService.isTokenExpired()) {
+            console.log('🔄 Token expired, attempting refresh...');
             const refreshedTokens = await authService.refreshToken();
             if (refreshedTokens) {
               setUser(refreshedTokens.user as User);
             } else {
-              // Clear invalid tokens
               await authService.logout();
             }
+          } else {
+            // Token is valid locally, set user without API verification
+            console.log('✅ Token valid, setting user');
+            setUser(storedUser);
+            
+            // Optionally verify in background (non-blocking)
+            authService.verifyToken().then(isValid => {
+              if (!isValid) {
+                console.warn('⚠️ Background verification failed');
+                // Don't logout, just log warning
+              }
+            }).catch(err => {
+              console.warn('⚠️ Background verification error:', err);
+            });
           }
         }
       } catch (error) {
@@ -93,6 +117,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [user]);
 
   const login = (tokens: AuthTokens) => {
+    console.log('🔐 AuthContext.login called with user:', tokens.user);
     setUser(tokens.user as User);
   };
 
