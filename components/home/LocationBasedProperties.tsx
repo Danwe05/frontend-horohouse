@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import PropertyCard from '@/components/property/PropertyCard';
 import apiClient from '@/lib/api';
 import { toast } from 'sonner';
+import { FaArrowRight } from 'react-icons/fa';
 
 export default function LocationBasedProperties() {
     const [properties, setProperties] = useState<any[]>([]);
@@ -246,7 +247,7 @@ export default function LocationBasedProperties() {
 
     const formattedProperties = properties.map((p) => ({
         id: p._id || p.id,
-        image: p.images?.[0]?.url || "/placeholder.svg",
+        image: p.images?.[0]?.url || "",
         images: p.images?.map((img: any) => img.url) || [],
         price: formatPrice(p.price),
         timeAgo: timeAgoFromDate(p.createdAt),
@@ -433,8 +434,8 @@ export default function LocationBasedProperties() {
                         transition={{ delay: 0.6 }}
                         className="text-center mt-10"
                     >
-                        <a href={`/properties?listingType=rent&city=${userLocation?.city}`} className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors hover:shadow-lg">
-                            View All Properties in {userLocation?.city}
+                        <a href={`/properties?listingType=rent&city=${userLocation?.city}`} className="flex items-center justify-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
+                            See all Properties <FaArrowRight className="text-sm" />
                         </a>
                     </motion.div>
                 )}

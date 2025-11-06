@@ -349,7 +349,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                 className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
                 asChild
               >
-                <a href="/login">
+                <a href="/auth/login">
                   <Lock className="h-4 w-4 mr-2" />
                   Login to See Contact
                 </a>
@@ -718,7 +718,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                 className="h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary px-6"
                 asChild
               >
-                <a href="/login">
+                <a href="/auth/login">
                   <Lock className="h-5 w-5 mr-2" />
                   Login
                 </a>

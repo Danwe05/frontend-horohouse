@@ -89,7 +89,7 @@ export default function TopListing() {
 
   const formattedProperties = properties.map((p) => ({
     id: p._id || p.id,
-    image: p.images?.[0]?.url || "/placeholder.svg",
+    image: p.images?.[0]?.url || "",
     images: p.images?.map((img: any) => img.url) || [],
     price: formatPrice(p.price),
     timeAgo: timeAgoFromDate(p.createdAt),
@@ -135,7 +135,7 @@ export default function TopListing() {
               </p>
             </div>
             <button className="flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
-              View All <FaArrowRight className="text-sm" />
+              See all Properties <FaArrowRight className="text-sm" />
             </button>
           </div>
 
