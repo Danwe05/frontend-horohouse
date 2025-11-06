@@ -1,10 +1,10 @@
 'use client';
 
-import { FaXTwitter, FaInstagram, FaYoutube, FaLinkedin } from "react-icons/fa6";
+import { FaXTwitter, FaInstagram, FaYoutube, FaLinkedin, FaFacebook } from "react-icons/fa6";
 import { motion } from "framer-motion";
 
 const socialLinks = [
-  { icon: FaXTwitter, href: "https://twitter.com/horohouse", label: "Twitter" },
+  { icon: FaFacebook, href: "https://facebook.com/horohouse", label: "Facebook" },
   { icon: FaInstagram, href: "https://instagram.com/horohouse", label: "Instagram" },
   { icon: FaYoutube, href: "https://youtube.com/horohouse", label: "YouTube" },
   { icon: FaLinkedin, href: "https://linkedin.com/company/horohouse", label: "LinkedIn" },
@@ -70,7 +70,6 @@ export default function Footer() {
               className="lg:col-span-1"
             >
               <motion.img
-                whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
                 src="/logoHoroHouseWhite.png"
                 alt="HoroHouse Logo"
@@ -89,9 +88,8 @@ export default function Footer() {
                       key={index}
                       href={social.href}
                       aria-label={social.label}
-                      whileHover={{ y: -5, scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
-                      className="w-11 h-11 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white hover:text-blue-600 transition-all duration-300 shadow-lg"
+                      className="w-11 h-11 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-full hover:bg-white hover:text-blue-600 transition-all duration-300"
                     >
                       <Icon className="text-xl" />
                     </motion.a>
