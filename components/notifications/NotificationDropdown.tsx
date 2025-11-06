@@ -1,4 +1,3 @@
-// components/NotificationDropdown.tsx - RESPONSIVE VERSION
 'use client';
 
 import React from 'react';
@@ -140,7 +139,7 @@ export default function NotificationDropdown() {
         <>
           {/* Backdrop - Enhanced for mobile */}
           <div
-            className="fixed inset-0 z-40 bg-black/20 md:bg-black/20"
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
             aria-hidden="true"
           />

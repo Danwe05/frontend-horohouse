@@ -34,6 +34,11 @@ class ApiClient {
     // Request interceptor to add auth token and handle token refresh
     this.client.interceptors.request.use(
       async (config: any) => {
+        // Skip authentication for public endpoints
+        if (config.skipAuth) {
+          return config;
+        }
+
         if (typeof window !== 'undefined') {
           // Check if token is expired before making the request
           if (authService.isTokenExpired()) {
@@ -98,6 +103,11 @@ class ApiClient {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
+
+        // Don't retry authentication for public endpoints
+        if (originalRequest.skipAuth) {
+          return Promise.reject(error);
+        }
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
@@ -244,7 +254,7 @@ class ApiClient {
     return response.data;
   }
 
-  // Properties endpoints
+  // Properties endpoints - PUBLIC ACCESS
   async getMyProperties(params?: any) {
     const response = await this.client.get('/properties/my/properties', { params });
     return response.data;
@@ -266,34 +276,52 @@ class ApiClient {
   }
 
   async getProperty(id: string) {
-    const response = await this.client.get(`/properties/${id}`);
+    // Public endpoint - no auth required
+    const response = await this.client.get(`/properties/${id}`, {
+      skipAuth: true
+    } as any);
     return response.data;
   }
 
   async searchProperties(params: any) {
-    const response = await this.client.get('/properties', { params });
+    // Public endpoint - no auth required
+    const response = await this.client.get('/properties', { 
+      params,
+      skipAuth: true
+    } as any);
     return response.data;
   }
 
   async getFeaturedProperties(limit = 10) {
-    const response = await this.client.get(`/properties/featured?limit=${limit}`);
+    // Public endpoint - no auth required
+    const response = await this.client.get(`/properties/featured?limit=${limit}`, {
+      skipAuth: true
+    } as any);
     return response.data;
   }
 
   async getRecentProperties(limit = 10) {
-    const response = await this.client.get(`/properties/recent?limit=${limit}`);
+    // Public endpoint - no auth required
+    const response = await this.client.get(`/properties/recent?limit=${limit}`, {
+      skipAuth: true
+    } as any);
     return response.data;
   }
 
   async getMostViewedProperties(limit = 10) {
-    const response = await this.client.get(`/properties/most-viewed?limit=${limit}`);
+    // Public endpoint - no auth required
+    const response = await this.client.get(`/properties/most-viewed?limit=${limit}`, {
+      skipAuth: true
+    } as any);
     return response.data;
   }
 
   async getSimilarProperties(propertyId: string, city?: string, type?: string) {
+    // Public endpoint - no auth required
     const response = await this.client.get(`/properties/${propertyId}/similar`, {
-      params: { limit: 6 }
-    });
+      params: { limit: 6 },
+      skipAuth: true
+    } as any);
     return response.data;
   }
 
@@ -360,12 +388,18 @@ class ApiClient {
   }
 
   async getPopularCities(limit = 10, timeframe = 30) {
-    const response = await this.client.get(`/history/popular-cities?limit=${limit}&timeframe=${timeframe}`);
+    // Public endpoint - no auth required
+    const response = await this.client.get(`/history/popular-cities?limit=${limit}&timeframe=${timeframe}`, {
+      skipAuth: true
+    } as any);
     return response.data;
   }
 
   async getSearchTrends(timeframe = 7, limit = 20) {
-    const response = await this.client.get(`/history/search-trends?timeframe=${timeframe}&limit=${limit}`);
+    // Public endpoint - no auth required
+    const response = await this.client.get(`/history/search-trends?timeframe=${timeframe}&limit=${limit}`, {
+      skipAuth: true
+    } as any);
     return response.data;
   }
 
@@ -484,63 +518,63 @@ class ApiClient {
     return response.data;
   }
 
- // Inquiry endpoints
-async getInquiryStats() {
-  const response = await this.client.get('/inquiries/stats');
-  return response.data;
-}
+  // Inquiry endpoints
+  async getInquiryStats() {
+    const response = await this.client.get('/inquiries/stats');
+    return response.data;
+  }
 
-async sendInquiry(data: {
-  propertyId: string;
-  message: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  type?: string;
-  preferredContactMethod?: string;
-  preferredContactTime?: string;
-  viewingDate?: Date;
-  budget?: number;
-  moveInDate?: Date;
-  contactEmail?: string;
-  contactPhone?: string;
-}) {
-  const response = await this.client.post('/inquiries', data);
-  return response.data;
-}
+  async sendInquiry(data: {
+    propertyId: string;
+    message: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    type?: string;
+    preferredContactMethod?: string;
+    preferredContactTime?: string;
+    viewingDate?: Date;
+    budget?: number;
+    moveInDate?: Date;
+    contactEmail?: string;
+    contactPhone?: string;
+  }) {
+    const response = await this.client.post('/inquiries', data);
+    return response.data;
+  }
 
-async getPropertyInquiries(propertyId: string) {
-  const response = await this.client.get(`/inquiries/property/${propertyId}`);
-  return response.data;
-}
+  async getPropertyInquiries(propertyId: string) {
+    const response = await this.client.get(`/inquiries/property/${propertyId}`);
+    return response.data;
+  }
 
-async getMyInquiries(params?: any) {
-  const response = await this.client.get('/inquiries', { params });
-  return response.data;
-}
+  async getMyInquiries(params?: any) {
+    const response = await this.client.get('/inquiries', { params });
+    return response.data;
+  }
 
-async getInquiry(id: string) {
-  const response = await this.client.get(`/inquiries/${id}`);
-  return response.data;
-}
+  async getInquiry(id: string) {
+    const response = await this.client.get(`/inquiries/${id}`);
+    return response.data;
+  }
 
-async updateInquiry(id: string, data: {
-  response?: string;
-  status?: string;
-}) {
-  const response = await this.client.patch(`/inquiries/${id}`, data);
-  return response.data;
-}
+  async updateInquiry(id: string, data: {
+    response?: string;
+    status?: string;
+  }) {
+    const response = await this.client.patch(`/inquiries/${id}`, data);
+    return response.data;
+  }
 
-async markInquiryAsRead(id: string) {
-  const response = await this.client.patch(`/inquiries/${id}/read`);
-  return response.data;
-}
+  async markInquiryAsRead(id: string) {
+    const response = await this.client.patch(`/inquiries/${id}/read`);
+    return response.data;
+  }
 
-async deleteInquiry(id: string) {
-  const response = await this.client.delete(`/inquiries/${id}`);
-  return response.data;
-}
+  async deleteInquiry(id: string) {
+    const response = await this.client.delete(`/inquiries/${id}`);
+    return response.data;
+  }
 
   // Notification endpoints
   async getNotifications(params?: { limit?: number; skip?: number; unreadOnly?: boolean }) {

@@ -19,8 +19,16 @@ interface UseNotificationsReturn {
   refreshNotifications: () => Promise<void>;
 }
 
+// Storage keys
+const STORAGE_KEY_NOTIFICATIONS = 'user_notifications';
+const STORAGE_KEY_UNREAD_COUNT = 'user_unread_count';
+const STORAGE_KEY_LAST_FETCH = 'user_notifications_last_fetch';
+
+// Cache duration in milliseconds (5 minutes)
+const CACHE_DURATION = 5 * 60 * 1000;
+
 export function useNotifications(): UseNotificationsReturn {
-  const { isAuthenticated, isLoading: authIsLoading } = useAuth();
+  const { isAuthenticated, isLoading: authIsLoading, user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
@@ -29,14 +37,112 @@ export function useNotifications(): UseNotificationsReturn {
   
   // Use ref to track if initial load is complete
   const hasLoadedInitial = useRef(false);
+  const hasRestoredFromStorage = useRef(false);
+  const isLoadingRef = useRef(false); // Prevent duplicate loads
+
+  /**
+   * Save notifications to localStorage
+   */
+  const saveToStorage = useCallback((notifs: Notification[], count: number) => {
+    if (!user?.id) return;
+    
+    try {
+      localStorage.setItem(
+        `${STORAGE_KEY_NOTIFICATIONS}_${user.id}`,
+        JSON.stringify(notifs)
+      );
+      localStorage.setItem(
+        `${STORAGE_KEY_UNREAD_COUNT}_${user.id}`,
+        String(count)
+      );
+      localStorage.setItem(
+        `${STORAGE_KEY_LAST_FETCH}_${user.id}`,
+        String(Date.now())
+      );
+    } catch (err) {
+      console.warn('Failed to save notifications to storage:', err);
+    }
+  }, [user?.id]);
+
+  /**
+   * Load notifications from localStorage
+   */
+  const loadFromStorage = useCallback((): { notifications: Notification[], unreadCount: number, lastFetch: number } | null => {
+    if (!user?.id) return null;
+
+    try {
+      const storedNotifications = localStorage.getItem(`${STORAGE_KEY_NOTIFICATIONS}_${user.id}`);
+      const storedCount = localStorage.getItem(`${STORAGE_KEY_UNREAD_COUNT}_${user.id}`);
+      const storedLastFetch = localStorage.getItem(`${STORAGE_KEY_LAST_FETCH}_${user.id}`);
+
+      if (storedNotifications) {
+        return {
+          notifications: JSON.parse(storedNotifications),
+          unreadCount: storedCount ? parseInt(storedCount, 10) : 0,
+          lastFetch: storedLastFetch ? parseInt(storedLastFetch, 10) : 0
+        };
+      }
+    } catch (err) {
+      console.warn('Failed to load notifications from storage:', err);
+    }
+
+    return null;
+  }, [user?.id]);
+
+  /**
+   * Clear storage for current user
+   */
+  const clearStorage = useCallback(() => {
+    if (!user?.id) return;
+    
+    try {
+      localStorage.removeItem(`${STORAGE_KEY_NOTIFICATIONS}_${user.id}`);
+      localStorage.removeItem(`${STORAGE_KEY_UNREAD_COUNT}_${user.id}`);
+      localStorage.removeItem(`${STORAGE_KEY_LAST_FETCH}_${user.id}`);
+    } catch (err) {
+      console.warn('Failed to clear storage:', err);
+    }
+  }, [user?.id]);
+
+  /**
+   * Check if cache is still valid
+   */
+  const isCacheValid = useCallback((lastFetch: number): boolean => {
+    return Date.now() - lastFetch < CACHE_DURATION;
+  }, []);
+
+  /**
+   * Restore from storage on mount
+   */
+  useEffect(() => {
+    if (!authIsLoading && isAuthenticated && user?.id && !hasRestoredFromStorage.current) {
+      console.log('📦 Restoring notifications from storage...');
+      const stored = loadFromStorage();
+      
+      if (stored && stored.notifications.length > 0) {
+        console.log('✅ Restored', stored.notifications.length, 'notifications from storage');
+        setNotifications(stored.notifications);
+        setUnreadCount(stored.unreadCount);
+        
+        // Check if cache is still valid
+        if (isCacheValid(stored.lastFetch)) {
+          console.log('✅ Cache is valid, skipping API call');
+          hasLoadedInitial.current = true; // Skip initial API load
+        }
+      }
+      
+      hasRestoredFromStorage.current = true;
+    }
+  }, [authIsLoading, isAuthenticated, user?.id, loadFromStorage, isCacheValid]);
 
   /**
    * Load notifications from API
    */
   const loadNotifications = useCallback(async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isLoadingRef.current) return;
 
     try {
+      isLoadingRef.current = true;
       setIsLoadingNotifications(true);
       setError(null);
       
@@ -53,14 +159,30 @@ export function useNotifications(): UseNotificationsReturn {
       const uniqueNotifications = Array.from(uniqueMap.values());
 
       setNotifications(uniqueNotifications);
+      
+      // Calculate unread count from notifications
+      const unread = uniqueNotifications.filter(n => !n.read).length;
+      setUnreadCount(unread);
+      
+      // Save to storage
+      saveToStorage(uniqueNotifications, unread);
+      
       console.log('✅ Loaded notifications:', uniqueNotifications.length);
     } catch (err: any) {
       console.error('❌ Failed to load notifications:', err);
-      setError(err.response?.data?.message || 'Failed to load notifications');
+      
+      // If rate limited, use cached data
+      if (err.response?.status === 429) {
+        console.log('⚠️ Rate limited, using cached data');
+        setError('Rate limited. Showing cached notifications.');
+      } else {
+        setError(err.response?.data?.message || 'Failed to load notifications');
+      }
     } finally {
       setIsLoadingNotifications(false);
+      isLoadingRef.current = false;
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, saveToStorage]);
 
   /**
    * Load unread count from API
@@ -71,53 +193,81 @@ export function useNotifications(): UseNotificationsReturn {
     try {
       const response = await apiClient.getUnreadNotificationCount();
       setUnreadCount(response.count);
+      
+      // Update storage with new count
+      saveToStorage(notifications, response.count);
+      
       console.log('✅ Loaded unread count:', response.count);
-    } catch (err) {
+    } catch (err: any) {
       console.error('❌ Failed to load unread count:', err);
+      
+      // If rate limited, calculate from local data
+      if (err.response?.status === 429) {
+        const localCount = notifications.filter(n => !n.read).length;
+        setUnreadCount(localCount);
+        console.log('⚠️ Rate limited, using local count:', localCount);
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, notifications, saveToStorage]);
 
   /**
    * Mark notification as read
    */
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
+      // Optimistic update first
+      const updatedNotifications = notifications.map(n => 
+        n._id === notificationId ? { ...n, read: true } : n
+      );
+      const newUnreadCount = Math.max(0, unreadCount - 1);
+      
+      setNotifications(updatedNotifications);
+      setUnreadCount(newUnreadCount);
+      
+      // Save to storage
+      saveToStorage(updatedNotifications, newUnreadCount);
+      
+      // Then call API
       await apiClient.markNotificationAsRead(notificationId);
       
-      // Optimistic update
-      setNotifications(prev => 
-        prev.map(n => n._id === notificationId ? { ...n, read: true } : n)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-      
       console.log('✅ Marked notification as read:', notificationId);
-    } catch (err) {
+    } catch (err:any) {
       console.error('❌ Failed to mark notification as read:', err);
-      // Revert optimistic update
-      await loadNotifications();
-      await loadUnreadCount();
+      // Revert optimistic update only if not rate limited
+      if (err.response?.status !== 429) {
+        await loadNotifications();
+        await loadUnreadCount();
+      }
     }
-  }, [loadNotifications, loadUnreadCount]);
+  }, [notifications, unreadCount, saveToStorage, loadNotifications, loadUnreadCount]);
 
   /**
    * Mark all notifications as read
    */
   const markAllAsRead = useCallback(async () => {
     try {
-      await apiClient.markAllNotificationsAsRead();
-      
       // Optimistic update
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      const updatedNotifications = notifications.map(n => ({ ...n, read: true }));
+      
+      setNotifications(updatedNotifications);
       setUnreadCount(0);
       
+      // Save to storage
+      saveToStorage(updatedNotifications, 0);
+      
+      // Then call API
+      await apiClient.markAllNotificationsAsRead();
+      
       console.log('✅ Marked all notifications as read');
-    } catch (err) {
+    } catch (err:any) {
       console.error('❌ Failed to mark all notifications as read:', err);
-      // Revert optimistic update
-      await loadNotifications();
-      await loadUnreadCount();
+      // Revert optimistic update only if not rate limited
+      if (err.response?.status !== 429) {
+        await loadNotifications();
+        await loadUnreadCount();
+      }
     }
-  }, [loadNotifications, loadUnreadCount]);
+  }, [notifications, saveToStorage, loadNotifications, loadUnreadCount]);
 
   /**
    * Delete notification
@@ -126,41 +276,59 @@ export function useNotifications(): UseNotificationsReturn {
     try {
       const notification = notifications.find(n => n._id === notificationId);
       
-      await apiClient.deleteNotification(notificationId);
-      
       // Optimistic update
-      setNotifications(prev => prev.filter(n => n._id !== notificationId));
+      const updatedNotifications = notifications.filter(n => n._id !== notificationId);
+      let newUnreadCount = unreadCount;
       
       if (notification && !notification.read) {
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        newUnreadCount = Math.max(0, unreadCount - 1);
       }
       
+      setNotifications(updatedNotifications);
+      setUnreadCount(newUnreadCount);
+      
+      // Save to storage
+      saveToStorage(updatedNotifications, newUnreadCount);
+      
+      // Then call API
+      await apiClient.deleteNotification(notificationId);
+      
       console.log('✅ Deleted notification:', notificationId);
-    } catch (err) {
+    } catch (err:any) {
       console.error('❌ Failed to delete notification:', err);
-      // Revert optimistic update
-      await loadNotifications();
-      await loadUnreadCount();
+      // Revert optimistic update only if not rate limited
+      if (err.response?.status !== 429) {
+        await loadNotifications();
+        await loadUnreadCount();
+      }
     }
-  }, [notifications, loadNotifications, loadUnreadCount]);
+  }, [notifications, unreadCount, saveToStorage, loadNotifications, loadUnreadCount]);
 
   /**
    * Delete all read notifications
    */
   const deleteAllRead = useCallback(async () => {
     try {
+      // Optimistic update
+      const updatedNotifications = notifications.filter(n => !n.read);
+      
+      setNotifications(updatedNotifications);
+      
+      // Save to storage
+      saveToStorage(updatedNotifications, unreadCount);
+      
+      // Then call API
       await apiClient.deleteAllReadNotifications();
       
-      // Optimistic update
-      setNotifications(prev => prev.filter(n => !n.read));
-      
       console.log('✅ Deleted all read notifications');
-    } catch (err) {
+    } catch (err:any) {
       console.error('❌ Failed to delete read notifications:', err);
-      // Revert optimistic update
-      await loadNotifications();
+      // Revert optimistic update only if not rate limited
+      if (err.response?.status !== 429) {
+        await loadNotifications();
+      }
     }
-  }, [loadNotifications]);
+  }, [notifications, unreadCount, saveToStorage, loadNotifications]);
 
   /**
    * Refresh notifications and count
@@ -173,24 +341,93 @@ export function useNotifications(): UseNotificationsReturn {
    * Initialize WebSocket connection and load initial data
    */
   useEffect(() => {
-    // If auth is still initializing, do nothing yet. This prevents
-    // clearing notifications on page refresh while the auth provider
-    // is rehydrating stored tokens/user.
-  if (!authIsLoading && !isAuthenticated) {
-      // Disconnect socket and clear data when explicitly not authenticated
-      socketService.disconnect();
-      setNotifications([]);
-      setUnreadCount(0);
-      setIsConnected(false);
-      hasLoadedInitial.current = false;
+    console.log('🔍 useNotifications effect triggered:', { 
+      authIsLoading, 
+      isAuthenticated,
+      userId: user?.id,
+      hasLoadedInitial: hasLoadedInitial.current,
+      hasRestoredFromStorage: hasRestoredFromStorage.current,
+      notificationCount: notifications.length 
+    });
+
+    // Wait for auth to finish loading before doing anything
+    if (authIsLoading) {
+      console.log('⏳ Auth is still loading, waiting...');
       return;
     }
 
-    // Load initial data from API
-    if (!hasLoadedInitial.current) {
-      loadNotifications();
-      loadUnreadCount();
-      hasLoadedInitial.current = true;
+    // If user is not authenticated after auth has finished loading, clean up
+    if (!isAuthenticated) {
+      console.log('🚪 User not authenticated, cleaning up...');
+      
+      // Only clean up if we had previously loaded data
+      if (hasLoadedInitial.current) {
+        socketService.disconnect();
+        setNotifications([]);
+        setUnreadCount(0);
+        setIsConnected(false);
+        clearStorage();
+        hasLoadedInitial.current = false;
+        hasRestoredFromStorage.current = false;
+      }
+      return;
+    }
+
+    // User is authenticated, load initial data (only once and only if not from cache)
+    if (!hasLoadedInitial.current && user?.id) {
+      console.log('📥 Loading initial notifications from API...');
+      
+      // Call the functions directly here
+      const loadInitialData = async () => {
+        if (isLoadingRef.current) {
+          console.log('⚠️ Already loading, skipping...');
+          return;
+        }
+
+        try {
+          isLoadingRef.current = true;
+          setIsLoadingNotifications(true);
+          setError(null);
+          
+          const [notificationsResponse, countResponse] = await Promise.all([
+            apiClient.getNotifications({ limit: 20, skip: 0 }),
+            apiClient.getUnreadNotificationCount()
+          ]);
+
+          // Deduplicate notifications
+          const uniqueMap = new Map();
+          for (const n of notificationsResponse.notifications || []) {
+            if (n && n._id) uniqueMap.set(n._id, n);
+          }
+          const uniqueNotifications = Array.from(uniqueMap.values());
+
+          setNotifications(uniqueNotifications);
+          setUnreadCount(countResponse.count);
+          
+          // Save to storage
+          saveToStorage(uniqueNotifications, countResponse.count);
+          
+          console.log('✅ Initial load complete:', uniqueNotifications.length, 'notifications');
+          
+          hasLoadedInitial.current = true;
+        } catch (err: any) {
+          console.error('❌ Failed to load initial data:', err);
+          
+          if (err.response?.status === 429) {
+            setError('Rate limited. Showing cached notifications.');
+            console.log('⚠️ Rate limited on initial load, using cached data');
+            // Mark as loaded to prevent retry
+            hasLoadedInitial.current = true;
+          } else {
+            setError(err.response?.data?.message || 'Failed to load notifications');
+          }
+        } finally {
+          setIsLoadingNotifications(false);
+          isLoadingRef.current = false;
+        }
+      };
+
+      loadInitialData();
     }
 
     // Connect to WebSocket
@@ -211,13 +448,19 @@ export function useNotifications(): UseNotificationsReturn {
 
     const unsubscribeNotification = socketService.on('notification', (notification) => {
       console.log('📬 New notification via WebSocket:', notification);
-      // Add new notification to the top of the list, but avoid duplicates
+      
       setNotifications(prev => {
         const exists = prev.some(n => n._id === notification._id);
         if (exists) return prev;
-        // increment unread count only when new
-        setUnreadCount(c => c + 1);
-        return [notification, ...prev];
+        
+        const updated = [notification, ...prev];
+        const newUnreadCount = updated.filter(n => !n.read).length;
+        
+        // Save to storage
+        saveToStorage(updated, newUnreadCount);
+        setUnreadCount(newUnreadCount);
+        
+        return updated;
       });
       
       // Optional: Show browser notification
@@ -232,27 +475,42 @@ export function useNotifications(): UseNotificationsReturn {
     const unsubscribeUnreadCount = socketService.on('unreadCount', (data) => {
       console.log('📊 Unread count updated via WebSocket:', data.count);
       setUnreadCount(data.count);
+      saveToStorage(notifications, data.count);
     });
 
     const unsubscribeNotificationRead = socketService.on('notificationRead', (data) => {
       console.log('✓ Notification marked as read via WebSocket:', data.notificationId);
       
-      setNotifications(prev =>
-        prev.map(n => n._id === data.notificationId ? { ...n, read: true } : n)
-      );
+      setNotifications(prev => {
+        const updated = prev.map(n => n._id === data.notificationId ? { ...n, read: true } : n);
+        const newUnreadCount = updated.filter(n => !n.read).length;
+        saveToStorage(updated, newUnreadCount);
+        setUnreadCount(newUnreadCount);
+        return updated;
+      });
     });
 
     const unsubscribeAllRead = socketService.on('allNotificationsRead', () => {
       console.log('✓ All notifications marked as read via WebSocket');
       
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setNotifications(prev => {
+        const updated = prev.map(n => ({ ...n, read: true }));
+        saveToStorage(updated, 0);
+        return updated;
+      });
       setUnreadCount(0);
     });
 
     const unsubscribeNotificationDeleted = socketService.on('notificationDeleted', (data) => {
       console.log('🗑️ Notification deleted via WebSocket:', data.notificationId);
       
-      setNotifications(prev => prev.filter(n => n._id !== data.notificationId));
+      setNotifications(prev => {
+        const updated = prev.filter(n => n._id !== data.notificationId);
+        const newUnreadCount = updated.filter(n => !n.read).length;
+        saveToStorage(updated, newUnreadCount);
+        setUnreadCount(newUnreadCount);
+        return updated;
+      });
     });
 
     const unsubscribeError = socketService.on('error', (error) => {
@@ -277,7 +535,7 @@ export function useNotifications(): UseNotificationsReturn {
       unsubscribeError();
       unsubscribeDisconnect();
     };
-  }, [isAuthenticated, loadNotifications, loadUnreadCount]);
+  }, [authIsLoading, isAuthenticated, user?.id, saveToStorage, clearStorage]);
 
   /**
    * Request browser notification permission

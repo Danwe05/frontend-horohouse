@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { MapPin, Layers, Navigation, Pencil, Trash2, Settings, X, Bed, Bath, Ruler, ExternalLink } from "lucide-react";
@@ -14,6 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 interface Property {
   id: string;
@@ -35,16 +42,13 @@ interface MapViewProps {
   properties?: Property[];
   onPropertyClick?: (propertyId: string) => void;
   onAreaSelect?: (coordinates: [number, number][]) => void;
-  // Called when user clicks the map (not in drawing mode) - returns lng, lat
   onMapClick?: (lng: number, lat: number) => void;
-  // Selected location can be controlled by parent to place a marker and center the map
   selectedLocation?: { lng: number; lat: number } | null;
-  // Called when a location is selected (click or selectedLocation); may include address info if reverse geocode succeeds
   onLocationSelect?: (lng: number, lat: number, address?: { label?: string; city?: string; country?: string; raw?: any }) => void;
 }
 
 // Constants
-const DEFAULT_CENTER: [number, number] = [11.5167, 3.8667];
+const FALLBACK_CENTER: [number, number] = [11.5167, 3.8667]; // Douala, Cameroon
 const DEFAULT_ZOOM = 12;
 const MAX_ZOOM = 18;
 const CLUSTER_MAX_ZOOM = 16;
@@ -63,7 +67,8 @@ const MAP_STYLES = [
 const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, selectedLocation = null, onLocationSelect }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
-  const markers = useRef<maplibregl.Marker[]>([]);
+  const markers = useRef<Map<string, { marker: maplibregl.Marker; popup: maplibregl.Popup }>>(new Map());
+  const userLocationMarker = useRef<maplibregl.Marker | null>(null);
   const drawingCoords = useRef<[number, number][]>([]);
   const zoomTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const styleLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -78,25 +83,71 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [isLocating, setIsLocating] = useState(true);
   const selectedMarker = useRef<maplibregl.Marker | null>(null);
 
   const getApiKey = useCallback((): string => {
-    const key = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || 
-                "demo-key";
-    return key;
+    return process.env.NEXT_PUBLIC_MAPTILER_API_KEY || "demo-key";
+  }, []);
+
+  // Get user's current location
+  const getUserLocation = useCallback((): Promise<[number, number]> => {
+    return new Promise((resolve, reject) => {
+      if (!("geolocation" in navigator)) {
+        reject(new Error("Geolocation not supported"));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords: [number, number] = [position.coords.longitude, position.coords.latitude];
+          resolve(coords);
+        },
+        (error) => {
+          console.warn("Geolocation error:", error);
+          reject(error);
+        },
+        { timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
+      );
+    });
+  }, []);
+
+  const placeUserLocationMarker = useCallback((lng: number, lat: number) => {
+    if (!map.current) return;
+    
+    try {
+      if (userLocationMarker.current) {
+        userLocationMarker.current.remove();
+      }
+
+      const el = document.createElement('div');
+      el.className = 'relative';
+      el.innerHTML = `
+        <div class="relative">
+          <div class="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-75" style="width: 20px; height: 20px;"></div>
+          <div class="relative bg-blue-600 rounded-full border-4 border-white shadow-lg" style="width: 20px; height: 20px;"></div>
+        </div>
+      `;
+
+      userLocationMarker.current = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([lng, lat])
+        .addTo(map.current);
+    } catch (err) {
+      console.error("Error placing user location marker:", err);
+    }
   }, []);
 
   const placeSelectedMarker = useCallback((lng: number, lat: number) => {
     if (!map.current) return;
     try {
-      // remove previous
       if (selectedMarker.current) {
         selectedMarker.current.remove();
         selectedMarker.current = null;
       }
 
       const el = document.createElement('div');
-      el.className = 'rounded-full bg-red-600 w-4 h-4 border-2 border-white shadow';
+      el.className = 'rounded-full bg-red-600 w-4 h-4 border-2 border-white shadow-lg';
 
       selectedMarker.current = new maplibregl.Marker({ element: el })
         .setLngLat([lng, lat])
@@ -104,7 +155,7 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
 
       map.current.flyTo({ center: [lng, lat], zoom: Math.max(map.current.getZoom(), 14), duration: 600 });
     } catch (err) {
-      // ignore
+      console.error("Error placing selected marker:", err);
     }
   }, []);
 
@@ -127,7 +178,6 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
           if (c.id?.startsWith('country')) country = country || c.text;
         });
       }
-      // fallback to properties
       city = city || feat.properties?.locality || feat.properties?.county || '';
       country = country || feat.properties?.country || '';
       return { label, city, country, raw: feat };
@@ -161,6 +211,12 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
     return R * c;
   }, []);
 
+  // Memoize valid properties to avoid recalculation
+  const validProperties = useMemo(() => 
+    properties.filter(p => p.latitude !== undefined && p.longitude !== undefined),
+    [properties]
+  );
+
   const clusterProperties = useCallback((props: Property[], zoom: number) => {
     const clusters: { lat: number; lng: number; properties: Property[] }[] = [];
     const clustered = new Set<string>();
@@ -188,6 +244,28 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
 
     return clusters;
   }, [getDistance]);
+
+  const createTooltipContent = useCallback((property: Property): string => {
+    const imageArray = property.images && property.images.length > 0 ? property.images : (property.image ? [property.image] : []);
+    const displayImage = imageArray[0] || '/placeholder.jpg';
+    const isRent = property.listingType?.toLowerCase() === "rent";
+    
+    return `
+      <div class="min-w-[200px] max-w-[250px]">
+        <img src="${displayImage}" alt="${property.title}" class="w-full h-32 object-cover rounded-t-lg mb-2" onerror="this.src='/placeholder.jpg'"/>
+        <div class="px-1">
+          <div class="font-bold text-base mb-1">${formatPrice(property.price)} XAF${isRent ? '/mo' : ''}</div>
+          ${property.type ? `<div class="text-xs text-gray-600 mb-1">${property.type}</div>` : ''}
+          ${property.address ? `<div class="text-xs text-gray-500 mb-2">${property.address}</div>` : ''}
+          <div class="flex items-center gap-2 text-xs text-gray-600">
+            ${property.sqft ? `<span>📏 ${property.sqft}</span>` : ''}
+            ${property.beds ? `<span>🛏️ ${property.beds}</span>` : ''}
+            ${property.baths ? `<span>🛁 ${property.baths}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }, [formatPrice]);
 
   const updateDrawnPolygon = useCallback((coords: [number, number][]) => {
     if (!map.current || !mapLoaded) return;
@@ -257,13 +335,7 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
   }, []);
 
   const addHeatmapLayer = useCallback(() => {
-    if (!map.current || !mapLoaded) return;
-
-    const validProperties = properties.filter(
-      (p) => p.latitude !== undefined && p.longitude !== undefined
-    );
-
-    if (validProperties.length === 0) return;
+    if (!map.current || !mapLoaded || validProperties.length === 0) return;
 
     const geojsonData: GeoJSON.FeatureCollection<GeoJSON.Point> = {
       type: "FeatureCollection",
@@ -306,7 +378,7 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
     } catch (error) {
       console.error("Error adding heatmap layer:", error);
     }
-  }, [properties, mapLoaded]);
+  }, [validProperties, mapLoaded]);
 
   const removeHeatmapLayer = useCallback(() => {
     if (!map.current) return;
@@ -324,8 +396,11 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
   }, []);
 
   const clearMarkers = useCallback(() => {
-    markers.current.forEach((marker) => marker.remove());
-    markers.current = [];
+    markers.current.forEach(({ marker, popup }) => {
+      popup.remove();
+      marker.remove();
+    });
+    markers.current.clear();
   }, []);
 
   const createMarker = useCallback((property: Property) => {
@@ -344,6 +419,24 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
       </div>
     `;
 
+    // Create tooltip popup
+    const popup = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: 25,
+      className: 'property-tooltip'
+    }).setHTML(createTooltipContent(property));
+
+    // Show popup on hover
+    el.addEventListener("mouseenter", () => {
+      popup.setLngLat([property.longitude!, property.latitude!]).addTo(map.current!);
+    });
+
+    el.addEventListener("mouseleave", () => {
+      popup.remove();
+    });
+
+    // Click to select property
     el.addEventListener("click", (e) => {
       e.stopPropagation();
       setSelectedProperty(property);
@@ -353,8 +446,8 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
       .setLngLat([property.longitude, property.latitude])
       .addTo(map.current);
 
-    return marker;
-  }, [formatPrice]);
+    return { marker, popup };
+  }, [formatPrice, createTooltipContent]);
 
   const createClusterMarker = useCallback((cluster: { lat: number; lng: number; properties: Property[] }) => {
     if (!map.current) return null;
@@ -371,6 +464,20 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
         ${clusterSize}${cluster.properties.length > 99 ? '+' : ''}
       </div>
     `;
+
+    const popup = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: 25,
+    }).setHTML(`<div class="text-center font-semibold">${cluster.properties.length} properties</div>`);
+
+    el.addEventListener("mouseenter", () => {
+      popup.setLngLat([cluster.lng, cluster.lat]).addTo(map.current!);
+    });
+
+    el.addEventListener("mouseleave", () => {
+      popup.remove();
+    });
 
     el.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -390,17 +497,13 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
       .setLngLat([cluster.lng, cluster.lat])
       .addTo(map.current);
 
-    return marker;
+    return { marker, popup };
   }, []);
 
   const updateMarkers = useCallback(() => {
     if (!map.current || !mapLoaded) return;
 
     clearMarkers();
-
-    const validProperties = properties.filter(
-      (p) => p.latitude !== undefined && p.longitude !== undefined
-    );
 
     if (validProperties.length === 0) return;
 
@@ -411,21 +514,25 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
 
       clusters.forEach((cluster) => {
         if (cluster.properties.length === 1) {
-          const marker = createMarker(cluster.properties[0]);
-          if (marker) markers.current.push(marker);
+          const result = createMarker(cluster.properties[0]);
+          if (result) markers.current.set(cluster.properties[0].id, result);
         } else {
-          const marker = createClusterMarker(cluster);
-          if (marker) markers.current.push(marker);
+          const result = createClusterMarker(cluster);
+          if (result) {
+            const clusterId = `cluster-${cluster.lat}-${cluster.lng}`;
+            markers.current.set(clusterId, result);
+          }
         }
       });
     } else {
       validProperties.forEach((property) => {
-        const marker = createMarker(property);
-        if (marker) markers.current.push(marker);
+        const result = createMarker(property);
+        if (result) markers.current.set(property.id, result);
       });
     }
-  }, [properties, mapLoaded, showClusters, clusterProperties, createMarker, createClusterMarker, clearMarkers]);
+  }, [validProperties, mapLoaded, showClusters, clusterProperties, createMarker, createClusterMarker, clearMarkers]);
 
+  // Initialize map with user location
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
@@ -434,41 +541,69 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
     if (!apiKey || apiKey === "demo-key") {
       console.error("NEXT_PUBLIC_MAPTILER_API_KEY is not set");
       setMapError("Map API key is missing. Please add NEXT_PUBLIC_MAPTILER_API_KEY to your .env file.");
+      setIsLocating(false);
       return;
     }
 
-    try {
-      map.current = new maplibregl.Map({
-        container: mapContainer.current,
-        style: `https://api.maptiler.com/maps/${currentStyle}/style.json?key=${apiKey}`,
-        center: DEFAULT_CENTER,
-        zoom: DEFAULT_ZOOM,
+    // Get user location first
+    getUserLocation()
+      .then((coords) => {
+        setUserLocation(coords);
+        initializeMap(coords);
+      })
+      .catch((error) => {
+        console.warn("Could not get user location, using fallback:", error);
+        initializeMap(FALLBACK_CENTER);
+      })
+      .finally(() => {
+        setIsLocating(false);
       });
 
-      map.current.addControl(new maplibregl.NavigationControl(), "top-right");
+    function initializeMap(center: [number, number]) {
+      try {
+        map.current = new maplibregl.Map({
+          container: mapContainer.current!,
+          style: `https://api.maptiler.com/maps/${currentStyle}/style.json?key=${apiKey}`,
+          center,
+          zoom: DEFAULT_ZOOM,
+        });
 
-      map.current.on("load", () => {
-        setMapLoaded(true);
-      });
+        map.current.addControl(new maplibregl.NavigationControl(), "top-right");
 
-      map.current.on("error", (e) => {
-        console.error("Map error:", e);
-        setMapError("Map failed to load. Please check your API key and connection.");
-      });
-    } catch (error) {
-      console.error("Error initializing map:", error);
-      setMapError("Failed to initialize map. Please check your API key.");
-      return;
+        map.current.on("load", () => {
+          setMapLoaded(true);
+          // Place user location marker if we have it
+          if (userLocation) {
+            placeUserLocationMarker(userLocation[0], userLocation[1]);
+          }
+        });
+
+        map.current.on("error", (e) => {
+          console.error("Map error:", e);
+          setMapError("Map failed to load. Please check your API key and connection.");
+        });
+      } catch (error) {
+        console.error("Error initializing map:", error);
+        setMapError("Failed to initialize map. Please check your API key.");
+      }
     }
 
     return () => {
       if (zoomTimeoutRef.current) clearTimeout(zoomTimeoutRef.current);
       if (styleLoadTimeoutRef.current) clearTimeout(styleLoadTimeoutRef.current);
       clearMarkers();
+      if (userLocationMarker.current) userLocationMarker.current.remove();
       map.current?.remove();
       map.current = null;
     };
-  }, [getApiKey, currentStyle, clearMarkers]);
+  }, [getApiKey, currentStyle, getUserLocation, clearMarkers]);
+
+  // Update user location marker when location changes
+  useEffect(() => {
+    if (userLocation && map.current && mapLoaded) {
+      placeUserLocationMarker(userLocation[0], userLocation[1]);
+    }
+  }, [userLocation, mapLoaded, placeUserLocationMarker]);
 
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
@@ -494,7 +629,6 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
     };
   }, [mapLoaded]);
 
-  // react to externally selected location (parent-driven)
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
     if (!selectedLocation) return;
@@ -504,13 +638,12 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
       placeSelectedMarker(lng, lat);
       onMapClick?.(lng, lat);
 
-      // attempt reverse geocode and notify parent
       (async () => {
         const addr = await reverseGeocode(lng, lat);
         onLocationSelect?.(lng, lat, addr || undefined);
       })();
     } catch (err) {
-      // ignore
+      console.error("Error handling selected location:", err);
     }
   }, [selectedLocation, mapLoaded, placeSelectedMarker, reverseGeocode, onLocationSelect, onMapClick]);
 
@@ -528,20 +661,18 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
         return;
       }
 
-      // Not drawing: emit map click coordinates for parent to consume
       const lng = e.lngLat.lng;
       const lat = e.lngLat.lat;
       try {
         placeSelectedMarker(lng, lat);
         onMapClick?.(lng, lat);
 
-        // attempt reverse geocode and notify parent
         (async () => {
           const addr = await reverseGeocode(lng, lat);
           onLocationSelect?.(lng, lat, addr || undefined);
         })();
       } catch (err) {
-        // ignore
+        console.error("Error handling map click:", err);
       }
     };
 
@@ -552,7 +683,7 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
         map.current.off("click", handleClick);
       }
     };
-  }, [isDrawing, mapLoaded, updateDrawnPolygon, onMapClick]);
+  }, [isDrawing, mapLoaded, updateDrawnPolygon, onMapClick, placeSelectedMarker, reverseGeocode, onLocationSelect]);
 
   useEffect(() => {
     updateMarkers();
@@ -612,41 +743,60 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
           if (drawnPolygon) {
             updateDrawnPolygon(drawnPolygon);
           }
+          if (userLocation) {
+            placeUserLocationMarker(userLocation[0], userLocation[1]);
+          }
         }, 100);
       }, STYLE_LOAD_TIMEOUT_MS);
     };
 
     map.current.once("style.load", handleStyleLoad);
-  }, [getApiKey, showHeatmap, drawnPolygon, addHeatmapLayer, updateDrawnPolygon]);
+  }, [getApiKey, showHeatmap, drawnPolygon, addHeatmapLayer, updateDrawnPolygon, userLocation, placeUserLocationMarker]);
 
   const goToUserLocation = useCallback(() => {
     if (!map.current) return;
     
     if ("geolocation" in navigator) {
+      setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          const coords: [number, number] = [position.coords.longitude, position.coords.latitude];
+          setUserLocation(coords);
           map.current?.flyTo({
-            center: [position.coords.longitude, position.coords.latitude],
+            center: coords,
             zoom: 14,
             duration: 2000,
           });
+          placeUserLocationMarker(coords[0], coords[1]);
           setIsModalOpen(false);
+          setIsLocating(false);
         },
         (error) => {
           console.error("Error getting location:", error);
           alert("Unable to get your location. Please enable location services.");
+          setIsLocating(false);
         }
       );
     } else {
       alert("Geolocation is not supported by your browser.");
     }
-  }, []);
+  }, [placeUserLocationMarker]);
 
   const handlePropertyView = () => {
     if (selectedProperty && onPropertyClick) {
       onPropertyClick(selectedProperty.id);
     }
   };
+
+  // Get image array for selected property
+  const selectedPropertyImages = useMemo(() => {
+    if (!selectedProperty) return [];
+    return selectedProperty.images && selectedProperty.images.length > 0 
+      ? selectedProperty.images 
+      : selectedProperty.image 
+        ? [selectedProperty.image] 
+        : ['/placeholder.jpg'];
+  }, [selectedProperty]);
 
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden">
@@ -665,11 +815,38 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
             </button>
             
             <div className="relative h-48">
-              <img
-                src={selectedProperty.images?.[0] || selectedProperty.image || "/placeholder.jpg"}
-                alt={selectedProperty.title}
-                className="w-full h-full object-cover"
-              />
+              {selectedPropertyImages.length > 1 ? (
+                <Carousel className="w-full" opts={{ loop: true }}>
+                  <CarouselContent className="ml-0">
+                    {selectedPropertyImages.map((img, index) => (
+                      <CarouselItem key={index} className="pl-0">
+                        <img
+                          src={img}
+                          alt={`${selectedProperty.address} - Image ${index + 1}`}
+                          className="w-full h-48 object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/placeholder.jpg';
+                          }}
+                        />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <div onClick={(e) => e.preventDefault()} className="group">
+                    <CarouselPrevious className="left-2 bg-white/80 backdrop-blur-sm text-gray-800 hidden group-hover:flex border-0 hover:bg-white transition-all" />
+                    <CarouselNext className="right-2 bg-white/80 backdrop-blur-sm text-gray-800 hidden group-hover:flex border-0 hover:bg-white transition-all" />
+                  </div>
+                </Carousel>
+              ) : (
+                <img
+                  src={selectedPropertyImages[0]}
+                  alt={selectedProperty.address || 'Property'}
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.jpg';
+                  }}
+                />
+              )}
+              
               {selectedProperty.listingType && (
                 <Badge className={`absolute top-3 left-3 ${
                   selectedProperty.listingType.toLowerCase() === "rent" 
@@ -755,10 +932,11 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">Navigation</h3>
                 <button
                   onClick={goToUserLocation}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  disabled={isLocating}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  <Navigation className="w-5 h-5" />
-                  Go to My Location
+                  <Navigation className={`w-5 h-5 ${isLocating ? 'animate-pulse' : ''}`} />
+                  {isLocating ? 'Locating...' : 'Go to My Location'}
                 </button>
               </div>
 
@@ -866,7 +1044,7 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
 
       {/* Error State */}
       {mapError && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 p-4">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 p-4 z-30">
           <p className="text-sm text-red-400 font-semibold mb-2">Map Error</p>
           <p className="text-xs text-gray-300 text-center max-w-md">{mapError}</p>
         </div>
@@ -874,10 +1052,12 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
 
       {/* Loading State */}
       {!mapLoaded && !mapError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100/30">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100/30 z-20">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-            <p className="text-sm text-gray-600">Loading map...</p>
+            <p className="text-sm text-gray-600">
+              {isLocating ? 'Getting your location...' : 'Loading map...'}
+            </p>
           </div>
         </div>
       )}

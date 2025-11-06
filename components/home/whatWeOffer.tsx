@@ -130,7 +130,7 @@ export default function WhatWeOffer() {
           <div
             ref={containerRef}
             onScroll={onScroll}
-            className="flex space-x-6 overflow-x-auto snap-x snap-mandatory scrollbar-none py-4 px-2"
+            className="flex space-x-6 overflow-x-auto sndap-x snap-mandatory scrollbar-none py-4 px-2"
             style={{ scrollSnapType: "x mandatory" }}
           >
             {cards.map((card, i) => {
@@ -146,7 +146,7 @@ export default function WhatWeOffer() {
                   className={`snap-center flex-shrink-0 w-72 md:w-80 p-8 cursor-pointer transition-all duration-500 rounded-2xl relative overflow-hidden group ${
                     isActive
                       ? "shadow-2xl scale-105"
-                      : "shadow-lg hover:shadow-xl bg-white"
+                      : "shadow-lgd hover:shadow-xl bg-white"
                   }`}
                   style={{
                     background: isActive

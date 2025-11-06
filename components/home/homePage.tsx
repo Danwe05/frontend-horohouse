@@ -7,11 +7,13 @@ import CustomersSay from './customersSay';
 import Footer from '../footer';
 import OurParteners from './ourParteners';
 import StudentSection from './StudentSection';
+import LocationBasedProperties from './LocationBasedProperties';
 
 export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <LocationBasedProperties/>
       <TopListing />
       <WhatWeOffer />
       <LuxuriousHaven />

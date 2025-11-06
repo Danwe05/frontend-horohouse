@@ -84,8 +84,8 @@ const PropertyCard = ({
             else if (item._id || item.id) ids.add(item._id || item.id);
           }
         });
-  g.__hh_favorites_cache = ids;
-  try { console.debug('[PropertyCard] fetched favorites:', ids.size); } catch {}
+        g.__hh_favorites_cache = ids;
+        try { console.debug('[PropertyCard] fetched favorites:', ids.size); } catch { }
         g.__hh_favorites_fetch_promise = undefined;
         return ids;
       } catch (err) {
@@ -102,18 +102,18 @@ const PropertyCard = ({
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const { isAuthenticated } = useAuth();
   const { translate, language } = useLanguage();
-  
+
   // Auto-translated content
   const [translatedAddress, setTranslatedAddress] = useState(address);
   const [translatedTag, setTranslatedTag] = useState(tag);
-  
+
   // Use images array if provided, otherwise fallback to single image
   const imageArray = images && images.length > 0 ? images : [image];
   const hasMultipleImages = imageArray.length > 1;
-  
+
   // Format price with XAF currency
   const formattedPrice = price.replace(/\$/g, "").trim() + " XAF";
-  
+
   // Format time ago into a compact, consistent form.
   // Accepts either an ISO timestamp (preferred) or an already-relative string
   // like "2 hours ago" and returns a compact form: "just now", "5m ago", "2h ago", "3d ago".
@@ -265,24 +265,24 @@ const PropertyCard = ({
                   <img
                     src={typeof img === "string" ? img : img.src}
                     alt={`${address} - Image ${index + 1}`}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-48 object-cover group-hover:scale-100 transition-transform duration-300"
                   />
                 </CarouselItem>
               ))}
             </CarouselContent>
-            
+
             {hasMultipleImages && (
-              <div onClick={(e) => e.preventDefault()}>
-                <CarouselPrevious 
-                  className="left-2 bg-card/90 backdrop-blur-sm border-0 hover:bg-card"
+              <div onClick={(e) => e.preventDefault()} className="group">
+                <CarouselPrevious
+                  className="left-2 bg-[#13131366] text-white hidden group-hover:flex backdrop-blur-sm border-0 hover:bg-card transition-all duration-300 ease-in-out transform group-hover:scale-100 scale-90 opacity-0 group-hover:opacity-100"
                 />
-                <CarouselNext 
-                  className="right-2 bg-card/90 backdrop-blur-sm border-0 hover:bg-card"
+                <CarouselNext
+                  className="right-2 bg-[#13131366] text-white hidden group-hover:flex backdrop-blur-sm border-0 hover:bg-card transition-all duration-300 ease-in-out transform group-hover:scale-100 scale-90 opacity-0 group-hover:opacity-100"
                 />
               </div>
             )}
           </Carousel>
-          
+
           {translatedTag && (
             <Badge className="absolute top-3 left-3 bg-primary z-10">
               {translatedTag}
@@ -294,9 +294,8 @@ const PropertyCard = ({
             className="absolute top-3 right-3 w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md disabled:opacity-50 z-10"
           >
             <Heart
-              className={`h-4 w-4 ${
-                isFavorite ? "fill-destructive text-destructive" : "text-foreground"
-              }`}
+              className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : "text-foreground"
+                }`}
             />
           </button>
         </div>
@@ -314,7 +313,7 @@ const PropertyCard = ({
                 (() => {
                   // Compute once so we can debug easily in browser console
                   const formattedTime = formatTimeAgo(timeAgo);
-                  try { console.debug('[PropertyCard] timeAgo prop:', timeAgo, '->', formattedTime); } catch {}
+                  try { console.debug('[PropertyCard] timeAgo prop:', timeAgo, '->', formattedTime); } catch { }
                   return <span className="text-sm text-muted-foreground">{formattedTime}</span>;
                 })()
               }

@@ -13,7 +13,7 @@ interface RentalApplicationProps {
 
 const RentalApplication = ({ propertyId }: RentalApplicationProps) => {
   return (
-    <section className="bg-card rounded-2xl p-6 space-y-6">
+    <section className="bg-card rounded-2xl space-y-6">
       <h2 className="text-2xl font-bold">Schedule a Tour</h2>
       
       {/* Tour Options */}

@@ -6,13 +6,14 @@ import { motion } from 'framer-motion';
 import PropertyCard from '@/components/property/PropertyCard';
 import apiClient from '@/lib/api';
 import { toast } from 'sonner';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function TopListing() {
   const cities = ['All', 'Yaoundé', 'Douala', 'Maroua', 'Garoua', 'Kribi'];
-  
+
   const [startIndex, setStartIndex] = useState(0);
   const [activeCity, setActiveCity] = useState('All');
-  const [cardsVisible, setCardsVisible] = useState(3);
+  const [cardsVisible, setCardsVisible] = useState(4);
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +28,7 @@ export default function TopListing() {
           limit: 15,
           city: activeCity !== 'All' ? activeCity : undefined,
         };
-        
+
         const data = await apiClient.searchProperties(params);
         setProperties(Array.isArray(data?.properties) ? data.properties : []);
       } catch (error: any) {
@@ -53,10 +54,11 @@ export default function TopListing() {
   useEffect(() => {
     const updateCardsVisible = () => {
       if (window.innerWidth < 640) setCardsVisible(1);
-      else if (window.innerWidth < 1024) setCardsVisible(2);
-      else setCardsVisible(3);
+      else if (window.innerWidth < 768) setCardsVisible(2);
+      else if (window.innerWidth < 1024) setCardsVisible(3);
+      else setCardsVisible(4);
     };
-    
+
     updateCardsVisible();
     window.addEventListener('resize', updateCardsVisible);
     return () => window.removeEventListener('resize', updateCardsVisible);
@@ -66,10 +68,10 @@ export default function TopListing() {
   const formatPrice = (value?: number) => {
     if (typeof value !== "number") return "";
     try {
-      return new Intl.NumberFormat(undefined, { 
-        style: "currency", 
-        currency: "XAF", 
-        maximumFractionDigits: 0 
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "XAF",
+        maximumFractionDigits: 0
       }).format(value);
     } catch {
       return `${value.toLocaleString()} XAF`;
@@ -136,7 +138,7 @@ export default function TopListing() {
               View All <FaArrowRight className="text-sm" />
             </button>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex gap-3 flex-wrap">
               {cities.map((city) => (
@@ -144,11 +146,10 @@ export default function TopListing() {
                   key={city}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleCityChange(city)}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
-                    activeCity === city
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white border-1 border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
-                  }`}
+                  className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeCity === city
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white border-1 border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
+                    }`}
                 >
                   {city}
                 </motion.button>
@@ -162,22 +163,20 @@ export default function TopListing() {
                   whileTap={{ scale: 0.9 }}
                   onClick={handleLeftClick}
                   disabled={startIndex === 0}
-                  className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${
-                    startIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
-                  }`}
+                  className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${startIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                    }`}
                 >
-                  <FaArrowLeft className="text-sm" />
+                  <ChevronLeft className="text-sm" />
                 </motion.button>
-                
+
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={handleRightClick}
                   disabled={startIndex === maxStartIndex}
-                  className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${
-                    startIndex === maxStartIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
-                  }`}
+                  className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${startIndex === maxStartIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                    }`}
                 >
-                  <FaArrowRight className="text-sm" />
+                  <ChevronRight className="text-sm" />
                 </motion.button>
               </div>
             )}
@@ -198,7 +197,7 @@ export default function TopListing() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-8">
                 {visibleProperties.map((property, index) => (
                   <motion.div
                     key={property.id}
@@ -221,9 +220,8 @@ export default function TopListing() {
                     <button
                       key={i}
                       onClick={() => setStartIndex(i)}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        i === startIndex ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
-                      }`}
+                      className={`h-2 rounded-full transition-all duration-300 ${i === startIndex ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
+                        }`}
                     />
                   ))}
                 </div>
