@@ -153,7 +153,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
     const buyLink = { href: '/properties?listingType=sale', label: 'Buy', icon: Building };
     const rentLink = { href: '/properties?listingType=rent', label: 'Rent', icon: Building };
     const sellLink = { href: '/dashboard/propertyForm', label: 'Sell', icon: Building };
-    const agentLink = { href: '/agents', label: 'Our agents', icon: Building };
+    const agentLink = { href: '/agents', label: 'Find an agent', icon: Building };
 
     // Base links for all users
     const baseLinks = [

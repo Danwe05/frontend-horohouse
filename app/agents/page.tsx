@@ -70,12 +70,12 @@ export default function AgentsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white mt-12">
+        <div className="min-h-screen bg-white">
             {/* Search Section */}
             <div className="border-b border-gray-200 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     {/* Search Inputs */}
-                    <div className="flex gap-3 mb-6">
+                    <div className="flex flex-col sm:flex-row gap-3 mb-6">
                         <Input
                             type="text"
                             placeholder="City, neighborhood, or zip code"
@@ -92,19 +92,19 @@ export default function AgentsPage() {
                         />
                         <Button 
                             onClick={handleSearch}
-                            className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                            className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold whitespace-nowrap"
                         >
-                            <Search className="h-5 w-5 mr-2" />
-                            Find agent
+                            <Search className="h-5 w-5 sm:mr-2" />
+                            <span className="hidden sm:inline">Find agent</span>
                         </Button>
                     </div>
 
                     {/* Filter Buttons */}
                     <div className="flex gap-3 flex-wrap">
-                        <div className="flex gap-2 border border-gray-300 rounded-md">
+                        <div className="flex gap-0 border border-gray-300 rounded-md overflow-hidden">
                             <button
                                 onClick={() => setServiceType('buying')}
-                                className={`px-6 py-2 font-medium transition-colors ${
+                                className={`px-4 sm:px-6 py-2 font-medium transition-colors text-sm sm:text-base ${
                                     serviceType === 'buying' 
                                         ? 'bg-gray-100 text-gray-900' 
                                         : 'text-gray-700 hover:bg-gray-50'
@@ -114,7 +114,7 @@ export default function AgentsPage() {
                             </button>
                             <button
                                 onClick={() => setServiceType('selling')}
-                                className={`px-6 py-2 font-medium transition-colors ${
+                                className={`px-4 sm:px-6 py-2 font-medium transition-colors text-sm sm:text-base border-l border-gray-300 ${
                                     serviceType === 'selling' 
                                         ? 'bg-gray-100 text-gray-900' 
                                         : 'text-gray-700 hover:bg-gray-50'
@@ -126,18 +126,19 @@ export default function AgentsPage() {
 
                         <button
                             onClick={() => setTopAgentOnly(!topAgentOnly)}
-                            className={`px-6 py-2 border rounded-md font-medium transition-colors flex items-center gap-2 ${
+                            className={`px-4 sm:px-6 py-2 border rounded-md font-medium transition-colors flex items-center gap-2 text-sm sm:text-base ${
                                 topAgentOnly
                                     ? 'border-blue-600 bg-blue-50 text-blue-700'
                                     : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                             }`}
                         >
                             <Award className="h-4 w-4 text-blue-600" />
-                            Top agent
+                            <span className="hidden sm:inline">Top agent</span>
+                            <span className="sm:hidden">Top</span>
                         </button>
 
                         <Select value={priceRange} onValueChange={setPriceRange}>
-                            <SelectTrigger className="w-[160px] border-gray-300">
+                            <SelectTrigger className="w-[130px] sm:w-[160px] border-gray-300 text-sm sm:text-base">
                                 <SelectValue placeholder="Price range" />
                             </SelectTrigger>
                             <SelectContent>
@@ -150,7 +151,7 @@ export default function AgentsPage() {
                         </Select>
 
                         <Select value={specialty} onValueChange={setSpecialty}>
-                            <SelectTrigger className="w-[160px] border-gray-300">
+                            <SelectTrigger className="w-[130px] sm:w-[160px] border-gray-300 text-sm sm:text-base">
                                 <SelectValue placeholder="Specialty" />
                             </SelectTrigger>
                             <SelectContent>
@@ -162,7 +163,7 @@ export default function AgentsPage() {
                         </Select>
 
                         <Select value={language} onValueChange={setLanguage}>
-                            <SelectTrigger className="w-[160px] border-gray-300">
+                            <SelectTrigger className="w-[130px] sm:w-[160px] border-gray-300 text-sm sm:text-base">
                                 <SelectValue placeholder="Language" />
                             </SelectTrigger>
                             <SelectContent>
@@ -179,19 +180,19 @@ export default function AgentsPage() {
             {/* Results */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Results Count */}
-                <h2 className="text-2xl text-gray-700 mb-8">
+                <h2 className="text-xl sm:text-2xl text-gray-700 mb-8">
                     {total.toLocaleString()} agents found
                 </h2>
 
                 {/* Agents Grid */}
                 {loading ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
                         {[...Array(6)].map((_, i) => (
                             <AgentCardSkeleton key={i} />
                         ))}
                     </div>
                 ) : filteredAgents.length === 0 ? (
-                    <Card className="p-12 text-center">
+                    <Card className="p-8 sm:p-12 text-center">
                         <div className="flex flex-col items-center gap-4">
                             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                                 <Search className="h-8 w-8 text-blue-600" />
@@ -204,7 +205,7 @@ export default function AgentsPage() {
                     </Card>
                 ) : (
                     <>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
                             {filteredAgents.map((agent) => (
                                 <AgentCard key={agent.id} agent={agent} />
                             ))}
@@ -260,11 +261,11 @@ function AgentCard({ agent }: { agent: Agent }) {
     return (
         <Link href={`/agents/${agent.id}`}>
             <Card className="group py-0 hover:shadow-lg transition-all duration-200 border-gray-200 hover:border-gray-300 cursor-pointer">
-                <CardContent className="p-6">
-                    <div className="flex gap-6">
+                <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                         {/* Profile Picture */}
-                        <div className="relative flex-shrink-0">
-                            <div className="w-32 h-32 rounded-full overflow-hidden">
+                        <div className="relative flex-shrink-0 mx-auto sm:mx-0">
+                            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden">
                                 {agent.profilePicture ? (
                                     <Image
                                         src={agent.profilePicture}
@@ -295,20 +296,20 @@ function AgentCard({ agent }: { agent: Agent }) {
                         </div>
 
                         {/* Agent Info */}
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between mb-2">
-                                <div>
+                        <div className="flex-1 min-w-0 text-center sm:text-left">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between mb-2 gap-2">
+                                <div className="w-full sm:w-auto">
                                     <div className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-1">
                                         TEAM
                                     </div>
-                                    <h3 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                                         {agent.name}
                                     </h3>
-                                    <p className="text-gray-600 mt-1">
+                                    <p className="text-sm sm:text-base text-gray-600 mt-1 truncate">
                                         {agent.agency || 'Independent Agent'}
                                     </p>
                                 </div>
-                                <div className="flex items-center gap-1 text-sm">
+                                <div className="flex items-center gap-1 text-sm whitespace-nowrap">
                                     <span className="font-bold text-gray-900">{rating.toFixed(1)}</span>
                                     <span className="text-blue-600">★</span>
                                     <span className="text-gray-500">({reviewCount.toLocaleString()})</span>
@@ -316,7 +317,7 @@ function AgentCard({ agent }: { agent: Agent }) {
                             </div>
 
                             {/* Stats */}
-                            <div className="space-y-1 text-gray-700">
+                            <div className="space-y-1 text-sm sm:text-base text-gray-700">
                                 <div>
                                     <span className="font-semibold text-gray-900">
                                         ${Math.floor(agent.totalProperties * 50)}K - ${Math.floor(agent.totalProperties * 80)}K
@@ -344,17 +345,17 @@ function AgentCard({ agent }: { agent: Agent }) {
 function AgentCardSkeleton() {
     return (
         <Card className="border-gray-200">
-            <CardContent className="p-6">
-                <div className="flex gap-6">
-                    <Skeleton className="w-32 h-32 rounded-full flex-shrink-0" />
+            <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                    <Skeleton className="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex-shrink-0 mx-auto sm:mx-0" />
                     <div className="flex-1 space-y-3">
-                        <Skeleton className="h-4 w-16" />
-                        <Skeleton className="h-8 w-48" />
-                        <Skeleton className="h-5 w-40" />
+                        <Skeleton className="h-4 w-16 mx-auto sm:mx-0" />
+                        <Skeleton className="h-6 sm:h-8 w-32 sm:w-48 mx-auto sm:mx-0" />
+                        <Skeleton className="h-4 sm:h-5 w-28 sm:w-40 mx-auto sm:mx-0" />
                         <div className="space-y-2 mt-4">
                             <Skeleton className="h-4 w-full" />
                             <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-3/4 mx-auto sm:mx-0" />
                         </div>
                     </div>
                 </div>
