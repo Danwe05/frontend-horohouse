@@ -64,7 +64,7 @@ export default function LuxuriousHaven() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="flex-1 relative hidden lg:block"
+            className="flex-1 relative lg:block"
           >
             <div className="relative rounded-3xl overflow-hidden shadow-2xl group">
               <Image

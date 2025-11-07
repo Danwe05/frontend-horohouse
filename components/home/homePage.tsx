@@ -13,13 +13,13 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <LocationBasedProperties/>
-      <TopListing />
-      <WhatWeOffer />
       <LuxuriousHaven />
+      <LocationBasedProperties/>
+      <WhatWeOffer />
+      <TopListing />
       {/* <StudentSection /> */}
-      <OurParteners />
       <AboutUs />
+      <OurParteners />
       <CustomersSay />
       <Footer />
       
