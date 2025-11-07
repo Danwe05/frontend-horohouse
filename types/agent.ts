@@ -1,15 +1,29 @@
-export type Agent = {
-  profilePicture: any;
-  firstName: any;
-  lastName: any;
-  title: string;
-  propertiesCount: number;
-  experienceYears: number;
-  id: string;
-  name: string;
-  status: 'active' | 'inactive' | 'pending';
-  email?: string;
-  phone?: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
+
+export interface Agent {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    profilePicture?: string;
+    agency?: string;
+    bio?: string;
+    location?: {
+      type: 'Point';
+      coordinates: [number, number];
+    };
+    address?: string;
+    city?: string;
+    totalProperties: number;
+    activeProperties: number;
+    propertiesListed: number;
+    propertiesSold: number;
+    createdAt: Date;
+  }
+  
+  export interface AgentsResponse {
+    agents: Agent[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }

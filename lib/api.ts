@@ -461,10 +461,16 @@ class ApiClient {
     return response.data;
   }
 
-  async getAgents(params?: any) {
-    const response = await this.client.get('/users/agents', { params });
-    return response.data;
-  }
+// In api.ts - Update the getAgents method
+async getAgents(params?: { page?: number; limit?: number }) {
+  const response = await this.client.get('/users/agents', {
+    params: {
+      page: params?.page || 1,
+      limit: params?.limit || 12
+    },
+  });
+  return response.data;
+}
 
   async getUserById(id: string) {
     const response = await this.client.get(`/users/${id}`);
