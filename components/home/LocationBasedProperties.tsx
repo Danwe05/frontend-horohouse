@@ -274,7 +274,7 @@ export default function LocationBasedProperties() {
     const visibleProperties = formattedProperties.slice(currentIndex, currentIndex + cardsPerView);
 
     return (
-        <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen px-4 sm:px-6 md:px-10 py-16">
+        <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen px-4 sm:px-6 md:px-10 py-10">
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

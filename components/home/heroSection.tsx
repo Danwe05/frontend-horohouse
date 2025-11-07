@@ -210,7 +210,7 @@ export default function HeroSection() {
       <div className="relative flex flex-col lg:flex-row items-center justify-between min-h-screen">
 
         {/* Left Side: Enhanced Text & Filters */}
-        <div className="w-full lg:w-2/5 space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-12 lg:py-8  lg:py-16 z-20 order-2 lg:order-1">
+        <div className="w-full lg:w-2/5 space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-12 lg:py-8  lg:py-10 z-20 order-2 lg:order-1">
 
           {/* Badge with animation */}
           <div className="hidden lg:inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-blue-100 text-blue-600 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 transform">

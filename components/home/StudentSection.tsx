@@ -41,7 +41,7 @@ export default function StudentSection() {
   const [activeProperty, setActiveProperty] = useState(0);
 
   return (
-    <section className="relative py-16 md:py-20 px-5 md:px-10 lg:px-20 bg-white">
+    <section className="relative py-10 md:py-20 px-5 md:px-10 lg:px-10 bg-white">
       <div className="max-w-7xl mx-auto">
         
         {/* Header Section */}

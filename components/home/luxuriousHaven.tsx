@@ -55,7 +55,7 @@ export default function LuxuriousHaven() {
   };
 
   return (
-    <section className="relative py-16 md:py-24 px-5 md:px-10 lg:px-20 bg-gray-50 overflow-hidden">
+    <section className="relative py-10 md:py-14 px-5 md:px-10 lg:px-10 bg-gray-50 overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           {/* Left Image - Enhanced with overlay */}

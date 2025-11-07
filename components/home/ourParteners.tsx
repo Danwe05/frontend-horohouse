@@ -50,7 +50,7 @@ export default function OurPartners() {
   const duplicatedPartners = [...partners, ...partners];
 
   return (
-    <div className="bg-white py-20 overflow-hidden">
+    <div className="bg-white py-10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 mb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

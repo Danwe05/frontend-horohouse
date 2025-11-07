@@ -91,7 +91,7 @@ export default function WhatWeOffer() {
   };
 
   return (
-    <section className="w-full py-16 select-none bg-blue-50 to-white relative overflow-hidden">
+    <section className="w-full py-10 select-none bg-blue-50 to-white relative overflow-hidden">
       <div className="relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -115,7 +115,7 @@ export default function TopListing() {
   const visibleProperties = formattedProperties.slice(startIndex, startIndex + cardsVisible);
 
   return (
-    <div className="bg-gray-50 min-h-screen px-4 sm:px-6 md:px-10 py-16 relative overflow-hidden">
+    <div className="bg-gray-50 min-h-screen px-4 sm:px-6 md:px-10 py-10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto mb-10 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

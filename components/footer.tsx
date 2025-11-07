@@ -51,7 +51,7 @@ const footerSections = [
 
 export default function Footer() {
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-white py-16 px-6 md:px-12">
+    <div className="bg-gradient-to-b from-gray-50 to-white py-10 px-6 md:px-12">
       <footer className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 text-white rounded-3xl shadow-2xl overflow-hidden relative">
         {/* Decorative background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -59,7 +59,7 @@ export default function Footer() {
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-800/30 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-8 py-12 md:py-16">
+        <div className="relative z-10 max-w-7xl mx-auto px-8 py-12 md:py-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
             {/* Logo & Social Media */}
             <motion.div

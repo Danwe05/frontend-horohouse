@@ -330,7 +330,7 @@ const Properties: React.FC<PropertiesProps> = ({ properties }) => {
           </div>
         ) : (
           <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16">
+            <CardContent className="flex flex-col items-center justify-center py-10">
               <p className="text-2xl font-bold text-gray-800 mb-2">No properties found</p>
               <p className="text-gray-600 mb-6">Try adjusting your filters or search query</p>
               <Button
