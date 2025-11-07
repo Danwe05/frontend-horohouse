@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import { MapPin, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import PropertyCard from '@/components/property/PropertyCard';
 import apiClient from '@/lib/api';
 import { toast } from 'sonner';
@@ -273,6 +273,35 @@ export default function LocationBasedProperties() {
 
     const visibleProperties = formattedProperties.slice(currentIndex, currentIndex + cardsPerView);
 
+    // Skeleton loader for property cards
+    const PropertyCardSkeleton = () => (
+        <Card className="overflow-hidden">
+            <CardContent className="p-0">
+                <Skeleton className="h-48 w-full" />
+                <div className="p-4 space-y-3">
+                    <div className="flex justify-between items-start">
+                        <Skeleton className="h-6 w-32" />
+                        <Skeleton className="h-5 w-16" />
+                    </div>
+                    <Skeleton className="h-5 w-24" />
+                    <div className="flex gap-4 pt-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-4 w-16" />
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+
+    // Skeleton for location loading state
+    const LocationSkeleton = () => (
+        <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-5 w-48" />
+        </div>
+    );
+
     return (
         <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen px-4 sm:px-6 md:px-10 py-10">
             <div className="max-w-7xl mx-auto">
@@ -297,14 +326,12 @@ export default function LocationBasedProperties() {
 
                             <div className="flex items-center gap-2 text-gray-600 mt-2">
                                 {locationLoading ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        <p>Detecting your location...</p>
-                                    </>
+                                    <LocationSkeleton />
                                 ) : locationError ? (
                                     <p className="text-amber-600">{locationError} - Showing default location</p>
                                 ) : userLocation ? (
                                     <>
+                                        <MapPin className="w-4 h-4" />
                                         <p>
                                             {formattedProperties.length} {formattedProperties.length === 1 ? 'property' : 'properties'} found near{' '}
                                             <span className="font-semibold text-blue-600">{userLocation.city}</span>
@@ -315,7 +342,7 @@ export default function LocationBasedProperties() {
                         </div>
 
                         {/* Navigation Buttons - Desktop */}
-                        {formattedProperties.length > cardsPerView && (
+                        {!loading && formattedProperties.length > cardsPerView && (
                             <div className="hidden md:flex items-center gap-3">
                                 <motion.button
                                     whileTap={{ scale: 0.9 }}
@@ -343,9 +370,10 @@ export default function LocationBasedProperties() {
 
                 <section className="relative">
                     {loading ? (
-                        <div className="text-center py-20">
-                            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-                            <p className="text-lg text-gray-500 mt-4">Loading nearby properties...</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {Array.from({ length: cardsPerView }).map((_, index) => (
+                                <PropertyCardSkeleton key={index} />
+                            ))}
                         </div>
                     ) : formattedProperties.length === 0 ? (
                         <Card className="py-20">
@@ -427,7 +455,7 @@ export default function LocationBasedProperties() {
                     )}
                 </section>
 
-                {formattedProperties.length > 0 && (
+                {!loading && formattedProperties.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}

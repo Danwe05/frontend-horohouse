@@ -161,17 +161,9 @@ export default function LuxuriousHaven() {
               <Link href="/properties">
                 <motion.button
                   whileTap={{ scale: 0.95 }}
-                  className="flex-1 sm:flex-none bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-blue-700"
+                  className="flex justify-center items-center gap-3 bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-blue-700"
                 >
-                  Explore All
-                </motion.button>
-              </Link>
-              <Link href="/properties">
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  className="bg-white border-2 border-blue-600 text-blue-600 p-4 rounded-xl hover:bg-blue-50 transition-all duration-300"
-                >
-                  <FaArrowRight className="text-xl" />
+                  Explore All <FaArrowRight className="" />
                 </motion.button>
               </Link>
             </motion.div>

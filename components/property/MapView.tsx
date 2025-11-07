@@ -247,12 +247,12 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
 
   const createTooltipContent = useCallback((property: Property): string => {
     const imageArray = property.images && property.images.length > 0 ? property.images : (property.image ? [property.image] : []);
-    const displayImage = imageArray[0] || '/placeholder.jpg';
+    const displayImage = imageArray[0] || '/';
     const isRent = property.listingType?.toLowerCase() === "rent";
     
     return `
       <div class="min-w-[200px] max-w-[250px]">
-        <img src="${displayImage}" alt="${property.title}" class="w-full h-32 object-cover rounded-t-lg mb-2" onerror="this.src='/placeholder.jpg'"/>
+        <img src="${displayImage}" alt="${property.title}" class="w-full h-32 object-cover rounded-t-lg mb-2" onerror="this.src='/'"/>
         <div class="px-1">
           <div class="font-bold text-base mb-1">${formatPrice(property.price)} XAF${isRent ? '/mo' : ''}</div>
           ${property.type ? `<div class="text-xs text-gray-600 mb-1">${property.type}</div>` : ''}
@@ -795,7 +795,7 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
       ? selectedProperty.images 
       : selectedProperty.image 
         ? [selectedProperty.image] 
-        : ['/placeholder.jpg'];
+        : ['/'];
   }, [selectedProperty]);
 
   return (
@@ -825,7 +825,7 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
                           alt={`${selectedProperty.address} - Image ${index + 1}`}
                           className="w-full h-48 object-cover"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/placeholder.jpg';
+                            (e.target as HTMLImageElement).src = '/';
                           }}
                         />
                       </CarouselItem>
@@ -842,7 +842,7 @@ const MapView = ({ properties = [], onPropertyClick, onAreaSelect, onMapClick, s
                   alt={selectedProperty.address || 'Property'}
                   className="w-full h-48 object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/placeholder.jpg';
+                    (e.target as HTMLImageElement).src = '/';
                   }}
                 />
               )}

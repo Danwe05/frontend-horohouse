@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import PerformanceOvertime from './PerformanceOvertime';
-import PropertySold from './PropertySold';
-import PropertyRent from './PropertyRent';
+import { PropertySold } from './PropertySold';
+import {PropertyRent} from './PropertyRent';
 
 const DashboardStats: React.FC = () => {
   return (

@@ -1,4 +1,4 @@
-import { Search, MapPin, DollarSign, Bed, Bath, Loader2, Clock, X } from "lucide-react";
+import { Search, MapPin, DollarSign, Bed, Bath, Loader2, Clock, X, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +8,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useState, useEffect, useRef } from "react";
 
 export interface QuickSearchFilters {
@@ -299,7 +307,7 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
   return (
     <div className="w-full">
       {/* Desktop Layout */}
-      <div className="hidden lg:flex gap-3 items-end">
+      <div className="hidden md:flex gap-3 items-end">
         {/* City - Longer with Autocomplete */}
         <div className="flex-1 min-w-[250px] relative" ref={suggestionsRef}>
           <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
@@ -558,204 +566,193 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
         </Button>
       </div>
 
-      {/* Mobile/Tablet Layout */}
-      <div className="lg:hidden space-y-3">
-        {/* Location - Full width */}
-        <div className="relative" ref={suggestionsRef}>
-          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-            Location
-          </label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-            {isLoadingSuggestions && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin z-10" />
-            )}
-            <Input
-              value={city}
-              onChange={(e) => handleCityChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setShowSuggestions(true)}
-              placeholder="Search city or place"
-              className="pl-9 h-11"
-              autoComplete="off"
-            />
-            
-            {/* Mobile Autocomplete Dropdown */}
-            {showSuggestions && (recentSearches.length > 0 || suggestions.length > 0) && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-card border-2 border-border rounded-xl shadow-2xl z-50 max-h-[300px] overflow-y-auto">
-                {/* Recent Searches */}
-                {recentSearches.length > 0 && (
-                  <div className="border-b border-border">
-                    <div className="px-3 py-2 bg-muted/30">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        Recent
-                      </p>
-                    </div>
-                    <div className="p-1">
-                      {recentSearches.map((location, index) => (
-                        <div
-                          key={`recent-mobile-${index}`}
-                          onClick={() => handleRecentSearchClick(location)}
-                          className="px-3 py-3 rounded-lg cursor-pointer flex items-center gap-3 active:bg-muted group"
-                        >
-                          <Clock className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                          <span className="flex-1 text-sm text-foreground">
-                            {location}
-                          </span>
-                          <button
-                            onClick={(e) => removeFromRecentSearches(location, e)}
-                            className="flex-shrink-0 p-1 rounded opacity-0 group-active:opacity-100 hover:bg-muted-foreground/20"
-                          >
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          </button>
+      {/* Mobile/Tablet Layout - Sticky Grouped Rows */}
+      <div className="md:hidden">
+        <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm -mx-4 px-4 pt-3 pb-3 border-b border-border shadow-sm">
+          <div className="space-y-2">
+            {/* Row 1: Location + Type */}
+            <div className="flex gap-2">
+              <div className="relative flex-1" ref={suggestionsRef}>
+                <div className="relative">
+                  <MapPin className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground z-10" />
+                  {isLoadingSuggestions && (
+                    <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground animate-spin z-10" />
+                  )}
+                  <Input
+                    value={city}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => setShowSuggestions(true)}
+                    placeholder="Location"
+                    className="pl-8 pr-8 h-9 text-sm"
+                    autoComplete="off"
+                  />
+                  
+                  {/* Mobile Autocomplete Dropdown */}
+                  {showSuggestions && (recentSearches.length > 0 || suggestions.length > 0) && (
+                    <div className="absolute top-full left-0 w-[280px] mt-1 bg-card border-2 border-border rounded-xl shadow-2xl z-50 max-h-[300px] overflow-y-auto">
+                      {/* Recent Searches */}
+                      {recentSearches.length > 0 && (
+                        <div className="border-b border-border">
+                          <div className="px-3 py-2 bg-muted/30">
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              Recent
+                            </p>
+                          </div>
+                          <div className="p-1">
+                            {recentSearches.map((location, index) => (
+                              <div
+                                key={`recent-mobile-${index}`}
+                                onClick={() => handleRecentSearchClick(location)}
+                                className="px-3 py-3 rounded-lg cursor-pointer flex items-center gap-3 active:bg-muted group"
+                              >
+                                <Clock className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                                <span className="flex-1 text-sm text-foreground">
+                                  {location}
+                                </span>
+                                <button
+                                  onClick={(e) => removeFromRecentSearches(location, e)}
+                                  className="flex-shrink-0 p-1 rounded opacity-0 group-active:opacity-100 hover:bg-muted-foreground/20"
+                                >
+                                  <X className="h-3 w-3 text-muted-foreground" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                      )}
 
-                {/* Suggestions */}
-                {suggestions.length > 0 && (
-                  <div className="p-1">
-                    {suggestions.map((suggestion, index) => (
-                      <div
-                        key={`suggestion-mobile-${index}`}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="px-3 py-3 rounded-lg cursor-pointer flex items-start gap-3 active:bg-muted"
-                      >
-                        <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0 text-muted-foreground" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold truncate text-foreground">
-                            {suggestion.text}
-                          </p>
-                          <p className="text-xs truncate mt-0.5 text-muted-foreground">
-                            {suggestion.place_name}
-                          </p>
+                      {/* Suggestions */}
+                      {suggestions.length > 0 && (
+                        <div className="p-1">
+                          {suggestions.map((suggestion, index) => (
+                            <div
+                              key={`suggestion-mobile-${index}`}
+                              onClick={() => handleSuggestionClick(suggestion)}
+                              className="px-3 py-3 rounded-lg cursor-pointer flex items-start gap-3 active:bg-muted"
+                            >
+                              <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0 text-muted-foreground" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold truncate text-foreground">
+                                  {suggestion.text}
+                                </p>
+                                <p className="text-xs truncate mt-0.5 text-muted-foreground">
+                                  {suggestion.place_name}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Row 1: Type and Min Price */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Type
-            </label>
-            <Select value={listingType} onValueChange={setListingType}>
-              <SelectTrigger className="h-11 w-full">
-                <SelectValue placeholder="Any" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="sale">Buy</SelectItem>
-                <SelectItem value="rent">Rent</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="w-[110px]">
+                <Select value={listingType} onValueChange={setListingType}>
+                  <SelectTrigger className="h-9 w-full text-sm">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="sale">Buy</SelectItem>
+                    <SelectItem value="rent">Rent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Min Price
-            </label>
-            <Select value={minBudget} onValueChange={setMinBudget}>
-              <SelectTrigger className="h-11 w-full">
-                <SelectValue placeholder="No Min" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">No Min</SelectItem>
-                <SelectItem value="100k">100k</SelectItem>
-                <SelectItem value="200k">200k</SelectItem>
-                <SelectItem value="500k">500k</SelectItem>
-                <SelectItem value="1m">1M</SelectItem>
-                <SelectItem value="2m">2M</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+            {/* Row 2: Price Range + Beds */}
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Select value={minBudget} onValueChange={setMinBudget}>
+                  <SelectTrigger className="h-9 w-full text-sm">
+                    <SelectValue placeholder="Min Price" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">No Min</SelectItem>
+                    <SelectItem value="100k">100k</SelectItem>
+                    <SelectItem value="200k">200k</SelectItem>
+                    <SelectItem value="500k">500k</SelectItem>
+                    <SelectItem value="1m">1M</SelectItem>
+                    <SelectItem value="2m">2M</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        {/* Row 2: Max Price and Beds */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Max Price
-            </label>
-            <Select value={maxBudget} onValueChange={setMaxBudget}>
-              <SelectTrigger className="h-11 w-full">
-                <SelectValue placeholder="No Max" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">No Max</SelectItem>
-                <SelectItem value="200k">200k</SelectItem>
-                <SelectItem value="500k">500k</SelectItem>
-                <SelectItem value="1m">1M</SelectItem>
-                <SelectItem value="2m">2M</SelectItem>
-                <SelectItem value="5m">5M</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="flex-1">
+                <Select value={maxBudget} onValueChange={setMaxBudget}>
+                  <SelectTrigger className="h-9 w-full text-sm">
+                    <SelectValue placeholder="Max Price" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">No Max</SelectItem>
+                    <SelectItem value="200k">200k</SelectItem>
+                    <SelectItem value="500k">500k</SelectItem>
+                    <SelectItem value="1m">1M</SelectItem>
+                    <SelectItem value="2m">2M</SelectItem>
+                    <SelectItem value="5m">5M</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Bedrooms
-            </label>
-            <Select value={bedrooms} onValueChange={setBedrooms}>
-              <SelectTrigger className="h-11 w-full">
-                <SelectValue placeholder="Any" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="1">1+</SelectItem>
-                <SelectItem value="2">2+</SelectItem>
-                <SelectItem value="3">3+</SelectItem>
-                <SelectItem value="4">4+</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+              <div className="w-[90px]">
+                <Select value={bedrooms} onValueChange={setBedrooms}>
+                  <SelectTrigger className="h-9 w-full text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <Bed className="h-3.5 w-3.5 text-muted-foreground" />
+                      <SelectValue placeholder="Beds" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="1">1+</SelectItem>
+                    <SelectItem value="2">2+</SelectItem>
+                    <SelectItem value="3">3+</SelectItem>
+                    <SelectItem value="4">4+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-        {/* Row 3: Bathrooms and Search Button */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Bathrooms
-            </label>
-            <Select value={bathrooms} onValueChange={setBathrooms}>
-              <SelectTrigger className="h-11 w-full">
-                <SelectValue placeholder="Any" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="1">1+</SelectItem>
-                <SelectItem value="2">2+</SelectItem>
-                <SelectItem value="3">3+</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Row 3: Baths + Search Button */}
+            <div className="flex gap-2">
+              <div className="w-[90px]">
+                <Select value={bathrooms} onValueChange={setBathrooms}>
+                  <SelectTrigger className="h-9 w-full text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <Bath className="h-3.5 w-3.5 text-muted-foreground" />
+                      <SelectValue placeholder="Baths" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="1">1+</SelectItem>
+                    <SelectItem value="2">2+</SelectItem>
+                    <SelectItem value="3">3+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="flex items-end">
-            <Button 
-              className="gap-2 h-11 w-full bg-blue-500 hover:bg-blue-600" 
-              onClick={handleSearch}
-              disabled={isSearching}
-            >
-              {isSearching ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Searching...
-                </>
-              ) : (
-                <>
-                  <Search className="h-4 w-4" />
-                  Search
-                </>
-              )}
-            </Button>
+              <Button 
+                className="flex-1 gap-2 h-9 px-4 bg-blue-500 hover:bg-blue-600 text-sm" 
+                onClick={handleSearch}
+                disabled={isSearching}
+              >
+                {isSearching ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-3.5 w-3.5" />
+                    Search
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
