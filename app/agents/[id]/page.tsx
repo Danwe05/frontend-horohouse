@@ -85,8 +85,8 @@ export default function AgentDetailPage() {
   const [formData, setFormData] = useState<FormData>({ name: '', email: '', phone: '', message: '' });
   const [activeImageIndex, setActiveImageIndex] = useState<Record<string, number>>({});
   const [mapFilter, setMapFilter] = useState<string>('all');
-  const forSaleScrollRef = useRef<HTMLDivElement>(null);
-  const soldScrollRef = useRef<HTMLDivElement>(null);
+  const forSaleScrollRef = useRef<HTMLDivElement | null>(null);
+  const soldScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     console.log('Agent ID from params:', agentId);
@@ -99,13 +99,13 @@ export default function AgentDetailPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       console.log('Fetching agent data for ID:', agentId);
-      
+
       // Fetch agent details
       const agentData = await apiClient.getAgentById(agentId);
       console.log('Agent data received:', agentData);
-      
+
       setAgent(agentData.agent || agentData);
 
       // Fetch agent stats
@@ -167,7 +167,7 @@ export default function AgentDetailPage() {
       alert('Please fill in all required fields.');
       return;
     }
-    
+
     try {
       // You can implement an inquiry API call here
       alert('Message sent! The agent will contact you shortly.');
@@ -192,7 +192,7 @@ export default function AgentDetailPage() {
   };
 
   // Fix: Add null check for ref.current
-  const scroll = (ref: React.RefObject<HTMLDivElement>, direction: 'left' | 'right'): void => {
+  const scroll = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right'): void => {
     if (ref.current) {
       const scrollAmount = 320;
       ref.current.scrollBy({
@@ -231,69 +231,69 @@ export default function AgentDetailPage() {
 
   const PropertyCard: React.FC<PropertyCardProps> = ({ property, listCategory = '' }) => {
     const uniqueKey = `${property.id}-${listCategory}`;
-    
+
     return (
-    <div className="flex-shrink-0 w-72 border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
-      <div className="relative">
-        <img 
-          src={property.images[activeImageIndex[uniqueKey] || 0] || '/placeholder.jpg'}
-          alt={property.address}
-          className="w-full h-48 object-cover"
-        />
-        {property.images.length > 1 && (
-          <>
-            <button
-              onClick={(e) => { e.stopPropagation(); prevImage(uniqueKey, property.images.length); }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); nextImage(uniqueKey, property.images.length); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-700" />
-            </button>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-              {property.images.map((_, idx) => (
-                <div 
-                  key={idx}
-                  className={`w-1.5 h-1.5 rounded-full ${(activeImageIndex[uniqueKey] || 0) === idx ? 'bg-white' : 'bg-white/50'}`}
-                />
-              ))}
+      <div className="flex-shrink-0 w-72 border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
+        <div className="relative">
+          <img
+            src={property.images[activeImageIndex[uniqueKey] || 0] || '/placeholder.jpg'}
+            alt={property.address}
+            className="w-full h-48 object-cover"
+          />
+          {property.images.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); prevImage(uniqueKey, property.images.length); }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-700" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); nextImage(uniqueKey, property.images.length); }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-700" />
+              </button>
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                {property.images.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`w-1.5 h-1.5 rounded-full ${(activeImageIndex[uniqueKey] || 0) === idx ? 'bg-white' : 'bg-white/50'}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+          <button className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-full p-2">
+            <Heart className="w-4 h-4 text-gray-700" />
+          </button>
+          <Badge className={`absolute top-2 left-2 border-0 ${property.status === 'sold' ? 'bg-gray-700' : 'bg-blue-600'} text-white`}>
+            {property.status}
+          </Badge>
+        </div>
+        <div className="p-4">
+          <div className="text-xl font-bold text-gray-900 mb-1">{formatPrice(property.price)}</div>
+          <div className="text-sm text-gray-600 mb-1">{property.address}</div>
+          <div className="text-sm text-gray-500 mb-2">{property.city}, {property.state}</div>
+          {property.soldDate && <div className="text-xs text-gray-500 mb-2">Sold {formatDate(property.soldDate)}</div>}
+          <div className="flex items-center gap-3 text-sm text-gray-700 border-t border-gray-200 pt-3">
+            <div className="flex items-center gap-1">
+              <Bed className="w-4 h-4" />
+              <span>{property.bedrooms} bd</span>
             </div>
-          </>
-        )}
-        <button className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-full p-2">
-          <Heart className="w-4 h-4 text-gray-700" />
-        </button>
-        <Badge className={`absolute top-2 left-2 border-0 ${property.status === 'sold' ? 'bg-gray-700' : 'bg-blue-600'} text-white`}>
-          {property.status}
-        </Badge>
-      </div>
-      <div className="p-4">
-        <div className="text-xl font-bold text-gray-900 mb-1">{formatPrice(property.price)}</div>
-        <div className="text-sm text-gray-600 mb-1">{property.address}</div>
-        <div className="text-sm text-gray-500 mb-2">{property.city}, {property.state}</div>
-        {property.soldDate && <div className="text-xs text-gray-500 mb-2">Sold {formatDate(property.soldDate)}</div>}
-        <div className="flex items-center gap-3 text-sm text-gray-700 border-t border-gray-200 pt-3">
-          <div className="flex items-center gap-1">
-            <Bed className="w-4 h-4" />
-            <span>{property.bedrooms} bd</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Bath className="w-4 h-4" />
-            <span>{property.bathrooms} ba</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Maximize className="w-4 h-4" />
-            <span>{property.squareFeet.toLocaleString()} sqft</span>
+            <div className="flex items-center gap-1">
+              <Bath className="w-4 h-4" />
+              <span>{property.bathrooms} ba</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Maximize className="w-4 h-4" />
+              <span>{property.squareFeet.toLocaleString()} sqft</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
   if (loading) {
     return (
@@ -343,7 +343,7 @@ export default function AgentDetailPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img 
+              <img
                 src={agent.profilePicture || '/placeholder.jpg'}
                 alt={agent.name}
                 className="w-12 h-12 rounded-full object-cover border-2 border-blue-600"
@@ -375,7 +375,7 @@ export default function AgentDetailPage() {
             <Card className="border border-gray-200 shadow-sm">
               <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row gap-6">
-                  <img 
+                  <img
                     src={agent.profilePicture || '/placeholder.jpg'}
                     alt={agent.name}
                     className="w-32 h-32 rounded-full object-cover border-4 border-gray-100 mx-auto sm:mx-0"
@@ -388,7 +388,7 @@ export default function AgentDetailPage() {
                         <p className="text-sm text-gray-500">{agent.agency || 'Independent Agent'}</p>
                       </div>
                     </div>
-                    
+
                     {stats && (
                       <>
                         <div className="flex items-center gap-2 mb-3">
@@ -458,7 +458,7 @@ export default function AgentDetailPage() {
                 <p className="text-gray-700 leading-relaxed mb-4">
                   {agent.bio || `With over ${agent.yearsOfExperience} years of experience in the real estate industry, ${agent.name} has helped numerous families find their dream homes. Specializing in ${agent.specialties.join(', ')}, they bring deep knowledge of the local market and commitment to excellence.`}
                 </p>
-                
+
                 <div className="space-y-3">
                   {agent.licenseNumber && (
                     <div>
@@ -489,20 +489,20 @@ export default function AgentDetailPage() {
                         <svg className="w-full h-full">
                           <defs>
                             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="gray" strokeWidth="0.5"/>
+                              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="gray" strokeWidth="0.5" />
                             </pattern>
                           </defs>
                           <rect width="100%" height="100%" fill="url(#grid)" />
                         </svg>
                       </div>
-                      
+
                       {/* Property Markers */}
                       {getFilteredListings().slice(0, 20).map((property, idx) => {
                         const top = 20 + (idx % 5) * 15;
                         const left = 15 + (idx % 6) * 13;
-                        const pinColor = property.status === 'sold' ? 'bg-gray-700' : 
-                                        property.listingType === 'rent' ? 'bg-purple-600' : 'bg-blue-600';
-                        
+                        const pinColor = property.status === 'sold' ? 'bg-gray-700' :
+                          property.listingType === 'rent' ? 'bg-purple-600' : 'bg-blue-600';
+
                         return (
                           <div
                             key={`marker-${mapFilter}-${property.id}-${idx}`}
@@ -512,7 +512,7 @@ export default function AgentDetailPage() {
                             <div className={`${pinColor} w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center transform transition-transform group-hover:scale-125`}>
                               <MapIcon className="w-4 h-4 text-white" />
                             </div>
-                            
+
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
                               <div className="bg-white rounded-lg shadow-xl border border-gray-200 w-48 overflow-hidden">
                                 <img src={property.images[0] || '/placeholder.jpg'} alt={property.address} className="w-full h-24 object-cover" />
@@ -548,7 +548,7 @@ export default function AgentDetailPage() {
                           {getFilteredListings().length}
                         </Badge>
                       </div>
-                      
+
                       <div className="flex gap-2">
                         <Button
                           size="sm"
@@ -616,13 +616,12 @@ export default function AgentDetailPage() {
                               </div>
                               <Badge
                                 variant="secondary"
-                                className={`mt-1 text-xs ${
-                                  property.status === 'sold'
-                                    ? 'bg-gray-100 text-gray-700'
-                                    : property.listingType === 'rent'
+                                className={`mt-1 text-xs ${property.status === 'sold'
+                                  ? 'bg-gray-100 text-gray-700'
+                                  : property.listingType === 'rent'
                                     ? 'bg-purple-100 text-purple-700'
                                     : 'bg-blue-100 text-blue-700'
-                                }`}
+                                  }`}
                               >
                                 {property.status}
                               </Badge>
@@ -660,7 +659,7 @@ export default function AgentDetailPage() {
                     </Button>
                   </div>
                 </div>
-                <div 
+                <div
                   ref={forSaleScrollRef}
                   className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -696,7 +695,7 @@ export default function AgentDetailPage() {
                     </Button>
                   </div>
                 </div>
-                <div 
+                <div
                   ref={soldScrollRef}
                   className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -763,32 +762,32 @@ export default function AgentDetailPage() {
             <Card className="border border-gray-200 shadow-sm lg:sticky lg:top-20">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Contact {agent.name.split(' ')[0]}</h3>
-                
+
                 <div className="space-y-3 mb-4">
-                  <Input 
+                  <Input
                     placeholder="Name"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="border-gray-300"
                   />
-                  <Input 
+                  <Input
                     type="tel"
                     placeholder="Phone"
                     value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="border-gray-300"
                   />
-                  <Input 
+                  <Input
                     type="email"
                     placeholder="Email"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="border-gray-300"
                   />
-                  <Textarea 
+                  <Textarea
                     placeholder="Message"
                     value={formData.message}
-                    onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     rows={3}
                     className="border-gray-300 resize-none"
                   />
