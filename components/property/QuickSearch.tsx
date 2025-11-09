@@ -53,6 +53,10 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
   const cityInputRef = useRef<HTMLInputElement>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   const budgetToPrice = (val: string): number | undefined => {
     switch (val) {
@@ -74,6 +78,18 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
       case "1m": return "1,000,000 XAF";
       case "2m": return "2,000,000 XAF";
       case "5m": return "5,000,000 XAF";
+      default: return val;
+    }
+  };
+
+  const formatPriceMobile = (val: string): string => {
+    switch (val) {
+      case "100k": return "100K";
+      case "200k": return "200K";
+      case "500k": return "500K";
+      case "1m": return "1M";
+      case "2m": return "2M";
+      case "5m": return "5M";
       default: return val;
     }
   };
@@ -344,13 +360,47 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
     }
   }, [listingType, minBudget, maxBudget, bedrooms, bathrooms]);
 
+  // Carousel drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!carouselRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - carouselRef.current.offsetLeft);
+    setScrollLeft(carouselRef.current.scrollLeft);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!carouselRef.current) return;
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - carouselRef.current.offsetLeft);
+    setScrollLeft(carouselRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !carouselRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    carouselRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !carouselRef.current) return;
+    const x = e.touches[0].pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    carouselRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
   const activeFilters = getActiveFilters();
   const hasActiveFilters = activeFilters.length > 0;
 
   return (
     <div className="w-full">
       {/* Desktop Layout */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="flex gap-3 items-end">
           {/* City Input */}
           <div className="flex-1 min-w-[250px] relative" ref={suggestionsRef}>
@@ -373,10 +423,61 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
                 autoComplete="off"
               />
 
-              {/* Autocomplete Dropdown - Keep your existing implementation */}
+              {/* Autocomplete Dropdown */}
               {showSuggestions && (recentSearches.length > 0 || suggestions.length > 0) && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-card border-2 border-border rounded-xl shadow-2xl z-50 max-h-[400px] overflow-y-auto">
-                  {/* Your existing dropdown code */}
+                <div className="absolute top-full left-0 right-0 mt-1 bg-card border-1 border-border rounded-xl shadow-2xl z-50 max-h-[400px] overflow-y-auto">
+                  {recentSearches.length > 0 && (
+                    <div className="p-2 border-b">
+                      <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        <Clock className="h-3.5 w-3.5" />
+                        Recent Searches
+                      </div>
+                      {recentSearches.map((search, idx) => (
+                        <button
+                          key={`recent-${idx}`}
+                          onClick={() => handleRecentSearchClick(search)}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 hover:bg-accent rounded-lg transition-colors group ${
+                            selectedIndex === idx ? 'bg-accent' : ''
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">{search}</span>
+                          </div>
+                          <X
+                            onClick={(e) => removeFromRecentSearches(search, e)}
+                            className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive transition-all"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {suggestions.length > 0 && (
+                    <div className="p-2">
+                      <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        <Search className="h-3.5 w-3.5" />
+                        Suggestions
+                      </div>
+                      {suggestions.map((suggestion, idx) => {
+                        const actualIndex = idx + recentSearches.length;
+                        return (
+                          <button
+                            key={`suggestion-${idx}`}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className={`w-full flex items-start gap-2 px-3 py-2.5 hover:bg-accent rounded-lg transition-colors text-left ${
+                              selectedIndex === actualIndex ? 'bg-accent' : ''
+                            }`}
+                          >
+                            <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                            <div>
+                              <div className="text-sm font-medium">{suggestion.text}</div>
+                              <div className="text-xs text-muted-foreground">{suggestion.place_name}</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -495,7 +596,7 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
           {hasActiveFilters && (
             <Button
               variant="outline"
-              className="gap-2 h-10 px-4 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+              className="gap-2 h-10 px-4 border-1 border-blue-600 text-blue-600 hover:bg-blue-50"
               onClick={handleSaveButtonClick}
             >
               <Bookmark className="h-4 w-4" />
@@ -534,9 +635,263 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
         )}
       </div>
 
-      {/* Mobile Layout - Simplified for brevity */}
-      <div className="md:hidden">
-        {/* Keep your existing mobile implementation */}
+      {/* Mobile & Tablet Layout with Carousel */}
+      <div className="lg:hidden">
+        {/* Location Search - Full Width */}
+        <div className="mb-3 relative" ref={suggestionsRef}>
+          <label className="text-xs font-semibold text-foreground mb-2 block">Where are you looking?</label>
+          <div className="relative">
+            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+            {isLoadingSuggestions && (
+              <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin z-10" />
+            )}
+            <Input
+              ref={cityInputRef}
+              value={city}
+              onChange={(e) => handleCityChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => setShowSuggestions(true)}
+              placeholder="City, neighborhood, or area"
+              className="w-full pl-12 pr-4 h-12 text-base font-medium"
+              autoComplete="off"
+            />
+          </div>
+          {showSuggestions && (recentSearches.length > 0 || suggestions.length > 0) && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-card border-1 border-border rounded-xl shadow-xl z-50 max-h-[250px] overflow-y-auto">
+              {recentSearches.length > 0 && (
+                <div className="p-2 border-b">
+                  <div className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wide">
+                    <Clock className="h-4 w-4" />
+                    Recent
+                  </div>
+                  {recentSearches.map((search, idx) => (
+                    <button
+                      key={`recent-mobile-${idx}`}
+                      onClick={() => handleRecentSearchClick(search)}
+                      className={`w-full flex items-center justify-between px-3 py-3 hover:bg-accent rounded-lg transition-colors group ${
+                        selectedIndex === idx ? 'bg-accent' : ''
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-semibold">{search}</span>
+                      </div>
+                      <X
+                        onClick={(e) => removeFromRecentSearches(search, e)}
+                        className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive transition-all"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+              {suggestions.length > 0 && (
+                <div className="p-2">
+                  <div className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wide">
+                    <Search className="h-4 w-4" />
+                    Suggestions
+                  </div>
+                  {suggestions.map((suggestion, idx) => {
+                    const actualIndex = idx + recentSearches.length;
+                    return (
+                      <button
+                        key={`suggestion-mobile-${idx}`}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className={`w-full flex items-start gap-2 px-3 py-3 hover:bg-accent rounded-lg transition-colors text-left ${
+                          selectedIndex === actualIndex ? 'bg-accent' : ''
+                        }`}
+                      >
+                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <div className="text-sm font-semibold">{suggestion.text}</div>
+                          <div className="text-xs text-muted-foreground">{suggestion.place_name}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Filters Carousel */}
+        <div className="relative mb-4">
+          <div
+            ref={carouselRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleDragEnd}
+            className="flex gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2 cursor-grab active:cursor-grabbing"
+            style={{ 
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
+            {/* Type Filter */}
+            <div className="flex-shrink-0 snap-start">
+              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[140px] hover:border-primary/50 transition-all">
+                <label className="text-xs font-bold text-muted-foreground mb-2 block uppercase tracking-wide">Type</label>
+                <select
+                  value={listingType}
+                  onChange={(e) => setListingType(e.target.value)}
+                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
+                >
+                  <option value="any">Any</option>
+                  <option value="sale">Buy</option>
+                  <option value="rent">Rent</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Min Price Filter */}
+            <div className="flex-shrink-0 snap-start">
+              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[140px] hover:border-primary/50 transition-all">
+                <label className="text-xs font-bold text-muted-foreground mb-2 block uppercase tracking-wide">Min Price</label>
+                <select
+                  value={minBudget}
+                  onChange={(e) => setMinBudget(e.target.value)}
+                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
+                >
+                  <option value="any">No Min</option>
+                  <option value="100k">100K</option>
+                  <option value="200k">200K</option>
+                  <option value="500k">500K</option>
+                  <option value="1m">1M</option>
+                  <option value="2m">2M</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Max Price Filter */}
+            <div className="flex-shrink-0 snap-start">
+              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[140px] hover:border-primary/50 transition-all">
+                <label className="text-xs font-bold text-muted-foreground mb-2 block uppercase tracking-wide">Max Price</label>
+                <select
+                  value={maxBudget}
+                  onChange={(e) => setMaxBudget(e.target.value)}
+                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
+                >
+                  <option value="any">No Max</option>
+                  <option value="200k">200K</option>
+                  <option value="500k">500K</option>
+                  <option value="1m">1M</option>
+                  <option value="2m">2M</option>
+                  <option value="5m">5M</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Bedrooms Filter */}
+            <div className="flex-shrink-0 snap-start">
+              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[120px] hover:border-primary/50 transition-all">
+                <label className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1 uppercase tracking-wide">
+                  <Bed className="h-3.5 w-3.5" />
+                  Beds
+                </label>
+                <select
+                  value={bedrooms}
+                  onChange={(e) => setBedrooms(e.target.value)}
+                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
+                >
+                  <option value="any">Any</option>
+                  <option value="1">1+</option>
+                  <option value="2">2+</option>
+                  <option value="3">3+</option>
+                  <option value="4">4+</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Bathrooms Filter */}
+            <div className="flex-shrink-0 snap-start">
+              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[120px] hover:border-primary/50 transition-all">
+                <label className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1 uppercase tracking-wide">
+                  <Bath className="h-3.5 w-3.5" />
+                  Baths
+                </label>
+                <select
+                  value={bathrooms}
+                  onChange={(e) => setBathrooms(e.target.value)}
+                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
+                >
+                  <option value="any">Any</option>
+                  <option value="1">1+</option>
+                  <option value="2">2+</option>
+                  <option value="3">3+</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button
+            className="flex-1 gap-2 h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold text-base active:scale-95 transition-all"
+            onClick={handleSearch}
+            disabled={isSearching}
+          >
+            {isSearching ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Searching...
+              </>
+            ) : (
+              <>
+                <Search className="h-5 w-5" />
+                Search
+              </>
+            )}
+          </Button>
+
+          {hasActiveFilters && (
+            <Button
+              variant="outline"
+              className="gap-2 h-12 px-5 border-1 border-blue-500 text-blue-500 hover:bg-blue-50 font-bold active:scale-95 transition-all"
+              onClick={handleSaveButtonClick}
+            >
+              <Bookmark className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Active Filters */}
+        {activeFilters.length > 0 && (
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wide">
+                <Tag className="h-3.5 w-3.5" />
+                Active Filters
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearAllFilters}
+                className="h-7 px-2 text-xs text-destructive hover:text-destructive font-bold"
+              >
+                Clear All
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {activeFilters.map((filter) => (
+                <Badge
+                  key={filter.key}
+                  variant="secondary"
+                  className="px-3 py-1.5 gap-1.5 text-xs font-bold hover:bg-secondary/80 cursor-pointer group"
+                  onClick={filter.onRemove}
+                >
+                  {filter.label}
+                  <X className="h-3 w-3 group-hover:text-destructive transition-colors" />
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Save Search Modal */}
@@ -546,6 +901,12 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
         onSave={handleSaveSearch}
         currentFilters={getCurrentFilters()}
       />
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 };
