@@ -43,7 +43,7 @@ class ApiClient {
           // Check if token is expired before making the request
           if (authService.isTokenExpired()) {
             console.log('[ApiClient] Token expired, refreshing before request...');
-            
+
             if (!this.isRefreshing) {
               this.isRefreshing = true;
               try {
@@ -285,7 +285,7 @@ class ApiClient {
 
   async searchProperties(params: any) {
     // Public endpoint - no auth required
-    const response = await this.client.get('/properties', { 
+    const response = await this.client.get('/properties', {
       params,
       skipAuth: true
     } as any);
@@ -358,6 +358,67 @@ class ApiClient {
 
   async deletePropertyVideo(propertyId: string, videoPublicId: string) {
     const response = await this.client.delete(`/properties/${propertyId}/videos/${encodeURIComponent(videoPublicId)}`);
+    return response.data;
+  }
+
+  // Saved Searches endpoints
+  async createSavedSearch(data: {
+    name: string;
+    searchCriteria: {
+      minPrice?: number;
+      maxPrice?: number;
+      propertyType?: string;
+      listingType?: string;
+      city?: string;
+      state?: string;
+      bedrooms?: number;
+      bathrooms?: number;
+      amenities?: string[];
+      latitude?: number;
+      longitude?: number;
+      radius?: number;
+    };
+    notificationFrequency?: 'instant' | 'daily' | 'weekly' | 'never';
+    isActive?: boolean;
+  }) {
+    const response = await this.client.post('/saved-searches', data);
+    return response.data;
+  }
+
+  async getSavedSearches() {
+    const response = await this.client.get('/saved-searches');
+    return response.data;
+  }
+
+  async getSavedSearchById(id: string) {
+    const response = await this.client.get(`/saved-searches/${id}`);
+    return response.data;
+  }
+
+  async updateSavedSearch(id: string, data: {
+    name?: string;
+    searchCriteria?: any;
+    notificationFrequency?: 'instant' | 'daily' | 'weekly' | 'never';
+    isActive?: boolean;
+  }) {
+    const response = await this.client.patch(`/saved-searches/${id}`, data);
+    return response.data;
+  }
+
+  async deleteSavedSearch(id: string) {
+    const response = await this.client.delete(`/saved-searches/${id}`);
+    return response.data;
+  }
+
+  async getSavedSearchProperties(id: string, page: number = 1, limit: number = 20) {
+    const response = await this.client.get(`/saved-searches/${id}/properties`, {
+      params: { page, limit }
+    });
+    return response.data;
+  }
+
+  async getSavedSearchStatistics() {
+    const response = await this.client.get('/saved-searches/statistics');
     return response.data;
   }
 
@@ -461,16 +522,16 @@ class ApiClient {
     return response.data;
   }
 
-// In api.ts - Update the getAgents method
-async getAgents(params?: { page?: number; limit?: number }) {
-  const response = await this.client.get('/users/agents', {
-    params: {
-      page: params?.page || 1,
-      limit: params?.limit || 12
-    },
-  });
-  return response.data;
-}
+  // In api.ts - Update the getAgents method
+  async getAgents(params?: { page?: number; limit?: number }) {
+    const response = await this.client.get('/users/agents', {
+      params: {
+        page: params?.page || 1,
+        limit: params?.limit || 12
+      },
+    });
+    return response.data;
+  }
 
   async getUserById(id: string) {
     const response = await this.client.get(`/users/${id}`);
@@ -502,6 +563,45 @@ async getAgents(params?: { page?: number; limit?: number }) {
     return response.data;
   }
 
+  // Add these methods to your ApiClient class in lib/api.ts
+
+  async getAgentById(id: string) {
+    const response = await this.client.get(`/users/agents/${id}`, {
+      skipAuth: true
+    } as any);
+    return response.data;
+  }
+
+  async getAgentStats(id: string) {
+    const response = await this.client.get(`/users/agents/${id}/stats`, {
+      skipAuth: true
+    } as any);
+    return response.data;
+  }
+
+  async getAgentProperties(id: string, params?: {
+    status?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const response = await this.client.get(`/users/agents/${id}/properties`, {
+      params,
+      skipAuth: true
+    } as any);
+    return response.data;
+  }
+
+  async getAgentReviews(id: string, params?: {
+    page?: number;
+    limit?: number;
+  }) {
+    const response = await this.client.get(`/users/agents/${id}/reviews`, {
+      params,
+      skipAuth: true
+    } as any);
+    return response.data;
+  }
+
   // Recommendations endpoint
   async getRecommendations(limit = 10) {
     const response = await this.client.get(`/properties/recommendations?limit=${limit}`);
@@ -521,6 +621,100 @@ async getAgents(params?: { page?: number; limit?: number }) {
 
   async saveComparison(propertyIds: string[], name?: string) {
     const response = await this.client.post('/properties/compare/save', { propertyIds, name });
+    return response.data;
+  }
+
+  // Reviews endpoints
+  async createReview(data: {
+    reviewType: 'property' | 'agent';
+    propertyId?: string;
+    agentId?: string;
+    rating: number;
+    comment: string;
+    images?: string[];
+  }) {
+    const response = await this.client.post('/reviews', data);
+    return response.data;
+  }
+
+  async getPropertyReviews(propertyId: string, params?: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) {
+    const response = await this.client.get(`/reviews/property/${propertyId}`, {
+      params,
+      skipAuth: true
+    } as any);
+    return response.data;
+  }
+
+  async getPropertyReviewStats(propertyId: string) {
+    const response = await this.client.get(`/reviews/property/${propertyId}/stats`, {
+      skipAuth: true
+    } as any);
+    return response.data;
+  }
+
+  async getAgentReviewsAPI(agentId: string, params?: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) {
+    const response = await this.client.get(`/reviews/agent/${agentId}`, {
+      params,
+      skipAuth: true
+    } as any);
+    return response.data;
+  }
+
+  async getAgentReviewStatsAPI(agentId: string) {
+    const response = await this.client.get(`/reviews/agent/${agentId}/stats`, {
+      skipAuth: true
+    } as any);
+    return response.data;
+  }
+
+  async getMyReviews(params?: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) {
+    const response = await this.client.get('/reviews/my-reviews', { params });
+    return response.data;
+  }
+
+  async getReview(id: string) {
+    const response = await this.client.get(`/reviews/${id}`, {
+      skipAuth: true
+    } as any);
+    return response.data;
+  }
+
+  async updateReview(id: string, data: {
+    rating?: number;
+    comment?: string;
+    images?: string[];
+  }) {
+    const response = await this.client.patch(`/reviews/${id}`, data);
+    return response.data;
+  }
+
+  async respondToReview(id: string, response: string) {
+    const res = await this.client.post(`/reviews/${id}/respond`, { response });
+    return res.data;
+  }
+
+  async markReviewAsHelpful(id: string) {
+    const response = await this.client.post(`/reviews/${id}/helpful`);
+    return response.data;
+  }
+
+  async deleteReview(id: string) {
+    const response = await this.client.delete(`/reviews/${id}`);
     return response.data;
   }
 
@@ -619,6 +813,8 @@ async getAgents(params?: { page?: number; limit?: number }) {
     return response.data;
   }
 }
+
+
 
 export const apiClient = new ApiClient();
 export default apiClient;

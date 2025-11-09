@@ -80,18 +80,6 @@ const RentalApplication = ({ propertyId }: RentalApplicationProps) => {
           Request Information
         </Button>
       </form>
-
-      {/* Landlord Info */}
-      <div className="pt-4 border-t border-border flex items-center gap-4">
-        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">
-          SP
-        </div>
-        <div>
-          <p className="font-semibold text-lg">Sarah Peterson</p>
-          <p className="text-sm text-muted-foreground">Property Manager</p>
-          <p className="text-sm text-primary mt-1">Typically responds within 1 hour</p>
-        </div>
-      </div>
     </section>
   );
 };

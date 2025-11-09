@@ -25,7 +25,7 @@ import NotificationDropdown from "../notifications/NotificationDropdown";
 // Regular User Menu Items
 const regularUserItems = [
   { icon: Home, label: "Dashboard", path: "/dashboard", badge: null, activeKey: "dashboard" },
-  { icon: Search, label: "Search Properties", path: "/dashboard/search", badge: null, activeKey: "search" },
+  { icon: Search, label: "Search Properties", path: "/dashboard/saved-searches", badge: null, activeKey: "search" },
   { icon: Heart, label: "Favorite Properties", path: "/dashboard/favorite", badge: null, activeKey: "saved" },
   { icon: Clock, label: "Recently Viewed", path: "/dashboard/recent", badge: null, activeKey: "recent" },
   { icon: Lightbulb, label: "Recommended", path: "/dashboard/recommended", badge: "New", activeKey: "recommended" },

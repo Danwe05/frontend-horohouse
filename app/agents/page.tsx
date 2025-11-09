@@ -1,4 +1,3 @@
-// app/agents/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -23,7 +22,6 @@ import Image from 'next/image';
 export default function AgentsPage() {
     const [agents, setAgents] = useState<Agent[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
     const [agentName, setAgentName] = useState('');
     const [cityFilter, setCityFilter] = useState<string>('');
     const [serviceType, setServiceType] = useState<string>('buying');
@@ -36,9 +34,6 @@ export default function AgentsPage() {
     const [total, setTotal] = useState(0);
     const limit = 12;
 
-    // Extract unique cities from agents
-    const cities = Array.from(new Set(agents.map(agent => agent.city).filter(Boolean))) as string[];
-
     useEffect(() => {
         fetchAgents();
     }, [page]);
@@ -47,7 +42,21 @@ export default function AgentsPage() {
         try {
             setLoading(true);
             const response = await apiClient.getAgents({ page, limit });
-            setAgents(response.agents);
+            
+            // Debug: Log the response to see the structure
+            console.log('API Response:', response);
+            console.log('First agent:', response.agents?.[0]);
+            
+            // Map _id to id if needed
+            const mappedAgents = response.agents.map((agent: any) => ({
+                ...agent,
+                id: agent._id || agent.id, // Handle both _id and id
+            }));
+            
+            console.log('Mapped agents:', mappedAgents);
+            console.log('First mapped agent ID:', mappedAgents[0]?.id);
+            
+            setAgents(mappedAgents);
             setTotal(response.total);
             setTotalPages(response.totalPages);
         } catch (error) {
@@ -57,20 +66,44 @@ export default function AgentsPage() {
         }
     };
 
-    // Filter agents
+    // Client-side filtering
     const filteredAgents = agents.filter(agent => {
-        const matchesCity = !cityFilter || agent.city?.toLowerCase().includes(cityFilter.toLowerCase());
-        const matchesName = !agentName || agent.name.toLowerCase().includes(agentName.toLowerCase());
+        // Name filter
+        const matchesName = !agentName || 
+            agent.name.toLowerCase().includes(agentName.toLowerCase());
         
-        return matchesCity && matchesName;
+        // City filter
+        const matchesCity = !cityFilter || 
+            agent.city?.toLowerCase().includes(cityFilter.toLowerCase());
+        
+        // Top agent filter (agents with 50+ properties)
+        const matchesTopAgent = !topAgentOnly || agent.totalProperties > 50;
+        
+        // Language filter
+        const matchesLanguage = language === 'all' || 
+            agent.languages?.some(lang => lang.toLowerCase() === language.toLowerCase());
+        
+        // Specialty filter (if you add specialties to agent data)
+        const matchesSpecialty = specialty === 'all' || 
+            agent.specialties?.some(spec => spec.toLowerCase().includes(specialty.toLowerCase()));
+        
+        return matchesName && matchesCity && matchesTopAgent && matchesLanguage && matchesSpecialty;
     });
 
     const handleSearch = () => {
+        // Reset to page 1 and fetch
+        setPage(1);
         fetchAgents();
     };
 
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white mt-16">
             {/* Search Section */}
             <div className="border-b border-gray-200 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -81,6 +114,7 @@ export default function AgentsPage() {
                             placeholder="City, neighborhood, or zip code"
                             value={cityFilter}
                             onChange={(e) => setCityFilter(e.target.value)}
+                            onKeyPress={handleKeyPress}
                             className="flex-1 h-12 text-base border-gray-300 focus:border-blue-600 focus:ring-blue-600"
                         />
                         <Input
@@ -88,6 +122,7 @@ export default function AgentsPage() {
                             placeholder="Agent name"
                             value={agentName}
                             onChange={(e) => setAgentName(e.target.value)}
+                            onKeyPress={handleKeyPress}
                             className="flex-1 h-12 text-base border-gray-300 focus:border-blue-600 focus:ring-blue-600"
                         />
                         <Button 
@@ -159,6 +194,7 @@ export default function AgentsPage() {
                                 <SelectItem value="residential">Residential</SelectItem>
                                 <SelectItem value="commercial">Commercial</SelectItem>
                                 <SelectItem value="luxury">Luxury</SelectItem>
+                                <SelectItem value="investment">Investment</SelectItem>
                             </SelectContent>
                         </Select>
 
@@ -180,9 +216,33 @@ export default function AgentsPage() {
             {/* Results */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Results Count */}
-                <h2 className="text-xl sm:text-2xl text-gray-700 mb-8">
-                    {total.toLocaleString()} agents found
-                </h2>
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-xl sm:text-2xl text-gray-700">
+                        {loading ? (
+                            <Skeleton className="h-8 w-48" />
+                        ) : (
+                            `${filteredAgents.length.toLocaleString()} agents found`
+                        )}
+                    </h2>
+                    
+                    {/* Active Filters Display */}
+                    {(agentName || cityFilter || topAgentOnly || language !== 'all' || specialty !== 'all') && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                                setAgentName('');
+                                setCityFilter('');
+                                setTopAgentOnly(false);
+                                setLanguage('all');
+                                setSpecialty('all');
+                            }}
+                            className="text-sm"
+                        >
+                            Clear Filters
+                        </Button>
+                    )}
+                </div>
 
                 {/* Agents Grid */}
                 {loading ? (
@@ -199,7 +259,19 @@ export default function AgentsPage() {
                             </div>
                             <div>
                                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No agents found</h3>
-                                <p className="text-gray-600">Try adjusting your search criteria</p>
+                                <p className="text-gray-600 mb-4">Try adjusting your search criteria</p>
+                                <Button
+                                    onClick={() => {
+                                        setAgentName('');
+                                        setCityFilter('');
+                                        setTopAgentOnly(false);
+                                        setLanguage('all');
+                                        setSpecialty('all');
+                                    }}
+                                    variant="outline"
+                                >
+                                    Clear All Filters
+                                </Button>
                             </div>
                         </div>
                     </Card>
@@ -223,16 +295,19 @@ export default function AgentsPage() {
                                     Previous
                                 </Button>
                                 <div className="flex gap-1">
-                                    {[...Array(Math.min(totalPages, 5))].map((_, i) => (
-                                        <Button
-                                            key={`page-${i + 1}`}
-                                            variant={page === i + 1 ? "default" : "outline"}
-                                            onClick={() => setPage(i + 1)}
-                                            className={page === i + 1 ? "bg-blue-600 hover:bg-blue-700" : "border-gray-300"}
-                                        >
-                                            {i + 1}
-                                        </Button>
-                                    ))}
+                                    {[...Array(Math.min(totalPages, 5))].map((_, i) => {
+                                        const pageNumber = i + 1;
+                                        return (
+                                            <Button
+                                                key={pageNumber}
+                                                variant={page === pageNumber ? "default" : "outline"}
+                                                onClick={() => setPage(pageNumber)}
+                                                className={page === pageNumber ? "bg-blue-600 hover:bg-blue-700" : "border-gray-300"}
+                                            >
+                                                {pageNumber}
+                                            </Button>
+                                        );
+                                    })}
                                 </div>
                                 <Button
                                     variant="outline"
@@ -251,12 +326,20 @@ export default function AgentsPage() {
     );
 }
 
-// Agent Card Component matching Zillow style
+// Agent Card Component
 function AgentCard({ agent }: { agent: Agent }) {
-    // Mock rating - in real app this would come from agent data
-    const rating = 5.0;
-    const reviewCount = Math.floor(Math.random() * 2000) + 100;
+    // Calculate rating (you can add this to your API response later)
+    const rating = 4.8 + (Math.random() * 0.4); // Random between 4.8-5.2, capped at 5.0
+    const displayRating = Math.min(rating, 5.0);
+    const reviewCount = Math.floor(agent.propertiesSold * 0.6); // Estimate reviews from sales
     const isTopAgent = agent.totalProperties > 50;
+
+    // Calculate price range based on properties
+    const minPrice = Math.floor(agent.totalProperties * 45);
+    const maxPrice = Math.floor(agent.totalProperties * 85);
+
+    // Debug log
+    console.log('Agent Card - Agent ID:', agent.id, 'Full agent:', agent);
 
     return (
         <Link href={`/agents/${agent.id}`}>
@@ -265,7 +348,7 @@ function AgentCard({ agent }: { agent: Agent }) {
                     <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                         {/* Profile Picture */}
                         <div className="relative flex-shrink-0 mx-auto sm:mx-0">
-                            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden">
+                            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-gray-100">
                                 {agent.profilePicture ? (
                                     <Image
                                         src={agent.profilePicture}
@@ -273,15 +356,14 @@ function AgentCard({ agent }: { agent: Agent }) {
                                         width={128}
                                         height={128}
                                         className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = '/placeholder.jpg';
+                                        }}
                                     />
                                 ) : (
-                                    <Image
-                                        src="/placeholder.jpg"
-                                        alt={agent.name}
-                                        width={128}
-                                        height={128}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-white text-3xl font-bold">
+                                        {agent.name.charAt(0).toUpperCase()}
+                                    </div>
                                 )}
                             </div>
                             {isTopAgent && (
@@ -300,7 +382,7 @@ function AgentCard({ agent }: { agent: Agent }) {
                             <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between mb-2 gap-2">
                                 <div className="w-full sm:w-auto">
                                     <div className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-1">
-                                        TEAM
+                                        {agent.agency ? 'TEAM' : 'INDEPENDENT'}
                                     </div>
                                     <h3 className="text-xl sm:text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                                         {agent.name}
@@ -310,7 +392,7 @@ function AgentCard({ agent }: { agent: Agent }) {
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-1 text-sm whitespace-nowrap">
-                                    <span className="font-bold text-gray-900">{rating.toFixed(1)}</span>
+                                    <span className="font-bold text-gray-900">{displayRating.toFixed(1)}</span>
                                     <span className="text-blue-600">★</span>
                                     <span className="text-gray-500">({reviewCount.toLocaleString()})</span>
                                 </div>
@@ -320,19 +402,43 @@ function AgentCard({ agent }: { agent: Agent }) {
                             <div className="space-y-1 text-sm sm:text-base text-gray-700">
                                 <div>
                                     <span className="font-semibold text-gray-900">
-                                        ${Math.floor(agent.totalProperties * 50)}K - ${Math.floor(agent.totalProperties * 80)}K
+                                        ${minPrice}K - ${maxPrice}K
                                     </span>
                                     <span className="text-gray-500"> team price range</span>
                                 </div>
                                 <div>
                                     <span className="font-semibold text-gray-900">{agent.activeProperties}</span>
-                                    <span className="text-gray-500"> team sales last 12 months</span>
+                                    <span className="text-gray-500"> active listings</span>
                                 </div>
                                 <div>
                                     <span className="font-semibold text-gray-900">{agent.totalProperties}</span>
-                                    <span className="text-gray-500"> team sales in {agent.city || 'area'}</span>
+                                    <span className="text-gray-500"> total properties in {agent.city || 'area'}</span>
                                 </div>
                             </div>
+
+                            {/* Languages & Specialties */}
+                            {(agent.languages?.length > 0 || agent.specialties?.length > 0) && (
+                                <div className="mt-3 flex flex-wrap gap-1 justify-center sm:justify-start">
+                                    {agent.languages?.slice(0, 2).map((lang, idx) => (
+                                        <Badge 
+                                            key={`lang-${idx}`} 
+                                            variant="secondary" 
+                                            className="text-xs bg-gray-100 text-gray-600"
+                                        >
+                                            {lang}
+                                        </Badge>
+                                    ))}
+                                    {agent.specialties?.slice(0, 1).map((spec, idx) => (
+                                        <Badge 
+                                            key={`spec-${idx}`} 
+                                            variant="secondary" 
+                                            className="text-xs bg-blue-50 text-blue-700"
+                                        >
+                                            {spec}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </CardContent>

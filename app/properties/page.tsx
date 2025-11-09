@@ -626,56 +626,6 @@ const IndexContent = () => {
         <QuickSearch onSearch={handleQuickSearch} />
       </div>
 
-      {/* Filter Chips - Desktop */}
-      {filterChips.length > 0 && (
-        <div className="w-full px-6 pb-4">
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-muted-foreground mr-2">Active filters:</span>
-            {filterChips.map((chip) => (
-              <Badge 
-                key={chip.key} 
-                variant="secondary"
-                className="pl-3 pr-2 py-1.5 text-sm flex items-center gap-2"
-              >
-                <span>{chip.label}</span>
-                <button
-                  onClick={() => removeFilter(chip.key)}
-                  className="hover:bg-muted rounded-full p-0.5 transition-colors"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </Badge>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearAllFilters}
-              className="text-sm h-8"
-            >
-              Clear all
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={shareSearch}
-              className="text-sm h-8 gap-2 ml-auto"
-            >
-              {copied ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Share2 className="h-4 w-4" />
-                  Share Search
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
-
       <main className="flex-1 flex h-[calc(100vh-64px-88px)]">
         {showMap && (
           <div className="w-2/5 h-full p-4 overflow-y-auto sticky top-[70px]">
