@@ -7,10 +7,16 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Phone, Mail, MapPin, Star, Calendar, Share2, MessageSquare, Heart, Bed, Bath, Maximize, TrendingUp, Award, CheckCircle2, ChevronLeft, ChevronRight, Quote, Map as MapIcon, Filter } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Phone, Mail, MapPin, Star, Calendar, Share2, MessageSquare, Heart, 
+  Bed, Bath, Maximize, TrendingUp, Award, CheckCircle2, ChevronLeft, 
+  ChevronRight, Quote, Map as MapIcon, Filter, X, AlertCircle 
+} from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { useParams } from 'next/navigation';
 
+// Types
 interface FormData {
   name: string;
   email: string;
@@ -63,17 +69,266 @@ interface AgentProperty {
 
 interface AgentReview {
   id: string;
-  name: string;
+  userName: string;
   rating: number;
-  date: string;
-  text: string;
+  createdAt: string;
+  comment: string;
   verified: boolean;
 }
 
+interface PropertyCardProps {
+  property: AgentProperty;
+  listCategory?: string;
+  activeImageIndex: Record<string, number>;
+  onNextImage: (uniqueKey: string, totalImages: number) => void;
+  onPrevImage: (uniqueKey: string, totalImages: number) => void;
+  formatPrice: (price: number) => string;
+  formatDate: (dateString: string) => string;
+}
+
+// Property Card Component
+const PropertyCard: React.FC<PropertyCardProps> = ({ 
+  property, 
+  listCategory = '', 
+  activeImageIndex,
+  onNextImage,
+  onPrevImage,
+  formatPrice,
+  formatDate
+}) => {
+  const uniqueKey = `${property.id}-${listCategory}`;
+
+  return (
+    <div className="flex-shrink-0 w-72 border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
+      <div className="relative">
+        <img
+          src={property.images[activeImageIndex[uniqueKey] || 0] || '/placeholder.jpg'}
+          alt={property.address}
+          className="w-full h-48 object-cover"
+        />
+        {property.images.length > 1 && (
+          <>
+            <button
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                onPrevImage(uniqueKey, property.images.length); 
+              }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-700" />
+            </button>
+            <button
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                onNextImage(uniqueKey, property.images.length); 
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-700" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+              {property.images.map((_, idx) => (
+                <div
+                  key={`${uniqueKey}-dot-${idx}`}
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    (activeImageIndex[uniqueKey] || 0) === idx ? 'bg-white' : 'bg-white/50'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+        <button className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-full p-2">
+          <Heart className="w-4 h-4 text-gray-700" />
+        </button>
+        <Badge 
+          className={`absolute top-2 left-2 border-0 ${
+            property.status === 'sold' ? 'bg-gray-700' : 'bg-blue-600'
+          } text-white`}
+        >
+          {property.status}
+        </Badge>
+      </div>
+      <div className="p-4">
+        <div className="text-xl font-bold text-gray-900 mb-1">{formatPrice(property.price)}</div>
+        <div className="text-sm text-gray-600 mb-1">{property.address}</div>
+        <div className="text-sm text-gray-500 mb-2">{property.city}, {property.state}</div>
+        {property.soldDate && (
+          <div className="text-xs text-gray-500 mb-2">Sold {formatDate(property.soldDate)}</div>
+        )}
+        <div className="flex items-center gap-3 text-sm text-gray-700 border-t border-gray-200 pt-3">
+          <div className="flex items-center gap-1">
+            <Bed className="w-4 h-4" />
+            <span>{property.bedrooms} bd</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Bath className="w-4 h-4" />
+            <span>{property.bathrooms} ba</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Maximize className="w-4 h-4" />
+            <span>{property.squareFeet.toLocaleString()} sqft</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Review Modal Component
+interface ReviewModalProps {
+  agent: Agent | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (rating: number, comment: string) => Promise<void>;
+  submitting: boolean;
+  error: string | null;
+  success: string | null;
+}
+
+const ReviewModal: React.FC<ReviewModalProps> = ({
+  agent,
+  isOpen,
+  onClose,
+  onSubmit,
+  submitting,
+  error,
+  success
+}) => {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+
+  const handleClose = () => {
+    setRating(0);
+    setComment('');
+    onClose();
+  };
+
+  const handleSubmit = async () => {
+    if (rating === 0 || comment.trim().length < 10) return;
+    await onSubmit(rating, comment);
+  };
+
+  if (!isOpen) return null;
+
+  const getRatingLabel = (value: number) => {
+    const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+    return labels[value];
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-lg border border-gray-200 shadow-xl">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-900">Write a Review</h3>
+            <Button variant="ghost" size="sm" onClick={handleClose} disabled={submitting}>
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-3 mb-4">
+            <img
+              src={agent?.profilePicture || '/placeholder.jpg'}
+              alt={agent?.name}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <div>
+              <div className="font-semibold text-gray-900">{agent?.name}</div>
+              <div className="text-sm text-gray-600">{agent?.agency || 'Independent Agent'}</div>
+            </div>
+          </div>
+
+          {error && (
+            <Alert className="mb-4 border-red-200 bg-red-50">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800">{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {success && (
+            <Alert className="mb-4 border-green-200 bg-green-50">
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800">{success}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Rating <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    disabled={submitting}
+                    className="transition-transform hover:scale-110 disabled:cursor-not-allowed"
+                  >
+                    <Star
+                      className={`w-8 h-8 ${
+                        star <= rating ? 'fill-blue-600 text-blue-600' : 'text-gray-300'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              {rating > 0 && (
+                <p className="text-sm text-gray-600 mt-1">{getRatingLabel(rating)}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Your Review <span className="text-red-500">*</span>
+              </label>
+              <Textarea
+                placeholder="Share your experience working with this agent..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                rows={5}
+                disabled={submitting}
+                className="border-gray-300 resize-none"
+                maxLength={1000}
+              />
+              <div className="flex justify-between mt-1">
+                <p className="text-xs text-gray-500">Minimum 10 characters</p>
+                <p className="text-xs text-gray-500">{comment.length}/1000</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                disabled={submitting}
+                className="flex-1 border-gray-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={submitting || rating === 0 || comment.trim().length < 10}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+              >
+                {submitting ? 'Submitting...' : 'Submit Review'}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Main Component
 export default function AgentDetailPage() {
   const params = useParams();
   const agentId = params?.id as string;
 
+  // State
   const [agent, setAgent] = useState<Agent | null>(null);
   const [stats, setStats] = useState<AgentStats | null>(null);
   const [forSaleProperties, setForSaleProperties] = useState<AgentProperty[]>([]);
@@ -82,14 +337,27 @@ export default function AgentDetailPage() {
   const [reviews, setReviews] = useState<AgentReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>({ name: '', email: '', phone: '', message: '' });
+  
+  const [formData, setFormData] = useState<FormData>({ 
+    name: '', 
+    email: '', 
+    phone: '', 
+    message: '' 
+  });
+  
   const [activeImageIndex, setActiveImageIndex] = useState<Record<string, number>>({});
   const [mapFilter, setMapFilter] = useState<string>('all');
+  
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewSuccess, setReviewSuccess] = useState<string | null>(null);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  
   const forSaleScrollRef = useRef<HTMLDivElement | null>(null);
   const soldScrollRef = useRef<HTMLDivElement | null>(null);
 
+  // Fetch agent data
   useEffect(() => {
-    console.log('Agent ID from params:', agentId);
     if (agentId) {
       fetchAgentData();
     }
@@ -100,22 +368,13 @@ export default function AgentDetailPage() {
       setLoading(true);
       setError(null);
 
-      console.log('Fetching agent data for ID:', agentId);
-
-      // Fetch agent details
       const agentData = await apiClient.getAgentById(agentId);
-      console.log('Agent data received:', agentData);
-
       setAgent(agentData.agent || agentData);
 
-      // Fetch agent stats
       try {
         const statsData = await apiClient.getAgentStats(agentId);
-        console.log('Stats data received:', statsData);
         setStats(statsData);
       } catch (statsError) {
-        console.error('Error fetching stats:', statsError);
-        // Set default stats if API fails
         setStats({
           rating: 4.8,
           reviewCount: 0,
@@ -126,7 +385,6 @@ export default function AgentDetailPage() {
         });
       }
 
-      // Fetch properties by status
       try {
         const [forSaleRes, soldRes, rentalRes] = await Promise.all([
           apiClient.getAgentProperties(agentId, { status: 'active', limit: 20 }),
@@ -138,19 +396,15 @@ export default function AgentDetailPage() {
         setSoldProperties(soldRes.properties || []);
         setRentalProperties(rentalRes.properties || []);
       } catch (propsError) {
-        console.error('Error fetching properties:', propsError);
         setForSaleProperties([]);
         setSoldProperties([]);
         setRentalProperties([]);
       }
 
-      // Fetch reviews
       try {
         const reviewsData = await apiClient.getAgentReviews(agentId, { limit: 10 });
-        console.log('Reviews data received:', reviewsData);
         setReviews(reviewsData.reviews || []);
       } catch (reviewsError) {
-        console.error('Error fetching reviews:', reviewsError);
         setReviews([]);
       }
 
@@ -162,18 +416,48 @@ export default function AgentDetailPage() {
     }
   };
 
-  const handleSubmit = async (): Promise<void> => {
+  // Handlers
+  const handleContactSubmit = async (): Promise<void> => {
     if (!formData.name || !formData.email || !formData.message) {
       alert('Please fill in all required fields.');
       return;
     }
 
     try {
-      // You can implement an inquiry API call here
       alert('Message sent! The agent will contact you shortly.');
       setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (error) {
       alert('Failed to send message. Please try again.');
+    }
+  };
+
+  const handleReviewSubmit = async (rating: number, comment: string): Promise<void> => {
+    setSubmittingReview(true);
+    setReviewError(null);
+    setReviewSuccess(null);
+
+    try {
+      await apiClient.createReview({
+        reviewType: 'agent',
+        agentId: agentId,
+        rating: rating,
+        comment: comment.trim(),
+      });
+
+      setReviewSuccess('Review submitted successfully!');
+      
+      setTimeout(() => {
+        fetchAgentData();
+        setShowReviewModal(false);
+        setReviewSuccess(null);
+      }, 2000);
+    } catch (error: any) {
+      setReviewError(
+        error.response?.data?.message || 
+        'Failed to submit review. You may have already reviewed this agent.'
+      );
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -191,7 +475,6 @@ export default function AgentDetailPage() {
     }));
   };
 
-  // Fix: Add null check for ref.current
   const scroll = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right'): void => {
     if (ref.current) {
       const scrollAmount = 320;
@@ -207,8 +490,18 @@ export default function AgentDetailPage() {
   };
 
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+    } catch (error) {
+      return '';
+    }
   };
 
   const allMapListings: AgentProperty[] = [
@@ -224,77 +517,7 @@ export default function AgentDetailPage() {
     return allMapListings;
   };
 
-  interface PropertyCardProps {
-    property: AgentProperty;
-    listCategory?: string;
-  }
-
-  const PropertyCard: React.FC<PropertyCardProps> = ({ property, listCategory = '' }) => {
-    const uniqueKey = `${property.id}-${listCategory}`;
-
-    return (
-      <div className="flex-shrink-0 w-72 border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
-        <div className="relative">
-          <img
-            src={property.images[activeImageIndex[uniqueKey] || 0] || '/placeholder.jpg'}
-            alt={property.address}
-            className="w-full h-48 object-cover"
-          />
-          {property.images.length > 1 && (
-            <>
-              <button
-                onClick={(e) => { e.stopPropagation(); prevImage(uniqueKey, property.images.length); }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <ChevronLeft className="w-5 h-5 text-gray-700" />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); nextImage(uniqueKey, property.images.length); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-700" />
-              </button>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                {property.images.map((_, idx) => (
-                  <div
-                    key={idx}
-                    className={`w-1.5 h-1.5 rounded-full ${(activeImageIndex[uniqueKey] || 0) === idx ? 'bg-white' : 'bg-white/50'}`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-          <button className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-full p-2">
-            <Heart className="w-4 h-4 text-gray-700" />
-          </button>
-          <Badge className={`absolute top-2 left-2 border-0 ${property.status === 'sold' ? 'bg-gray-700' : 'bg-blue-600'} text-white`}>
-            {property.status}
-          </Badge>
-        </div>
-        <div className="p-4">
-          <div className="text-xl font-bold text-gray-900 mb-1">{formatPrice(property.price)}</div>
-          <div className="text-sm text-gray-600 mb-1">{property.address}</div>
-          <div className="text-sm text-gray-500 mb-2">{property.city}, {property.state}</div>
-          {property.soldDate && <div className="text-xs text-gray-500 mb-2">Sold {formatDate(property.soldDate)}</div>}
-          <div className="flex items-center gap-3 text-sm text-gray-700 border-t border-gray-200 pt-3">
-            <div className="flex items-center gap-1">
-              <Bed className="w-4 h-4" />
-              <span>{property.bedrooms} bd</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Bath className="w-4 h-4" />
-              <span>{property.bathrooms} ba</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Maximize className="w-4 h-4" />
-              <span>{property.squareFeet.toLocaleString()} sqft</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-white mt-18">
@@ -318,7 +541,7 @@ export default function AgentDetailPage() {
     );
   }
 
-  // Fix: Add proper null check for agent
+  // Error state
   if (!agent || error) {
     return (
       <div className="min-h-screen bg-white mt-18 flex items-center justify-center">
@@ -327,7 +550,6 @@ export default function AgentDetailPage() {
           <p className="text-gray-600 mb-4">
             {error || "The agent you're looking for doesn't exist."}
           </p>
-          <p className="text-sm text-gray-500 mb-4">Agent ID: {agentId}</p>
           <Button onClick={() => window.location.href = '/agents'} className="bg-blue-600 hover:bg-blue-700">
             Back to Agents
           </Button>
@@ -414,7 +636,7 @@ export default function AgentDetailPage() {
 
                     <div className="flex flex-wrap gap-2">
                       {agent.specialties.map((specialty, idx) => (
-                        <Badge key={idx} variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        <Badge key={`specialty-${idx}-${specialty}`} variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
                           {specialty}
                         </Badge>
                       ))}
@@ -541,9 +763,7 @@ export default function AgentDetailPage() {
                   <div className="w-full lg:w-80 border-l border-gray-200 flex flex-col">
                     <div className="p-4 border-b border-gray-200 bg-white">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-lg font-bold text-gray-900">
-                          Team Listings & Sales
-                        </h3>
+                        <h3 className="text-lg font-bold text-gray-900">Team Listings & Sales</h3>
                         <Badge variant="secondary" className="bg-blue-100 text-blue-700">
                           {getFilteredListings().length}
                         </Badge>
@@ -616,12 +836,13 @@ export default function AgentDetailPage() {
                               </div>
                               <Badge
                                 variant="secondary"
-                                className={`mt-1 text-xs ${property.status === 'sold'
-                                  ? 'bg-gray-100 text-gray-700'
-                                  : property.listingType === 'rent'
-                                    ? 'bg-purple-100 text-purple-700'
-                                    : 'bg-blue-100 text-blue-700'
-                                  }`}
+                                className={`mt-1 text-xs ${
+                                  property.status === 'sold'
+                                    ? 'bg-gray-100 text-gray-700'
+                                    : property.listingType === 'rent'
+                                      ? 'bg-purple-100 text-purple-700'
+                                      : 'bg-blue-100 text-blue-700'
+                                }`}
                               >
                                 {property.status}
                               </Badge>
@@ -665,7 +886,16 @@ export default function AgentDetailPage() {
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {forSaleProperties.map((property) => (
-                    <PropertyCard key={`sale-${property.id}`} property={property} listCategory="sale" />
+                    <PropertyCard 
+                      key={`sale-${property.id}`} 
+                      property={property} 
+                      listCategory="sale"
+                      activeImageIndex={activeImageIndex}
+                      onNextImage={nextImage}
+                      onPrevImage={prevImage}
+                      formatPrice={formatPrice}
+                      formatDate={formatDate}
+                    />
                   ))}
                 </div>
               </div>
@@ -701,21 +931,39 @@ export default function AgentDetailPage() {
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {soldProperties.map((property) => (
-                    <PropertyCard key={`sold-${property.id}`} property={property} listCategory="sold" />
+                    <PropertyCard 
+                      key={`sold-${property.id}`} 
+                      property={property} 
+                      listCategory="sold"
+                      activeImageIndex={activeImageIndex}
+                      onNextImage={nextImage}
+                      onPrevImage={prevImage}
+                      formatPrice={formatPrice}
+                      formatDate={formatDate}
+                    />
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Reviews */}
-            {reviews.length > 0 && (
+            {/* Reviews Section */}
+            {reviews.length > 0 ? (
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-2xl font-bold text-gray-900">Client Reviews</h3>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 fill-blue-600 text-blue-600" />
-                    <span className="font-bold text-gray-900">{stats?.rating.toFixed(1)}</span>
-                    <span className="text-gray-600">({stats?.reviewCount})</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-5 h-5 fill-blue-600 text-blue-600" />
+                      <span className="font-bold text-gray-900">{stats?.rating.toFixed(1)}</span>
+                      <span className="text-gray-600">({stats?.reviewCount})</span>
+                    </div>
+                    <Button 
+                      onClick={() => setShowReviewModal(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      size="sm"
+                    >
+                      Write a Review
+                    </Button>
                   </div>
                 </div>
 
@@ -727,7 +975,7 @@ export default function AgentDetailPage() {
                         <div className="flex items-center gap-2 mb-3">
                           <div className="flex">
                             {[...Array(review.rating)].map((_, i) => (
-                              <Star key={i} className="w-4 h-4 fill-blue-600 text-blue-600" />
+                              <Star key={`${review.id}-star-${i}`} className="w-4 h-4 fill-blue-600 text-blue-600" />
                             ))}
                           </div>
                           {review.verified && (
@@ -736,11 +984,11 @@ export default function AgentDetailPage() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-gray-700 mb-4 italic leading-relaxed">"{review.text}"</p>
+                        <p className="text-gray-700 mb-4 italic leading-relaxed">"{review.comment}"</p>
                         <div className="flex items-center gap-2 text-sm">
-                          <span className="font-semibold text-gray-900">{review.name}</span>
+                          <span className="font-semibold text-gray-900">{review.userName}</span>
                           <span className="text-gray-400">•</span>
-                          <span className="text-gray-600">{formatDate(review.date)}</span>
+                          <span className="text-gray-600">{formatDate(review.createdAt)}</span>
                         </div>
                       </CardContent>
                     </Card>
@@ -753,6 +1001,20 @@ export default function AgentDetailPage() {
                   </Button>
                 )}
               </div>
+            ) : (
+              <Card className="border border-gray-200 shadow-sm">
+                <CardContent className="p-8 text-center">
+                  <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">No Reviews Yet</h3>
+                  <p className="text-gray-600 mb-4">Be the first to review {agent?.name}</p>
+                  <Button 
+                    onClick={() => setShowReviewModal(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Write a Review
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </div>
 
@@ -793,7 +1055,7 @@ export default function AgentDetailPage() {
                   />
                 </div>
 
-                <Button onClick={handleSubmit} className="w-full bg-blue-600 hover:bg-blue-700 text-white mb-3">
+                <Button onClick={handleContactSubmit} className="w-full bg-blue-600 hover:bg-blue-700 text-white mb-3">
                   <Mail className="mr-2 h-4 w-4" />
                   Contact Agent
                 </Button>
@@ -834,7 +1096,7 @@ export default function AgentDetailPage() {
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Service Areas</h3>
                   <div className="space-y-2">
                     {agent.serviceAreas.map((area, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
+                      <div key={`service-${idx}-${area}`} className="flex items-center gap-2 text-sm text-gray-700">
                         <MapPin className="w-4 h-4 text-blue-600" />
                         <span>{area}</span>
                       </div>
@@ -851,7 +1113,7 @@ export default function AgentDetailPage() {
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Specialties</h3>
                   <div className="space-y-2">
                     {agent.specialties.map((specialty, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
+                      <div key={`specialty-sidebar-${idx}-${specialty}`} className="flex items-center gap-2 text-sm text-gray-700">
                         <CheckCircle2 className="w-4 h-4 text-blue-600" />
                         <span>{specialty}</span>
                       </div>
@@ -863,6 +1125,17 @@ export default function AgentDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      <ReviewModal
+        agent={agent}
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        onSubmit={handleReviewSubmit}
+        submitting={submittingReview}
+        error={reviewError}
+        success={reviewSuccess}
+      />
     </div>
   );
 }
