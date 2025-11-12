@@ -428,7 +428,7 @@ const InquiriesContent = () => {
       {/* Enhanced Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold">
             Property Inquiries
           </h1>
           <p className="text-muted-foreground mt-2">
@@ -436,15 +436,6 @@ const InquiriesContent = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => loadInquiries(true)}
-            disabled={refreshing}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
           <Button size="sm">
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -487,8 +478,8 @@ const InquiriesContent = () => {
         />
       </div>
 
-      {/* Enhanced Filters */}
-      <Card className="border-l-4 border-l-primary">
+      {/* Filters */}
+      <Card className="border-l-primary">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
@@ -609,8 +600,8 @@ const InquiriesContent = () => {
 
       {/* Bulk Actions */}
       {selectedInquiries.size > 0 && (
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="p-4">
+        <Card className=" !border-0 !p-0">
+          <CardContent className="p-4df border-0 p-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Badge variant="secondary" className="px-3 py-1">
@@ -642,9 +633,9 @@ const InquiriesContent = () => {
         </Card>
       )}
 
-      {/* Enhanced Inquiries Table */}
-      <Card>
-        <CardHeader>
+      {/* Inquiries Table */}
+      <Card className='p-0 border-0 shadow-none px-0'>
+        <CardHeader className='p-0 border-0 shadow-none px-0'>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
@@ -667,7 +658,7 @@ const InquiriesContent = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className='p-0 border-0 shadow-none px-0'>
           {validInquiries.length === 0 ? (
             <div className="text-center py-12">
               <MessageCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
@@ -745,9 +736,9 @@ const InquiriesContent = () => {
                       
                       <TableCell>
                         <div className="min-w-0">
-                          <p className="font-medium truncate">{inquiry.propertyId?.title || 'Property Unavailable'}</p>
+                          <p className="font-medium truncate w-[100px] ">{inquiry.propertyId?.title || 'Property Unavailable'}</p>
                           <p className="text-sm text-muted-foreground truncate">
-                            ${inquiry.propertyId?.price?.toLocaleString() || '0'} • {inquiry.propertyId?.type || 'N/A'}
+                            XAF {inquiry.propertyId?.price?.toLocaleString() || '0'} • {inquiry.propertyId?.type || 'N/A'}
                           </p>
                           <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
                             <MapPin className="h-3 w-3" />

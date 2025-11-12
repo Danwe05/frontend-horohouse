@@ -13,7 +13,7 @@ const PropertyPage = () => {
         <SidebarInset>
           <NavDash />
 
-         <div className="flex-1 min-h-screen pt-14 px-6 lg:pt-0">
+         <div className="flex-1 min-h-screen pt-3 px-6 lg:pt-3">
             <InquiriesPage/>
           </div>
         </SidebarInset>
