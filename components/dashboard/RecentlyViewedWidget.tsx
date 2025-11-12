@@ -410,7 +410,7 @@ export default function RecentlyViewedWidget() {
         {/* Properties Grid */}
         {!loading && !error && formattedProperties.length > 0 && (
           <>
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
               {formattedProperties.map((property) => (
                 <div key={property.id} className="relative group">
                   <PropertyCard {...property} />
@@ -427,11 +427,7 @@ export default function RecentlyViewedWidget() {
                     <Trash2 className="h-4 w-4 text-white" />
                   </button>
 
-                  {/* Viewed At Badge */}
-                  <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow-md flex items-center gap-1.5 z-10">
-                    <Calendar className="h-3 w-3" />
-                    {property.timeAgo}
-                  </div>
+                
                 </div>
               ))}
             </div>
