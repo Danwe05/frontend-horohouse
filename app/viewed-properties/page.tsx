@@ -58,6 +58,26 @@ interface DateRange {
   to: Date | undefined;
 }
 
+// ✅ MOVE THIS FUNCTION OUTSIDE THE COMPONENT
+const formatTimeAgo = (date: string) => {
+  const diff = Date.now() - new Date(date).getTime();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  
+  if (hours < 1) {
+    const minutes = Math.floor(diff / (1000 * 60));
+    return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  }
+  if (hours < 24) {
+    return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  }
+  const days = Math.floor(hours / 24);
+  if (days < 30) {
+    return `${days} day${days === 1 ? "" : "s"} ago`;
+  }
+  const months = Math.floor(days / 30);
+  return `${months} month${months === 1 ? "" : "s"} ago`;
+};
+
 export default function ViewedPropertiesPage() {
   const router = useRouter();
   const [properties, setProperties] = useState<ViewedProperty[]>([]);
@@ -131,7 +151,7 @@ export default function ViewedPropertiesPage() {
         currency: "XAF",
         maximumFractionDigits: 0,
       }).format(p.price),
-      timeAgo: formatTimeAgo(p.viewedAt),
+      timeAgo: formatTimeAgo(p.viewedAt), // ✅ Now this works!
       address: [p.address, p.city, p.country].filter(Boolean).join(", "),
       beds: p.amenities?.bedrooms ?? 0,
       baths: p.amenities?.bathrooms ?? 0,
@@ -140,26 +160,6 @@ export default function ViewedPropertiesPage() {
       viewedAt: p.viewedAt,
     }));
   }, [filteredProperties]);
-
-  // Format time ago
-  const formatTimeAgo = (date: string) => {
-    const diff = Date.now() - new Date(date).getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    
-    if (hours < 1) {
-      const minutes = Math.floor(diff / (1000 * 60));
-      return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-    }
-    if (hours < 24) {
-      return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-    }
-    const days = Math.floor(hours / 24);
-    if (days < 30) {
-      return `${days} day${days === 1 ? "" : "s"} ago`;
-    }
-    const months = Math.floor(days / 30);
-    return `${months} month${months === 1 ? "" : "s"} ago`;
-  };
 
   // Handle sort change
   const handleSortChange = (value: string) => {

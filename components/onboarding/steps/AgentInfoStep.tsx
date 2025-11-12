@@ -126,8 +126,8 @@ export function AgentInfoStep() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader className="text-center">
-        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-          <User className="h-8 w-8 text-green-600" />
+        <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+          <User className="h-8 w-8 text-blue-600" />
         </div>
         <CardTitle className="text-2xl font-bold text-gray-900">
           Agent Information
@@ -238,13 +238,13 @@ export function AgentInfoStep() {
                 {agentInfo.serviceAreas.map((area, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800"
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
                   >
                     {area}
                     <button
                       type="button"
                       onClick={() => handleRemoveServiceArea(area)}
-                      className="ml-2 text-green-600 hover:text-green-800"
+                      className="ml-2 text-blue-600 hover:text-blue-800"
                     >
                       ×
                     </button>
@@ -269,7 +269,7 @@ export function AgentInfoStep() {
           <Button
             onClick={handleNext}
             disabled={isLoading || !isFormValid()}
-            className="flex items-center bg-green-600 hover:bg-green-700"
+            className="flex items-center bg-blue-600 hover:bg-blue-700"
           >
             {isLoading ? (
               <>

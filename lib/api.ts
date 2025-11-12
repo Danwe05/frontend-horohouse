@@ -275,13 +275,31 @@ class ApiClient {
     return response.data;
   }
 
-  async getProperty(id: string) {
-    // Public endpoint - no auth required
-    const response = await this.client.get(`/properties/${id}`, {
-      skipAuth: true
+  // In lib/api.ts - Update the getProperty method
+
+async getProperty(id: string) {
+  // Allow both authenticated and public access
+  // If user is logged in, it will automatically include the auth token
+  // If not logged in, it will work as a public endpoint
+  const response = await this.client.get(`/properties/${id}`, {
+  skipAuth: true
     } as any);
-    return response.data;
-  }
+  return response.data;
+}
+
+// Alternative: Create two separate methods if you want explicit control
+async getPropertyPublic(id: string) {
+  const response = await this.client.get(`/properties/${id}`, {
+    skipAuth: true
+  } as any);
+  return response.data;
+}
+
+async getPropertyAuthenticated(id: string) {
+  // This will include auth token and track the view
+  const response = await this.client.get(`/properties/${id}`);
+  return response.data;
+}
 
   async searchProperties(params: any) {
     // Public endpoint - no auth required

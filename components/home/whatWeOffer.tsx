@@ -112,20 +112,6 @@ export default function WhatWeOffer() {
         </motion.div>
 
         <div className="mx-4 md:mx-12 relative">
-          {/* Navigation dots */}
-          <div className="flex justify-center gap-2 mb-6">
-            {cards.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveIndex(i)}
-                className={`transition-all duration-300 rounded-full ${
-                  i === activeIndex
-                    ? "w-8 h-2 bg-blue-600"
-                    : "w-2 h-2 bg-blue-200 hover:bg-blue-400"
-                }`}
-              />
-            ))}
-          </div>
 
           <div
             ref={containerRef}
@@ -143,11 +129,10 @@ export default function WhatWeOffer() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, duration: 0.5 }}
                   whileHover={{ y: -8 }}
-                  className={`snap-center flex-shrink-0 w-72 md:w-80 p-8 cursor-pointer transition-all duration-500 rounded-2xl relative overflow-hidden group ${
-                    isActive
+                  className={`snap-center flex-shrink-0 w-72 md:w-80 p-8 cursor-pointer transition-all duration-500 rounded-2xl relative overflow-hidden group ${isActive
                       ? "shadow-2xl scale-105"
                       : "shadow-lgd hover:shadow-xl bg-white"
-                  }`}
+                    }`}
                   style={{
                     background: isActive
                       ? `linear-gradient(135deg, var(--tw-gradient-stops))`
@@ -174,40 +159,36 @@ export default function WhatWeOffer() {
                     <motion.div
                       whileHover={{ rotate: 360, scale: 1.1 }}
                       transition={{ duration: 0.6 }}
-                      className={`inline-flex items-center justify-center w-16 h-16 mb-5 rounded-xl transition-all duration-300 ${
-                        isActive
+                      className={`inline-flex items-center justify-center w-16 h-16 mb-5 rounded-xl transition-all duration-300 ${isActive
                           ? "bg-white/20 backdrop-blur-sm text-white"
                           : "bg-gradient-to-br " + card.gradient + " text-white shadow-md"
-                      }`}
+                        }`}
                     >
                       {card.icon}
                     </motion.div>
 
                     {/* Title */}
                     <h3
-                      className={`font-bold text-xl mb-3 transition-colors duration-300 ${
-                        isActive ? "text-white" : "text-gray-900"
-                      }`}
+                      className={`font-bold text-xl mb-3 transition-colors duration-300 ${isActive ? "text-white" : "text-gray-900"
+                        }`}
                     >
                       {card.title}
                     </h3>
 
                     {/* Description */}
                     <p
-                      className={`text-sm leading-relaxed transition-colors duration-300 ${
-                        isActive ? "text-white/90" : "text-gray-600"
-                      }`}
+                      className={`text-sm leading-relaxed transition-colors duration-300 ${isActive ? "text-white/90" : "text-gray-600"
+                        }`}
                     >
                       {card.desc}
                     </p>
 
                     {/* Decorative element */}
                     <div
-                      className={`absolute bottom-0 right-0 w-20 h-20 rounded-tl-full transition-opacity duration-300 ${
-                        isActive
+                      className={`absolute bottom-0 right-0 w-20 h-20 rounded-tl-full transition-opacity duration-300 ${isActive
                           ? "bg-white/10"
                           : "bg-gradient-to-br " + card.gradient + " opacity-5"
-                      }`}
+                        }`}
                     ></div>
                   </div>
 
@@ -225,7 +206,19 @@ export default function WhatWeOffer() {
               );
             })}
           </div>
-
+          {/* Navigation dots */}
+          <div className="flex justify-center gap-2 mt-6">
+            {cards.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveIndex(i)}
+                className={`transition-all duration-300 rounded-full ${i === activeIndex
+                    ? "w-8 h-2 bg-blue-600"
+                    : "w-2 h-2 bg-blue-200 hover:bg-blue-400"
+                  }`}
+              />
+            ))}
+          </div>
           {/* Scroll hint */}
           <motion.div
             initial={{ opacity: 1 }}

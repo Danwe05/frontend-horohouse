@@ -152,7 +152,6 @@ export default function Footer() {
                   className="flex-1 px-5 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
                 />
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-lg"
                 >
@@ -171,7 +170,7 @@ export default function Footer() {
             className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
           >
             <p className="text-blue-100 text-sm text-center md:text-left">
-              © {new Date().getFullYear()} HoroHouse. All rights reserved.
+              © 2025 - {new Date().getFullYear()} HoroHouse. All rights reserved.
             </p>
             <div className="flex flex-wrap justify-center gap-6 text-sm">
               <a href="/privacy" className="text-blue-100 hover:text-white transition-colors">

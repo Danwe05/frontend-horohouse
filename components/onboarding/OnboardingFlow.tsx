@@ -66,7 +66,7 @@ export function OnboardingFlow() {
       return (
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-green-600" />
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
             <p className="text-gray-600">Setting up your profile...</p>
           </div>
         </div>
@@ -102,7 +102,7 @@ export function OnboardingFlow() {
           <p className="text-gray-600 mb-4">{state.error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Try Again
           </button>
@@ -117,7 +117,7 @@ export function OnboardingFlow() {
       <OnboardingProgress />
       
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-4 bg-blue-100">
         <div className="w-full max-w-2xl">
           {renderCurrentStep()}
         </div>

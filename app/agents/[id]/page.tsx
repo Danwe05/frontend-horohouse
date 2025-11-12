@@ -8,10 +8,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Phone, Mail, MapPin, Star, Calendar, Share2, MessageSquare, Heart, 
-  Bed, Bath, Maximize, TrendingUp, Award, CheckCircle2, ChevronLeft, 
-  ChevronRight, Quote, Map as MapIcon, Filter, X, AlertCircle 
+import {
+  Phone, Mail, MapPin, Star, Calendar, Share2, MessageSquare, Heart,
+  Bed, Bath, Maximize, TrendingUp, Award, CheckCircle2, ChevronLeft,
+  ChevronRight, Quote, Map as MapIcon, Filter, X, AlertCircle
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { useParams } from 'next/navigation';
@@ -87,9 +87,9 @@ interface PropertyCardProps {
 }
 
 // Property Card Component
-const PropertyCard: React.FC<PropertyCardProps> = ({ 
-  property, 
-  listCategory = '', 
+const PropertyCard: React.FC<PropertyCardProps> = ({
+  property,
+  listCategory = '',
   activeImageIndex,
   onNextImage,
   onPrevImage,
@@ -109,18 +109,18 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         {property.images.length > 1 && (
           <>
             <button
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                onPrevImage(uniqueKey, property.images.length); 
+              onClick={(e) => {
+                e.stopPropagation();
+                onPrevImage(uniqueKey, property.images.length);
               }}
               className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
             >
               <ChevronLeft className="w-5 h-5 text-gray-700" />
             </button>
             <button
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                onNextImage(uniqueKey, property.images.length); 
+              onClick={(e) => {
+                e.stopPropagation();
+                onNextImage(uniqueKey, property.images.length);
               }}
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
             >
@@ -130,9 +130,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               {property.images.map((_, idx) => (
                 <div
                   key={`${uniqueKey}-dot-${idx}`}
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    (activeImageIndex[uniqueKey] || 0) === idx ? 'bg-white' : 'bg-white/50'
-                  }`}
+                  className={`w-1.5 h-1.5 rounded-full ${(activeImageIndex[uniqueKey] || 0) === idx ? 'bg-white' : 'bg-white/50'
+                    }`}
                 />
               ))}
             </div>
@@ -141,10 +140,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         <button className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-full p-2">
           <Heart className="w-4 h-4 text-gray-700" />
         </button>
-        <Badge 
-          className={`absolute top-2 left-2 border-0 ${
-            property.status === 'sold' ? 'bg-gray-700' : 'bg-blue-600'
-          } text-white`}
+        <Badge
+          className={`absolute top-2 left-2 border-0 ${property.status === 'sold' ? 'bg-gray-700' : 'bg-blue-600'
+            } text-white`}
         >
           {property.status}
         </Badge>
@@ -268,9 +266,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                     className="transition-transform hover:scale-110 disabled:cursor-not-allowed"
                   >
                     <Star
-                      className={`w-8 h-8 ${
-                        star <= rating ? 'fill-blue-600 text-blue-600' : 'text-gray-300'
-                      }`}
+                      className={`w-8 h-8 ${star <= rating ? 'fill-blue-600 text-blue-600' : 'text-gray-300'
+                        }`}
                     />
                   </button>
                 ))}
@@ -337,22 +334,22 @@ export default function AgentDetailPage() {
   const [reviews, setReviews] = useState<AgentReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const [formData, setFormData] = useState<FormData>({ 
-    name: '', 
-    email: '', 
-    phone: '', 
-    message: '' 
+
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
   });
-  
+
   const [activeImageIndex, setActiveImageIndex] = useState<Record<string, number>>({});
   const [mapFilter, setMapFilter] = useState<string>('all');
-  
+
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [reviewSuccess, setReviewSuccess] = useState<string | null>(null);
   const [submittingReview, setSubmittingReview] = useState(false);
-  
+
   const forSaleScrollRef = useRef<HTMLDivElement | null>(null);
   const soldScrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -445,7 +442,7 @@ export default function AgentDetailPage() {
       });
 
       setReviewSuccess('Review submitted successfully!');
-      
+
       setTimeout(() => {
         fetchAgentData();
         setShowReviewModal(false);
@@ -453,7 +450,7 @@ export default function AgentDetailPage() {
       }, 2000);
     } catch (error: any) {
       setReviewError(
-        error.response?.data?.message || 
+        error.response?.data?.message ||
         'Failed to submit review. You may have already reviewed this agent.'
       );
     } finally {
@@ -494,10 +491,10 @@ export default function AgentDetailPage() {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return '';
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
       });
     } catch (error) {
       return '';
@@ -836,13 +833,12 @@ export default function AgentDetailPage() {
                               </div>
                               <Badge
                                 variant="secondary"
-                                className={`mt-1 text-xs ${
-                                  property.status === 'sold'
+                                className={`mt-1 text-xs ${property.status === 'sold'
                                     ? 'bg-gray-100 text-gray-700'
                                     : property.listingType === 'rent'
                                       ? 'bg-purple-100 text-purple-700'
                                       : 'bg-blue-100 text-blue-700'
-                                }`}
+                                  }`}
                               >
                                 {property.status}
                               </Badge>
@@ -886,9 +882,9 @@ export default function AgentDetailPage() {
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {forSaleProperties.map((property) => (
-                    <PropertyCard 
-                      key={`sale-${property.id}`} 
-                      property={property} 
+                    <PropertyCard
+                      key={`sale-${property.id}`}
+                      property={property}
                       listCategory="sale"
                       activeImageIndex={activeImageIndex}
                       onNextImage={nextImage}
@@ -931,9 +927,9 @@ export default function AgentDetailPage() {
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {soldProperties.map((property) => (
-                    <PropertyCard 
-                      key={`sold-${property.id}`} 
-                      property={property} 
+                    <PropertyCard
+                      key={`sold-${property.id}`}
+                      property={property}
                       listCategory="sold"
                       activeImageIndex={activeImageIndex}
                       onNextImage={nextImage}
@@ -957,7 +953,7 @@ export default function AgentDetailPage() {
                       <span className="font-bold text-gray-900">{stats?.rating.toFixed(1)}</span>
                       <span className="text-gray-600">({stats?.reviewCount})</span>
                     </div>
-                    <Button 
+                    <Button
                       onClick={() => setShowReviewModal(true)}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                       size="sm"
@@ -967,33 +963,96 @@ export default function AgentDetailPage() {
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-6">
                   {reviews.slice(0, 4).map((review) => (
-                    <Card key={review.id} className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <Card
+                      key={review.id}
+                      className="border border-gray-200/60 shadow-lg hover:shadow-xl transition-all duration-300 hover:translate-y-[-2px] group"
+                    >
                       <CardContent className="p-6 relative">
-                        <Quote className="absolute top-4 right-4 w-8 h-8 text-blue-100" />
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="flex">
-                            {[...Array(review.rating)].map((_, i) => (
-                              <Star key={`${review.id}-star-${i}`} className="w-4 h-4 fill-blue-600 text-blue-600" />
-                            ))}
+                        {/* Decorative Quote Icon */}
+                        <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                          <Quote className="w-12 h-12 text-blue-500" />
+                        </div>
+
+                        {/* Header with Rating and Verification */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            {/* Star Rating */}
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={`${review.id}-star-${i}`}
+                                  className={`w-5 h-5 ${i < review.rating
+                                      ? 'fill-yellow-400 text-yellow-400 drop-shadow-sm'
+                                      : 'fill-gray-200 text-gray-200'
+                                    } transition-transform group-hover:scale-110`}
+                                />
+                              ))}
+                            </div>
+                            <span className="ml-2 text-lg font-bold text-gray-900">{review.rating}.0</span>
                           </div>
+
+                          {/* Verified Badge */}
                           {review.verified && (
-                            <Badge variant="outline" className="text-xs border-blue-600 text-blue-600">
+                            <Badge className="bg-green-50 text-green-700 border-green-200 px-3 py-1 font-medium shadow-sm">
+                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
                               Verified
                             </Badge>
                           )}
                         </div>
-                        <p className="text-gray-700 mb-4 italic leading-relaxed">"{review.comment}"</p>
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="font-semibold text-gray-900">{review.userName}</span>
-                          <span className="text-gray-400">•</span>
-                          <span className="text-gray-600">{formatDate(review.createdAt)}</span>
+
+                        {/* Review Comment */}
+                        <div className="relative">
+                          <p className="text-gray-700 mb-6 leading-relaxed text-lg font-light line-clamp-4 group-hover:line-clamp-none transition-all">
+                            "{review.comment}"
+                          </p>
+
+                          {/* Gradient fade for truncated text */}
+                          <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent group-hover:opacity-0 transition-opacity"></div>
+                        </div>
+
+                        {/* Reviewer Info */}
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div className="flex items-center gap-3">
+                            {/* User Avatar */}
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                              {review.userName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-gray-900 block leading-tight">{review.userName}</span>
+                              <span className="text-gray-500 text-sm flex items-center gap-1">
+                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                                </svg>
+                                {formatDate(review.createdAt)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Helpful Indicator */}
+                          <button className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-colors group/helpful">
+                            <svg className="w-4 h-4 group-hover/helpful:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                            </svg>
+                            <span className="text-sm font-medium">Helpful</span>
+                          </button>
                         </div>
                       </CardContent>
                     </Card>
                   ))}
                 </div>
+
+                {/* View More Reviews Button */}
+                {reviews.length > 4 && (
+                  <div className="text-center mt-8">
+                    <button className="bg-white text-blue-600 border border-blue-200 px-8 py-3 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all shadow-sm hover:shadow-md">
+                      View All {reviews.length} Reviews
+                    </button>
+                  </div>
+                )}
 
                 {reviews.length > 4 && (
                   <Button variant="outline" className="w-full mt-4 border-gray-300">
@@ -1007,7 +1066,7 @@ export default function AgentDetailPage() {
                   <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-gray-900 mb-2">No Reviews Yet</h3>
                   <p className="text-gray-600 mb-4">Be the first to review {agent?.name}</p>
-                  <Button 
+                  <Button
                     onClick={() => setShowReviewModal(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >

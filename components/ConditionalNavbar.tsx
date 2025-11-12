@@ -13,6 +13,7 @@ const ConditionalNavbar = () => {
                      pathname?.startsWith('/dashboard') ||
                      pathname?.startsWith('/auth/forgot-password') ||
                      pathname?.startsWith('/auth/reset-password') ||
+                     pathname?.startsWith('/onboarding') ||
                      pathname === '/auth/login' ||
                      pathname === '/auth/register';
   

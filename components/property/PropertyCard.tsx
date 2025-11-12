@@ -112,7 +112,7 @@ const PropertyCard = ({
   const hasMultipleImages = imageArray.length > 1;
 
   // Format price with XAF currency
-  const formattedPrice = price.replace(/\$/g, "").trim() + " XAF";
+  const formattedPrice = price.replace(/\$/g, "").trim() + " ";
 
   // Format time ago into a compact, consistent form.
   // Accepts either an ISO timestamp (preferred) or an already-relative string

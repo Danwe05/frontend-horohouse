@@ -331,7 +331,6 @@ export default function LocationBasedProperties() {
                                     <p className="text-amber-600">{locationError} - Showing default location</p>
                                 ) : userLocation ? (
                                     <>
-                                        <MapPin className="w-4 h-4" />
                                         <p>
                                             {formattedProperties.length} {formattedProperties.length === 1 ? 'property' : 'properties'} found near{' '}
                                             <span className="font-semibold text-blue-600">{userLocation.city}</span>

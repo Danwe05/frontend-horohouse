@@ -13,6 +13,7 @@ import { onboardingApi } from '@/lib/onboarding-api';
 import { Loader2, DollarSign, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const CURRENCIES = [
+  { value: 'XAF', label: 'XAF (FCFA)', symbol: 'FCFA' },
   { value: 'USD', label: 'USD ($)', symbol: '$' },
   { value: 'EUR', label: 'EUR (€)', symbol: '€' },
   { value: 'GBP', label: 'GBP (£)', symbol: '£' },
@@ -22,12 +23,12 @@ const CURRENCIES = [
 
 const BUDGET_PRESETS = {
   buyer: [
-    { min: 0, max: 200000, label: 'Under $200K' },
-    { min: 200000, max: 500000, label: '$200K - $500K' },
-    { min: 500000, max: 750000, label: '$500K - $750K' },
-    { min: 750000, max: 1000000, label: '$750K - $1M' },
-    { min: 1000000, max: 2000000, label: '$1M - $2M' },
-    { min: 2000000, max: 10000000, label: '$2M+' }
+    { min: 0, max: 200000, label: 'Under 200K XAF' },
+    { min: 200000, max: 500000, label: '$200K - 500K XAF' },
+    { min: 500000, max: 750000, label: '500K XAF - 750K XAF' },
+    { min: 750000, max: 1000000, label: '750K XAF - 1M XAF' },
+    { min: 1000000, max: 2000000, label: '1M XAF - 2M XAF' },
+    { min: 2000000, max: 10000000, label: '2M+ XAF' }
   ],
   agent: [
     { min: 0, max: 300000, label: 'Up to $300K' },
@@ -54,7 +55,7 @@ export function BudgetStep() {
   const [isLoading, setIsLoading] = useState(false);
   
   const isAgent = user?.role === 'agent';
-  const currentBudget = state.propertyPreferences?.budget || { min: 0, max: 1000000, currency: 'USD' };
+  const currentBudget = state.propertyPreferences?.budget || { min: 0, max: 1000000, currency: 'XAF' };
   
   const [budget, setBudget] = useState({
     min: currentBudget.min,
@@ -66,7 +67,7 @@ export function BudgetStep() {
 
   const formatCurrency = (amount: number) => {
     const currency = CURRENCIES.find(c => c.value === budget.currency);
-    const symbol = currency?.symbol || '$';
+    const symbol = currency?.symbol || 'FCFA';
     
     if (amount >= 1000000) {
       return `${symbol}${(amount / 1000000).toFixed(1)}M`;
@@ -173,8 +174,8 @@ export function BudgetStep() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader className="text-center">
-        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-          <DollarSign className="h-8 w-8 text-green-600" />
+        <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+          <DollarSign className="h-8 w-8 text-blue-600" />
         </div>
         <CardTitle className="text-2xl font-bold text-gray-900">
           {stepData.title}
@@ -221,7 +222,7 @@ export function BudgetStep() {
                   onClick={() => setCommissionRate(range.min)}
                   className={`p-3 text-sm border rounded-lg transition-colors ${
                     commissionRate >= range.min && commissionRate <= range.max
-                      ? 'border-green-500 bg-green-50 text-green-700'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-300 hover:bg-gray-50'
                   }`}
                 >
@@ -261,7 +262,7 @@ export function BudgetStep() {
                 onClick={() => handlePresetSelect(preset)}
                 className={`p-3 text-sm border rounded-lg transition-colors ${
                   budget.min === preset.min && budget.max === preset.max
-                    ? 'border-green-500 bg-green-50 text-green-700'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
@@ -325,11 +326,11 @@ export function BudgetStep() {
         </div>
 
         {/* Budget Summary */}
-        <div className="bg-green-50 rounded-lg p-4">
-          <h3 className="font-semibold text-green-800 mb-2">
+        <div className="bg-blue-50 rounded-lg p-4">
+          <h3 className="font-semibold text-blue-800 mb-2">
             {isAgent ? 'Your Service Summary' : 'Your Budget Summary'}
           </h3>
-          <div className="text-green-700 space-y-1">
+          <div className="text-blue-700 space-y-1">
             <p>Range: {formatCurrency(budget.min)} - {formatCurrency(budget.max)}</p>
             <p>Currency: {budget.currency}</p>
             {isAgent && <p>Commission Rate: {commissionRate}%</p>}
@@ -350,7 +351,7 @@ export function BudgetStep() {
           <Button
             onClick={handleNext}
             disabled={isLoading || !isFormValid()}
-            className="flex items-center bg-green-600 hover:bg-green-700"
+            className="flex items-center bg-blue-600 hover:bg-blue-700"
           >
             {isLoading ? (
               <>

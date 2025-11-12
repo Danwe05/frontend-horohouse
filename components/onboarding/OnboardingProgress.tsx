@@ -44,7 +44,7 @@ export function OnboardingProgress() {
             </p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-green-600">{progress}%</div>
+            <div className="text-2xl font-bold text-blue-600">{progress}%</div>
             <div className="text-sm text-gray-500">Complete</div>
           </div>
         </div>
@@ -52,7 +52,7 @@ export function OnboardingProgress() {
         {/* Progress Bar */}
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
-            className="bg-green-600 h-2 rounded-full transition-all duration-300 ease-out"
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -68,15 +68,15 @@ export function OnboardingProgress() {
               <div
                 key={stepNumber}
                 className={`flex flex-col items-center ${
-                  isActive ? 'text-green-600' : isCompleted ? 'text-green-500' : 'text-gray-400'
+                  isActive ? 'text-blue-600' : isCompleted ? 'text-blue-500' : 'text-gray-400'
                 }`}
               >
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mb-1 ${
                     isActive
-                      ? 'bg-green-600 text-white'
+                      ? 'bg-blue-600 text-white'
                       : isCompleted
-                      ? 'bg-green-100 text-green-600'
+                      ? 'bg-blue-100 text-blue-600'
                       : 'bg-gray-200 text-gray-500'
                   }`}
                 >

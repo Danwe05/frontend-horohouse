@@ -268,7 +268,7 @@ export default function HeroSection() {
                     <input
                       type="text"
                       placeholder="Search a city..."
-                      className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
+                      className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
                       value={searchData.city}
                       onChange={(e) => handleCityChange(e.target.value)}
                       onKeyDown={handleKeyDown}
@@ -317,7 +317,7 @@ export default function HeroSection() {
                     <span>Property Type</span>
                   </label>
                   <select
-                    className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
+                    className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
                     value={searchData.propertyType}
                     onChange={(e) => setSearchData({ ...searchData, propertyType: e.target.value })}
                   >
@@ -334,7 +334,7 @@ export default function HeroSection() {
                     <span>Max Price</span>
                   </label>
                   <select
-                    className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
+                    className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
                     value={searchData.maxPrice}
                     onChange={(e) => setSearchData({ ...searchData, maxPrice: e.target.value })}
                   >

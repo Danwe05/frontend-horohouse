@@ -43,13 +43,13 @@ export function CompletionStep() {
       return {
         title: 'Agent Profile Complete!',
         description: 'Your professional profile is now set up. You can start listing properties and connecting with potential clients.',
-        icon: <User className="h-12 w-12 text-green-600" />
+        icon: <User className="h-12 w-12 text-blue-600" />
       };
     } else {
       return {
         title: 'Profile Setup Complete!',
         description: 'Your preferences are saved. We\'ll use this information to show you the best properties that match your criteria.',
-        icon: <Home className="h-12 w-12 text-green-600" />
+        icon: <Home className="h-12 w-12 text-blue-600" />
       };
     }
   };
@@ -59,7 +59,7 @@ export function CompletionStep() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader className="text-center">
-        <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
+        <div className="mx-auto w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4">
           {completionMessage.icon}
         </div>
         <CardTitle className="text-3xl font-bold text-gray-900">
@@ -72,23 +72,23 @@ export function CompletionStep() {
 
       <CardContent className="space-y-6">
         {/* What's Next */}
-        <div className="bg-green-50 rounded-lg p-6">
-          <h3 className="font-semibold text-green-800 mb-3">What's Next?</h3>
+        <div className="bg-blue-50 rounded-lg p-6">
+          <h3 className="font-semibold text-blue-800 mb-3">What's Next?</h3>
           <div className="space-y-2">
-            <div className="flex items-center text-green-700">
+            <div className="flex items-center text-blue-700">
               <CheckCircle className="h-4 w-4 mr-2" />
               <span>Browse properties in your preferred areas</span>
             </div>
-            <div className="flex items-center text-green-700">
+            <div className="flex items-center text-blue-700">
               <CheckCircle className="h-4 w-4 mr-2" />
               <span>Save favorites and get notifications</span>
             </div>
-            <div className="flex items-center text-green-700">
+            <div className="flex items-center text-blue-700">
               <CheckCircle className="h-4 w-4 mr-2" />
               <span>Connect with agents and schedule viewings</span>
             </div>
             {user?.role === 'agent' && (
-              <div className="flex items-center text-green-700">
+              <div className="flex items-center text-blue-700">
                 <CheckCircle className="h-4 w-4 mr-2" />
                 <span>Start listing your properties</span>
               </div>
@@ -101,7 +101,7 @@ export function CompletionStep() {
           <Button
             onClick={handleComplete}
             disabled={isLoading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             size="lg"
           >
             {isLoading ? (

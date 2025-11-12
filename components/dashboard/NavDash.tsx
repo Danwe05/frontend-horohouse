@@ -133,7 +133,7 @@ export const NavDash = () => {
                 showProfileDropdown && "bg-muted/50"
               )}
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 overflow-hidden border border-border/50">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 overflow-hidden border border-border/50">
                 <img
                   src={avatarUrl}
                   alt={displayName}
@@ -155,14 +155,14 @@ export const NavDash = () => {
                 {/* Profile Header */}
                 <div className="p-3 border-b border-border/30">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 overflow-hidden border border-border/50 relative">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 overflow-hidden border border-border/50 relative">
                       <img
                         src={avatarUrl}
                         alt={displayName}
                         className="w-full h-full object-cover"
                       />
                       {(user.emailVerified || user.phoneVerified) && (
-                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-popover" />
+                        <div className="absolute -bottom-3 -right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-popover" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">

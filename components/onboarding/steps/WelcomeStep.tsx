@@ -80,8 +80,8 @@ export function WelcomeStep() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader className="text-center">
-        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-          <Home className="h-8 w-8 text-green-600" />
+        <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+          <Home className="h-8 w-8 text-blue-600" />
         </div>
         <CardTitle className="text-3xl font-bold text-gray-900">
           Welcome to HoroHouse, {user?.name?.split(' ')[0]}!
@@ -100,7 +100,7 @@ export function WelcomeStep() {
               key={index}
               className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg"
             >
-              <div className="text-green-600 mt-1">
+              <div className="text-blue-600 mt-1">
                 {feature.icon}
               </div>
               <div>
@@ -116,7 +116,7 @@ export function WelcomeStep() {
           <Button
             onClick={handleGetStarted}
             disabled={isLoading}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
             size="lg"
           >
             {isLoading ? (

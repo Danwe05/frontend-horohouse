@@ -10,12 +10,12 @@ import PropertyInfo from "@/components/property/details/PropertyInfo";
 import BookingPanel from "@/components/property/details/BookingPanel";
 import PropertyDetails from "@/components/property/details/PropertyDetails";
 import Neighborhood from "@/components/property/details/Neighborhood";
-import RentalApplication from "@/components/property/details/RentalApplication";
 import Reviews from "@/components/property/details/Reviews";
 import PetPolicy from "@/components/property/details/PetPolicy";
 import SimilarProperties from "@/components/property/details/SimilarProperties";
 import apiClient from "@/lib/api";
-import { useRecentlyViewedProperties } from '@/hooks/useRecentlyViewedProperties';
+import { useAuth } from "@/contexts/AuthContext";
+import { authService } from "@/lib/auth";
 
 interface Property {
   _id: string;
@@ -69,10 +69,12 @@ export default function PropertyDetail() {
   const params = useParams();
   const router = useRouter();
   const propertyId = params.id as string;
+  const { isAuthenticated, user } = useAuth();
 
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [debugInfo, setDebugInfo] = useState<any>({});
 
   useEffect(() => {
     if (propertyId) {
@@ -80,36 +82,109 @@ export default function PropertyDetail() {
     }
   }, [propertyId]);
 
-  const { addRecentProperty } = useRecentlyViewedProperties();
-
   const fetchProperty = async () => {
     try {
       setLoading(true);
       setError("");
+      
+      // DETAILED DEBUGGING
+      const token = authService.getAccessToken();
+      const hasToken = !!token;
+      
+      console.group("🔍 PROPERTY FETCH DEBUG");
+      console.log("Property ID:", propertyId);
+      console.log("Is Authenticated:", isAuthenticated);
+      console.log("User:", user);
+      console.log("Has Token:", hasToken);
+      if (hasToken) {
+        console.log("Token Preview:", token?.substring(0, 20) + "...");
+      }
+      console.groupEnd();
+
+      // Store debug info
+      setDebugInfo({
+        propertyId,
+        isAuthenticated,
+        userId: user?.id || user?._id,
+        hasToken,
+        timestamp: new Date().toISOString()
+      });
+      
       const data = await apiClient.getProperty(propertyId);
       setProperty(data);
-      // Add to recently viewed (backend will update for authenticated users; local fallback for anonymous)
-      try {
-        addRecentProperty({
-          id: data._id,
-          title: data.title,
-          price: data.price,
-          location: data.address || data.city || '',
-          imageUrl: data.images?.[0]?.url || '/placeholder.jpg',
-          bedrooms: data.amenities?.bedrooms || undefined,
-          bathrooms: data.amenities?.bathrooms || undefined,
-          squareMeters: data.area || undefined,
-        });
-      } catch (e) {
-        // Non-fatal
-        console.warn('Failed to register recently viewed (non-fatal)', e);
-      }
+      
+      console.group("✅ PROPERTY LOADED");
+      console.log("Property:", {
+        id: data._id,
+        title: data.title,
+        viewsCount: data.viewsCount,
+      });
+      console.groupEnd();
+
+      // Wait a moment then check if it was tracked
+      setTimeout(async () => {
+        if (isAuthenticated) {
+          try {
+            console.log("🔍 Checking if view was tracked...");
+            const viewedProps = await apiClient.getRecentlyViewed(5);
+            console.log("Recently viewed:", viewedProps);
+            
+            const wasTracked = viewedProps?.some((item: any) => {
+              const propId = item.property?._id || item.property?.id || item.id;
+              return propId === propertyId;
+            });
+            
+            console.log(wasTracked ? "✅ View was tracked!" : "❌ View was NOT tracked");
+          } catch (err) {
+            console.error("Error checking recently viewed:", err);
+          }
+        }
+      }, 1000);
+      
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to load property details");
-      console.error("Property fetch error:", err);
+      const errorMessage = err.response?.data?.message || "Failed to load property details";
+      setError(errorMessage);
+      
+      console.group("❌ PROPERTY FETCH ERROR");
+      console.error("Error:", err);
+      console.error("Status:", err.response?.status);
+      console.error("Message:", errorMessage);
+      console.error("Response:", err.response?.data);
+      console.groupEnd();
     } finally {
       setLoading(false);
     }
+  };
+
+  // Debug panel (only visible in development)
+  const DebugPanel = () => {
+    if (process.env.NODE_ENV !== 'development') return null;
+    
+    return (
+      <div className="fixed bottom-4 right-4 bg-black/90 text-white p-4 rounded-lg text-xs max-w-md z-50">
+        <div className="font-bold mb-2">🐛 Debug Info</div>
+        <div className="space-y-1">
+          <div>Auth: {isAuthenticated ? '✅' : '❌'}</div>
+          <div>User ID: {user?.id || user?._id || 'None'}</div>
+          <div>Token: {debugInfo.hasToken ? '✅' : '❌'}</div>
+          <div>Property ID: {propertyId}</div>
+          <div>Views Count: {property?.viewsCount || 0}</div>
+        </div>
+        <button 
+          onClick={() => {
+            console.log("Full debug info:", {
+              ...debugInfo,
+              user,
+              property,
+              isAuthenticated
+            });
+          }}
+          className="mt-2 text-blue-300 underline"
+        >
+          Log full debug info
+        </button>
+      </div>
+    );
   };
 
   if (loading) {
@@ -141,6 +216,8 @@ export default function PropertyDetail() {
 
   return (
     <div className="min-h-screen bg-background">
+      <DebugPanel />
+      
       <main className="container mx-auto px-6 py-8">
         {/* Back Button */}
         <Button
@@ -161,7 +238,6 @@ export default function PropertyDetail() {
             <Neighborhood property={property} />
             <PetPolicy />
             <Reviews propertyId={property._id} />
-            {/* <RentalApplication propertyId={property._id} /> */}
           </div>
 
           {/* Booking Sidebar */}
@@ -178,4 +254,3 @@ export default function PropertyDetail() {
     </div>
   );
 }
-
