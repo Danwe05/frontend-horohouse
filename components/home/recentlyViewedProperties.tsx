@@ -157,7 +157,7 @@ export default function RecentlyViewedProperties() {
     }
 
     return (
-        <div className="bg-gradient-to-b from-purple-50 to-white min-h-screen px-4 sm:px-6 md:px-10 py-10">
+        <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen px-4 sm:px-6 md:px-10 py-10">
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -169,7 +169,7 @@ export default function RecentlyViewedProperties() {
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <div className="flex items-center">
-                                <span className="inline-block px-4 py-2 mb-3 text-sm font-semibold text-purple-600 bg-purple-100 rounded-full">
+                                <span className="inline-block px-4 py-2 mb-3 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
                                     Your History
                                 </span>
                             </div>
@@ -183,7 +183,6 @@ export default function RecentlyViewedProperties() {
                                     <Skeleton className="h-5 w-48" />
                                 ) : (
                                     <>
-                                        <Clock className="w-4 h-4" />
                                         <p>
                                             {formattedProperties.length} {formattedProperties.length === 1 ? 'property' : 'properties'} recently viewed
                                         </p>
@@ -199,8 +198,8 @@ export default function RecentlyViewedProperties() {
                                     whileTap={{ scale: 0.9 }}
                                     onClick={handlePrevious}
                                     disabled={currentIndex === 0}
-                                    className={`w-10 h-10 bg-white border-1 border-purple-600 text-purple-600 rounded-full flex items-center justify-center transition-all shadow-md ${
-                                        currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-purple-600 hover:text-white'
+                                    className={`w-10 h-10 bg-white border-1 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${
+                                        currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
                                     }`}
                                 >
                                     <ChevronLeft className="w-5 h-5" />
@@ -210,8 +209,8 @@ export default function RecentlyViewedProperties() {
                                     whileTap={{ scale: 0.9 }}
                                     onClick={handleNext}
                                     disabled={currentIndex === maxIndex}
-                                    className={`w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${
-                                        currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-purple-700 hover:shadow-xl'
+                                    className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${
+                                        currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
                                     }`}
                                 >
                                     <ChevronRight className="w-5 h-5" />
@@ -257,7 +256,7 @@ export default function RecentlyViewedProperties() {
                                             key={i}
                                             onClick={() => setCurrentIndex(i)}
                                             className={`h-2 rounded-full transition-all duration-300 ${
-                                                i === currentIndex ? 'w-8 bg-purple-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
+                                                i === currentIndex ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
                                             }`}
                                         />
                                     ))}
@@ -271,8 +270,8 @@ export default function RecentlyViewedProperties() {
                                         whileTap={{ scale: 0.9 }}
                                         onClick={handlePrevious}
                                         disabled={currentIndex === 0}
-                                        className={`w-12 h-12 bg-white border-2 border-purple-600 text-purple-600 rounded-full flex items-center justify-center transition-all shadow-md ${
-                                            currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-purple-600 hover:text-white'
+                                        className={`w-12 h-12 bg-white border-2 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${
+                                            currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
                                         }`}
                                     >
                                         <ChevronLeft className="w-5 h-5" />
@@ -282,8 +281,8 @@ export default function RecentlyViewedProperties() {
                                         whileTap={{ scale: 0.9 }}
                                         onClick={handleNext}
                                         disabled={currentIndex === maxIndex}
-                                        className={`w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${
-                                            currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-purple-700 hover:shadow-xl'
+                                        className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${
+                                            currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
                                         }`}
                                     >
                                         <ChevronRight className="w-5 h-5" />
@@ -301,7 +300,7 @@ export default function RecentlyViewedProperties() {
                         transition={{ delay: 0.6 }}
                         className="text-center mt-10"
                     >
-                        <a href="/viewed-properties" className="flex items-center justify-center gap-2 text-purple-600 font-semibold hover:text-purple-700 transition-colors">
+                        <a href="/viewed-properties" className="flex items-center justify-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
                             View All History <FaArrowRight className="text-sm" />
                         </a>
                     </motion.div>

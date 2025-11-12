@@ -156,36 +156,6 @@ export default function PropertyDetail() {
     }
   };
 
-  // Debug panel (only visible in development)
-  const DebugPanel = () => {
-    if (process.env.NODE_ENV !== 'development') return null;
-    
-    return (
-      <div className="fixed bottom-4 right-4 bg-black/90 text-white p-4 rounded-lg text-xs max-w-md z-50">
-        <div className="font-bold mb-2">🐛 Debug Info</div>
-        <div className="space-y-1">
-          <div>Auth: {isAuthenticated ? '✅' : '❌'}</div>
-          <div>User ID: {user?.id || user?._id || 'None'}</div>
-          <div>Token: {debugInfo.hasToken ? '✅' : '❌'}</div>
-          <div>Property ID: {propertyId}</div>
-          <div>Views Count: {property?.viewsCount || 0}</div>
-        </div>
-        <button 
-          onClick={() => {
-            console.log("Full debug info:", {
-              ...debugInfo,
-              user,
-              property,
-              isAuthenticated
-            });
-          }}
-          className="mt-2 text-blue-300 underline"
-        >
-          Log full debug info
-        </button>
-      </div>
-    );
-  };
 
   if (loading) {
     return (
@@ -216,8 +186,6 @@ export default function PropertyDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DebugPanel />
-      
       <main className="container mx-auto px-6 py-8">
         {/* Back Button */}
         <Button
