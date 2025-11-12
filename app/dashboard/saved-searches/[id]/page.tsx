@@ -267,7 +267,7 @@ export default function SavedSearchDetailPage() {
 
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <h1 className="text-3xl font-bold mb-2">{search.name}</h1>
+                  <h1 className="text-2xl font-bold mb-2">{search.name}</h1>
                   <p className="text-muted-foreground mb-4">
                     {formatCriteria(search.searchCriteria)}
                   </p>
@@ -297,8 +297,8 @@ export default function SavedSearchDetailPage() {
 
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Card className="border-l-4 border-l-blue-500">
-                  <CardHeader className="pb-3">
+                <Card className="gap-3 border-l-blue-500">
+                  <CardHeader className="">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <Home className="h-4 w-4" />
                       Total Results
@@ -312,8 +312,8 @@ export default function SavedSearchDetailPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-l-4 border-l-green-500">
-                  <CardHeader className="pb-3">
+                <Card className="gap-3 border-l-green-500">
+                  <CardHeader className="">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <TrendingUp className="h-4 w-4" />
                       New Matches
@@ -329,8 +329,8 @@ export default function SavedSearchDetailPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-l-4 border-l-purple-500">
-                  <CardHeader className="pb-3">
+                <Card className="gap-3 border-l-blue-500">
+                  <CardHeader className="">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <Bell className="h-4 w-4" />
                       Alert Status

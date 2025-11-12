@@ -252,12 +252,12 @@ export default function SavedSearchesPage() {
         <SidebarInset>
           <NavDash />
 
-          <div className="flex-1 min-h-screen pt-14 px-6 lg:pt-0">
+          <div className="flex-1 min-h-screen pt-3 px-6 lg:pt-3">
             {/* Header */}
             <div className="mb-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-3xl font-bold mb-2">Saved Searches</h1>
+                  <h1 className="text-2xl font-bold mb-2">Saved Searches</h1>
                   <p className="text-muted-foreground">
                     Manage your property search alerts and get notified of new matches
                   </p>
@@ -272,8 +272,8 @@ export default function SavedSearchesPage() {
             {/* Statistics Cards */}
             {statistics && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <Card className="border-l-4 border-l-blue-500">
-                  <CardHeader className="pb-3">
+                <Card className="gap-3 border-l-blue-500">
+                  <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <Search className="h-4 w-4" />
                       Total Searches
@@ -287,8 +287,8 @@ export default function SavedSearchesPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-l-4 border-l-green-500">
-                  <CardHeader className="pb-3">
+                <Card className="gap-3 border-l-green-500">
+                  <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <TrendingUp className="h-4 w-4" />
                       New Matches
@@ -304,8 +304,8 @@ export default function SavedSearchesPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-l-4 border-l-purple-500">
-                  <CardHeader className="pb-3">
+                <Card className="gap-3 border-l-blue-500">
+                  <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <Home className="h-4 w-4" />
                       Total Results
@@ -319,8 +319,8 @@ export default function SavedSearchesPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-l-4 border-l-orange-500">
-                  <CardHeader className="pb-3">
+                <Card className="gap-3 border-l-orange-500">
+                  <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <Bell className="h-4 w-4" />
                       Notifications
