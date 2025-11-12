@@ -8,19 +8,15 @@ import {
   Edit, 
   Trash2, 
   Eye, 
-  MapPin, 
-  DollarSign, 
   Home, 
-  Bed, 
-  Bath,
   Loader2,
   BellOff,
   Plus,
-  AlertCircle,
   TrendingUp,
   Clock,
   CheckCircle2,
-  XCircle
+  XCircle,
+  MoreVertical
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +27,22 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +56,9 @@ import {
 import { toast } from 'sonner';
 import apiClient from '@/lib/api';
 import SaveSearchModal from '@/components/saved-searches/SaveSearchModal';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/dashboard/Sidebar';
+import { NavDash } from '@/components/dashboard/NavDash';
 
 interface SavedSearch {
   _id: string;
@@ -121,7 +136,7 @@ export default function SavedSearchesPage() {
       toast.success('Search deleted successfully');
       setSearches(searches.filter(s => s._id !== deleteId));
       setDeleteId(null);
-      fetchData(); // Refresh statistics
+      fetchData();
     } catch (error: any) {
       console.error('Error deleting search:', error);
       toast.error('Failed to delete search', {
@@ -137,7 +152,7 @@ export default function SavedSearchesPage() {
       });
       setSearches(searches.map(s => s._id === search._id ? updated : s));
       toast.success(`Search ${updated.isActive ? 'activated' : 'paused'}`);
-      fetchData(); // Refresh statistics
+      fetchData();
     } catch (error: any) {
       console.error('Error updating search:', error);
       toast.error('Failed to update search', {
@@ -160,7 +175,7 @@ export default function SavedSearchesPage() {
       toast.success('Search updated successfully');
       setShowEditModal(false);
       setEditingSearch(null);
-      fetchData(); // Refresh statistics
+      fetchData();
     } catch (error: any) {
       console.error('Error updating search:', error);
       toast.error('Failed to update search', {
@@ -192,7 +207,7 @@ export default function SavedSearchesPage() {
     };
     const { label, variant, icon: Icon } = config[frequency as keyof typeof config] || config.never;
     return (
-      <Badge variant={variant} className="gap-1">
+      <Badge variant={variant} className="gap-1.5">
         <Icon className="h-3 w-3" />
         {label}
       </Badge>
@@ -216,245 +231,282 @@ export default function SavedSearchesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar />
+          <SidebarInset>
+            <NavDash />
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Saved Searches</h1>
-        <p className="text-muted-foreground">
-          Manage your property search alerts and get notified of new matches
-        </p>
-      </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <SidebarInset>
+          <NavDash />
 
-      {/* Statistics Cards */}
-      {statistics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Searches
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{statistics.totalSearches}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {statistics.activeSearches} active
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                New Matches
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-green-600">
-                {statistics.totalNewMatches}
+          <div className="flex-1 min-h-screen pt-14 px-6 lg:pt-0">
+            {/* Header */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold mb-2">Saved Searches</h1>
+                  <p className="text-muted-foreground">
+                    Manage your property search alerts and get notified of new matches
+                  </p>
+                </div>
+                <Button onClick={() => router.push('/')} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  New Search
+                </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Properties waiting for you
-              </p>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Results
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{statistics.totalResults}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Properties matching criteria
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Notifications
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2 flex-wrap">
-                <Badge variant="secondary" className="text-xs">
-                  {statistics.byFrequency.instant} instant
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {statistics.byFrequency.daily} daily
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {statistics.byFrequency.weekly} weekly
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Saved Searches List */}
-      {searches.length === 0 ? (
-        <Card className="border-2 border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <Search className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No saved searches yet</h3>
-            <p className="text-muted-foreground text-center max-w-md mb-6">
-              Save your property searches to get notified when new listings match your criteria
-            </p>
-            <Button onClick={() => router.push('/')} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Create Your First Search
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {searches.map((search) => (
-            <Card key={search._id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold">{search.name}</h3>
-                      {search.isActive ? (
-                        <Badge variant="default" className="gap-1">
-                          <CheckCircle2 className="h-3 w-3" />
-                          Active
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="gap-1">
-                          <XCircle className="h-3 w-3" />
-                          Paused
-                        </Badge>
-                      )}
-                      {getFrequencyBadge(search.notificationFrequency)}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {formatCriteria(search.searchCriteria)}
+            {/* Statistics Cards */}
+            {statistics && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <Card className="border-l-4 border-l-blue-500">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Search className="h-4 w-4" />
+                      Total Searches
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold">{statistics.totalSearches}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {statistics.activeSearches} active
                     </p>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
+                <Card className="border-l-4 border-l-green-500">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      New Matches
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-green-600">
+                      {statistics.totalNewMatches}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Properties waiting
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-l-4 border-l-purple-500">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <Home className="h-4 w-4" />
-                      <span>{search.resultsCount} results</span>
+                      Total Results
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold">{statistics.totalResults}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Matching properties
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-l-4 border-l-orange-500">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Bell className="h-4 w-4" />
+                      Notifications
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex gap-2 flex-wrap">
+                      <Badge variant="secondary" className="text-xs">
+                        {statistics.byFrequency.instant} instant
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        {statistics.byFrequency.daily} daily
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        {statistics.byFrequency.weekly} weekly
+                      </Badge>
                     </div>
-                    {search.newMatchingProperties.length > 0 && (
-                      <div className="flex items-center gap-2 text-green-600 font-medium">
-                        <TrendingUp className="h-4 w-4" />
-                        <span>{search.newMatchingProperties.length} new</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span>
-                        Updated {new Date(search.lastChecked).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewResults(search._id)}
-                      className="gap-2"
-                    >
-                      <Eye className="h-4 w-4" />
-                      View Results
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleToggleActive(search)}
-                      className="gap-2"
-                    >
-                      {search.isActive ? (
-                        <>
-                          <BellOff className="h-4 w-4" />
-                          Pause
-                        </>
-                      ) : (
-                        <>
-                          <Bell className="h-4 w-4" />
-                          Activate
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(search)}
-                      className="gap-2"
-                    >
-                      <Edit className="h-4 w-4" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setDeleteId(search._id)}
-                      className="gap-2 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+            {/* Table */}
+            {searches.length === 0 ? (
+              <Card className="border-2 border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <Search className="h-16 w-16 text-muted-foreground/50 mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No saved searches yet</h3>
+                  <p className="text-muted-foreground text-center max-w-md mb-6">
+                    Save your property searches to get notified when new listings match your criteria
+                  </p>
+                  <Button onClick={() => router.push('/')} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Your First Search
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="font-semibold">Search Name</TableHead>
+                      <TableHead className="font-semibold">Criteria</TableHead>
+                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Notifications</TableHead>
+                      <TableHead className="font-semibold text-center">Results</TableHead>
+                      <TableHead className="font-semibold">Last Updated</TableHead>
+                      <TableHead className="text-right font-semibold">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {searches.map((search) => (
+                      <TableRow key={search._id} className="hover:bg-muted/30">
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <Search className="h-4 w-4 text-muted-foreground" />
+                            {search.name}
+                          </div>
+                        </TableCell>
+                        <TableCell className="max-w-md">
+                          <p className="text-sm text-muted-foreground truncate">
+                            {formatCriteria(search.searchCriteria)}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          {search.isActive ? (
+                            <Badge variant="default" className="gap-1.5">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Active
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="gap-1.5">
+                              <XCircle className="h-3 w-3" />
+                              Paused
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {getFrequencyBadge(search.notificationFrequency)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="font-semibold">{search.resultsCount}</span>
+                            {search.newMatchingProperties.length > 0 && (
+                              <Badge variant="default" className="text-xs gap-1">
+                                <TrendingUp className="h-3 w-3" />
+                                {search.newMatchingProperties.length} new
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            {new Date(search.lastChecked).toLocaleDateString()}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => handleViewResults(search._id)}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                View Results
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleToggleActive(search)}>
+                                {search.isActive ? (
+                                  <>
+                                    <BellOff className="h-4 w-4 mr-2" />
+                                    Pause Alerts
+                                  </>
+                                ) : (
+                                  <>
+                                    <Bell className="h-4 w-4 mr-2" />
+                                    Activate Alerts
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleEdit(search)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit Search
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={() => setDeleteId(search._id)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete saved search?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. You will stop receiving notifications for this search.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete saved search?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. You will stop receiving notifications for this search.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
-      {/* Edit Modal */}
-      <SaveSearchModal
-        isOpen={showEditModal}
-        onClose={() => {
-          setShowEditModal(false);
-          setEditingSearch(null);
-        }}
-        onSave={handleUpdateSearch}
-        initialData={editingSearch ? {
-          name: editingSearch.name,
-          searchCriteria: editingSearch.searchCriteria,
-          notificationFrequency: editingSearch.notificationFrequency,
-          isActive: editingSearch.isActive
-        } : undefined}
-      />
-    </div>
+            {/* Edit Modal */}
+            <SaveSearchModal
+              isOpen={showEditModal}
+              onClose={() => {
+                setShowEditModal(false);
+                setEditingSearch(null);
+              }}
+              onSave={handleUpdateSearch}
+              initialData={editingSearch ? {
+                name: editingSearch.name,
+                searchCriteria: editingSearch.searchCriteria,
+                notificationFrequency: editingSearch.notificationFrequency,
+                isActive: editingSearch.isActive
+              } : undefined}
+            />
+          </div>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 }

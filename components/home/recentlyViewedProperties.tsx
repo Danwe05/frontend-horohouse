@@ -185,7 +185,7 @@ export default function RecentlyViewedProperties() {
                                 ) : (
                                     <>
                                         <p>
-                                            {formattedProperties.length} {formattedProperties.length === 1 ? 'property' : 'properties'} recently viewed
+                                            {formattedProperties.length} {formattedProperties.length === 1 ? 'property' : 'properties'} recently viewed based on your activity
                                         </p>
                                     </>
                                 )}
