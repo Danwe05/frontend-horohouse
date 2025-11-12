@@ -10,6 +10,7 @@ import apiClient from '@/lib/api';
 import { toast } from 'sonner';
 import { FaArrowRight } from 'react-icons/fa';
 import { useAuth } from '@/contexts/AuthContext';
+import { p } from 'framer-motion/client';
 
 // Format time ago helper (moved outside component for performance)
 const formatTimeAgo = (date: string) => {

@@ -278,12 +278,10 @@ class ApiClient {
   // In lib/api.ts - Update the getProperty method
 
 async getProperty(id: string) {
-  // Allow both authenticated and public access
-  // If user is logged in, it will automatically include the auth token
-  // If not logged in, it will work as a public endpoint
-  const response = await this.client.get(`/properties/${id}`, {
-  skipAuth: true
-    } as any);
+  // Don't skip auth - let the interceptor handle whether user is logged in or not
+  // If user is logged in, auth token will be included automatically
+  // If not logged in, backend should still return property data but won't track view
+  const response = await this.client.get(`/properties/${id}`);
   return response.data;
 }
 

@@ -138,12 +138,12 @@ const IndexContent = () => {
     const chips: Array<{ key: string; label: string; value: any }> = [];
     
     if (filters.city) {
-      chips.push({ key: 'city', label: `📍 ${filters.city}`, value: filters.city });
+      chips.push({ key: 'city', label: `${filters.city}`, value: filters.city });
     }
     if (filters.listingType) {
       chips.push({ 
         key: 'listingType', 
-        label: filters.listingType === 'sale' ? '🏠 For Sale' : '🏢 For Rent', 
+        label: filters.listingType === 'sale' ? 'For Sale' : 'For Rent', 
         value: filters.listingType 
       });
     }
@@ -162,10 +162,10 @@ const IndexContent = () => {
       });
     }
     if (filters.bedrooms) {
-      chips.push({ key: 'bedrooms', label: `🛏️ ${filters.bedrooms}+ Beds`, value: filters.bedrooms });
+      chips.push({ key: 'bedrooms', label: `${filters.bedrooms}+ Beds`, value: filters.bedrooms });
     }
     if (filters.bathrooms) {
-      chips.push({ key: 'bathrooms', label: `🚿 ${filters.bathrooms}+ Baths`, value: filters.bathrooms });
+      chips.push({ key: 'bathrooms', label: `${filters.bathrooms}+ Baths`, value: filters.bathrooms });
     }
     if (advancedFilters.propertyTypes?.length) {
       chips.push({ 
@@ -175,7 +175,7 @@ const IndexContent = () => {
       });
     }
     if (advancedFilters.hasPool) {
-      chips.push({ key: 'hasPool', label: '🏊 Has Pool', value: true });
+      chips.push({ key: 'hasPool', label: 'Has Pool', value: true });
     }
     
     return chips;
