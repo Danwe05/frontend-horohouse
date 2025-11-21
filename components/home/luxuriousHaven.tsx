@@ -7,6 +7,7 @@ import { FaArrowRight, FaUsers, FaHome, FaGlobeAfrica } from 'react-icons/fa';
 import { Building2, Home, Castle, Building } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import PropertyTypeCards from './propertyTypeCards';
 
 const propertyTypes = [
   { 
@@ -161,9 +162,9 @@ export default function LuxuriousHaven() {
               <Link href="/properties">
                 <motion.button
                   whileTap={{ scale: 0.95 }}
-                  className="flex justify-center items-center gap-3 bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-blue-700"
+                  className="flex justify-center items-center gap-3 bg-blue-600 text-white px-8 py-3 rounded-full hover:cursor-pointer transition-all duration-300 hover:bg-blue-700"
                 >
-                  Explore All <FaArrowRight className="" />
+                  Explore All
                 </motion.button>
               </Link>
             </motion.div>
@@ -171,104 +172,7 @@ export default function LuxuriousHaven() {
         </div>
 
         {/* Property Types */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-10"
-        >
-    
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {propertyTypes.map((property, index) => {
-              const Icon = property.icon;
-              
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  onHoverStart={() => setHoveredIndex(index)}
-                  onHoverEnd={() => setHoveredIndex(null)}
-                  whileHover={{ y: -8 }}
-                  onClick={() => handlePropertyTypeClick(property.label)}
-                  className="group cursor-pointer"
-                >
-                  <div className="relative bg-white rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl border border-gray-100 overflow-hidden">
-                    {/* Background effect on hover */}
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: hoveredIndex === index ? 1 : 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute inset-0 bg-blue-50"
-                    />
-
-                    {/* Content */}
-                    <div className="relative z-10 text-center space-y-4">
-                      {/* Icon Container */}
-                      <motion.div 
-                        className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-2xl mb-2 transition-all duration-300"
-                        animate={{
-                          backgroundColor: hoveredIndex === index ? '#2563eb' : '#dbeafe',
-                          scale: hoveredIndex === index ? 1.1 : 1
-                        }}
-                      >
-                        <Icon 
-                          className="w-10 h-10 transition-colors duration-300" 
-                          strokeWidth={2}
-                          style={{ color: hoveredIndex === index ? '#ffffff' : '#2563eb' }}
-                        />
-                      </motion.div>
-
-                      {/* Title */}
-                      <h4 className="text-xl font-bold text-gray-900 transition-colors duration-300">
-                        {property.label}
-                      </h4>
-                      
-                      {/* Description */}
-                      <p className="text-sm text-gray-500 leading-relaxed">
-                        {property.description}
-                      </p>
-
-                      {/* View More Link */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ 
-                          opacity: hoveredIndex === index ? 1 : 0,
-                          y: hoveredIndex === index ? 0 : 10
-                        }}
-                        transition={{ duration: 0.2 }}
-                        className="pt-2"
-                      >
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePropertyTypeClick(property.label);
-                          }}
-                          className="inline-flex items-center gap-2 text-blue-600 font-semibold text-sm"
-                        >
-                          View Properties <FaArrowRight className="text-xs" />
-                        </button>
-                      </motion.div>
-                    </div>
-
-                    {/* Bottom accent line */}
-                    <motion.div
-                      initial={{ scaleX: 0 }}
-                      animate={{ 
-                        scaleX: hoveredIndex === index ? 1 : 0
-                      }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 origin-left"
-                    />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
+        <PropertyTypeCards/>
       </div>
     </section>
   );
