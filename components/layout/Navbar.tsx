@@ -213,11 +213,11 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             <img
               src={
                 isMobileMenuOpen
-                  ? '/logoHoroHouseBleueOrdinateur.png'
-                  : '/logoHoroHouseBleueOrdinateur.png'
+                  ? '/horohouse.png'
+                  : '/horohouse.png'
               }
               alt="HoroHouse"
-              className={`transition-all duration-300 ${isMobileMenuOpen ? 'h-10' : 'h-8'
+              className={`transition-all duration-300 ${isMobileMenuOpen ? 'h-15' : 'h-14'
                 }`}
             />
           </Link>
@@ -227,13 +227,13 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
         <div className="block md:hidden z-50">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors "
+            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-blue-100 transition-colors "
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
-              <HiX size={22} className="text-blue-600" />
+              <HiX size={22} className="text-gray-600" />
             ) : (
-              <HiMenu size={22} className="text-blue-600" />
+              <HiMenu size={22} className="text-gray-600" />
             )}
           </button>
         </div>
@@ -254,7 +254,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} onClick={() => setActiveLink(link.href)}>
               <div
-                className={`px-4 py-2 rounded-lg hover:text-blue-600 hover:bg-blue-50 transition-all ${activeLink === link.href ? 'text-blue-600 bg-blue-50 font-semibold' : ''
+                className={`px-4 py-2 rounded-lg hover:text-blue-600 transition-all ${activeLink === link.href ? 'text-blue-600 bg-blue-50 font-semibold' : ''
                   }`}
               >
                 {link.label}
@@ -271,7 +271,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:cursor hover:border-blue-500 hover:bg-blue-50 transition-colors"
             aria-label="Search properties"
           >
-            <Search className="h-4 w-4 text-blue-600" />
+            <Search className="h-4 w-4 text-gray-600 font-medium" />
           </button>
 
           {/* Theme Toggle */}
@@ -281,9 +281,9 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
           >
             {theme === 'light' ? (
-              <Moon className="h-4 w-4 text-blue-600" />
+              <Moon className="h-4 w-4 text-gray-600 font-medium" />
             ) : (
-              <Sun className="h-4 w-4 text-blue-600" />
+              <Sun className="h-4 w-4 text-gray-600 font-medium" />
             )}
           </button> */}
 
@@ -294,7 +294,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                 className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:cursor hover:border-blue-500 hover:bg-blue-50 transition-colors"
                 aria-label="Change language"
               >
-                <span className="text-lg text-blue-600">{languages[language].flag}</span>
+                <span className="text-lg text-gray-600">{languages[language].flag}</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -398,7 +398,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             !isMobileMenuOpen && (
               <div className="flex items-center gap-2">
                 <Link href="/auth/login">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold text-sm transition-colors">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm transition-colors">
                     {t.nav.signIn}
                   </button>
                 </Link>
@@ -487,10 +487,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                   </div>
                 </div>
               ) : (
-                <div className="mt-4">
-                  <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-4">
-                    <Menu className="h-6 w-6 text-white" />
-                  </div>
+                <div className="mt-10">
+                 
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome</h2>
                   <p className="text-gray-500 text-sm">Discover your dream property</p>
                 </div>
@@ -554,7 +552,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             {!isAuthenticated && (
               <div className="px-6 pb-6">
                 <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <button className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 hover:from-blue-700 hover:via-blue-700 hover:to-blue-800 text-white px-6 py-4 rounded-2xl font-bold shadow-xl shadow-blue-600/40 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/50 group">
+                  <button className="w-full relative overflow-hidden bg-blue-600 hover:from-blue-700 hover:via-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/50 group">
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {t.nav.signIn}
                       <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
