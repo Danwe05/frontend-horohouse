@@ -265,36 +265,16 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
 
         {/* Right Side - Auth Actions */}
         <div className="ml-auto flex items-center gap-2">
-          {/* Search Button */}
-          <button
-            onClick={() => setIsSearchOpen(!isSearchOpen)}
-            className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:cursor hover:border-blue-500 hover:bg-blue-50 transition-colors"
-            aria-label="Search properties"
-          >
-            <Search className="h-4 w-4 text-gray-600 font-medium" />
-          </button>
-
-          {/* Theme Toggle */}
-          {/* <button
-            onClick={toggleTheme}
-            className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:cursor hover:border-blue-500 hover:bg-blue-50 transition-colors"
-            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-          >
-            {theme === 'light' ? (
-              <Moon className="h-4 w-4 text-gray-600 font-medium" />
-            ) : (
-              <Sun className="h-4 w-4 text-gray-600 font-medium" />
-            )}
-          </button> */}
+         
 
           {/* Language Selector */}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
               <button
                 className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:cursor hover:border-blue-500 hover:bg-blue-50 transition-colors"
                 aria-label="Change language"
               >
-                <span className="text-lg text-gray-600">{languages[language].flag}</span>
+                <img src={languages[language].flag} alt={languages[language].name} className="w-6 h-6 rounded-full object-cover shadow-sm" loading="lazy" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -304,13 +284,20 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                   onClick={() => changeLanguage(key as Language)}
                   className={language === key ? 'bg-blue-50 font-semibold' : ''}
                 >
-                  <span className="mr-2">{lang.flag}</span>
+                  <img src={lang.flag} alt={lang.name} className="mr-2 w-5 h-5 rounded-full object-cover shadow-sm" loading="lazy" />
                   {lang.name}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
+ {/* Search Button */}
+          <button
+            onClick={() => setIsSearchOpen(!isSearchOpen)}
+            className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:cursor hover:border-blue-500 hover:bg-blue-50 transition-colors"
+            aria-label="Search properties"
+          >
+            <Search className="h-4 w-4 text-gray-600 font-medium" />
+          </button>
           {isAuthenticated ? (
             <>
               {/* Notifications */}
