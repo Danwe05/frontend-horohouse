@@ -375,9 +375,8 @@ export default function LocationBasedProperties() {
                             ))}
                         </div>
                     ) : formattedProperties.length === 0 ? (
-                        <Card className="py-20">
+                        <Card className="py-20 shadow-none border-0 bg-transparent">
                             <CardContent className="text-center">
-                                <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                                 <h4 className="text-xl font-semibold text-gray-700 mb-2">
                                     No Properties Found
                                 </h4>

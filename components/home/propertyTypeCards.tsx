@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Home, Building2, Building, Warehouse, ArrowRight } from 'lucide-react';
 
 export default function PropertyTypeCards() {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const propertyTypes = [
     {
@@ -71,7 +71,7 @@ export default function PropertyTypeCards() {
                 onClick={() => handlePropertyTypeClick(property.label)}
                 className="group cursor-pointer"
               >
-                <div className="relative h-96 rounded-3xl overflow-hidden shadow-xl">
+                <div className="relative h-84 rounded-3xl overflow-hidden shadow-xl">
                   {/* Background Image */}
                   <motion.div
                     animate={{
