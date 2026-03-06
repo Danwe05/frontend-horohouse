@@ -47,18 +47,16 @@ const BookingTimeline = ({ status, checkIn }: { status: BookingStatus; checkIn: 
     return (
         <div className="relative flex justify-between w-full max-w-md mx-auto mb-8">
             <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
-            <div 
-                className="absolute top-1/2 left-0 h-0.5 bg-indigo-500 -translate-y-1/2 z-0 transition-all duration-1000" 
+            <div
+                className="absolute top-1/2 left-0 h-0.5 bg-indigo-500 -translate-y-1/2 z-0 transition-all duration-1000"
                 style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
             />
             {steps.map((step, i) => (
                 <div key={step} className="relative z-10 flex flex-col items-center gap-2">
-                    <div className={`h-4 w-4 rounded-full border-2 transition-colors ${
-                        i <= currentStep ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-200'
-                    }`} />
-                    <span className={`text-[10px] font-bold uppercase tracking-tighter ${
-                        i <= currentStep ? 'text-indigo-600' : 'text-slate-400'
-                    }`}>{step}</span>
+                    <div className={`h-4 w-4 rounded-full border-2 transition-colors ${i <= currentStep ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-200'
+                        }`} />
+                    <span className={`text-[10px] font-bold uppercase tracking-tighter ${i <= currentStep ? 'text-indigo-600' : 'text-slate-400'
+                        }`}>{step}</span>
                 </div>
             ))}
         </div>
@@ -114,7 +112,7 @@ export default function BookingDetailPage() {
                 <AppSidebar />
                 <SidebarInset className="bg-transparent">
                     <NavDash />
-                    
+
                     <main className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto w-full">
                         {/* ── Top Navigation & ID ── */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -136,10 +134,10 @@ export default function BookingDetailPage() {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            
+
                             {/* ── LEFT COLUMN: Property & Details ── */}
                             <div className="lg:col-span-2 space-y-8">
-                                
+
                                 {/* Image & Quick Info */}
                                 <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
                                     <div className="relative h-[400px]">
@@ -155,7 +153,7 @@ export default function BookingDetailPage() {
                                             </p>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="p-8 grid grid-cols-2 md:grid-cols-4 gap-6 border-b border-slate-100 bg-slate-50/50">
                                         <div className="space-y-1">
                                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Check-in</p>
@@ -205,7 +203,7 @@ export default function BookingDetailPage() {
 
                             {/* ── RIGHT COLUMN: Sidebar (Price & Contacts) ── */}
                             <div className="space-y-6 lg:sticky lg:top-8 self-start">
-                                
+
                                 {/* Pricing Card */}
                                 <div className="bg-white rounded-[2.5rem] border-2 border-slate-900 p-8 shadow-2xl shadow-indigo-100">
                                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Payment Summary</h3>
@@ -224,7 +222,7 @@ export default function BookingDetailPage() {
                                             <span className="text-2xl font-black text-indigo-600">{booking.priceBreakdown?.totalAmount.toLocaleString()} {booking.currency}</span>
                                         </div>
                                     </div>
-                                    
+
                                     <div className={`rounded-2xl p-4 mb-8 flex items-center justify-between ${booking.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider">
                                             <ShieldCheck className="h-4 w-4" /> {booking.paymentStatus === 'paid' ? 'Fully Paid' : 'Pending Payment'}
@@ -239,7 +237,7 @@ export default function BookingDetailPage() {
                                             </Button>
                                         )}
                                         {canCancel && (
-                                            <Button variant="outline" className="w-full h-14 rounded-2xl border-red-100 text-red-600 hover:bg-red-50 font-black" onClick={() => {}} disabled={cancelling}>
+                                            <Button variant="outline" className="w-full h-14 rounded-2xl border-red-100 text-red-600 hover:bg-red-50 font-black" onClick={() => { }} disabled={cancelling}>
                                                 Cancel Reservation
                                             </Button>
                                         )}
@@ -285,7 +283,19 @@ export default function BookingDetailPage() {
                 </SidebarInset>
             </div>
 
-            {booking && <StayReviewForm open={reviewOpen} onOpenChange={setReviewOpen} bookingId={booking._id} />}
+            {booking && (
+                <StayReviewForm
+                    open={reviewOpen}
+                    onClose={() => setReviewOpen(false)}
+                    bookingId={booking._id}
+                    propertyId={prop?._id ?? ''}
+                    propertyTitle={prop?.title ?? ''}
+                    onSuccess={() => {
+                        setReviewOpen(false);
+                        setBooking(b => b ? { ...b, guestReviewLeft: true } : b);
+                    }}
+                />
+            )}
         </SidebarProvider>
     );
 }
