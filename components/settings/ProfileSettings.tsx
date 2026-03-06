@@ -1,0 +1,532 @@
+'use client';
+
+import React, { useState, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Camera,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Building,
+  Calendar,
+  Save,
+  Upload,
+  X,
+  Check,
+  AlertCircle,
+  Briefcase,
+  Globe,
+  ArrowRightLeft
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import apiClient from '@/lib/api';
+
+interface User {
+  id: string;
+  name: string;
+  email?: string;
+  phoneNumber: string;
+  role: string;
+  profilePicture?: string;
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  bio?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  agency?: string;
+  licenseNumber?: string;
+  website?: string;
+  dateJoined?: string;
+}
+
+interface ProfileSettingsProps {
+  user: User;
+}
+
+export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
+  const { refreshAuth } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [formData, setFormData] = useState({
+    name: user.name || '',
+    email: user.email || '',
+    phoneNumber: user.phoneNumber || '',
+    bio: user.bio || '',
+    address: user.address || '',
+    city: user.city || '',
+    country: user.country || '',
+    agency: user.agency || '',
+    licenseNumber: user.licenseNumber || '',
+    website: user.website || ''
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingImage(true);
+      await apiClient.uploadProfilePicture(file);
+      await refreshAuth();
+      setMessage({ type: 'success', text: 'Profile picture updated successfully' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to upload profile picture' });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      setMessage(null);
+
+      await apiClient.updateProfile(formData);
+      await refreshAuth();
+
+      setMessage({ type: 'success', text: 'Profile updated successfully' });
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      setMessage({ type: 'error', text: 'Failed to update profile' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleRole = async () => {
+    try {
+      setIsLoading(true);
+      setMessage(null);
+
+      await apiClient.toggleRole();
+      await refreshAuth();
+
+      setMessage({ type: 'success', text: 'Account role switched successfully' });
+    } catch (error) {
+      console.error('Failed to switch role:', error);
+      setMessage({ type: 'error', text: 'Failed to switch role' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const formatRole = (role: string) => {
+    switch (role) {
+      case 'registered_user':
+        return 'Regular User';
+      case 'agent':
+        return 'Real Estate Agent';
+      case 'admin':
+        return 'Administrator';
+      default:
+        return role;
+    }
+  };
+
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'bg-red-100 text-red-800';
+      case 'agent':
+        return 'bg-blue-100 text-blue-800';
+      case 'registered_user':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="space-y-6 lg:p-0">
+      {/* Profile Picture Section */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+          <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
+            <CardTitle className="flex items-center space-x-2 text-gray-800">
+              <Camera className="h-5 w-5 text-gray-400" />
+              <span>Profile Picture</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+              <div className="relative flex-shrink-0">
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
+                  <AvatarImage src={user.profilePicture} alt={user.name} />
+                  <AvatarFallback className="text-lg sm:text-xl">
+                    {getUserInitials(user.name)}
+                  </AvatarFallback>
+                </Avatar>
+                {uploadingImage && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-gray-900 text-base sm:text-lg truncate">{user.name}</h3>
+                <Badge className={`mt-1 ${getRoleBadgeColor(user.role)}`}>
+                  {formatRole(user.role)}
+                </Badge>
+                <p className="text-sm text-gray-500 mt-2">
+                  Upload a new profile picture. Recommended size: 400x400px
+                </p>
+
+                <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingImage}
+                    className="w-full sm:w-auto"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {uploadingImage ? 'Uploading...' : 'Upload New'}
+                  </Button>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Basic Information */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+        <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+          <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
+            <CardTitle className="flex items-center space-x-2 text-gray-800">
+              <User className="h-5 w-5 text-gray-400" />
+              <span>Basic Information</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Enter your full name"
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="Enter your email"
+                    className="w-full pr-10"
+                  />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    {user.emailVerified ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 text-yellow-500" />
+                    )}
+                  </div>
+                </div>
+                {!user.emailVerified && (
+                  <p className="text-xs text-yellow-600">Email not verified</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="relative">
+                  <Input
+                    id="phone"
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                    placeholder="Enter your phone number"
+                    className="w-full pr-10"
+                  />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    {user.phoneVerified ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 text-yellow-500" />
+                    )}
+                  </div>
+                </div>
+                {!user.phoneVerified && (
+                  <p className="text-xs text-yellow-600">Phone not verified</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="website">Website</Label>
+                <Input
+                  id="website"
+                  value={formData.website}
+                  onChange={(e) => handleInputChange('website', e.target.value)}
+                  placeholder="https://yourwebsite.com"
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bio">Bio</Label>
+              <textarea
+                id="bio"
+                value={formData.bio}
+                onChange={(e) => handleInputChange('bio', e.target.value)}
+                placeholder="Tell us about yourself..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
+                rows={3}
+                maxLength={500}
+              />
+              <p className="text-xs text-gray-500">
+                {formData.bio.length}/500 characters
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Location Information */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+          <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
+            <CardTitle className="flex items-center space-x-2 text-gray-800">
+              <MapPin className="h-5 w-5 text-gray-400" />
+              <span>Location</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  placeholder="Street address"
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  value={formData.city}
+                  onChange={(e) => handleInputChange('city', e.target.value)}
+                  placeholder="City"
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+                <Label htmlFor="country">Country</Label>
+                <Input
+                  id="country"
+                  value={formData.country}
+                  onChange={(e) => handleInputChange('country', e.target.value)}
+                  placeholder="Country"
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Professional Information (for agents) */}
+      {user.role === 'agent' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+          <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+            <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
+              <CardTitle className="flex items-center space-x-2 text-gray-800">
+                <Briefcase className="h-5 w-5 text-gray-400" />
+                <span>Professional Information</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="agency">Agency</Label>
+                  <Input
+                    id="agency"
+                    value={formData.agency}
+                    onChange={(e) => handleInputChange('agency', e.target.value)}
+                    placeholder="Real estate agency"
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="license">License Number</Label>
+                  <Input
+                    id="license"
+                    value={formData.licenseNumber}
+                    onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
+                    placeholder="Professional license number"
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Account Information */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: user.role === 'agent' ? 0.3 : 0.25 }}>
+        <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden bg-gray-50/30">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-2 text-gray-800">
+              <Calendar className="h-5 w-5 text-gray-400" />
+              <span>Account Information</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Account ID</Label>
+                <p className="text-sm text-gray-900 font-mono mt-1 break-all">{user.id}</p>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Member Since</Label>
+                <p className="text-sm text-gray-900 mt-1">
+                  {user.dateJoined ? new Date(user.dateJoined).toLocaleDateString() : 'N/A'}
+                </p>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Account Type</Label>
+                <div className="flex items-center gap-3 mt-1">
+                  <Badge className={getRoleBadgeColor(user.role)}>
+                    {formatRole(user.role)}
+                  </Badge>
+                  {user.role !== 'admin' && (
+                    <Button
+                      variant={user.role === 'agent' ? "outline" : "default"}
+                      className={`h-9 px-4 text-sm font-semibold transition-all flex items-center gap-2 shadow-sm hover:shadow-md rounded-lg ${user.role === 'agent' ? 'border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                      onClick={handleToggleRole}
+                      disabled={isLoading}
+                    >
+                      <ArrowRightLeft className="w-4 h-4" />
+                      {isLoading ? 'Switching...' : `Switch to ${user.role === 'agent' ? 'Regular User' : 'Agent Mode'}`}
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Verification Status</Label>
+                <div className="flex items-center space-x-4 mt-1">
+                  <div className="flex items-center space-x-1">
+                    {user.emailVerified ? (
+                      <Check className="h-3 w-3 text-green-500" />
+                    ) : (
+                      <X className="h-3 w-3 text-red-500" />
+                    )}
+                    <span className="text-xs">Email</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {user.phoneVerified ? (
+                      <Check className="h-3 w-3 text-green-500" />
+                    ) : (
+                      <X className="h-3 w-3 text-red-500" />
+                    )}
+                    <span className="text-xs">Phone</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Message Display */}
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+            className={`p-4 rounded-xl shadow-sm ${message.type === 'success'
+              ? 'bg-green-50 border border-green-200 text-green-800'
+              : 'bg-red-50 border border-red-200 text-red-800'
+              }`}>
+            <div className="flex items-center space-x-2">
+              {message.type === 'success' ? (
+                <Check className="h-4 w-4 flex-shrink-0" />
+              ) : (
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              )}
+              <span className="text-sm break-words">{message.text}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Save Button */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="flex justify-end sticky bottom-4 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg sm:shadow-none sm:bg-transparent sm:p-0 sm:static border border-gray-100 sm:border-none"
+      >
+        <Button
+          onClick={handleSave}
+          disabled={isLoading}
+          className="min-w-32 w-full sm:w-auto rounded-xl shadow-sm hover:shadow-md transition-all"
+          size="lg"
+        >
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+          ) : (
+            <Save className="h-4 w-4 mr-2" />
+          )}
+          {isLoading ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </motion.div>
+    </div >
+  );
+};
