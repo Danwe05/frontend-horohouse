@@ -190,11 +190,12 @@ export default function Reviews({ propertyId }: ReviewsProps) {
       {reviews.length > 0 && (
         <div className="space-y-6 pt-8 border-t border-slate-100">
           {reviews.map((review) => {
+            const comment = review.comment ?? '';
             const isExpanded = expandedReviews.has(review._id);
-            const isLongComment = review.comment.length > 300;
+            const isLongComment = comment.length > 300;
             const displayComment = isExpanded || !isLongComment
-              ? review.comment
-              : `${review.comment.substring(0, 300)}...`;
+              ? comment
+              : `${comment.substring(0, 300)}...`;
             const isUserReview = review.userId._id === user?.id;
 
             return (

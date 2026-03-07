@@ -7,11 +7,11 @@ import { NavDash } from '@/components/dashboard/NavDash';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-    Wallet, DollarSign, ArrowUpRight, ArrowDownRight, Activity,
-    Download, Clock, CheckCircle2, Building2, Smartphone,
-    ArrowRight, Landmark, CreditCard, HeartHandshake, FileText, TrendingUp,
-    Badge
-} from 'lucide-react';
+     Wallet, DollarSign, ArrowUpRight, ArrowDownRight, Activity,
+     Download, Clock, CheckCircle2, Building2, Smartphone,
+     ArrowRight, Landmark, CreditCard, HeartHandshake, FileText, TrendingUp
+ } from 'lucide-react';
+ import { Badge } from '@/components/ui/badge';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 // Mock Data

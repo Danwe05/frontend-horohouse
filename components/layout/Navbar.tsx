@@ -50,6 +50,7 @@ import NotificationDropdown from '@/components/notifications/NotificationDropdow
 import { apiClient } from '@/lib/api';
 import { authService } from '@/lib/auth';
 import { toast } from 'sonner';
+import type { Variants } from 'framer-motion';
 
 interface NavbarProps {
   showOnlyWhenAuthenticated?: boolean;
@@ -167,13 +168,13 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
   };
 
   const getNavLinks = (): NavLink[] => {
-    const buyLink:    NavLink = { href: '/properties?listingType=sale', label: 'Buy',          icon: Building };
-    const rentLink:   NavLink = { href: '/properties?listingType=rent', label: 'Rent',         icon: Building };
-    const sellLink:   NavLink = { href: '/dashboard/propertyForm',      label: 'Sell',         icon: Building };
-    const agentLink:  NavLink = { href: '/agents',                      label: 'Find an agent', icon: Building };
-    const contactLink:NavLink = { href: '/contact',                     label: 'Contact',      icon: Globe };
-    const aboutLink:  NavLink = { href: '/about',                       label: 'About Us',     icon: Award };
-    const homeLink:   NavLink = { href: '/',                            label: 'Home',         icon: Home };
+    const buyLink: NavLink = { href: '/properties?listingType=sale', label: 'Buy', icon: Building };
+    const rentLink: NavLink = { href: '/properties?listingType=rent', label: 'Rent', icon: Building };
+    const sellLink: NavLink = { href: '/dashboard/propertyForm', label: 'Sell', icon: Building };
+    const agentLink: NavLink = { href: '/agents', label: 'Find an agent', icon: Building };
+    const contactLink: NavLink = { href: '/contact', label: 'Contact', icon: Globe };
+    const aboutLink: NavLink = { href: '/about', label: 'About Us', icon: Award };
+    const homeLink: NavLink = { href: '/', label: 'Home', icon: Home };
 
     const baseLinks = [homeLink, rentLink, buyLink, agentLink, contactLink, aboutLink];
 
@@ -190,35 +191,35 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
 
   const navLinks = getNavLinks();
 
-  const displayName  = user?.name || 'User';
-  const avatarUrl    = user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ffdfbf`;
+  const displayName = user?.name || 'User';
+  const avatarUrl = user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ffdfbf`;
 
   // ─── Search modal animation variants ──────────────────────────────────────
-  const backdropVariants = {
-    hidden:  { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.25, ease: 'easeOut' } },
-    exit:    { opacity: 0, transition: { duration: 0.2,  ease: 'easeIn'  } },
+  const backdropVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.25, ease: 'easeOut' as const } },
+    exit: { opacity: 0, transition: { duration: 0.2, ease: 'easeIn' as const } },
   };
 
-  const modalVariants = {
-    hidden:  { opacity: 0, y: -28, scale: 0.97 },
-    visible: {
-      opacity: 1, y: 0, scale: 1,
-      transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
-    },
-    exit: {
-      opacity: 0, y: -16, scale: 0.97,
-      transition: { duration: 0.2, ease: 'easeIn' },
-    },
-  };
+   const modalVariants: Variants = {
+   hidden:  { opacity: 0, y: -28, scale: 0.97 },
+   visible: {
+     opacity: 1, y: 0, scale: 1,
+     transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+   },
+   exit: {
+     opacity: 0, y: -16, scale: 0.97,
+     transition: { duration: 0.2, ease: 'easeIn' as const },
+   },
+ };
 
-  const suggestionVariants = {
-    hidden:  { opacity: 0, y: 8 },
-    visible: (i: number) => ({
-      opacity: 1, y: 0,
-      transition: { delay: 0.15 + i * 0.06, duration: 0.3, ease: 'easeOut' },
-    }),
-  };
+ const suggestionVariants: Variants = {
+   hidden:  { opacity: 0, y: 8 },
+   visible: (i: number) => ({
+     opacity: 1, y: 0,
+     transition: { delay: 0.15 + i * 0.06, duration: 0.3, ease: 'easeOut' as const },
+   }),
+ };
 
   const quickSuggestions = ['Apartments in Douala', 'Villas for sale', 'Studio rentals', 'Commercial space'];
 
@@ -226,9 +227,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
     <>
       {/* ── Navbar ───────────────────────────────────────────────────────── */}
       <nav
-        className={`fixed top-0 left-0 right-0 w-full h-16 grid grid-cols-[1fr_auto_1fr] items-center px-4 md:px-6 z-50 transition-all duration-300 ${
-          scrolled ? 'bg-white/80 backdrop-blur-lg border-b border-gray-200' : 'bg-white/80 backdrop-blur-lg'
-        }`}
+        className={`fixed top-0 left-0 right-0 w-full h-16 grid grid-cols-[1fr_auto_1fr] items-center px-4 md:px-6 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-lg border-b border-gray-200' : 'bg-white/80 backdrop-blur-lg'
+          }`}
       >
         {/* ── LEFT: Burger (mobile) / Logo (desktop) ───────────────────── */}
         <div className="flex items-center">
@@ -255,9 +255,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
           <div className="hidden md:flex items-center space-x-1 text-gray-700 text-sm font-medium">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setActiveLink(link.href)}>
-                <div className={`px-4 py-2 rounded-lg hover:text-blue-600 transition-all ${
-                  activeLink === link.href ? 'text-blue-600 font-semibold' : ''
-                }`}>
+                <div className={`px-4 py-2 rounded-lg hover:text-blue-600 transition-all ${activeLink === link.href ? 'text-blue-600 font-semibold' : ''
+                  }`}>
                   {link.label}
                 </div>
               </Link>
@@ -553,9 +552,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                     style={{ animationDelay: `${index * 60}ms` }}
                     className="block animate-in fade-in slide-in-from-left-3 duration-400"
                   >
-                    <div className={`px-5 py-3 rounded-xl transition-all hover:text-blue-600 duration-300 ${
-                      activeLink === link.href ? 'text-blue-600 font-semibold' : 'text-gray-700 font-medium'
-                    }`}>
+                    <div className={`px-5 py-3 rounded-xl transition-all hover:text-blue-600 duration-300 ${activeLink === link.href ? 'text-blue-600 font-semibold' : 'text-gray-700 font-medium'
+                      }`}>
                       <span className="text-[15px]">{link.label}</span>
                     </div>
                   </Link>

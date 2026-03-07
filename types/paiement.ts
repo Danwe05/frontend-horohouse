@@ -10,14 +10,13 @@ export enum TransactionType {
   DIGITAL_SERVICE = 'digital_service',
 }
 
-// ✅ FIXED: Updated to match backend enum values
 export enum PaymentMethod {
   WALLET = 'wallet',
   BANK_TRANSFER = 'bank_transfer',
   CARD = 'card',
   ORANGE_MONEY = 'orange_money',
   MTN_MOMO = 'mtn_momo',
-  MOBILE_MONEY = "MOBILE_MONEY",
+  // MOBILE_MONEY removed — use getMobileMoneyPaymentMethod(provider) instead
 }
 
 export enum Currency {
@@ -80,6 +79,10 @@ export enum WithdrawalStatus {
 
 export type MobileMoneyProvider = 'ORANGE' | 'MTN';
 
+/**
+ * Use this helper wherever you previously used PaymentMethod.MOBILE_MONEY.
+ * Resolves to the correct backend-compatible enum value based on the provider.
+ */
 export const getMobileMoneyPaymentMethod = (provider: MobileMoneyProvider): PaymentMethod => {
   return provider === 'ORANGE' ? PaymentMethod.ORANGE_MONEY : PaymentMethod.MTN_MOMO;
 };
@@ -726,7 +729,6 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   [PaymentMethod.MTN_MOMO]: 'MTN Mobile Money',
   [PaymentMethod.BANK_TRANSFER]: 'Bank Transfer',
   [PaymentMethod.WALLET]: 'Wallet Balance',
-  [PaymentMethod.MOBILE_MONEY]: ""
 };
 
 export const getPaymentMethodLabel = (method: PaymentMethod): string => {

@@ -1,33 +1,36 @@
 import { apiClient } from './api';
+import {
+  PaymentMethod,
+  Currency,
+  TransactionStatus,
+  TransactionType,
+  BoostType,
+  BoostStatus,
+} from '@/types/paiement';
 
 // ============================================
 // PAYMENT API METHODS
 // ============================================
 
-/**
- * Initialize a new payment
- */
 export async function initializePayment(data: {
-  type: 'subscription' | 'listing_fee' | 'boost' | 'commission' | 'digital_service';
+  type: TransactionType;
   amount: number;
-  currency: 'XAF' | 'USD' | 'EUR';
-  paymentMethod: 'wallet' | 'bank_transfer' | 'card' | 'orange_money' | 'mtn_momo';
+  currency?: Currency;
+  paymentMethod: PaymentMethod;
   description?: string;
   metadata?: Record<string, any>;
 }) {
   const response = await apiClient.request({
     method: 'POST',
     url: '/payments/initialize',
-    data,
+    data: { ...data, currency: data.currency ?? Currency.XAF },
   });
   return response;
 }
 
-/**
- * Verify payment status
- */
 export async function verifyPayment(data: {
   transactionId: string;
+  flutterwaveReference?: string;
 }) {
   const response = await apiClient.request({
     method: 'POST',
@@ -37,15 +40,12 @@ export async function verifyPayment(data: {
   return response;
 }
 
-/**
- * Get user transactions
- */
 export async function getUserTransactions(params?: {
   page?: number;
   limit?: number;
-  status?: 'pending' | 'success' | 'failed' | 'cancelled';
-  type?: 'subscription' | 'listing_fee' | 'boost' | 'commission' | 'digital_service';
-  paymentMethod?: 'wallet' | 'bank_transfer' | 'card' | 'orange_money' | 'mtn_momo';
+  status?: TransactionStatus;
+  type?: TransactionType;
+  paymentMethod?: PaymentMethod;
   startDate?: string;
   endDate?: string;
 }) {
@@ -57,9 +57,6 @@ export async function getUserTransactions(params?: {
   return response;
 }
 
-/**
- * Get transaction by ID
- */
 export async function getTransactionById(id: string) {
   const response = await apiClient.request({
     method: 'GET',
@@ -72,9 +69,6 @@ export async function getTransactionById(id: string) {
 // SUBSCRIPTION API METHODS
 // ============================================
 
-/**
- * Get all available subscription plans (public)
- */
 export async function getSubscriptionPlans() {
   const response = await apiClient.request({
     method: 'GET',
@@ -84,9 +78,6 @@ export async function getSubscriptionPlans() {
   return response;
 }
 
-/**
- * Get current user's subscription
- */
 export async function getMySubscription() {
   const response = await apiClient.request({
     method: 'GET',
@@ -95,13 +86,10 @@ export async function getMySubscription() {
   return response;
 }
 
-/**
- * Subscribe to a plan - FIXED to match backend enum
- */
 export async function subscribeToPlan(data: {
   planName: string;
   billingCycle: 'monthly' | 'quarterly' | 'yearly';
-  paymentMethod?: 'wallet' | 'bank_transfer' | 'card' | 'orange_money' | 'mtn_momo';
+  paymentMethod?: PaymentMethod;
   discountCode?: string;
 }) {
   const response = await apiClient.request({
@@ -112,9 +100,6 @@ export async function subscribeToPlan(data: {
   return response;
 }
 
-/**
- * Activate subscription after payment
- */
 export async function activateSubscription(transactionId: string) {
   const response = await apiClient.request({
     method: 'POST',
@@ -123,9 +108,6 @@ export async function activateSubscription(transactionId: string) {
   return response;
 }
 
-/**
- * Cancel subscription
- */
 export async function cancelSubscription(data: {
   reason?: string;
   feedback?: string;
@@ -138,9 +120,6 @@ export async function cancelSubscription(data: {
   return response;
 }
 
-/**
- * Get subscription usage statistics
- */
 export async function getSubscriptionUsage() {
   const response = await apiClient.request({
     method: 'GET',
@@ -149,9 +128,6 @@ export async function getSubscriptionUsage() {
   return response;
 }
 
-/**
- * Check if user can use a resource (listings/boosts)
- */
 export async function checkResourceLimit(resourceType: 'listings' | 'boosts') {
   const response = await apiClient.request({
     method: 'GET',
@@ -164,9 +140,6 @@ export async function checkResourceLimit(resourceType: 'listings' | 'boosts') {
 // LISTING BOOST API METHODS
 // ============================================
 
-/**
- * Get available boost options and pricing (public)
- */
 export async function getBoostOptions() {
   const response = await apiClient.request({
     method: 'GET',
@@ -176,11 +149,8 @@ export async function getBoostOptions() {
   return response;
 }
 
-/**
- * Get price for a boost type and duration
- */
 export async function getBoostPricing(params: {
-  boostType: 'basic' | 'premium' | 'featured';
+  boostType: BoostType;
   duration: number;
 }) {
   const response = await apiClient.request({
@@ -191,14 +161,11 @@ export async function getBoostPricing(params: {
   return response;
 }
 
-/**
- * Create a boost request for a property
- */
 export async function createBoostRequest(data: {
   propertyId: string;
-  boostType: 'basic' | 'premium' | 'featured';
+  boostType: BoostType;
   duration: number;
-  paymentMethod?: 'wallet' | 'bank_transfer' | 'card' | 'orange_money' | 'mtn_momo';
+  paymentMethod?: PaymentMethod;
 }) {
   const response = await apiClient.request({
     method: 'POST',
@@ -208,9 +175,6 @@ export async function createBoostRequest(data: {
   return response;
 }
 
-/**
- * Activate boost after payment (admin)
- */
 export async function activateBoost(transactionId: string) {
   const response = await apiClient.request({
     method: 'POST',
@@ -219,11 +183,8 @@ export async function activateBoost(transactionId: string) {
   return response;
 }
 
-/**
- * Get current user's boosts
- */
 export async function getUserBoosts(params?: {
-  status?: 'pending' | 'active' | 'expired' | 'cancelled';
+  status?: BoostStatus;
 }) {
   const response = await apiClient.request({
     method: 'GET',
@@ -233,9 +194,6 @@ export async function getUserBoosts(params?: {
   return response;
 }
 
-/**
- * Get boost history for a property
- */
 export async function getPropertyBoosts(propertyId: string) {
   const response = await apiClient.request({
     method: 'GET',
@@ -244,11 +202,8 @@ export async function getPropertyBoosts(propertyId: string) {
   return response;
 }
 
-/**
- * Get active boosted properties (public)
- */
 export async function getActiveBoostedProperties(params?: {
-  boostType?: 'basic' | 'premium' | 'featured';
+  boostType?: BoostType;
   limit?: number;
 }) {
   const response = await apiClient.request({
@@ -260,9 +215,6 @@ export async function getActiveBoostedProperties(params?: {
   return response;
 }
 
-/**
- * Track a boost impression
- */
 export async function trackBoostImpression(boostId: string) {
   const response = await apiClient.request({
     method: 'POST',
@@ -272,9 +224,6 @@ export async function trackBoostImpression(boostId: string) {
   return response;
 }
 
-/**
- * Track a boost click
- */
 export async function trackBoostClick(boostId: string) {
   const response = await apiClient.request({
     method: 'POST',
@@ -284,9 +233,6 @@ export async function trackBoostClick(boostId: string) {
   return response;
 }
 
-/**
- * Track a boost inquiry
- */
 export async function trackBoostInquiry(boostId: string) {
   const response = await apiClient.request({
     method: 'POST',
@@ -296,9 +242,6 @@ export async function trackBoostInquiry(boostId: string) {
   return response;
 }
 
-/**
- * Cancel a boost
- */
 export async function cancelBoost(boostId: string, reason: string) {
   const response = await apiClient.request({
     method: 'POST',
@@ -312,9 +255,6 @@ export async function cancelBoost(boostId: string, reason: string) {
 // WALLET API METHODS
 // ============================================
 
-/**
- * Get or create wallet for current user
- */
 export async function getWallet() {
   const response = await apiClient.request({
     method: 'GET',
@@ -323,9 +263,6 @@ export async function getWallet() {
   return response;
 }
 
-/**
- * Credit a user wallet (admin only)
- */
 export async function creditWallet(data: {
   userId?: string;
   amount: number;
@@ -340,9 +277,6 @@ export async function creditWallet(data: {
   return response;
 }
 
-/**
- * Debit a user wallet (admin only)
- */
 export async function debitWallet(data: {
   userId?: string;
   amount: number;
@@ -357,12 +291,9 @@ export async function debitWallet(data: {
   return response;
 }
 
-/**
- * Request a wallet withdrawal
- */
 export async function requestWithdrawal(data: {
   amount: number;
-  withdrawalMethod: 'bank_transfer' | 'orange_money' | 'mtn_momo';
+  withdrawalMethod: PaymentMethod; // matches WithdrawFundsDto & WithdrawFundsRequest
   accountNumber: string;
   accountName?: string;
   bankCode?: string;
@@ -375,9 +306,6 @@ export async function requestWithdrawal(data: {
   return response;
 }
 
-/**
- * Update user's bank account details
- */
 export async function updateBankAccount(data: {
   accountName: string;
   accountNumber: string;
@@ -392,9 +320,6 @@ export async function updateBankAccount(data: {
   return response;
 }
 
-/**
- * Update user's mobile money details
- */
 export async function updateMobileMoneyAccount(data: {
   phoneNumber: string;
   provider: 'MTN' | 'ORANGE';
@@ -407,9 +332,6 @@ export async function updateMobileMoneyAccount(data: {
   return response;
 }
 
-/**
- * Enable auto-withdrawal with threshold
- */
 export async function enableAutoWithdrawal(threshold: number) {
   const response = await apiClient.request({
     method: 'POST',
@@ -419,9 +341,6 @@ export async function enableAutoWithdrawal(threshold: number) {
   return response;
 }
 
-/**
- * Get wallet transactions
- */
 export async function getWalletTransactions(params?: {
   limit?: number;
 }) {
@@ -433,9 +352,6 @@ export async function getWalletTransactions(params?: {
   return response;
 }
 
-/**
- * Get wallet statistics
- */
 export async function getWalletStats() {
   const response = await apiClient.request({
     method: 'GET',
@@ -448,9 +364,6 @@ export async function getWalletStats() {
 // REVENUE ANALYTICS API METHODS (Admin Only)
 // ============================================
 
-/**
- * Get comprehensive revenue analytics overview
- */
 export async function getRevenueOverview() {
   const response = await apiClient.request({
     method: 'GET',
@@ -459,9 +372,6 @@ export async function getRevenueOverview() {
   return response;
 }
 
-/**
- * Get monthly revenue chart data
- */
 export async function getMonthlyRevenueChart(months: number = 12) {
   const response = await apiClient.request({
     method: 'GET',
@@ -471,9 +381,6 @@ export async function getMonthlyRevenueChart(months: number = 12) {
   return response;
 }
 
-/**
- * Get subscription analytics
- */
 export async function getSubscriptionAnalytics() {
   const response = await apiClient.request({
     method: 'GET',
@@ -482,9 +389,6 @@ export async function getSubscriptionAnalytics() {
   return response;
 }
 
-/**
- * Get listing boost analytics
- */
 export async function getBoostAnalytics() {
   const response = await apiClient.request({
     method: 'GET',
@@ -493,9 +397,6 @@ export async function getBoostAnalytics() {
   return response;
 }
 
-/**
- * Get top revenue generating users
- */
 export async function getTopRevenueUsers(limit: number = 10) {
   const response = await apiClient.request({
     method: 'GET',
@@ -505,9 +406,6 @@ export async function getTopRevenueUsers(limit: number = 10) {
   return response;
 }
 
-/**
- * Get consolidated analytics summary
- */
 export async function getAnalyticsSummary() {
   const response = await apiClient.request({
     method: 'GET',
@@ -520,9 +418,6 @@ export async function getAnalyticsSummary() {
 // ADMIN PAYMENT ENDPOINTS
 // ============================================
 
-/**
- * Get all transactions (admin only)
- */
 export async function getAllTransactions(params?: {
   page?: number;
   limit?: number;
@@ -537,9 +432,6 @@ export async function getAllTransactions(params?: {
   return response;
 }
 
-/**
- * Get transaction by Flutterwave reference
- */
 export async function getTransactionByReference(txRef: string) {
   const response = await apiClient.request({
     method: 'GET',
@@ -548,9 +440,6 @@ export async function getTransactionByReference(txRef: string) {
   return response;
 }
 
-/**
- * Get payment analytics (admin only)
- */
 export async function getPaymentAnalytics() {
   const response = await apiClient.request({
     method: 'GET',
@@ -572,7 +461,7 @@ export const paiementApi = {
   getAllTransactions,
   getPaymentAnalytics,
   getTransactionByReference,
-  
+
   // Subscriptions
   getSubscriptionPlans,
   getMySubscription,
@@ -581,7 +470,7 @@ export const paiementApi = {
   cancelSubscription,
   getSubscriptionUsage,
   checkResourceLimit,
-  
+
   // Boosts
   getBoostOptions,
   getBoostPricing,
@@ -594,7 +483,7 @@ export const paiementApi = {
   trackBoostClick,
   trackBoostInquiry,
   cancelBoost,
-  
+
   // Wallet
   getWallet,
   creditWallet,
@@ -605,7 +494,7 @@ export const paiementApi = {
   enableAutoWithdrawal,
   getWalletTransactions,
   getWalletStats,
-  
+
   // Revenue Analytics
   getRevenueOverview,
   getMonthlyRevenueChart,

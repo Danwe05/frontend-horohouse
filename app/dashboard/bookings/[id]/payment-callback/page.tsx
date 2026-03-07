@@ -2,13 +2,9 @@
 
 /**
  * app/dashboard/bookings/[id]/payment-callback/page.tsx
- *
- * Flutterwave always fires redirect_url after payment — this page handles
- * the rare case where the inline modal opened in a new tab or the browser
- * navigated away. The modal itself handles the normal inline flow.
  */
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import apiClient from '@/lib/api';
 import { CheckCircle2, XCircle, Loader2, RefreshCw } from 'lucide-react';
@@ -19,8 +15,8 @@ type State = 'polling' | 'paid' | 'cancelled' | 'timeout';
 const MAX_POLLS = 12;
 const POLL_MS   = 2500;
 
-export default function PaymentCallbackPage() {
-  const { id }       = useParams<{ id: string }>();
+// ── Inner component that uses useSearchParams ──────────────────────────────
+function PaymentCallbackContent({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const router       = useRouter();
   const flwStatus    = searchParams.get('status');
@@ -95,5 +91,24 @@ export default function PaymentCallbackPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// ── Fallback shown while Suspense resolves ─────────────────────────────────
+function LoadingFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <Loader2 className="h-10 w-10 animate-spin text-blue-500/40" />
+    </div>
+  );
+}
+
+// ── Page export — wraps inner component in Suspense ────────────────────────
+export default function PaymentCallbackPage() {
+  const { id } = useParams<{ id: string }>();
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <PaymentCallbackContent id={id} />
+    </Suspense>
   );
 }
