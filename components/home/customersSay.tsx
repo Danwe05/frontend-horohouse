@@ -12,7 +12,7 @@ const customers = [
     role: 'Real Estate Agent',
     text: `"As an agent, I love the visibility and leads I get from HoroHouse. It's easy to use, and the support team is always available."`,
     rating: 5,
-    img: '/testimonials/jean-marc.png',
+    img: 'https://images.unsplash.com/photo-1531384441138-2736e62e0919?w=150&h=150&fit=crop&crop=face',
   },
   {
     name: 'Julienne N.',
@@ -20,7 +20,7 @@ const customers = [
     role: 'Homeowner',
     text: `"I finally found a platform that understands the African market. HoroHouse helped me find a home in Yaoundé in just 3 days."`,
     rating: 5,
-    img: '/testimonials/julienne.png',
+    img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face',
   },
   {
     name: 'Fatima S.',
@@ -28,7 +28,7 @@ const customers = [
     role: 'Property Buyer',
     text: `"Clean interface, verified listings, and great customer service. Just waiting for the mobile app to drop!"`,
     rating: 5,
-    img: '/testimonials/fatima.png',
+    img: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150&h=150&fit=crop&crop=face',
   },
   {
     name: 'Ali K.',
@@ -36,7 +36,7 @@ const customers = [
     role: 'Tenant',
     text: `"Fantastic platform! Helped me find an apartment quickly and easily. The virtual tours feature is amazing!"`,
     rating: 5,
-    img: '/testimonials/ali.png',
+    img: 'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=150&h=150&fit=crop&crop=face',
   },
   {
     name: 'Sophie M.',
@@ -44,7 +44,7 @@ const customers = [
     role: 'Investor',
     text: `"User-friendly and reliable service. The blockchain verification gives me peace of mind. Highly recommended!"`,
     rating: 5,
-    img: '/testimonials/sophie.png',
+    img: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=150&h=150&fit=crop&crop=face',
   },
 ];
 
@@ -86,7 +86,6 @@ export default function CustomersSay() {
 
   // Initialization: Snap to the middle set
   useEffect(() => {
-    // Small timeout to ensure DOM is rendered
     const timer = setTimeout(() => {
       scrollToIndex(customers.length, 'instant');
     }, 50);
@@ -100,22 +99,18 @@ export default function CustomersSay() {
     const handleInfiniteScroll = () => {
       const { scrollLeft, scrollWidth, offsetWidth } = container;
       
-      // If we scroll too far left (into the first set), jump to the middle set
       if (scrollLeft <= 0) {
         container.scrollTo({
           left: scrollLeft + (scrollWidth / 3),
           behavior: 'instant'
         });
-      } 
-      // If we scroll too far right (into the third set), jump to the middle set
-      else if (scrollLeft + offsetWidth >= scrollWidth) {
+      } else if (scrollLeft + offsetWidth >= scrollWidth) {
         container.scrollTo({
           left: scrollLeft - (scrollWidth / 3),
           behavior: 'instant'
         });
       }
 
-      // Calculate which item is in the center
       const children = Array.from(container.children);
       const containerCenter = container.offsetWidth / 2;
       let closestIndex = 0;
@@ -176,14 +171,12 @@ export default function CustomersSay() {
             className="flex gap-6 overflow-x-auto scrollbar-hide px-4"
             style={{ 
                 scrollSnapType: 'x mandatory',
-                paddingLeft: 'calc(50% - 13rem)', // Centers the first item (adjust based on card width)
+                paddingLeft: 'calc(50% - 13rem)',
                 paddingRight: 'calc(50% - 13rem)' 
             }}
           >
             {duplicatedCustomers.map((customer, idx) => {
               const isCenter = idx === centerIndex;
-              // Map back to original index for the dots
-              const originalIndex = idx % customers.length;
 
               return (
                 <div
@@ -198,8 +191,12 @@ export default function CustomersSay() {
                   }`}>
                     <div className="flex flex-col h-full">
                       <div className="flex items-center gap-4 mb-6">
-                        <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-200 border">
-                          <Image src={customer.img} alt={customer.name} fill className="object-cover" />
+                        <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-200 border flex-shrink-0">
+                          <img
+                            src={customer.img}
+                            alt={customer.name}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         <div>
                           <h4 className="font-semibold text-gray-900">{customer.name}</h4>
@@ -224,13 +221,12 @@ export default function CustomersSay() {
           </div>
         </div>
 
-        {/* Navigation Dots (only shows original 5) */}
+        {/* Navigation Dots */}
         <div className="flex justify-center gap-2 mt-8">
           {customers.map((_, idx) => (
             <button
               key={idx}
               onClick={() => {
-                // Find the closest instance of this index to the current center
                 const currentSet = Math.floor(centerIndex / customers.length);
                 scrollToIndex(idx + (currentSet * customers.length));
               }}

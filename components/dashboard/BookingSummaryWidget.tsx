@@ -83,7 +83,7 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
     }
 
     return (
-        <Card className="shadow-none border h-full flex flex-col">
+        <Card className="shadow-none border-0 shadow-lg h-full flex flex-col">
             <CardHeader className="pb-3 px-6 pt-6 flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-blue-500" />

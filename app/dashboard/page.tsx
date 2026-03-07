@@ -131,20 +131,21 @@ const Index = () => {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="lg:col-span-1">
-                  <TransactionList />
-                </div>
+              {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
                 <div className="lg:col-span-1 space-y-6">
                   <BookingSummaryWidget role="host" title="Recent Booking Requests" limit={4} />
                   {/* Add more widgets as needed */}
-                </div>
-              </div>
+                {/* </div>
+                <div className="lg:col-span-1">
+                  <TransactionList />
+                </div> */}
+              {/* </div> */}
               {/* History Dashboard - Full Width */}
 
 
               {/* Property Listings - Role-based components */}
-              {/* <div>
+              <div>
                 {isAdmin ? (
                   <AdminRole
                     properties={properties}
@@ -171,7 +172,7 @@ const Index = () => {
                     router={router}
                   />
                 )}
-              </div> */}
+              </div>
             </div>
           </main>
         </SidebarInset>

@@ -237,6 +237,12 @@ export default function AboutPage() {
                         <div className="relative aspect-square md:aspect-[4/3] bg-blue-900 rounded-2xl border border-blue-800 p-8 flex flex-col justify-center items-center">
                             <LayoutDashboard className="w-32 h-32 text-blue-400 mb-4" />
                             <span className="text-blue-300 font-mono text-sm">Platform UI Preview</span>
+                            <Image
+                                src="../../public/ui.PNG"
+                                alt="Dashboard preview"
+                                fill
+                                className="object-cover rounded-2xl opacity-20"
+                            />
                         </div>
                     </FadeIn>
                 </div>

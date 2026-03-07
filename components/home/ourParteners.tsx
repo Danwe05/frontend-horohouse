@@ -9,44 +9,43 @@ export default function OurPartners() {
       logo: 'https://cdn.worldvectorlogo.com/logos/zillow.svg',
     },
     {
-      name: 'Realtor.com',
-      logo: 'https://cdn.worldvectorlogo.com/logos/realtor-com.svg',
-    },
-    {
       name: 'Airbnb',
       logo: 'https://cdn.worldvectorlogo.com/logos/airbnb.svg',
     },
     {
-      name: 'Redfin',
-      logo: 'https://cdn.worldvectorlogo.com/logos/redfin.svg',
+      name: 'Jumia',
+      logo: 'https://cdn.worldvectorlogo.com/logos/jumia.svg',
     },
     {
-      name: 'Century 21',
-      logo: 'https://cdn.worldvectorlogo.com/logos/century-21.svg',
+      name: 'MTN',
+      logo: 'https://cdn.worldvectorlogo.com/logos/mtn-2.svg',
     },
     {
-      name: 'Coldwell Banker',
-      logo: 'https://cdn.worldvectorlogo.com/logos/coldwell-banker.svg',
+      name: 'Equity Bank',
+      logo: 'https://cdn.worldvectorlogo.com/logos/equity-bank.svg',
     },
     {
-      name: 'RE/MAX',
-      logo: 'https://cdn.worldvectorlogo.com/logos/remax.svg',
+      name: 'Safaricom',
+      logo: 'https://cdn.worldvectorlogo.com/logos/safaricom.svg',
     },
     {
-      name: 'Keller Williams',
-      logo: 'https://cdn.worldvectorlogo.com/logos/keller-williams.svg',
+      name: 'Orange Africa',
+      logo: 'https://cdn.worldvectorlogo.com/logos/orange-1.svg',
     },
     {
-      name: 'Trulia',
-      logo: 'https://cdn.worldvectorlogo.com/logos/trulia.svg',
+      name: 'Standard Bank',
+      logo: 'https://cdn.worldvectorlogo.com/logos/standard-bank.svg',
     },
     {
-      name: 'Compass',
-      logo: 'https://cdn.worldvectorlogo.com/logos/compass-2.svg',
+      name: 'Flutterwave',
+      logo: 'https://cdn.worldvectorlogo.com/logos/flutterwave.svg',
+    },
+    {
+      name: 'Ecobank',
+      logo: 'https://cdn.worldvectorlogo.com/logos/ecobank.svg',
     },
   ];
 
-  // Duplicate partners array for seamless infinite scroll
   const duplicatedPartners = [...partners, ...partners];
 
   return (
@@ -81,17 +80,8 @@ export default function OurPartners() {
         <div className="flex mb-8">
           <motion.div
             className="flex gap-12 items-center"
-            animate={{
-              x: [0, -1920],
-            }}
-            transition={{
-              x: {
-                repeat: Infinity,
-                repeatType: "loop",
-                duration: 40,
-                ease: "linear",
-              },
-            }}
+            animate={{ x: [0, -1920] }}
+            transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 40, ease: "linear" } }}
           >
             {duplicatedPartners.map((partner, index) => (
               <div
@@ -102,23 +92,22 @@ export default function OurPartners() {
                   src={partner.logo}
                   alt={partner.name}
                   className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-60 group-hover:opacity-100"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `<span class="text-sm font-bold text-gray-400 text-center">${partner.name}</span>`;
+                    }
+                  }}
                 />
               </div>
             ))}
           </motion.div>
           <motion.div
             className="flex gap-12 items-center ml-12"
-            animate={{
-              x: [0, -1920],
-            }}
-            transition={{
-              x: {
-                repeat: Infinity,
-                repeatType: "loop",
-                duration: 40,
-                ease: "linear",
-              },
-            }}
+            animate={{ x: [0, -1920] }}
+            transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 40, ease: "linear" } }}
           >
             {duplicatedPartners.map((partner, index) => (
               <div
@@ -129,6 +118,14 @@ export default function OurPartners() {
                   src={partner.logo}
                   alt={partner.name}
                   className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-60 group-hover:opacity-100"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `<span class="text-sm font-bold text-gray-400 text-center">${partner.name}</span>`;
+                    }
+                  }}
                 />
               </div>
             ))}
@@ -139,17 +136,8 @@ export default function OurPartners() {
         <div className="flex">
           <motion.div
             className="flex gap-12 items-center"
-            animate={{
-              x: [-1920, 0],
-            }}
-            transition={{
-              x: {
-                repeat: Infinity,
-                repeatType: "loop",
-                duration: 40,
-                ease: "linear",
-              },
-            }}
+            animate={{ x: [-1920, 0] }}
+            transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 40, ease: "linear" } }}
           >
             {duplicatedPartners.map((partner, index) => (
               <div
@@ -160,23 +148,22 @@ export default function OurPartners() {
                   src={partner.logo}
                   alt={partner.name}
                   className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-60 group-hover:opacity-100"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `<span class="text-sm font-bold text-gray-400 text-center">${partner.name}</span>`;
+                    }
+                  }}
                 />
               </div>
             ))}
           </motion.div>
           <motion.div
             className="flex gap-12 items-center ml-12"
-            animate={{
-              x: [-1920, 0],
-            }}
-            transition={{
-              x: {
-                repeat: Infinity,
-                repeatType: "loop",
-                duration: 40,
-                ease: "linear",
-              },
-            }}
+            animate={{ x: [-1920, 0] }}
+            transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 40, ease: "linear" } }}
           >
             {duplicatedPartners.map((partner, index) => (
               <div
@@ -187,14 +174,20 @@ export default function OurPartners() {
                   src={partner.logo}
                   alt={partner.name}
                   className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-60 group-hover:opacity-100"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `<span class="text-sm font-bold text-gray-400 text-center">${partner.name}</span>`;
+                    }
+                  }}
                 />
               </div>
             ))}
           </motion.div>
         </div>
       </div>
-
-      
     </div>
   );
 }

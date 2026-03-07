@@ -227,7 +227,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
     <>
       {/* ── Navbar ───────────────────────────────────────────────────────── */}
       <nav
-        className={`fixed top-0 left-0 right-0 w-full h-16 grid grid-cols-[1fr_auto_1fr] items-center px-4 md:px-6 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-lg border-b border-gray-200' : 'bg-white/80 backdrop-blur-lg'
+        className={`fixed top-0 left-0 right-0 w-full flex justify-between h-16 gridd grid-colsd-[1fr_auto_1fr] items-center px-4 md:px-6 z-50 transition-all duration-300 ${scrolled ? 'bg-white backdrop-blur-lg border-b border-gray-200' : 'bg-white/80 backdrop-blur-lg'
           }`}
       >
         {/* ── LEFT: Burger (mobile) / Logo (desktop) ───────────────────── */}
@@ -250,7 +250,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
         {/* ── CENTER: Logo (mobile) / Nav links (desktop) ──────────────── */}
         <div className="flex items-center justify-center">
           <Link href="/" onClick={() => setActiveLink('/')} className="md:hidden">
-            <img src="/horohouse.png" alt="HoroHouse" className="h-14 transition-all duration-300" />
+            <img src="/logoHoroHouseBleueOrdinateur.png" alt="HoroHouse" className="h-10 transition-all duration-300" />
           </Link>
           <div className="hidden md:flex items-center space-x-1 text-gray-700 text-sm font-medium">
             {navLinks.map((link) => (
