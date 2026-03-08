@@ -88,7 +88,6 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
     return () => { document.body.style.overflow = ''; };
   }, [isMobileMenuOpen]);
 
-  // Close search on Escape key
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsSearchOpen(false);
@@ -194,43 +193,48 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
   const displayName = user?.name || 'User';
   const avatarUrl = user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ffdfbf`;
 
-  // ─── Search modal animation variants ──────────────────────────────────────
   const backdropVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.25, ease: 'easeOut' as const } },
     exit: { opacity: 0, transition: { duration: 0.2, ease: 'easeIn' as const } },
   };
 
-   const modalVariants: Variants = {
-   hidden:  { opacity: 0, y: -28, scale: 0.97 },
-   visible: {
-     opacity: 1, y: 0, scale: 1,
-     transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
-   },
-   exit: {
-     opacity: 0, y: -16, scale: 0.97,
-     transition: { duration: 0.2, ease: 'easeIn' as const },
-   },
- };
+  const modalVariants: Variants = {
+    hidden: { opacity: 0, y: -28, scale: 0.97 },
+    visible: {
+      opacity: 1, y: 0, scale: 1,
+      transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+    },
+    exit: {
+      opacity: 0, y: -16, scale: 0.97,
+      transition: { duration: 0.2, ease: 'easeIn' as const },
+    },
+  };
 
- const suggestionVariants: Variants = {
-   hidden:  { opacity: 0, y: 8 },
-   visible: (i: number) => ({
-     opacity: 1, y: 0,
-     transition: { delay: 0.15 + i * 0.06, duration: 0.3, ease: 'easeOut' as const },
-   }),
- };
+  const suggestionVariants: Variants = {
+    hidden: { opacity: 0, y: 8 },
+    visible: (i: number) => ({
+      opacity: 1, y: 0,
+      transition: { delay: 0.15 + i * 0.06, duration: 0.3, ease: 'easeOut' as const },
+    }),
+  };
 
   const quickSuggestions = ['Apartments in Douala', 'Villas for sale', 'Studio rentals', 'Commercial space'];
 
   return (
     <>
-      {/* ── Navbar ───────────────────────────────────────────────────────── */}
+      {/* ── Navbar ─────────────────────────────────────────────────────────
+          IMPORTANT: Do NOT add `overflow-hidden` here — it would clip the
+          NotificationDropdown portal and any other absolute-positioned children.
+          The navbar uses `isolate` intentionally removed; z-index is handled
+          via the dropdown's own z-[9999] so it escapes the stacking context.
+      ───────────────────────────────────────────────────────────────────── */}
       <nav
-        className={`fixed top-0 left-0 right-0 w-full flex justify-between h-16 gridd grid-colsd-[1fr_auto_1fr] items-center px-4 md:px-6 z-50 transition-all duration-300 ${scrolled ? 'bg-white backdrop-blur-lg border-b border-gray-200' : 'bg-white/80 backdrop-blur-lg'
-          }`}
+        className={`fixed top-0 left-0 right-0 w-full flex justify-between h-16 items-center px-4 md:px-6 z-50 transition-all duration-300 ${
+          scrolled ? 'bg-white backdrop-blur-lg border-b border-gray-200' : 'bg-white/80 backdrop-blur-lg'
+        }`}
       >
-        {/* ── LEFT: Burger (mobile) / Logo (desktop) ───────────────────── */}
+        {/* LEFT: Burger (mobile) / Logo (desktop) */}
         <div className="flex items-center">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -247,7 +251,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
           </Link>
         </div>
 
-        {/* ── CENTER: Logo (mobile) / Nav links (desktop) ──────────────── */}
+        {/* CENTER: Logo (mobile) / Nav links (desktop) */}
         <div className="flex items-center justify-center">
           <Link href="/" onClick={() => setActiveLink('/')} className="md:hidden">
             <img src="/logoHoroHouseBleueOrdinateur.png" alt="HoroHouse" className="h-10 transition-all duration-300" />
@@ -255,8 +259,9 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
           <div className="hidden md:flex items-center space-x-1 text-gray-700 text-sm font-medium">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setActiveLink(link.href)}>
-                <div className={`px-4 py-2 rounded-lg hover:text-blue-600 transition-all ${activeLink === link.href ? 'text-blue-600 font-semibold' : ''
-                  }`}>
+                <div className={`px-4 py-2 rounded-lg hover:text-blue-600 transition-all ${
+                  activeLink === link.href ? 'text-blue-600 font-semibold' : ''
+                }`}>
                   {link.label}
                 </div>
               </Link>
@@ -264,7 +269,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
           </div>
         </div>
 
-        {/* ── RIGHT: Actions ────────────────────────────────────────────── */}
+        {/* RIGHT: Actions */}
         <div className="flex items-center justify-end gap-2">
           {/* Language */}
           <DropdownMenu>
@@ -295,28 +300,19 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Search — commented out for later use */}
-          {/*
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:bg-blue-50 transition-colors"
-            aria-label="Search properties"
-          >
-            <Search className="h-4 w-4 text-gray-600" />
-          </button>
-          */}
-
-          {/* Add Property button with Free badge */}
+          {/* Add Property */}
           {canAddProperty && (
             <div className="relative group">
-              <button onClick={handleAddProperty} className="flex relative items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 md:px-4 py-2 rounded-full transition-colors shadow-sm hover:shadow-md">
+              <button
+                onClick={handleAddProperty}
+                className="flex relative items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 md:px-4 py-2 rounded-full transition-colors shadow-sm hover:shadow-md"
+              >
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Add Property</span>
                 <span className="absolute -top-2 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-sm">
                   FREE
                 </span>
               </button>
-              {/* Tooltip */}
               <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
                 List your property for free
                 <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
@@ -326,7 +322,13 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
 
           {isAuthenticated ? (
             <>
-              <div className="block">
+              {/*
+                FIX: Wrap NotificationDropdown in a div with `static` positioning
+                and a very high z-index on its own layer. The dropdown panel inside
+                NotificationDropdown uses `fixed` positioning so it escapes the
+                navbar's stacking context entirely and renders above everything.
+              */}
+              <div className="relative z-[9999]">
                 <NotificationDropdown />
               </div>
 
@@ -401,11 +403,10 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
         </div>
       </nav>
 
-      {/* ── Animated Search Modal ─────────────────────────────────────────── */}
+      {/* ── Search Modal ─────────────────────────────────────────────────── */}
       <AnimatePresence>
         {isSearchOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               key="search-backdrop"
               variants={backdropVariants}
@@ -415,8 +416,6 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
               onClick={() => setIsSearchOpen(false)}
             />
-
-            {/* Modal */}
             <motion.div
               key="search-modal"
               variants={modalVariants}
@@ -426,7 +425,6 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
               className="fixed top-24 left-1/2 -translate-x-1/2 w-full max-w-2xl z-50 px-4"
             >
               <div className="bg-white rounded-2xl shadow-2xl shadow-blue-100/60 border border-blue-100 overflow-hidden">
-                {/* Input row */}
                 <form onSubmit={handleSearch} className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
                   <Search className="h-5 w-5 text-blue-400 flex-shrink-0" />
                   <input
@@ -438,11 +436,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                     autoFocus
                   />
                   {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery('')}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
-                    >
+                    <button type="button" onClick={() => setSearchQuery('')} className="text-gray-400 hover:text-gray-600 transition-colors">
                       <X className="h-4 w-4" />
                     </button>
                   )}
@@ -454,12 +448,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                     {t.search?.button || 'Search'}
                   </button>
                 </form>
-
-                {/* Quick suggestions */}
                 <div className="px-5 py-4">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                    Quick searches
-                  </p>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Quick searches</p>
                   <div className="flex flex-wrap gap-2">
                     {quickSuggestions.map((s, i) => (
                       <motion.button
@@ -482,8 +472,6 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                     ))}
                   </div>
                 </div>
-
-                {/* Hint */}
                 <div className="px-5 pb-4 flex items-center gap-1.5">
                   <kbd className="px-2 py-0.5 rounded bg-gray-100 text-gray-400 text-xs font-mono">Esc</kbd>
                   <span className="text-xs text-gray-400">to close</span>
@@ -501,7 +489,6 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             className="fixed inset-0 bg-black/60 backdrop-blur-md z-30 transition-all duration-500 ease-out"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-
           <div className="fixed inset-y-0 left-0 w-[85%] max-w-sm md:hidden bg-white z-40 overflow-y-auto shadow-2xl animate-in slide-in-from-left duration-500 ease-out">
             <button
               onClick={() => setIsMobileMenuOpen(false)}
@@ -510,7 +497,6 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
               <X className="h-5 w-5 text-gray-600" />
             </button>
 
-            {/* Header */}
             <div className="relative px-6 pt-8 pb-3">
               {isAuthenticated ? (
                 <div className="mt-9">
@@ -541,7 +527,6 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
               )}
             </div>
 
-            {/* Nav links */}
             <div className="px-4 pb-4">
               <div className="space-y-1">
                 {navLinks.map((link, index) => (
@@ -552,15 +537,14 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                     style={{ animationDelay: `${index * 60}ms` }}
                     className="block animate-in fade-in slide-in-from-left-3 duration-400"
                   >
-                    <div className={`px-5 py-3 rounded-xl transition-all hover:text-blue-600 duration-300 ${activeLink === link.href ? 'text-blue-600 font-semibold' : 'text-gray-700 font-medium'
-                      }`}>
+                    <div className={`px-5 py-3 rounded-xl transition-all hover:text-blue-600 duration-300 ${
+                      activeLink === link.href ? 'text-blue-600 font-semibold' : 'text-gray-700 font-medium'
+                    }`}>
                       <span className="text-[15px]">{link.label}</span>
                     </div>
                   </Link>
                 ))}
               </div>
-
-              {/* Add Property is now in the top navbar for all screen sizes */}
 
               {isAuthenticated && (
                 <div className="mt-4">

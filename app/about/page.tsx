@@ -547,30 +547,30 @@ export default function AboutPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {[
                         {
-                            name: "Sarah Mba",
+                            name: "Danwe Basga Kaokamla",
                             role: "Founder & CEO",
-                            image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+                            image: "https://ifmages.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
                             bio: "Former Real Estate Investment Banker with a vision to digitize African property.",
                             socials: { linkedin: "#", twitter: "#" }
                         },
                         {
-                            name: "David Kamsi",
+                            name: "Belaid Ilef",
                             role: "CTO",
-                            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
+                            image: "https://ifmages.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
                             bio: "Tech veteran specializing in Blockchain and AI for secure transactions.",
                             socials: { linkedin: "#", twitter: "#" }
                         },
                         {
-                            name: "Amara Ndi",
+                            name: "Kouedjou Marcel",
                             role: "Head of Operations",
-                            image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400",
+                            image: "https://ifmages.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400",
                             bio: "Expert in Cameroonian land law and operational strategy.",
                             socials: { linkedin: "#", twitter: "#" }
                         },
                         {
-                            name: "Jean-Paul Teno",
+                            name: "Mevo Hubert",
                             role: "Lead Agent",
-                            image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400",
+                            image: "https://ifmages.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400",
                             bio: "Connecting buyers with verified properties for over 10 years.",
                             socials: { linkedin: "#", twitter: "#" }
                         }
