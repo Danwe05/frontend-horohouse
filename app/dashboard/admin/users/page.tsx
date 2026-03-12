@@ -12,7 +12,7 @@ import {
     ChevronLeft, ChevronRight, MoreVertical, Pencil, Trash2,
     X, Check, AlertTriangle, Phone, Mail, Calendar, Loader2,
     RefreshCw, UserCheck, UserCog, Ban, CheckCircle2, Circle,
-    Building2, ChevronDown
+    Building2, ChevronDown, Eye
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -300,7 +300,7 @@ function DeleteModal({ user, onClose, onDeleted }: { user: User; onClose: () => 
 
 // ─── Row Action Menu ──────────────────────────────────────────────────────────
 
-function ActionMenu({ user, onEdit, onDelete }: { user: User; onEdit: () => void; onDelete: () => void }) {
+function ActionMenu({ user, onViewDetails, onEdit, onDelete }: { user: User; onViewDetails: () => void; onEdit: () => void; onDelete: () => void }) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -320,6 +320,12 @@ function ActionMenu({ user, onEdit, onDelete }: { user: User; onEdit: () => void
             </button>
             {open && (
                 <div className="absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <button
+                        onClick={() => { setOpen(false); onViewDetails(); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                    >
+                        <Eye className="w-3.5 h-3.5" /> View Details
+                    </button>
                     <button
                         onClick={() => { setOpen(false); onEdit(); }}
                         className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer"
@@ -611,6 +617,7 @@ export default function AdminUsersPage() {
                                                 <td className="px-4 py-3.5">
                                                     <ActionMenu
                                                         user={u}
+                                                        onViewDetails={() => router.push(`/dashboard/admin/users/${u.id}`)}
                                                         onEdit={() => setEditUser(u)}
                                                         onDelete={() => setDeleteUser(u)}
                                                     />

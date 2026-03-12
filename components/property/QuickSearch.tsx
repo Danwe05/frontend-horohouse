@@ -1,19 +1,25 @@
-import { Search, MapPin, DollarSign, Bed, Bath, Loader2, Clock, X, Tag, Slash, Bookmark } from "lucide-react";
+import {
+  Search, MapPin, Bed, Bath, Loader2, Clock, X, Tag, Bookmark,
+  Home, CalendarRange, Calendar,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { format } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import SaveSearchModal from "@/components/saved-searches/SaveSearchModal";
 import { toast } from "sonner";
 import apiClient from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 export interface QuickSearchFilters {
   city?: string;
@@ -22,11 +28,16 @@ export interface QuickSearchFilters {
   bedrooms?: number;
   bathrooms?: number;
   listingType?: string;
+  /** Short-term only */
+  checkIn?: string;
+  checkOut?: string;
+  guests?: number;
 }
 
 interface QuickSearchProps {
   onSearch?: (filters: QuickSearchFilters) => void;
   isSearching?: boolean;
+  initialFilters?: QuickSearchFilters;
 }
 
 interface PlaceSuggestion {
@@ -35,14 +46,140 @@ interface PlaceSuggestion {
   place_type: string[];
 }
 
-const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
+// ---------------------------------------------------------------------------
+// Price configs per listing type
+// ---------------------------------------------------------------------------
+
+type PriceOption = { value: string; label: string; shortLabel: string; amount: number | undefined };
+
+const PRICE_OPTIONS: Record<string, PriceOption[]> = {
+  // For sale — millions
+  sale: [
+    { value: "any", label: "No limit", shortLabel: "Any", amount: undefined },
+    { value: "5m", label: "5,000,000 XAF", shortLabel: "5M", amount: 5_000_000 },
+    { value: "10m", label: "10,000,000 XAF", shortLabel: "10M", amount: 10_000_000 },
+    { value: "20m", label: "20,000,000 XAF", shortLabel: "20M", amount: 20_000_000 },
+    { value: "50m", label: "50,000,000 XAF", shortLabel: "50M", amount: 50_000_000 },
+    { value: "100m", label: "100,000,000 XAF", shortLabel: "100M", amount: 100_000_000 },
+  ],
+  // Monthly rent — hundreds of thousands
+  rent: [
+    { value: "any", label: "No limit", shortLabel: "Any", amount: undefined },
+    { value: "50k", label: "50,000 XAF/mo", shortLabel: "50K", amount: 50_000 },
+    { value: "100k", label: "100,000 XAF/mo", shortLabel: "100K", amount: 100_000 },
+    { value: "200k", label: "200,000 XAF/mo", shortLabel: "200K", amount: 200_000 },
+    { value: "500k", label: "500,000 XAF/mo", shortLabel: "500K", amount: 500_000 },
+    { value: "1m", label: "1,000,000 XAF/mo", shortLabel: "1M", amount: 1_000_000 },
+  ],
+  // Nightly short-term
+  short_term: [
+    { value: "any", label: "No limit", shortLabel: "Any", amount: undefined },
+    { value: "10k", label: "10,000 XAF/night", shortLabel: "10K", amount: 10_000 },
+    { value: "25k", label: "25,000 XAF/night", shortLabel: "25K", amount: 25_000 },
+    { value: "50k", label: "50,000 XAF/night", shortLabel: "50K", amount: 50_000 },
+    { value: "100k", label: "100,000 XAF/night", shortLabel: "100K", amount: 100_000 },
+    { value: "200k", label: "200,000 XAF/night", shortLabel: "200K", amount: 200_000 },
+  ],
+  any: [
+    { value: "any", label: "No limit", shortLabel: "Any", amount: undefined },
+    { value: "100k", label: "100,000 XAF", shortLabel: "100K", amount: 100_000 },
+    { value: "200k", label: "200,000 XAF", shortLabel: "200K", amount: 200_000 },
+    { value: "500k", label: "500,000 XAF", shortLabel: "500K", amount: 500_000 },
+    { value: "1m", label: "1,000,000 XAF", shortLabel: "1M", amount: 1_000_000 },
+    { value: "2m", label: "2,000,000 XAF", shortLabel: "2M", amount: 2_000_000 },
+  ],
+};
+
+function getPriceOptions(listingType: string) {
+  return PRICE_OPTIONS[listingType] ?? PRICE_OPTIONS.any;
+}
+
+function priceValueToAmount(value: string, listingType: string): number | undefined {
+  const opts = getPriceOptions(listingType);
+  return opts.find((o) => o.value === value)?.amount;
+}
+
+// ---------------------------------------------------------------------------
+// ListingTypePill — the mode switcher
+// ---------------------------------------------------------------------------
+
+const TYPE_TABS = [
+  { value: "rent", label: "Rent", icon: Calendar },
+  { value: "sale", label: "Buy", icon: Home },
+  { value: "short_term", label: "Stay", icon: CalendarRange },
+] as const;
+
+function ListingTypeTabs({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="inline-flex bg-muted rounded-full p-2.5 gap-0.5">
+      {TYPE_TABS.map((tab) => {
+        const Icon = tab.icon;
+        const active = value === tab.value;
+        return (
+          <button
+            key={tab.value}
+            onClick={() => onChange(tab.value)}
+            className={`
+              flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-150
+              ${active
+                ? tab.value === "short_term"
+                  ? "bg-blue-600 text-white "
+                  : tab.value === "rent"
+                    ? "bg-blue-600 text-white "
+                    : tab.value === "sale"
+                      ? "bg-blue-600 text-white "
+                      : "bg-card text-foreground "
+                : "text-muted-foreground hover:text-foreground hover:bg-card/50"
+              }
+            `}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            {tab.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
+const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSearchProps) => {
   const { isAuthenticated } = useAuth();
-  const [city, setCity] = useState("");
-  const [listingType, setListingType] = useState("any");
-  const [minBudget, setMinBudget] = useState("any");
-  const [maxBudget, setMaxBudget] = useState("any");
-  const [bedrooms, setBedrooms] = useState("any");
-  const [bathrooms, setBathrooms] = useState("any");
+
+  // Resolve initial listing type — default to "rent"
+  const initListingType = initialFilters?.listingType ?? "rent";
+
+  // Resolve initial price bucket labels from amount values
+  const resolveInitBudget = (amount: number | undefined, lt: string) => {
+    if (!amount) return "any";
+    return getPriceOptions(lt).find((o) => o.amount === amount)?.value ?? "any";
+  };
+
+  const [city, setCity] = useState(initialFilters?.city ?? "");
+  const [listingType, setListingType] = useState(initListingType);
+  const [minBudget, setMinBudget] = useState(() => resolveInitBudget(initialFilters?.minPrice, initListingType));
+  const [maxBudget, setMaxBudget] = useState(() => resolveInitBudget(initialFilters?.maxPrice, initListingType));
+  const [bedrooms, setBedrooms] = useState(initialFilters?.bedrooms?.toString() ?? "any");
+  const [bathrooms, setBathrooms] = useState(initialFilters?.bathrooms?.toString() ?? "any");
+
+  // Short-term specific
+  const [checkIn, setCheckIn] = useState<Date | undefined>(
+    initialFilters?.checkIn ? new Date(initialFilters.checkIn) : undefined
+  );
+  const [checkOut, setCheckOut] = useState<Date | undefined>(
+    initialFilters?.checkOut ? new Date(initialFilters.checkOut) : undefined
+  );
+  const [guests, setGuests] = useState(initialFilters?.guests?.toString() ?? "any");
+
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
@@ -57,209 +194,112 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false);
 
-  const budgetToPrice = (val: string): number | undefined => {
-    switch (val) {
-      case "100k": return 100000;
-      case "200k": return 200000;
-      case "500k": return 500000;
-      case "1m": return 1000000;
-      case "2m": return 2000000;
-      case "5m": return 5000000;
-      default: return undefined;
-    }
-  };
+  const isShortTerm = listingType === "short_term";
 
-  const formatPrice = (val: string): string => {
-    switch (val) {
-      case "100k": return "100,000 XAF";
-      case "200k": return "200,000 XAF";
-      case "500k": return "500,000 XAF";
-      case "1m": return "1,000,000 XAF";
-      case "2m": return "2,000,000 XAF";
-      case "5m": return "5,000,000 XAF";
-      default: return val;
-    }
-  };
+  // Reset price selections when listing type changes (ranges are incompatible)
+  useEffect(() => {
+    setMinBudget("any");
+    setMaxBudget("any");
+  }, [listingType]);
 
-  const formatPriceMobile = (val: string): string => {
-    switch (val) {
-      case "100k": return "100K";
-      case "200k": return "200K";
-      case "500k": return "500K";
-      case "1m": return "1M";
-      case "2m": return "2M";
-      case "5m": return "5M";
-      default: return val;
-    }
-  };
+  const priceOptions = getPriceOptions(listingType);
 
-  const numberOrUndefined = (val: string): number | undefined => {
-    if (val === "any") return undefined;
-    const n = parseInt(val, 10);
-    return Number.isNaN(n) ? undefined : n;
-  };
-
-  const getCurrentFilters = (): QuickSearchFilters => {
-    return {
+  const getCurrentFilters = useCallback((): QuickSearchFilters => {
+    const f: QuickSearchFilters = {
       city: city || undefined,
       listingType: listingType !== "any" ? listingType : undefined,
-      minPrice: budgetToPrice(minBudget),
-      maxPrice: budgetToPrice(maxBudget),
-      bedrooms: numberOrUndefined(bedrooms),
-      bathrooms: numberOrUndefined(bathrooms),
+      minPrice: priceValueToAmount(minBudget, listingType),
+      maxPrice: priceValueToAmount(maxBudget, listingType),
     };
-  };
+    if (isShortTerm) {
+      if (checkIn) f.checkIn = format(checkIn, "yyyy-MM-dd");
+      if (checkOut) f.checkOut = format(checkOut, "yyyy-MM-dd");
+      if (guests !== "any") f.guests = parseInt(guests, 10);
+    } else {
+      f.bedrooms = bedrooms !== "any" ? parseInt(bedrooms, 10) : undefined;
+      f.bathrooms = bathrooms !== "any" ? parseInt(bathrooms, 10) : undefined;
+    }
+    return f;
+  }, [city, listingType, minBudget, maxBudget, checkIn, checkOut, guests, bedrooms, bathrooms, isShortTerm]);
 
-  const getActiveFilters = () => {
+  const getActiveFilters = useCallback(() => {
     const filters: Array<{ key: string; label: string; onRemove: () => void }> = [];
-
-    if (city) {
-      filters.push({
-        key: 'city',
-        label: city,
-        onRemove: () => setCity('')
-      });
+    if (city) filters.push({ key: "city", label: city, onRemove: () => setCity("") });
+    if (listingType !== "rent") {
+      const labels: Record<string, string> = { sale: "Buy", rent: "Rent", short_term: "Stay" };
+      filters.push({ key: "listingType", label: labels[listingType] ?? listingType, onRemove: () => setListingType("rent") });
     }
-
-    if (listingType !== 'any') {
-      filters.push({
-        key: 'listingType',
-        label: listingType === 'sale' ? 'Buy' : 'Rent',
-        onRemove: () => setListingType('any')
-      });
+    if (minBudget !== "any") {
+      const opt = priceOptions.find((o) => o.value === minBudget);
+      filters.push({ key: "minBudget", label: `Min: ${opt?.shortLabel ?? minBudget}`, onRemove: () => setMinBudget("any") });
     }
-
-    if (minBudget !== 'any') {
-      filters.push({
-        key: 'minBudget',
-        label: `Min: ${formatPrice(minBudget)}`,
-        onRemove: () => setMinBudget('any')
-      });
+    if (maxBudget !== "any") {
+      const opt = priceOptions.find((o) => o.value === maxBudget);
+      filters.push({ key: "maxBudget", label: `Max: ${opt?.shortLabel ?? maxBudget}`, onRemove: () => setMaxBudget("any") });
     }
-
-    if (maxBudget !== 'any') {
-      filters.push({
-        key: 'maxBudget',
-        label: `Max: ${formatPrice(maxBudget)}`,
-        onRemove: () => setMaxBudget('any')
-      });
+    if (!isShortTerm) {
+      if (bedrooms !== "any") filters.push({ key: "bedrooms", label: `${bedrooms}+ Beds`, onRemove: () => setBedrooms("any") });
+      if (bathrooms !== "any") filters.push({ key: "bathrooms", label: `${bathrooms}+ Baths`, onRemove: () => setBathrooms("any") });
+    } else {
+      if (checkIn) filters.push({ key: "checkIn", label: `From: ${format(checkIn, "MMM d")}`, onRemove: () => setCheckIn(undefined) });
+      if (checkOut) filters.push({ key: "checkOut", label: `To: ${format(checkOut, "MMM d")}`, onRemove: () => setCheckOut(undefined) });
+      if (guests !== "any") filters.push({ key: "guests", label: `${guests} guests`, onRemove: () => setGuests("any") });
     }
-
-    if (bedrooms !== 'any') {
-      filters.push({
-        key: 'bedrooms',
-        label: `${bedrooms}+ Beds`,
-        onRemove: () => setBedrooms('any')
-      });
-    }
-
-    if (bathrooms !== 'any') {
-      filters.push({
-        key: 'bathrooms',
-        label: `${bathrooms}+ Baths`,
-        onRemove: () => setBathrooms('any')
-      });
-    }
-
     return filters;
-  };
+  }, [city, listingType, minBudget, maxBudget, bedrooms, bathrooms, checkIn, checkOut, guests, isShortTerm, priceOptions]);
 
   const clearAllFilters = () => {
-    setCity('');
-    setListingType('any');
-    setMinBudget('any');
-    setMaxBudget('any');
-    setBedrooms('any');
-    setBathrooms('any');
+    setCity(""); setListingType("rent"); setMinBudget("any"); setMaxBudget("any");
+    setBedrooms("any"); setBathrooms("any"); setCheckIn(undefined); setCheckOut(undefined); setGuests("any");
   };
 
   const handleSaveSearch = async (data: any) => {
     try {
       await apiClient.createSavedSearch(data);
-      toast.success('Search saved successfully!', {
-        description: 'You will be notified when new properties match your criteria.'
-      });
+      toast.success("Search saved successfully!", { description: "You will be notified when new properties match your criteria." });
       setShowSaveModal(false);
     } catch (error: any) {
-      console.error('Error saving search:', error);
-      toast.error('Failed to save search', {
-        description: error?.response?.data?.message || 'Please try again later.'
-      });
+      toast.error("Failed to save search", { description: error?.response?.data?.message || "Please try again later." });
       throw error;
     }
   };
 
   const handleSaveButtonClick = () => {
-    if (!isAuthenticated) {
-      toast.error('Login required', {
-        description: 'Please login to save your searches.'
-      });
-      return;
-    }
-
-    if (!hasSearched) {
-      toast.error('No search to save', {
-        description: 'Please perform a search first.'
-      });
-      return;
-    }
-
+    if (!isAuthenticated) { toast.error("Login required", { description: "Please login to save your searches." }); return; }
+    if (!hasSearched) { toast.error("No search to save", { description: "Please perform a search first." }); return; }
     setShowSaveModal(true);
   };
 
   const addToRecentSearches = (location: string) => {
     if (!location) return;
-    setRecentSearches(prev => {
-      const filtered = prev.filter(s => s !== location);
-      const updated = [location, ...filtered].slice(0, 5);
-      return updated;
+    setRecentSearches((prev) => {
+      const filtered = prev.filter((s) => s !== location);
+      return [location, ...filtered].slice(0, 5);
     });
   };
 
   const removeFromRecentSearches = (location: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setRecentSearches(prev => prev.filter(s => s !== location));
+    setRecentSearches((prev) => prev.filter((s) => s !== location));
   };
 
   const fetchPlaceSuggestions = async (query: string) => {
-    if (!query || query.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-
+    if (!query || query.length < 2) { setSuggestions([]); return; }
     const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
-    if (!apiKey) {
-      console.error("NEXT_PUBLIC_MAPTILER_API_KEY is not set");
-      return;
-    }
-
+    if (!apiKey) return;
     try {
       setIsLoadingSuggestions(true);
-      const response = await fetch(
-        `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${apiKey}&limit=8&autocomplete=true`
-      );
+      const response = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${apiKey}&limit=8&autocomplete=true`);
       const data = await response.json();
-
       if (data.features) {
         const places: PlaceSuggestion[] = data.features
-          .filter((feature: any) => {
-            const types = feature.place_type || [];
-            return types.some((type: string) =>
-              ['place', 'municipality', 'region', 'district', 'locality', 'neighborhood'].includes(type)
-            );
-          })
-          .map((feature: any) => ({
-            place_name: feature.place_name,
-            text: feature.text,
-            place_type: feature.place_type || [],
-          }));
-
+          .filter((f: any) => (f.place_type || []).some((t: string) => ["place", "municipality", "region", "district", "locality", "neighborhood"].includes(t)))
+          .map((f: any) => ({ place_name: f.place_name, text: f.text, place_type: f.place_type || [] }));
         setSuggestions(places);
       }
-    } catch (error) {
-      console.error("Error fetching place suggestions:", error);
-    } finally {
+    } catch { /* ignore */ } finally {
       setIsLoadingSuggestions(false);
     }
   };
@@ -268,210 +308,131 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
     setCity(value);
     setShowSuggestions(true);
     setSelectedIndex(-1);
-
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      fetchPlaceSuggestions(value);
-    }, 300);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => fetchPlaceSuggestions(value), 300);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showSuggestions) return;
     const totalItems = suggestions.length + recentSearches.length;
     if (totalItems === 0) return;
-
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown": e.preventDefault(); setSelectedIndex((p) => p < totalItems - 1 ? p + 1 : p); break;
+      case "ArrowUp": e.preventDefault(); setSelectedIndex((p) => p > 0 ? p - 1 : -1); break;
+      case "Enter":
         e.preventDefault();
-        setSelectedIndex(prev => prev < totalItems - 1 ? prev + 1 : prev);
+        if (selectedIndex >= 0 && selectedIndex < recentSearches.length) handleRecentSearchClick(recentSearches[selectedIndex]);
+        else if (selectedIndex >= recentSearches.length) handleSuggestionClick(suggestions[selectedIndex - recentSearches.length]);
+        else handleSearch();
         break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < totalItems) {
-          if (selectedIndex < recentSearches.length) {
-            handleRecentSearchClick(recentSearches[selectedIndex]);
-          } else {
-            handleSuggestionClick(suggestions[selectedIndex - recentSearches.length]);
-          }
-        } else {
-          handleSearch();
-        }
-        break;
-      case 'Escape':
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-        break;
+      case "Escape": setShowSuggestions(false); setSelectedIndex(-1); break;
     }
   };
 
   const handleRecentSearchClick = (location: string) => {
-    setCity(location);
-    setShowSuggestions(false);
-    setSuggestions([]);
-    const filters = getCurrentFilters();
-    filters.city = location;
-    setHasSearched(true);
-    onSearch?.(filters);
+    setCity(location); setShowSuggestions(false); setSuggestions([]);
+    const f = getCurrentFilters(); f.city = location; setHasSearched(true); onSearch?.(f);
   };
 
   const handleSuggestionClick = (suggestion: PlaceSuggestion) => {
-    setCity(suggestion.text);
-    setShowSuggestions(false);
-    setSuggestions([]);
+    setCity(suggestion.text); setShowSuggestions(false); setSuggestions([]);
     addToRecentSearches(suggestion.text);
-    const filters = getCurrentFilters();
-    filters.city = suggestion.text;
-    setHasSearched(true);
-    onSearch?.(filters);
+    const f = getCurrentFilters(); f.city = suggestion.text; setHasSearched(true); onSearch?.(f);
   };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
-      }
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) setShowSuggestions(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSearch = () => {
-    const filters = getCurrentFilters();
-    if (city) {
-      addToRecentSearches(city);
-    }
+    if (city) addToRecentSearches(city);
     setHasSearched(true);
-    onSearch?.(filters);
+    onSearch?.(getCurrentFilters());
     setShowSuggestions(false);
   };
 
+  // Auto-search when non-city filters change
   useEffect(() => {
-    if (listingType !== "any" || minBudget !== "any" || maxBudget !== "any" || bedrooms !== "any" || bathrooms !== "any") {
-      const filters = getCurrentFilters();
-      setHasSearched(true);
-      onSearch?.(filters);
-    }
-  }, [listingType, minBudget, maxBudget, bedrooms, bathrooms]);
+    const anyFilterActive = listingType !== "any" || minBudget !== "any" || maxBudget !== "any" ||
+      bedrooms !== "any" || bathrooms !== "any" || checkIn || checkOut || guests !== "any";
+    if (anyFilterActive) { setHasSearched(true); onSearch?.(getCurrentFilters()); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listingType, minBudget, maxBudget, bedrooms, bathrooms, checkIn, checkOut, guests]);
 
-  // Carousel drag handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!carouselRef.current) return;
-    setIsDragging(true);
-    setStartX(e.pageX - carouselRef.current.offsetLeft);
-    setScrollLeft(carouselRef.current.scrollLeft);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!carouselRef.current) return;
-    setIsDragging(true);
-    setStartX(e.touches[0].pageX - carouselRef.current.offsetLeft);
-    setScrollLeft(carouselRef.current.scrollLeft);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !carouselRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    carouselRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !carouselRef.current) return;
-    const x = e.touches[0].pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    carouselRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
+  // Drag handlers for mobile carousel
+  const handleMouseDown = (e: React.MouseEvent) => { if (!carouselRef.current) return; setIsDragging(true); setStartX(e.pageX - carouselRef.current.offsetLeft); setScrollLeft(carouselRef.current.scrollLeft); };
+  const handleTouchStart = (e: React.TouchEvent) => { if (!carouselRef.current) return; setIsDragging(true); setStartX(e.touches[0].pageX - carouselRef.current.offsetLeft); setScrollLeft(carouselRef.current.scrollLeft); };
+  const handleMouseMove = (e: React.MouseEvent) => { if (!isDragging || !carouselRef.current) return; e.preventDefault(); carouselRef.current.scrollLeft = scrollLeft - (e.pageX - carouselRef.current.offsetLeft - startX) * 2; };
+  const handleTouchMove = (e: React.TouchEvent) => { if (!isDragging || !carouselRef.current) return; carouselRef.current.scrollLeft = scrollLeft - (e.touches[0].pageX - carouselRef.current.offsetLeft - startX) * 2; };
+  const handleDragEnd = () => setIsDragging(false);
 
   const activeFilters = getActiveFilters();
   const hasActiveFilters = activeFilters.length > 0;
 
+  // Today's date for date input min
+  const today = new Date().toISOString().split("T")[0];
+
   return (
     <div className="w-full">
-      {/* Desktop Layout */}
+      {/* ── DESKTOP ── */}
       <div className="hidden lg:block">
-        <div className="flex gap-3 items-end">
-          {/* City Input */}
-          <div className="flex-1 min-w-[250px] relative" ref={suggestionsRef}>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Location
-            </label>
-            <div className="relative group">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-              {isLoadingSuggestions && (
-                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin z-10" />
-              )}
+        {/* Row 1: Type tabs */}
+        <div className="flex justify-center items-center mb-6">
+          <ListingTypeTabs value={listingType} onChange={setListingType} />
+        </div>
+
+        {/* Row 2: Premium Full-Width Search Pill */}
+        <div className="flex justify-center relative z-20 w-full">
+          <div className="flex items-center bg-white border border-slate-200 shadow-[0_8px_20px_-8px_rgba(37,99,235,0.1)] hover:shadow-[0_12px_24px_-8px_rgba(37,99,235,0.15)] transition-all duration-300 rounded-full pl-6 pr-2 py-2 w-full max-w-5xl mx-auto divide-x divide-slate-200">
+
+            {/* Location */}
+            <div className="flex flex-col relative flex-[1.5] pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors" ref={suggestionsRef} onClick={() => cityInputRef.current?.focus()}>
+              <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Where</label>
               <Input
                 ref={cityInputRef}
                 value={city}
                 onChange={(e) => handleCityChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onFocus={() => setShowSuggestions(true)}
-                placeholder="Search city or place"
-                className="pl-9 h-10"
+                placeholder="Search destinations"
+                className="border-none bg-transparent shadow-none focus-visible:ring-0 p-0 h-auto text-[15px] font-medium placeholder:text-slate-400 placeholder:font-normal truncate"
                 autoComplete="off"
               />
-
-              {/* Autocomplete Dropdown */}
+              {/* Desktop Suggestions Dropdown */}
               {showSuggestions && (recentSearches.length > 0 || suggestions.length > 0) && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-card border-1 border-border rounded-xl shadow-2xl z-50 max-h-[400px] overflow-y-auto">
+                <div className="absolute top-[calc(100%+16px)] left-0 w-[350px] bg-white border border-slate-100 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-50 max-h-[400px] overflow-y-auto py-3">
                   {recentSearches.length > 0 && (
-                    <div className="p-2 border-b">
-                      <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        <Clock className="h-3.5 w-3.5" />
+                    <div className="px-2 pb-2 mb-2 border-b border-slate-50">
+                      <div className="flex items-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                         Recent Searches
                       </div>
-                      {recentSearches.map((search, idx) => (
-                        <button
-                          key={`recent-${idx}`}
-                          onClick={() => handleRecentSearchClick(search)}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 hover:bg-accent rounded-lg transition-colors group ${
-                            selectedIndex === idx ? 'bg-accent' : ''
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">{search}</span>
-                          </div>
-                          <X
-                            onClick={(e) => removeFromRecentSearches(search, e)}
-                            className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive transition-all"
-                          />
+                      {recentSearches.map((s, i) => (
+                        <button key={i} onClick={(e) => { e.stopPropagation(); handleRecentSearchClick(s); }} className={`w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 rounded-xl transition-colors group ${selectedIndex === i ? "bg-slate-50" : ""}`}>
+                          <div className="flex items-center gap-3"><Clock className="h-5 w-5 text-slate-400 bg-slate-100 p-1 rounded-full" /><span className="text-[15px] font-medium text-slate-700">{s}</span></div>
+                          <X onClick={(e) => removeFromRecentSearches(s, e)} className="h-4 w-4 text-slate-300 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all" />
                         </button>
                       ))}
                     </div>
                   )}
                   {suggestions.length > 0 && (
-                    <div className="p-2">
-                      <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        <Search className="h-3.5 w-3.5" />
-                        Suggestions
+                    <div className="px-2">
+                      <div className="flex items-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                        Suggested
                       </div>
-                      {suggestions.map((suggestion, idx) => {
-                        const actualIndex = idx + recentSearches.length;
+                      {suggestions.map((s, i) => {
+                        const ai = i + recentSearches.length;
                         return (
-                          <button
-                            key={`suggestion-${idx}`}
-                            onClick={() => handleSuggestionClick(suggestion)}
-                            className={`w-full flex items-start gap-2 px-3 py-2.5 hover:bg-accent rounded-lg transition-colors text-left ${
-                              selectedIndex === actualIndex ? 'bg-accent' : ''
-                            }`}
-                          >
-                            <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <div>
-                              <div className="text-sm font-medium">{suggestion.text}</div>
-                              <div className="text-xs text-muted-foreground">{suggestion.place_name}</div>
+                          <button key={i} onClick={(e) => { e.stopPropagation(); handleSuggestionClick(s); }} className={`w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 rounded-xl transition-colors text-left group ${selectedIndex === ai ? "bg-slate-50" : ""}`}>
+                            <div className="flex items-center gap-3 truncate">
+                              <MapPin className="h-5 w-5 text-slate-400 bg-slate-100 p-1 rounded-full shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors" />
+                              <div className="truncate">
+                                <div className="text-[15px] font-medium text-slate-700 truncate">{s.text}</div>
+                                <div className="text-[13px] text-slate-500 truncate">{s.place_name}</div>
+                              </div>
                             </div>
                           </button>
                         );
@@ -481,432 +442,297 @@ const QuickSearch = ({ onSearch, isSearching = false }: QuickSearchProps) => {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Listing Type */}
-          <div className="w-[140px]">
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Type</label>
-            <Select value={listingType} onValueChange={setListingType}>
-              <SelectTrigger className="h-10 w-full">
-                <SelectValue placeholder="Any" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="sale">Buy</SelectItem>
-                <SelectItem value="rent">Rent</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Min Price */}
-          <div className="w-[140px]">
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Min Price</label>
-            <Select value={minBudget} onValueChange={setMinBudget}>
-              <SelectTrigger className="h-10 w-full">
-                <SelectValue placeholder="Min" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">No Min</SelectItem>
-                <SelectItem value="100k">100,000 XAF</SelectItem>
-                <SelectItem value="200k">200,000 XAF</SelectItem>
-                <SelectItem value="500k">500,000 XAF</SelectItem>
-                <SelectItem value="1m">1,000,000 XAF</SelectItem>
-                <SelectItem value="2m">2,000,000 XAF</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Max Price */}
-          <div className="w-[140px]">
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Max Price</label>
-            <Select value={maxBudget} onValueChange={setMaxBudget}>
-              <SelectTrigger className="h-10 w-full">
-                <SelectValue placeholder="Max" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">No Max</SelectItem>
-                <SelectItem value="200k">200,000 XAF</SelectItem>
-                <SelectItem value="500k">500,000 XAF</SelectItem>
-                <SelectItem value="1m">1,000,000 XAF</SelectItem>
-                <SelectItem value="2m">2,000,000 XAF</SelectItem>
-                <SelectItem value="5m">5,000,000 XAF</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Bedrooms */}
-          <div className="w-[120px]">
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Beds</label>
-            <Select value={bedrooms} onValueChange={setBedrooms}>
-              <SelectTrigger className="h-10 w-full">
-                <div className="flex items-center gap-2">
-                  <Bed className="h-4 w-4 text-muted-foreground" />
-                  <SelectValue placeholder="Any" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="1">1+</SelectItem>
-                <SelectItem value="2">2+</SelectItem>
-                <SelectItem value="3">3+</SelectItem>
-                <SelectItem value="4">4+</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Bathrooms */}
-          <div className="w-[120px]">
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Baths</label>
-            <Select value={bathrooms} onValueChange={setBathrooms}>
-              <SelectTrigger className="h-10 w-full">
-                <div className="flex items-center gap-2">
-                  <Bath className="h-4 w-4 text-muted-foreground" />
-                  <SelectValue placeholder="Any" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="1">1+</SelectItem>
-                <SelectItem value="2">2+</SelectItem>
-                <SelectItem value="3">3+</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Search Button */}
-          <Button
-            className="gap-2 h-10 px-6 bg-blue-500 hover:bg-blue-600"
-            onClick={handleSearch}
-            disabled={isSearching}
-          >
-            {isSearching ? (
+            {/* Short Term Specific inputs */}
+            {isShortTerm ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Searching...
-              </>
-            ) : (
-              <>
-                <Search className="h-4 w-4" />
-                Search
-              </>
-            )}
-          </Button>
-
-          {/* Save Search Button */}
-          {hasActiveFilters && (
-            <Button
-              variant="outline"
-              className="gap-2 h-10 px-4 border-1 border-blue-600 text-blue-600 hover:bg-blue-50"
-              onClick={handleSaveButtonClick}
-            >
-              <Bookmark className="h-4 w-4" />
-              <span className="hidden lg:inline">Save</span>
-            </Button>
-          )}
-        </div>
-
-        {/* Active Filters Chips */}
-        {activeFilters.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Tag className="h-3.5 w-3.5" />
-              <span className="font-medium">Active filters:</span>
-            </div>
-            {activeFilters.map((filter) => (
-              <Badge
-                key={filter.key}
-                variant="secondary"
-                className="pl-2.5 pr-1.5 py-1 gap-1.5 text-xs font-medium hover:bg-secondary/80 cursor-pointer group"
-                onClick={filter.onRemove}
-              >
-                {filter.label}
-                <X className="h-3 w-3 group-hover:text-destructive" />
-              </Badge>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearAllFilters}
-              className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive"
-            >
-              Clear all
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Mobile & Tablet Layout with Carousel */}
-      <div className="lg:hidden">
-        {/* Location Search - Full Width */}
-        <div className="mb-3 relative" ref={suggestionsRef}>
-          <label className="text-xs font-semibold text-foreground mb-2 block">Where are you looking?</label>
-          <div className="relative">
-            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-            {isLoadingSuggestions && (
-              <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin z-10" />
-            )}
-            <Input
-              ref={cityInputRef}
-              value={city}
-              onChange={(e) => handleCityChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setShowSuggestions(true)}
-              placeholder="City, neighborhood, or area"
-              className="w-full pl-12 pr-4 h-12 text-base font-medium"
-              autoComplete="off"
-            />
-          </div>
-          {showSuggestions && (recentSearches.length > 0 || suggestions.length > 0) && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-card border-1 border-border rounded-xl shadow-xl z-50 max-h-[250px] overflow-y-auto">
-              {recentSearches.length > 0 && (
-                <div className="p-2 border-b">
-                  <div className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wide">
-                    <Clock className="h-4 w-4" />
-                    Recent
-                  </div>
-                  {recentSearches.map((search, idx) => (
-                    <button
-                      key={`recent-mobile-${idx}`}
-                      onClick={() => handleRecentSearchClick(search)}
-                      className={`w-full flex items-center justify-between px-3 py-3 hover:bg-accent rounded-lg transition-colors group ${
-                        selectedIndex === idx ? 'bg-accent' : ''
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-semibold">{search}</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <div className="flex flex-col flex-1 px-6 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
+                      <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Check in</label>
+                      <div className={`text-[15px] font-medium truncate ${checkIn ? "text-slate-800" : "text-slate-400"}`}>
+                        {checkIn ? format(checkIn, "MMM d, yyyy") : "Add dates"}
                       </div>
-                      <X
-                        onClick={(e) => removeFromRecentSearches(search, e)}
-                        className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive transition-all"
-                      />
-                    </button>
-                  ))}
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 rounded-2xl border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)]" align="start">
+                    <CalendarComponent mode="single" selected={checkIn} onSelect={setCheckIn} initialFocus disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))} />
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <div className="flex flex-col flex-1 px-6 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
+                      <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Check out</label>
+                      <div className={`text-[15px] font-medium truncate ${checkOut ? "text-slate-800" : "text-slate-400"}`}>
+                        {checkOut ? format(checkOut, "MMM d, yyyy") : "Add dates"}
+                      </div>
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 rounded-2xl border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)]" align="start">
+                    <CalendarComponent mode="single" selected={checkOut} onSelect={setCheckOut} initialFocus disabled={(date) => date < (checkIn || new Date(new Date().setHours(0, 0, 0, 0)))} />
+                  </PopoverContent>
+                </Popover>
+
+                <div className="flex flex-col flex-1 pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
+                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Who</label>
+                  <Select value={guests} onValueChange={setGuests}>
+                    <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
+                      <SelectValue placeholder="Add guests" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[150px]">
+                      <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">Any</SelectItem>
+                      {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => <SelectItem key={n} value={String(n)} className="font-medium rounded-xl cursor-pointer">{n}+ guests</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
-              {suggestions.length > 0 && (
-                <div className="p-2">
-                  <div className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wide">
-                    <Search className="h-4 w-4" />
-                    Suggestions
-                  </div>
-                  {suggestions.map((suggestion, idx) => {
-                    const actualIndex = idx + recentSearches.length;
-                    return (
-                      <button
-                        key={`suggestion-mobile-${idx}`}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className={`w-full flex items-start gap-2 px-3 py-3 hover:bg-accent rounded-lg transition-colors text-left ${
-                          selectedIndex === actualIndex ? 'bg-accent' : ''
-                        }`}
-                      >
-                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-semibold">{suggestion.text}</div>
-                          <div className="text-xs text-muted-foreground">{suggestion.place_name}</div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Filters Carousel */}
-        <div className="relative mb-4">
-          <div
-            ref={carouselRef}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleDragEnd}
-            onMouseLeave={handleDragEnd}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleDragEnd}
-            className="flex gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2 cursor-grab active:cursor-grabbing"
-            style={{ 
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              WebkitOverflowScrolling: 'touch'
-            }}
-          >
-            {/* Type Filter */}
-            <div className="flex-shrink-0 snap-start">
-              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[140px] hover:border-primary/50 transition-all">
-                <label className="text-xs font-bold text-muted-foreground mb-2 block uppercase tracking-wide">Type</label>
-                <select
-                  value={listingType}
-                  onChange={(e) => setListingType(e.target.value)}
-                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="any">Any</option>
-                  <option value="sale">Buy</option>
-                  <option value="rent">Rent</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Min Price Filter */}
-            <div className="flex-shrink-0 snap-start">
-              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[140px] hover:border-primary/50 transition-all">
-                <label className="text-xs font-bold text-muted-foreground mb-2 block uppercase tracking-wide">Min Price</label>
-                <select
-                  value={minBudget}
-                  onChange={(e) => setMinBudget(e.target.value)}
-                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="any">No Min</option>
-                  <option value="100k">100K</option>
-                  <option value="200k">200K</option>
-                  <option value="500k">500K</option>
-                  <option value="1m">1M</option>
-                  <option value="2m">2M</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Max Price Filter */}
-            <div className="flex-shrink-0 snap-start">
-              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[140px] hover:border-primary/50 transition-all">
-                <label className="text-xs font-bold text-muted-foreground mb-2 block uppercase tracking-wide">Max Price</label>
-                <select
-                  value={maxBudget}
-                  onChange={(e) => setMaxBudget(e.target.value)}
-                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="any">No Max</option>
-                  <option value="200k">200K</option>
-                  <option value="500k">500K</option>
-                  <option value="1m">1M</option>
-                  <option value="2m">2M</option>
-                  <option value="5m">5M</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Bedrooms Filter */}
-            <div className="flex-shrink-0 snap-start">
-              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[120px] hover:border-primary/50 transition-all">
-                <label className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1 uppercase tracking-wide">
-                  <Bed className="h-3.5 w-3.5" />
-                  Beds
-                </label>
-                <select
-                  value={bedrooms}
-                  onChange={(e) => setBedrooms(e.target.value)}
-                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="any">Any</option>
-                  <option value="1">1+</option>
-                  <option value="2">2+</option>
-                  <option value="3">3+</option>
-                  <option value="4">4+</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Bathrooms Filter */}
-            <div className="flex-shrink-0 snap-start">
-              <div className="bg-card border-1 border-border rounded-xl p-3 min-w-[120px] hover:border-primary/50 transition-all">
-                <label className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1 uppercase tracking-wide">
-                  <Bath className="h-3.5 w-3.5" />
-                  Baths
-                </label>
-                <select
-                  value={bathrooms}
-                  onChange={(e) => setBathrooms(e.target.value)}
-                  className="w-full bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="any">Any</option>
-                  <option value="1">1+</option>
-                  <option value="2">2+</option>
-                  <option value="3">3+</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button
-            className="flex-1 gap-2 h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold text-base active:scale-95 transition-all"
-            onClick={handleSearch}
-            disabled={isSearching}
-          >
-            {isSearching ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Searching...
               </>
             ) : (
+              // Non Short-term inputs
               <>
-                <Search className="h-5 w-5" />
-                Search
+                <div className="flex flex-col flex-1 px-6 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
+                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Beds</label>
+                  <Select value={bedrooms} onValueChange={setBedrooms}>
+                    <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
+                      <SelectValue placeholder="Add beds" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[150px]">
+                      <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">Any</SelectItem>
+                      {["1", "2", "3", "4"].map((n) => <SelectItem key={n} value={n} className="font-medium rounded-xl cursor-pointer">{n}+ beds</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col flex-1 pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
+                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Baths</label>
+                  <Select value={bathrooms} onValueChange={setBathrooms}>
+                    <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
+                      <SelectValue placeholder="Add baths" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[150px]">
+                      <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">Any</SelectItem>
+                      {["1", "2", "3"].map((n) => <SelectItem key={n} value={n} className="font-medium rounded-xl cursor-pointer">{n}+ baths</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
               </>
             )}
-          </Button>
 
-          {hasActiveFilters && (
-            <Button
-              variant="outline"
-              className="gap-2 h-12 px-5 border-1 border-blue-500 text-blue-500 hover:bg-blue-50 font-bold active:scale-95 transition-all"
-              onClick={handleSaveButtonClick}
-            >
-              <Bookmark className="h-5 w-5" />
-            </Button>
-          )}
-        </div>
+            <div className="flex flex-col flex-1 pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
+              <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Max Price</label>
+              <Select value={maxBudget} onValueChange={setMaxBudget}>
+                <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
+                  <SelectValue placeholder="Add max price" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[160px]">
+                  {priceOptions.map((o) => <SelectItem key={o.value} value={o.value} className="font-medium rounded-xl cursor-pointer">{o.value === "any" ? "No max" : o.shortLabel}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
 
-        {/* Active Filters */}
-        {activeFilters.length > 0 && (
-          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wide">
-                <Tag className="h-3.5 w-3.5" />
-                Active Filters
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearAllFilters}
-                className="h-7 px-2 text-xs text-destructive hover:text-destructive font-bold"
-              >
-                Clear All
+            {/* Search Button Area */}
+            <div className="pl-4 border-l-0 flex items-center gap-2">
+              {hasActiveFilters && (
+                <Button variant="ghost" className="rounded-full w-10 h-10 p-0 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors shrink-0 tooltip-trigger" onClick={clearAllFilters} aria-label="Clear filters" title="Clear all filters">
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+              <Button className="rounded-full h-[52px] px-6 bg-blue-600 hover:bg-blue-700 hover:shadow-[0_8px_20px_-8px_rgba(37,99,235,0.6)] active:scale-95 transition-all duration-300 text-white border-0" onClick={handleSearch} disabled={isSearching}>
+                {isSearching ? <Loader2 className="h-5 w-5 animate-spin transition-transform" /> : <Search className="h-5 w-5 mr-1.5 transition-transform stroke-[2.5px]" />}
+                <span className="font-bold text-[16px]">Search</span>
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {activeFilters.map((filter) => (
-                <Badge
-                  key={filter.key}
-                  variant="secondary"
-                  className="px-3 py-1.5 gap-1.5 text-xs font-bold hover:bg-secondary/80 cursor-pointer group"
-                  onClick={filter.onRemove}
-                >
-                  {filter.label}
-                  <X className="h-3 w-3 group-hover:text-destructive transition-colors" />
-                </Badge>
-              ))}
+          </div>
+        </div>
+
+        {/* Small Save button */}
+        {hasActiveFilters && (
+          <div className="flex justify-center mt-5 opacity-80 hover:opacity-100 transition-opacity">
+            <Button variant="outline" className="rounded-full gap-2 h-9 px-4 text-xs font-semibold border-slate-200 text-slate-600 hover:text-slate-900  transition-all hover:border-slate-300 bg-white" onClick={handleSaveButtonClick}>
+              <Bookmark className="h-3.5 w-3.5" /> Save this search
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* ── MOBILE ── */}
+      <div className="lg:hidden">
+        {!isMobileExpanded ? (
+          // ── Mobile Default Floating Pill ── 
+          <div
+            onClick={() => setIsMobileExpanded(true)}
+            className="flex items-center gap-4 bg-white rounded-full p-3 pl-5 shadow-[0_8px_20px_-8px_rgba(0,0,0,0.12)] border border-slate-200/80 cursor-pointer active:scale-[0.98] transition-all hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)] max-w-[90%] mx-auto mt-2"
+          >
+            <Search className="h-5 w-5 text-slate-800 shrink-0" strokeWidth={2.5} />
+            <div className="flex flex-col truncate">
+              <span className="text-[14px] font-bold text-slate-800 leading-tight">Where to?</span>
+              <span className="text-[12px] text-slate-500 font-medium leading-tight mt-0.5 truncate">
+                {city ? city : "Anywhere"} • {isShortTerm ? (checkIn ? "Dates selected" : "Any week") : "Any time"} • {guests !== "any" ? `${guests} guests` : "Add guests"}
+              </span>
+            </div>
+          </div>
+        ) : (
+          // ── Mobile Expanded Full-Screen Drawer ── 
+          <div className="fixed inset-0 z-[100] bg-[#f7f7f9] flex flex-col animate-in slide-in-from-bottom-8 duration-300">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 bg-white border-b border-slate-100">
+              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 bg-slate-50 hover:bg-slate-100 text-slate-600 focus-visible:ring-0" onClick={() => setIsMobileExpanded(false)}>
+                <X className="h-5 w-5" />
+              </Button>
+              <div className="flex -mx-2">
+                <ListingTypeTabs value={listingType} onChange={setListingType} />
+              </div>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto px-4 pt-6 pb-28">
+              <div className="bg-white border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-[2rem] p-4 space-y-3 mb-6">
+                {/* Location */}
+                <div className="relative" ref={suggestionsRef}>
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 z-10" />
+                    {isLoadingSuggestions && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 animate-spin z-10" />}
+                    <Input
+                      autoFocus
+                      ref={cityInputRef}
+                      value={city}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onFocus={() => setShowSuggestions(true)}
+                      placeholder="Where to?"
+                      className="w-full pl-12 pr-4 h-14 text-[16px] font-semibold bg-slate-50 border-transparent focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:bg-white rounded-2xl transition-all shadow-none"
+                      autoComplete="off"
+                    />
+                  </div>
+                  {/* Mobile suggestions dropdown */}
+                  {showSuggestions && (recentSearches.length > 0 || suggestions.length > 0) && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-[1.5rem] shadow-xl z-50 max-h-[250px] overflow-y-auto py-2">
+                      {recentSearches.length > 0 && (
+                        <div className="px-2 pb-2 mb-2 border-b border-slate-50">
+                          <div className="px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest"><Clock className="h-3.5 w-3.5 inline mr-1 -mt-0.5" />Recent</div>
+                          {recentSearches.map((s, i) => (
+                            <button key={i} onClick={(e) => { e.stopPropagation(); handleRecentSearchClick(s); }} className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 rounded-2xl">
+                              <div className="flex items-center gap-3"><span className="text-[15px] font-semibold text-slate-700">{s}</span></div>
+                              <X onClick={(e) => removeFromRecentSearches(s, e)} className="h-4 w-4 text-slate-300" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {suggestions.length > 0 && (
+                        <div className="px-2">
+                          {suggestions.map((s, i) => (
+                            <button key={i} onClick={(e) => { e.stopPropagation(); handleSuggestionClick(s); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 rounded-2xl text-left">
+                              <MapPin className="h-5 w-5 text-slate-400 bg-slate-100 p-1.5 rounded-full shrink-0" />
+                              <div><div className="text-[15px] font-bold text-slate-700">{s.text}</div><div className="text-[13px] text-slate-500">{s.place_name}</div></div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile Short Term / Beds, Baths */}
+                {isShortTerm ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <div className="bg-slate-50 rounded-2xl p-3 relative hover:bg-slate-100/50 transition-colors cursor-pointer text-left">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Check-in</label>
+                          <div className={`text-[15px] font-bold outline-none w-full truncate ${checkIn ? "text-slate-800" : "text-slate-400"}`}>
+                            {checkIn ? format(checkIn, "MMM d, yyyy") : "Add dates"}
+                          </div>
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[calc(100vw-2rem)] mx-4 p-0 rounded-2xl border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-[150]" align="center">
+                        <CalendarComponent mode="single" selected={checkIn} onSelect={setCheckIn} initialFocus disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))} className="p-3 w-full flex justify-center" />
+                      </PopoverContent>
+                    </Popover>
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <div className="bg-slate-50 rounded-2xl p-3 relative hover:bg-slate-100/50 transition-colors cursor-pointer text-left">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Check-out</label>
+                          <div className={`text-[15px] font-bold outline-none w-full truncate ${checkOut ? "text-slate-800" : "text-slate-400"}`}>
+                            {checkOut ? format(checkOut, "MMM d, yyyy") : "Add dates"}
+                          </div>
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[calc(100vw-2rem)] mx-4 p-0 rounded-2xl border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-[150]" align="center">
+                        <CalendarComponent mode="single" selected={checkOut} onSelect={setCheckOut} initialFocus disabled={(date) => date < (checkIn || new Date(new Date().setHours(0, 0, 0, 0)))} className="p-3 w-full flex justify-center" />
+                      </PopoverContent>
+                    </Popover>
+
+                    <div className="bg-slate-50 rounded-2xl p-3 col-span-2 hover:bg-slate-100/50 transition-colors">
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Guests</label>
+                      <select value={guests} onChange={(e) => setGuests(e.target.value)} className="w-full bg-transparent text-[15px] font-bold text-slate-800 focus:outline-none appearance-none">
+                        <option value="any">Any number of guests</option>
+                        {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => <option key={n} value={String(n)}>{n}+ guests</option>)}
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-slate-50 rounded-2xl p-3 hover:bg-slate-100/50 transition-colors">
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Beds</label>
+                      <select value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="w-full bg-transparent text-[15px] font-bold text-slate-800 focus:outline-none appearance-none">
+                        <option value="any">Any beds</option>
+                        {["1", "2", "3", "4"].map((n) => <option key={n} value={n}>{n}+ beds</option>)}
+                      </select>
+                    </div>
+                    <div className="bg-slate-50 rounded-2xl p-3 hover:bg-slate-100/50 transition-colors">
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Baths</label>
+                      <select value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} className="w-full bg-transparent text-[15px] font-bold text-slate-800 focus:outline-none appearance-none">
+                        <option value="any">Any baths</option>
+                        {["1", "2", "3"].map((n) => <option key={n} value={n}>{n}+ baths</option>)}
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mobile Pricing */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-slate-50 rounded-2xl p-3 hover:bg-slate-100/50 transition-colors">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Max Price</label>
+                    <select value={maxBudget} onChange={(e) => setMaxBudget(e.target.value)} className="w-full bg-transparent text-[15px] font-bold text-slate-800 focus:outline-none appearance-none">
+                      {priceOptions.map((o) => <option key={o.value} value={o.value}>{o.value === "any" ? "No max limit" : o.shortLabel}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {hasActiveFilters && (
+                  <div className="mt-8 flex justify-center">
+                    <Button variant="outline" className="rounded-full gap-2 h-10 px-5 text-sm font-semibold border-slate-200 text-slate-600 hover:text-slate-900 transition-all bg-white w-full max-w-[200px]" onClick={handleSaveButtonClick}>
+                      <Bookmark className="h-4 w-4" /> Save this search
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 pb-8 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.04)]">
+              <button
+                onClick={(e) => { e.preventDefault(); clearAllFilters(); }}
+                className="text-[15px] font-bold text-slate-800 underline underline-offset-4 decoration-2 decoration-slate-300 hover:decoration-slate-800 transition-colors ml-2"
+              >
+                Clear all
+              </button>
+              <Button
+                className="h-[52px] rounded-full px-10 bg-blue-600 hover:bg-blue-700 text-white border-0 flex items-center gap-2 active:scale-95 transition-all text-[16px]"
+                onClick={() => { setIsMobileExpanded(false); handleSearch(); }}
+                disabled={isSearching}
+              >
+                {isSearching ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5 stroke-[2.5px]" />}
+                <span className="font-bold">Search</span>
+              </Button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Save Search Modal */}
-      <SaveSearchModal
-        isOpen={showSaveModal}
-        onClose={() => setShowSaveModal(false)}
-        onSave={handleSaveSearch}
-        currentFilters={getCurrentFilters()}
-      />
+      <SaveSearchModal isOpen={showSaveModal} onClose={() => setShowSaveModal(false)} onSave={handleSaveSearch} currentFilters={getCurrentFilters()} />
 
-      <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+
     </div>
   );
 };

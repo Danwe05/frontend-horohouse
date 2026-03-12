@@ -48,6 +48,7 @@ interface BookingPanelProps {
   property: {
     _id: string;
     price: number;
+    type?: string;           // hotel, hostel, motel, etc.
     listingType: string;
     availability: string;
     depositAmount?: number;
@@ -62,6 +63,12 @@ interface BookingPanelProps {
     serviceFee?: number;
     isInstantBookable?: boolean;
     cancellationPolicy?: string;
+    // STR booking rules
+    advanceNoticeDays?: number;
+    bookingWindowDays?: number;
+    weeklyDiscountPercent?: number;
+    monthlyDiscountPercent?: number;
+    unavailableDates?: Array<{ from: string; to: string }>;
     agentId?: {
       _id: string;
       name: string;
@@ -117,9 +124,17 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
   const { isAuthenticated, user } = useAuth();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
 
-  // Short-term: delegate to dedicated booking form
+  // Short-term: delegate to dedicated booking form — pass the full property object
   if (property.listingType === "short_term") {
-    return <BookingForm property={property as any} />;
+    return (
+      <BookingForm
+        property={{
+          ...property,
+          // BookingForm needs propertyType to detect hotel/hostel multi-room
+          propertyType: property.type,
+        } as any}
+      />
+    );
   }
 
   // ── State ──────────────────────────────────────────────────────────────────

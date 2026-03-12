@@ -73,6 +73,8 @@ interface Property {
   cancellationPolicy?: string;
   advanceNoticeDays?: number;
   bookingWindowDays?: number;
+  weeklyDiscountPercent?: number;
+  monthlyDiscountPercent?: number;
   shortTermAmenities?: {
     maxGuests?: number;
     checkInTime?: string;

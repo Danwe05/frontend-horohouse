@@ -47,8 +47,11 @@ interface PropertyCardProps {
   viewCount?: number;
   favoriteCount?: number;
   isFavorite?: boolean;
+  isOwner?: boolean;
   onUpdate?: () => void;
   timeAgo?: string;
+  pricingUnit?: string;
+  maxGuests?: number;
 }
 
 // Reuse the time format from the frontend code
@@ -93,8 +96,11 @@ export const PropertyCard = ({
   viewCount = 0,
   favoriteCount = 0,
   isFavorite: initialIsFavorite = false,
+  isOwner = false,
   onUpdate,
-  timeAgo
+  timeAgo,
+  pricingUnit,
+  maxGuests,
 }: PropertyCardProps) => {
   const { user } = useAuth();
   const router = useRouter();
@@ -106,7 +112,6 @@ export const PropertyCard = ({
   const [activeIndex, setActiveIndex] = useState(0);
 
   const isAgent = user?.role === 'agent' || user?.role === 'admin';
-  const isOwner = isAgent;
 
   // Use images array if provided, otherwise fallback to single image
   const imageArray = images && images.length > 0 ? images : [image];
@@ -432,6 +437,11 @@ export const PropertyCard = ({
                       {type === "rent" && (
                         <span className="text-xs text-muted-foreground">/month</span>
                       )}
+                      {type === "short_term" && pricingUnit && (
+                        <span className="text-xs text-muted-foreground">
+                          /{pricingUnit === 'nightly' ? 'night' : pricingUnit === 'weekly' ? 'week' : 'month'}
+                        </span>
+                      )}
                     </div>
                     {formattedTimeAgo && (
                       <span className="text-xs text-muted-foreground shrink-0">
@@ -472,6 +482,12 @@ export const PropertyCard = ({
                     <div className="flex items-center gap-1">
                       <Bath className="h-3.5 w-3.5" />
                       <span>{baths}</span>
+                    </div>
+                  )}
+                  {maxGuests !== undefined && maxGuests > 0 && (
+                    <div className="flex items-center gap-1" title="Max Guests">
+                      <span className="text-[10px] font-bold">GUESTS</span>
+                      <span>{maxGuests}</span>
                     </div>
                   )}
 

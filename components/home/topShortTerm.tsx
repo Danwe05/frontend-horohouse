@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import { Eye, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,30 +9,8 @@ import PropertyCard from '@/components/property/PropertyCard';
 import apiClient from '@/lib/api';
 import { toast } from 'sonner';
 import { FaArrowRight } from 'react-icons/fa';
-import { useAuth } from '@/contexts/AuthContext';
 
-// Format time ago helper (moved outside component for performance)
-const formatTimeAgo = (date: string) => {
-    const diff = Date.now() - new Date(date).getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-
-    if (hours < 1) {
-        const minutes = Math.floor(diff / (1000 * 60));
-        return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-    }
-    if (hours < 24) {
-        return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-    }
-    const days = Math.floor(hours / 24);
-    if (days < 30) {
-        return `${days} day${days === 1 ? "" : "s"} ago`;
-    }
-    const months = Math.floor(days / 30);
-    return `${months} month${months === 1 ? "" : "s"} ago`;
-};
-
-export default function RecentlyViewedProperties() {
-    const { user, isAuthenticated } = useAuth();
+export default function TopShortTerm() {
     const [properties, setProperties] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -52,40 +30,32 @@ export default function RecentlyViewedProperties() {
         return () => window.removeEventListener('resize', updateCardsPerView);
     }, []);
 
-    // Fetch recently viewed properties
+    // Fetch top short-term properties
     useEffect(() => {
-        // Only fetch if authenticated
-        if (!isAuthenticated) {
-            setLoading(false);
-            return;
-        }
-
-        const fetchViewedProperties = async () => {
+        const fetchShortTermProperties = async () => {
             try {
                 setLoading(true);
-
                 const params = {
-                    page: 1,
-                    limit: 8,
-                    sortBy: 'viewedAt',
+                    listingType: 'short_term',
+                    sortBy: 'createdAt',
                     sortOrder: 'desc' as const,
+                    limit: 15,
                 };
 
-                const data = await apiClient.getViewedProperties(params);
-                const viewedProps = Array.isArray(data?.properties) ? data.properties : [];
-
-                setProperties(viewedProps);
+                const data = await apiClient.searchProperties(params);
+                setProperties(Array.isArray(data?.properties) ? data.properties : []);
             } catch (error: any) {
-                console.error('Failed to fetch viewed properties:', error);
-                // Silently fail for home page component
+                toast.error('Failed to load short stays', {
+                    description: error?.response?.data?.message || 'Please try again later.',
+                });
                 setProperties([]);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchViewedProperties();
-    }, [isAuthenticated]);
+        fetchShortTermProperties();
+    }, []);
 
     // Format properties for PropertyCard component
     const formatPrice = (value?: number) => {
@@ -101,20 +71,28 @@ export default function RecentlyViewedProperties() {
         }
     };
 
+    const timeAgoFromDate = (iso?: string) => {
+        if (!iso) return "";
+        const diff = Date.now() - new Date(iso).getTime();
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+        const days = Math.floor(hours / 24);
+        return `${days} day${days === 1 ? "" : "s"} ago`;
+    };
+
     const formattedProperties = properties.map((p) => ({
         id: p._id || p.id,
         image: p.images?.[0]?.url || "",
         images: p.images?.map((img: any) => img.url) || [],
         price: formatPrice(p.price),
-        timeAgo: formatTimeAgo(p.viewedAt),
+        timeAgo: timeAgoFromDate(p.createdAt),
         address: [p.address, p.city, p.country].filter(Boolean).join(", "),
         beds: p.amenities?.bedrooms ?? 0,
         baths: p.amenities?.bathrooms ?? 0,
         sqft: p.area ? `${p.area} ft²` : "",
         tag: p.type ? String(p.type).toUpperCase() : undefined,
         initialIsFavorite: p.isFavorite || false,
-        listingType: p.listingType || 'sale',
-        viewedAt: p.viewedAt,
+        listingType: p.listingType || 'short_term',
     }));
 
     // Slider navigation
@@ -161,13 +139,8 @@ export default function RecentlyViewedProperties() {
         </Card>
     );
 
-    // Don't render if user is not authenticated or if no properties and not loading
-    if (!isAuthenticated || (!loading && formattedProperties.length === 0)) {
-        return null;
-    }
-
     return (
-        <div className=" min-h-screen px-4 sm:px-6 md:px-10 py-10">
+        <div className="min-h-screen px-4 sm:px-6 md:px-10 py-10 bg-slate-50">
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -180,23 +153,21 @@ export default function RecentlyViewedProperties() {
                         <div>
                             <div className="flex items-center">
                                 <span className="inline-block px-4 py-2 mb-3 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
-                                    Your History
+                                    Short Stays
                                 </span>
                             </div>
 
                             <h3 className="text-2xl md:text-2xl font-bold text-gray-900">
-                                Recently Viewed Properties
+                                Perfect Weekend Getaways
                             </h3>
 
                             <div className="flex items-center gap-2 text-gray-600 mt-2">
                                 {loading ? (
                                     <Skeleton className="h-5 w-48" />
                                 ) : (
-                                    <>
-                                        <p>
-                                            {formattedProperties.length} {formattedProperties.length === 1 ? 'property' : 'properties'} recently viewed based on your activity
-                                        </p>
-                                    </>
+                                    <p>
+                                        {formattedProperties.length} {formattedProperties.length === 1 ? 'property' : 'properties'} ready for you
+                                    </p>
                                 )}
                             </div>
                         </div>
@@ -241,6 +212,20 @@ export default function RecentlyViewedProperties() {
                                 </div>
                             ))}
                         </div>
+                    ) : formattedProperties.length === 0 ? (
+                        <Card className="py-20 shadow-none border-0 bg-transparent">
+                            <CardContent className="text-center">
+                                <h4 className="text-xl font-semibold text-gray-700 mb-2">
+                                    No Short Stays Found
+                                </h4>
+                                <p className="text-gray-500">
+                                    We couldn't find any short-term listings at the moment.
+                                </p>
+                                <p className="text-gray-500 mt-2">
+                                    Check back soon for new listings!
+                                </p>
+                            </CardContent>
+                        </Card>
                     ) : (
                         <>
                             <div className="relative overflow-hidden -mx-3 px-3 py-2">
@@ -257,11 +242,11 @@ export default function RecentlyViewedProperties() {
                                         dragElastic={0.2}
                                         onDragEnd={handleDragEnd}
                                     >
-                                        {visibleProperties.map((property, index) => {
+                                        {visibleProperties.map((property) => {
                                             const showPeek = formattedProperties.length > currentIndex + cardsPerView;
                                             return (
                                                 <div
-                                                    key={`${property.id}-${currentIndex + index}`}
+                                                    key={property.id}
                                                     className="flex-none px-3 mb-2"
                                                     style={{ width: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
                                                 >
@@ -322,8 +307,8 @@ export default function RecentlyViewedProperties() {
                         transition={{ delay: 0.6 }}
                         className="text-center mt-10"
                     >
-                        <a href="/dashboard/recent" className="flex items-center justify-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
-                            View All History <FaArrowRight className="text-sm" />
+                        <a href="/properties?listingType=short_term" className="flex items-center justify-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
+                            See all Short Stays <FaArrowRight className="text-sm" />
                         </a>
                     </motion.div>
                 )}

@@ -249,6 +249,7 @@ const FavoritePage = () => {
                                                 <TabsTrigger value="all" className="px-4 h-9">All</TabsTrigger>
                                                 <TabsTrigger value="sale" className="px-4 h-9">For Sale</TabsTrigger>
                                                 <TabsTrigger value="rent" className="px-4 h-9">For Rent</TabsTrigger>
+                                                <TabsTrigger value="short_term" className="px-4 h-9">Short Term</TabsTrigger>
                                             </TabsList>
                                         </Tabs>
 
@@ -273,11 +274,11 @@ const FavoritePage = () => {
                                                     <div className="space-y-3">
                                                         <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500">Property Type</h4>
                                                         <div className="grid grid-cols-2 gap-2">
-                                                            {['House', 'Apartment', 'Condo', 'Villa', 'Land'].map((type) => (
+                                                            {['House', 'Apartment', 'Condo', 'Villa', 'Land', 'Hotel', 'Guest House', 'Vacation Rental'].map((type) => (
                                                                 <Button
                                                                     key={type}
-                                                                    variant={filterPropertyType === type.toLowerCase() ? 'default' : 'outline'}
-                                                                    onClick={() => setFilterPropertyType(type.toLowerCase())}
+                                                                    variant={filterPropertyType === type.toLowerCase().replace(' ', '_') ? 'default' : 'outline'}
+                                                                    onClick={() => setFilterPropertyType(type.toLowerCase().replace(' ', '_'))}
                                                                     className="justify-start h-10"
                                                                 >
                                                                     {type}
@@ -443,6 +444,8 @@ const transformPropertyProps = (p: Property) => {
         isFavorite: p.isFavorite || true, // Ensures it displays as favorite
         viewCount: p.viewsCount ?? p.viewCount ?? p.views ?? 0,
         favoriteCount: p.favoriteCount ?? p.favorites ?? 0,
+        pricingUnit: (p as any).pricingUnit,
+        maxGuests: (p as any).maxGuests ?? (p as any).shortTermAmenities?.maxGuests,
     };
 };
 

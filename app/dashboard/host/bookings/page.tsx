@@ -275,7 +275,7 @@ export default function HostBookingsPage() {
                                                             </Button>
                                                         )}
                                                     </div>
-                                                    <Button variant="ghost" className="h-10 px-4 rounded-xl hover:bg-slate-100 text-slate-600 font-semibold text-sm transition-all flex items-center gap-1.5 hover:-translate-y-0.5" onClick={() => router.push(`/dashboard/bookings/${booking._id}`)}>
+                                                    <Button variant="ghost" className="h-10 px-4 rounded-xl hover:bg-slate-100 text-slate-600 font-semibold text-sm transition-all flex items-center gap-1.5 hover:-translate-y-0.5" onClick={() => router.push(`/dashboard/host/bookings/${booking._id}`)}>
                                                         Details <ChevronRight className="h-4 w-4" />
                                                     </Button>
                                                 </div>

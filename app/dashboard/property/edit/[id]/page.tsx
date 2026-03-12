@@ -6,8 +6,10 @@ import { AppSidebar } from '@/components/dashboard/Sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
 import PropertyForm from '@/components/dashboard/PropertyForm';
-import { Loader2, AlertCircle } from 'lucide-react';
+import RoomManager from '@/components/dashboard/RoomManager';
+import { Loader2, AlertCircle, Building2, BedDouble } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { apiClient } from '@/lib/api';
 
 // ── Must stay in sync with PropertyForm's PropertyFormData ────────────────────
@@ -70,6 +72,8 @@ interface PropertyFormData {
   cancellationPolicy: string;
   advanceNoticeDays: number;
   bookingWindowDays: number;
+  weeklyDiscountPercent: number;
+  monthlyDiscountPercent: number;
 
   // Short-term amenities
   maxGuests: number;
@@ -110,8 +114,8 @@ const PropertyEditPage = () => {
   const params = useParams();
   const propertyId = params?.id as string;
 
-  const [loading,     setLoading]     = useState(true);
-  const [error,       setError]       = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [initialData, setInitialData] = useState<PropertyFormData | null>(null);
 
   useEffect(() => {
@@ -124,91 +128,93 @@ const PropertyEditPage = () => {
 
         const propertyData: PropertyFormData = {
           // Basic
-          title:       data.title       || '',
+          title: data.title || '',
           description: data.description || '',
-          type:        data.type        || 'apartment',
+          type: data.type || 'apartment',
           listingType: data.listingType || 'sale',
-          price:       String(data.price || ''),
+          price: String(data.price || ''),
 
           // Details
-          area:           String(data.area           || ''),
-          yearBuilt:      String(data.yearBuilt      || ''),
-          floorNumber:    String(data.floorNumber    || ''),
-          totalFloors:    String(data.totalFloors    || ''),
-          pricePerSqm:    String(data.pricePerSqm    || ''),
-          depositAmount:  String(data.depositAmount  || ''),
+          area: String(data.area || ''),
+          yearBuilt: String(data.yearBuilt || ''),
+          floorNumber: String(data.floorNumber || ''),
+          totalFloors: String(data.totalFloors || ''),
+          pricePerSqm: String(data.pricePerSqm || ''),
+          depositAmount: String(data.depositAmount || ''),
           maintenanceFee: String(data.maintenanceFee || ''),
 
           // Location
-          address:      data.address      || '',
-          city:         data.city         || '',
+          address: data.address || '',
+          city: data.city || '',
           neighborhood: data.neighborhood || '',
-          country:      data.country      || '',
-          latitude:     String(data.latitude  || ''),
-          longitude:    String(data.longitude || ''),
+          country: data.country || '',
+          latitude: String(data.latitude || ''),
+          longitude: String(data.longitude || ''),
 
           // Amenities
-          bedrooms:          data.amenities?.bedrooms      || 1,
-          bathrooms:         data.amenities?.bathrooms     || 1,
-          parkingSpaces:     data.amenities?.parkingSpaces || 0,
-          hasGarden:         data.amenities?.hasGarden         || false,
-          hasPool:           data.amenities?.hasPool           || false,
-          hasGym:            data.amenities?.hasGym            || false,
-          hasSecurity:       data.amenities?.hasSecurity       || false,
-          hasElevator:       data.amenities?.hasElevator       || false,
-          hasBalcony:        data.amenities?.hasBalcony        || false,
-          hasAirConditioning:data.amenities?.hasAirConditioning|| false,
-          hasInternet:       data.amenities?.hasInternet       || false,
-          hasGenerator:      data.amenities?.hasGenerator      || false,
-          furnished:         data.amenities?.furnished         || false,
+          bedrooms: data.amenities?.bedrooms || 1,
+          bathrooms: data.amenities?.bathrooms || 1,
+          parkingSpaces: data.amenities?.parkingSpaces || 0,
+          hasGarden: data.amenities?.hasGarden || false,
+          hasPool: data.amenities?.hasPool || false,
+          hasGym: data.amenities?.hasGym || false,
+          hasSecurity: data.amenities?.hasSecurity || false,
+          hasElevator: data.amenities?.hasElevator || false,
+          hasBalcony: data.amenities?.hasBalcony || false,
+          hasAirConditioning: data.amenities?.hasAirConditioning || false,
+          hasInternet: data.amenities?.hasInternet || false,
+          hasGenerator: data.amenities?.hasGenerator || false,
+          furnished: data.amenities?.furnished || false,
 
           // Short-term rental
-          pricingUnit:        data.pricingUnit        || 'nightly',
-          minNights:          data.minNights          ?? 1,
-          maxNights:          data.maxNights          ?? 365,
-          cleaningFee:        String(data.cleaningFee  ?? '0'),
-          serviceFee:         String(data.serviceFee   ?? '0'),
-          isInstantBookable:  data.isInstantBookable  || false,
+          pricingUnit: data.pricingUnit || 'nightly',
+          minNights: data.minNights ?? 1,
+          maxNights: data.maxNights ?? 365,
+          cleaningFee: String(data.cleaningFee ?? '0'),
+          serviceFee: String(data.serviceFee ?? '0'),
+          isInstantBookable: data.isInstantBookable || false,
           cancellationPolicy: data.cancellationPolicy || 'flexible',
-          advanceNoticeDays:  data.advanceNoticeDays  ?? 0,
-          bookingWindowDays:  data.bookingWindowDays  ?? 365,
+          advanceNoticeDays: data.advanceNoticeDays ?? 0,
+          bookingWindowDays: data.bookingWindowDays ?? 365,
+          weeklyDiscountPercent: data.weeklyDiscountPercent ?? 0,
+          monthlyDiscountPercent: data.monthlyDiscountPercent ?? 0,
 
           // Short-term amenities
-          maxGuests:          data.shortTermAmenities?.maxGuests          ?? 2,
-          checkInTime:        data.shortTermAmenities?.checkInTime        || '14:00',
-          checkOutTime:       data.shortTermAmenities?.checkOutTime       || '11:00',
-          hasWifi:            data.shortTermAmenities?.hasWifi            || false,
-          hasBreakfast:       data.shortTermAmenities?.hasBreakfast       || false,
-          hasTv:              data.shortTermAmenities?.hasTv              || false,
-          hasKitchen:         data.shortTermAmenities?.hasKitchen         || false,
-          hasWasher:          data.shortTermAmenities?.hasWasher          || false,
-          hasHeating:         data.shortTermAmenities?.hasHeating         || false,
-          petsAllowed:        data.shortTermAmenities?.petsAllowed        || false,
-          smokingAllowed:     data.shortTermAmenities?.smokingAllowed     || false,
-          partiesAllowed:     data.shortTermAmenities?.partiesAllowed     || false,
+          maxGuests: data.shortTermAmenities?.maxGuests ?? 2,
+          checkInTime: data.shortTermAmenities?.checkInTime || '14:00',
+          checkOutTime: data.shortTermAmenities?.checkOutTime || '11:00',
+          hasWifi: data.shortTermAmenities?.hasWifi || false,
+          hasBreakfast: data.shortTermAmenities?.hasBreakfast || false,
+          hasTv: data.shortTermAmenities?.hasTv || false,
+          hasKitchen: data.shortTermAmenities?.hasKitchen || false,
+          hasWasher: data.shortTermAmenities?.hasWasher || false,
+          hasHeating: data.shortTermAmenities?.hasHeating || false,
+          petsAllowed: data.shortTermAmenities?.petsAllowed || false,
+          smokingAllowed: data.shortTermAmenities?.smokingAllowed || false,
+          partiesAllowed: data.shortTermAmenities?.partiesAllowed || false,
           wheelchairAccessible: data.shortTermAmenities?.wheelchairAccessible || false,
-          airportTransfer:    data.shortTermAmenities?.airportTransfer    || false,
-          conciergeService:   data.shortTermAmenities?.conciergeService   || false,
-          dailyHousekeeping:  data.shortTermAmenities?.dailyHousekeeping  || false,
+          airportTransfer: data.shortTermAmenities?.airportTransfer || false,
+          conciergeService: data.shortTermAmenities?.conciergeService || false,
+          dailyHousekeeping: data.shortTermAmenities?.dailyHousekeeping || false,
 
           // Features
-          keywords:        data.keywords        || '',
+          keywords: Array.isArray(data.keywords) ? data.keywords.join(', ') : (data.keywords || ''),
           nearbyAmenities: data.nearbyAmenities || [],
           transportAccess: data.transportAccess || [],
 
           // Media
           images: (data.images || []).map((img: any, index: number) => ({
-            id:       `existing-${index}`,
-            file:     null as any,
-            preview:  img.url || img,
-            caption:  img.caption  || '',
+            id: `existing-${index}`,
+            file: null as any,
+            preview: img.url || img,
+            caption: img.caption || '',
             category: img.category || 'general',
           })),
-          floorPlan:        null,
+          floorPlan: null,
           floorPlanPreview: data.floorPlanUrl || '',
-          documents:        [],
-          virtualTourUrl:   data.virtualTourUrl || '',
-          videoUrl:         data.videoUrl       || '',
+          documents: [],
+          virtualTourUrl: data.virtualTourUrl || '',
+          videoUrl: data.videoUrl || '',
         };
 
         setInitialData(propertyData);
@@ -280,16 +286,54 @@ const PropertyEditPage = () => {
         <AppSidebar />
         <SidebarInset>
           <NavDash />
-          <div className="flex-1 flex flex-col lg:flex-row min-h-screen pt-14 lg:pt-0">
-            <div className="flex-1 p-2 lg:p-4 bg-white lg:bg-transparent">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 lg:border-none lg:shadow-none lg:rounded-none">
-                <PropertyForm
-                  onAdd={handleUpdateProperty}
-                  initialData={initialData}
-                  propertyId={propertyId}
-                  isEditMode={true}
-                />
+          <div className="flex-1 flex flex-col min-h-screen pt-14 lg:pt-0">
+            <div className="flex-1 p-2 lg:p-6 bg-[#f8fafc] w-full max-w-7xl mx-auto">
+
+              <div className="mb-6 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight text-slate-900">Manage Property</h1>
+                  <p className="text-sm text-slate-500">{initialData.title}</p>
+                </div>
               </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <Tabs defaultValue="details" className="w-full">
+
+                  {['hotel', 'motel', 'hostel', 'guesthouse'].includes(initialData.type?.toLowerCase()) ? (
+                    <div className="px-6 border-b border-slate-100 bg-slate-50/50">
+                      <TabsList className="bg-transparent h-12 gap-6 p-0">
+                        <TabsTrigger
+                          value="details"
+                          className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-12 px-2 gap-2 text-slate-600 data-[state=active]:text-blue-700 font-semibold"
+                        >
+                          <Building2 className="w-4 h-4" /> Property Details
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="rooms"
+                          className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-12 px-2 gap-2 text-slate-600 data-[state=active]:text-blue-700 font-semibold"
+                        >
+                          <BedDouble className="w-4 h-4" /> Manage Rooms
+                        </TabsTrigger>
+                      </TabsList>
+                    </div>
+                  ) : null}
+
+                  <TabsContent value="details" className="m-0 p-0 lg:p-4 outline-none">
+                    <PropertyForm
+                      onAdd={handleUpdateProperty}
+                      initialData={initialData}
+                      propertyId={propertyId}
+                      isEditMode={true}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="rooms" className="m-0 p-6 outline-none">
+                    <RoomManager propertyId={propertyId} />
+                  </TabsContent>
+
+                </Tabs>
+              </div>
+
             </div>
           </div>
         </SidebarInset>

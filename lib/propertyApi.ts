@@ -17,11 +17,19 @@ export enum PropertyType {
   WAREHOUSE = 'warehouse',
   LAND = 'land',
   PENTHOUSE = 'penthouse',
+  HOTEL = 'hotel',
+  MOTEL = 'motel',
+  VACATION_RENTAL = 'vacation_rental',
+  GUESTHOUSE = 'guesthouse',
+  HOSTEL = 'hostel',
+  RESORT = 'resort',
+  SERVICED_APARTMENT = 'serviced_apartment',
 }
 
 export enum ListingType {
   SALE = 'sale',
   RENT = 'rent',
+  SHORT_TERM = 'short_term',
 }
 
 export enum PropertyStatus {
@@ -228,49 +236,49 @@ export class PropertyApiClient {
 
     // Add response interceptor for error handling and token refresh
     this.api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
 
-    // If error is 401 and we haven't already tried to refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+        // If error is 401 and we haven't already tried to refresh
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
 
-      try {
-        // Try to refresh the token
-        const newTokens = await authService.refreshToken();
-        if (newTokens && newTokens.accessToken) {
-          // Retry the original request with new token
-          originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
-          return this.api(originalRequest);
-        } else {
-          // Refresh failed, redirect to login
-          authService.logout();
-          if (typeof window !== 'undefined') {
-            // Use Next.js router if available, otherwise fallback to window.location
-            if (window.location.pathname !== '/auth/login') {
-              window.location.href = '/auth/login';
+          try {
+            // Try to refresh the token
+            const newTokens = await authService.refreshToken();
+            if (newTokens && newTokens.accessToken) {
+              // Retry the original request with new token
+              originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+              return this.api(originalRequest);
+            } else {
+              // Refresh failed, redirect to login
+              authService.logout();
+              if (typeof window !== 'undefined') {
+                // Use Next.js router if available, otherwise fallback to window.location
+                if (window.location.pathname !== '/auth/login') {
+                  window.location.href = '/auth/login';
+                }
+              }
+              return Promise.reject(new Error('Session expired. Please log in again.'));
             }
+          } catch (refreshError) {
+            // Refresh failed, redirect to login
+            console.error('Token refresh failed:', refreshError);
+            authService.logout();
+            if (typeof window !== 'undefined') {
+              if (window.location.pathname !== '/auth/login') {
+                window.location.href = '/auth/login';
+              }
+            }
+            return Promise.reject(new Error('Session expired. Please log in again.'));
           }
-          return Promise.reject(new Error('Session expired. Please log in again.'));
         }
-      } catch (refreshError) {
-        // Refresh failed, redirect to login
-        console.error('Token refresh failed:', refreshError);
-        authService.logout();
-        if (typeof window !== 'undefined') {
-          if (window.location.pathname !== '/auth/login') {
-            window.location.href = '/auth/login';
-          }
-        }
-        return Promise.reject(new Error('Session expired. Please log in again.'));
-      }
-    }
 
-    console.error('API Error:', error.response?.data || error.message);
-    return Promise.reject(error);
-  }
-);
+        console.error('API Error:', error.response?.data || error.message);
+        return Promise.reject(error);
+      }
+    );
   }
 
   isAuthenticated(): boolean {

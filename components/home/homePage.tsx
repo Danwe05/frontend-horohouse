@@ -2,6 +2,7 @@ import HeroSection from './heroSection';
 import WhatWeOffer from './whatWeOffer';
 import LuxuriousHaven from './luxuriousHaven';
 import TopListing from './topListing';
+import TopShortTerm from './topShortTerm';
 import AboutUs from './aboutUs';
 import CustomersSay from './customersSay';
 import Footer from '../footer';
@@ -14,18 +15,19 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <RecentlyViewedProperties/>
-      <LuxuriousHaven />
-      <LocationBasedProperties/>
-      <WhatWeOffer />
       <TopListing />
+      <RecentlyViewedProperties />
+      <LuxuriousHaven />
+      <LocationBasedProperties />
+      <WhatWeOffer />
+      <TopShortTerm />
       <PropertyTypeCards />
       {/* <StudentSection /> */}
       <AboutUs />
       <OurParteners />
       <CustomersSay />
       <Footer />
-      
+
     </>
   );
 }

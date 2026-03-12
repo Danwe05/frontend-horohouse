@@ -310,7 +310,7 @@ export default function AgentsPage() {
                                                 key={pageNumber}
                                                 onClick={() => setPage(pageNumber)}
                                                 className={`w-10 h-10 rounded-xl font-semibold text-sm transition-all ${page === pageNumber
-                                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-105'
+                                                    ? 'bg-blue-600 text-white'
                                                     : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-100'
                                                     }`}
                                             >

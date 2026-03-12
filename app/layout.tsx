@@ -35,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={fontClassNames}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={fontClassNames} suppressHydrationWarning>
         <LanguageProvider>
           <AuthProvider>
             <ChatProviderWrapper>

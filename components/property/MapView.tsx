@@ -6,7 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import Supercluster from "supercluster";
 import {
   MapPin, Layers, Navigation, Pencil, Trash2, Settings, X,
-  Bed, Bath, Ruler, ExternalLink, School, Hospital, Utensils,
+  Ruler, School, Hospital, Utensils,
   ShoppingBag, Trees, Building2, Fuel, Bus, RefreshCw,
   Wifi, WifiOff, Download,
 } from "lucide-react";
@@ -14,13 +14,9 @@ import {
   Dialog, DialogContent, DialogDescription,
   DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Carousel, CarouselContent, CarouselItem,
-  CarouselPrevious, CarouselNext,
-} from "@/components/ui/carousel";
 import { toast } from "sonner";
+import PropertyCard from "@/components/property/PropertyCard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,6 +66,18 @@ interface MapViewProps {
     lat: number,
     address?: { label?: string; city?: string; country?: string; raw?: any }
   ) => void;
+  /** ID of the card currently hovered in the listing grid */
+  hoveredPropertyId?: string | null;
+  /** IDs selected for comparison — those pins get a white ring */
+  compareIds?: Set<string>;
+  /** Called when auto-refresh fires, so the parent can re-fetch */
+  onRefresh?: () => void;
+  /** Called when a cluster is clicked, passing the IDs of the properties inside it */
+  onClusterClick?: (propertyIds: string[]) => void;
+  /** When set, the map geocodes this city/place and flies to it */
+  searchCity?: string;
+  /** Increment this on every search to trigger auto-zoom (city geocode or property bounds fit) */
+  searchVersion?: number;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -135,6 +143,32 @@ function formatPriceCompact(price: number): string {
   return `${price}`;
 }
 
+function getMarkerConfig(listingType?: string) {
+  switch (listingType?.toLowerCase()) {
+    case "short_term":
+      return {
+        bgClass: "bg-violet-600",
+        suffix: "/night",
+        label: "Stay",
+        ariaLabel: "Short-term rental",
+      };
+    case "rent":
+      return {
+        bgClass: "bg-blue-600",
+        suffix: "/mo",
+        label: "Rent",
+        ariaLabel: "Long-term rental",
+      };
+    default:
+      return {
+        bgClass: "bg-emerald-600",
+        suffix: "",
+        label: "Sale",
+        ariaLabel: "For sale",
+      };
+  }
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const MapView = ({
@@ -144,11 +178,18 @@ const MapView = ({
   onMapClick,
   selectedLocation = null,
   onLocationSelect,
+  hoveredPropertyId = null,
+  compareIds,
+  onRefresh,
+  onClusterClick,
+  searchCity,
+  searchVersion,
 }: MapViewProps) => {
   // ── Refs ──────────────────────────────────────────────────────────────────
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
-  const markers = useRef<Map<string, { marker: maplibregl.Marker; popup: maplibregl.Popup }>>(new Map());
+  // Stable ref for markers — popup is optional (clusters use it, individual property markers don't)
+  const markers = useRef<Map<string, { marker: maplibregl.Marker; popup?: maplibregl.Popup }>>(new Map());
   const userLocationMarker = useRef<maplibregl.Marker | null>(null);
   const selectedMarker = useRef<maplibregl.Marker | null>(null);
   const drawingCoords = useRef<[number, number][]>([]);
@@ -604,53 +645,67 @@ const MapView = ({
 
   // ── Markers ───────────────────────────────────────────────────────────────
   const clearMarkers = useCallback(() => {
-    markers.current.forEach(({ marker, popup }) => { popup.remove(); marker.remove(); });
+    markers.current.forEach(({ marker, popup }) => { popup?.remove(); marker.remove(); });
     markers.current.clear();
   }, []);
 
   const createTooltipContent = useCallback((property: Property): string => {
     const images = property.images?.length ? property.images : property.image ? [property.image] : [];
     const img = images[0] ?? "";
-    const isRent = property.listingType?.toLowerCase() === "rent";
+    const { bgClass, suffix, label } = getMarkerConfig(property.listingType);
+    const priceLabel = `${property.price.toLocaleString()} XAF${suffix}`;
+
     return `
-      <div class="min-w-[200px] max-w-[250px]">
-        ${img ? `<img src="${img}" alt="${property.title}" class="w-full h-32 object-cover rounded-t-lg mb-2 bg-slate-100" />` : '<div class="w-full h-32 bg-slate-100 rounded-t-lg mb-2 flex items-center justify-center text-xs text-slate-400">No image</div>'}
-        <div class="px-1">
-          <div class="font-bold text-base mb-1">${formatPriceCompact(property.price)} XAF${isRent ? "/mo" : ""}</div>
-          ${property.type ? `<div class="text-xs text-gray-600 mb-1">${property.type}</div>` : ""}
-          ${property.address ? `<div class="text-xs text-gray-500 mb-2">${property.address}</div>` : ""}
-          <div class="flex items-center gap-2 text-xs text-gray-600">
-            ${property.sqft ? `<span>${property.sqft}</span>` : ""}
-            ${property.beds ? `<span>${property.beds} bd</span>` : ""}
-            ${property.baths ? `<span>${property.baths} ba</span>` : ""}
-          </div>
+    <div class="min-w-[200px] max-w-[250px]">
+      ${img
+        ? `<img src="${img}" alt="${property.title}" class="w-full h-32 object-cover rounded-t-lg mb-2 bg-slate-100" />`
+        : '<div class="w-full h-32 bg-slate-100 rounded-t-lg mb-2 flex items-center justify-center text-xs text-slate-400">No image</div>'
+      }
+      <div class="px-2 pb-1">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-bold text-sm">${formatPriceCompact(property.price)} XAF${suffix}</span>
+          <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white ${bgClass}">${label}</span>
         </div>
-      </div>`;
+        ${property.type ? `<div class="text-xs text-gray-600 mb-1">${property.type}</div>` : ""}
+        ${property.address ? `<div class="text-xs text-gray-500 mb-2 truncate">${property.address}</div>` : ""}
+        <div class="flex items-center gap-2 text-xs text-gray-600">
+          ${property.sqft ? `<span>${property.sqft}</span>` : ""}
+          ${property.beds ? `<span>${property.beds} bd</span>` : ""}
+          ${property.baths ? `<span>${property.baths} ba</span>` : ""}
+        </div>
+      </div>
+    </div>`;
   }, []);
 
-  const createMarker = useCallback((property: Property) => {
+
+  const createMarker = useCallback((property: Property, opts?: { isHovered?: boolean; isCompared?: boolean }) => {
     if (!map.current || !property.latitude || !property.longitude) return null;
-    const isRent = property.listingType?.toLowerCase() === "rent";
+
+    const { bgClass, suffix, ariaLabel } = getMarkerConfig(property.listingType);
+    const priceLabel = `${formatPriceCompact(property.price)}${suffix}`;
+    const scaleClass = opts?.isHovered ? "scale-125" : "";
+    const ringStyle = opts?.isCompared ? "outline: 2.5px solid white; outline-offset: 1px;" : "";
+
     const el = document.createElement("div");
     el.setAttribute("role", "button");
-    el.setAttribute("aria-label", `${property.title}, ${formatPriceCompact(property.price)} XAF`);
+    el.setAttribute("aria-label", `${property.title}, ${priceLabel} XAF — ${ariaLabel}`);
+    el.dataset.propertyId = property.id;
     el.innerHTML = `
-      <div class="${isRent ? "bg-blue-600" : "bg-green-600"} text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-lg hover:scale-110 transition-transform cursor-pointer">
-        ${formatPriceCompact(property.price)}
-      </div>`;
+    <div class="${bgClass} text-white px-2.5 py-1 rounded-full text-xs font-bold shadow-lg hover:scale-110 transition-transform cursor-pointer flex items-center gap-1 whitespace-nowrap ${scaleClass}" style="${ringStyle}">
+      <span>${priceLabel}</span>
+    </div>`;
 
-    const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 25, className: "property-tooltip" })
-      .setHTML(createTooltipContent(property));
-
-    el.addEventListener("mouseenter", () => popup.setLngLat([property.longitude!, property.latitude!]).addTo(map.current!));
-    el.addEventListener("mouseleave", () => popup.remove());
-    el.addEventListener("click", (e) => { e.stopPropagation(); setSelectedProperty(property); });
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setSelectedProperty(property);
+    });
 
     const marker = new maplibregl.Marker({ element: el })
       .setLngLat([property.longitude, property.latitude])
       .addTo(map.current);
-    return { marker, popup };
-  }, [createTooltipContent]);
+    // No popup — individual property markers don't show hover tooltips
+    return { marker };
+  }, []);
 
   const getClusters = useCallback(() => {
     if (!map.current) return [];
@@ -683,6 +738,18 @@ const MapView = ({
       e.stopPropagation();
       const zoom = superclusterRef.current.getClusterExpansionZoom(cluster.id);
       map.current?.flyTo({ center: [lng, lat], zoom, duration: 800 });
+
+      try {
+        const leaves = superclusterRef.current.getLeaves(cluster.id, Infinity);
+        const propertyIds = leaves
+          .map((leaf: any) => leaf.properties?.propertyId)
+          .filter(Boolean) as string[];
+        if (propertyIds.length > 0) {
+          onClusterClick?.(propertyIds);
+        }
+      } catch (err) {
+        console.warn("Failed to get cluster leaves for drill-down", err);
+      }
     });
 
     const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map.current);
@@ -690,27 +757,65 @@ const MapView = ({
   }, []);
 
   const updateMarkers = useCallback(() => {
-    if (!map.current || !mapLoaded || validProperties.length === 0) { clearMarkers(); return; }
-    clearMarkers();
+    if (!map.current || !mapLoaded) return;
+
+    if (validProperties.length === 0) {
+      clearMarkers();
+      return;
+    }
+
     const zoom = map.current.getZoom();
+
+    // Build the set of marker keys we WANT on screen
+    const desiredKeys = new Set<string>();
 
     if (showClusters && validProperties.length > 5 && zoom < CLUSTER_MAX_ZOOM) {
       getClusters().forEach((cluster: any) => {
         if (cluster.properties.cluster) {
-          const result = createClusterMarker(cluster);
-          if (result) markers.current.set(`cluster-${cluster.id}`, result);
+          desiredKeys.add(`cluster-${cluster.id}`);
         } else {
-          const prop = validProperties.find((p) => p.id === cluster.properties.propertyId);
-          if (prop) {
-            const result = createMarker(prop);
-            if (result) markers.current.set(prop.id, result);
+          desiredKeys.add(cluster.properties.propertyId);
+        }
+      });
+    } else {
+      validProperties.forEach((p) => desiredKeys.add(p.id));
+    }
+
+    // Remove markers that are no longer needed
+    markers.current.forEach(({ marker, popup }, key) => {
+      if (!desiredKeys.has(key)) {
+        popup?.remove();
+        marker.remove();
+        markers.current.delete(key);
+      }
+    });
+
+    // Add markers that don't exist yet
+    if (showClusters && validProperties.length > 5 && zoom < CLUSTER_MAX_ZOOM) {
+      getClusters().forEach((cluster: any) => {
+        if (cluster.properties.cluster) {
+          const key = `cluster-${cluster.id}`;
+          if (!markers.current.has(key)) {
+            const result = createClusterMarker(cluster);
+            if (result) markers.current.set(key, result);
+          }
+        } else {
+          const key = cluster.properties.propertyId;
+          if (!markers.current.has(key)) {
+            const prop = validProperties.find((p) => p.id === key);
+            if (prop) {
+              const result = createMarker(prop);
+              if (result) markers.current.set(key, result);
+            }
           }
         }
       });
     } else {
       validProperties.forEach((prop) => {
-        const result = createMarker(prop);
-        if (result) markers.current.set(prop.id, result);
+        if (!markers.current.has(prop.id)) {
+          const result = createMarker(prop);
+          if (result) markers.current.set(prop.id, result);
+        }
       });
     }
   }, [validProperties, mapLoaded, showClusters, getClusters, createMarker, createClusterMarker, clearMarkers]);
@@ -746,9 +851,12 @@ const MapView = ({
 
   // ── Auto-refresh ──────────────────────────────────────────────────────────
   // Use a ref for the callback so the interval always calls the latest version
+  const onRefreshRef = useRef(onRefresh);
+  useEffect(() => { onRefreshRef.current = onRefresh; }, [onRefresh]);
+
   const refreshProperties = useCallback(() => {
     setLastRefreshTime(new Date());
-    // Wire up real property refresh from your API here when ready
+    onRefreshRef.current?.();
   }, []);
 
   const refreshPropertiesRef = useRef(refreshProperties);
@@ -903,6 +1011,93 @@ const MapView = ({
     placeSelectedMarker(selectedLocation.lng, selectedLocation.lat);
   }, [selectedLocation, mapLoaded, placeSelectedMarker]);
 
+  // Keep fresh refs so the zoom effect always reads the latest values
+  // even though it intentionally only re-runs on searchVersion / mapLoaded changes.
+  const searchCityRef = useRef(searchCity);
+  useEffect(() => { searchCityRef.current = searchCity; }, [searchCity]);
+  const validPropertiesRef = useRef(validProperties);
+  useEffect(() => { validPropertiesRef.current = validProperties; }, [validProperties]);
+
+  // ── Auto-zoom on every search (city geocode → property bounds → stay put) ──
+  useEffect(() => {
+    // searchVersion 0 = initial state, no user search yet — don't zoom
+    if (!searchVersion || !map.current || !mapLoaded) return;
+
+    const apiKey = getApiKey();
+    const props = validPropertiesRef.current;
+    const city = searchCityRef.current;
+
+    // Fit map to bounding box of all geo-tagged results
+    const fitToPropertyBounds = () => {
+      if (props.length === 0) return;
+      const lngs = props.map((p) => p.longitude!);
+      const lats = props.map((p) => p.latitude!);
+      try {
+        if (props.length === 1) {
+          map.current?.flyTo({ center: [lngs[0], lats[0]], zoom: 14, duration: 1200 });
+        } else {
+          const west = Math.min(...lngs), east = Math.max(...lngs);
+          const south = Math.min(...lats), north = Math.max(...lats);
+          // Guard against zero-size bounds (all props at same point)
+          if (west === east && south === north) {
+            map.current?.flyTo({ center: [west, south], zoom: 14, duration: 1200 });
+          } else {
+            map.current?.fitBounds([[west, south], [east, north]], {
+              padding: 80, maxZoom: 14, duration: 1200,
+            });
+          }
+        }
+      } catch { /* map not ready — ignore */ }
+    };
+
+    // No city filter → just frame whatever properties came back
+    if (!city || !apiKey) {
+      fitToPropertyBounds();
+      return;
+    }
+
+    // City filter → geocode first, fall back to property bounds
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const res = await fetch(
+          `https://api.maptiler.com/geocoding/${encodeURIComponent(city)}.json?key=${apiKey}&limit=1&autocomplete=false`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) { fitToPropertyBounds(); return; }
+        const data = await res.json();
+        const feature = data?.features?.[0];
+        if (!feature) { fitToPropertyBounds(); return; }
+
+        try {
+          if (feature.bbox) {
+            const [west, south, east, north] = feature.bbox as [number, number, number, number];
+            map.current?.fitBounds([[west, south], [east, north]], {
+              padding: 60, maxZoom: 14, duration: 1200,
+            });
+          } else {
+            const [lng, lat] = feature.geometry.coordinates as [number, number];
+            const placeType: string = (feature.place_type?.[0] ?? feature.type ?? "").toLowerCase();
+            const zoom =
+              placeType.includes("country") ? 5 :
+                placeType.includes("region") || placeType.includes("district") ? 9 :
+                  placeType.includes("neighborhood") || placeType.includes("locality") ? 14 :
+                    12;
+            map.current?.flyTo({ center: [lng, lat], zoom, duration: 1200 });
+          }
+        } catch { fitToPropertyBounds(); }
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
+        fitToPropertyBounds();
+      }
+    })();
+
+    return () => controller.abort();
+  }, [searchVersion, mapLoaded, getApiKey]);
+
+
+
+
   // Map click handler — reads measurementMode/Points from refs to avoid stale closures
   const measurementModeRef = useRef(measurementMode);
   const measurementPointsRef = useRef(measurementPoints);
@@ -938,6 +1133,35 @@ const MapView = ({
 
   // Update markers on zoom or property change
   useEffect(() => { updateMarkers(); }, [updateMarkers, zoomLevel]);
+
+  // ── Hover highlight: toggle scale class on the hovered marker's DOM element ──
+  useEffect(() => {
+    markers.current.forEach(({ marker }, key) => {
+      const el = marker.getElement()?.querySelector("div") as HTMLElement | null;
+      if (!el) return;
+      if (hoveredPropertyId && key === hoveredPropertyId) {
+        el.classList.add("scale-125");
+        el.style.zIndex = "10";
+      } else {
+        el.classList.remove("scale-125");
+        el.style.zIndex = "";
+      }
+    });
+  }, [hoveredPropertyId]);
+
+  // ── Compare ring: re-create markers whose compare state changed ───────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    validProperties.forEach((prop) => {
+      const entry = markers.current.get(prop.id);
+      if (!entry) return;
+      const isCompared = compareIds?.has(prop.id) ?? false;
+      const el = entry.marker.getElement()?.querySelector("div") as HTMLElement | null;
+      if (!el) return;
+      el.style.outline = isCompared ? "2.5px solid white" : "";
+      el.style.outlineOffset = isCompared ? "1px" : "";
+    });
+  }, [compareIds, mapLoaded, validProperties]);
 
   // Heatmap toggle
   useEffect(() => {
@@ -992,17 +1216,6 @@ const MapView = ({
     );
   }, [placeUserLocationMarker]);
 
-  // ── Property preview ──────────────────────────────────────────────────────
-  const handlePropertyView = useCallback(() => {
-    if (selectedProperty) onPropertyClick?.(selectedProperty.id);
-  }, [selectedProperty, onPropertyClick]);
-
-  const selectedPropertyImages = useMemo(() => {
-    if (!selectedProperty) return [PLACEHOLDER_IMAGE];
-    const imgs = selectedProperty.images?.length ? selectedProperty.images : selectedProperty.image ? [selectedProperty.image] : [];
-    return imgs.length > 0 ? imgs : [PLACEHOLDER_IMAGE];
-  }, [selectedProperty]);
-
   // ── Toggle switch helper ──────────────────────────────────────────────────
   const Toggle = ({ active, color = "bg-blue-600" }: { active: boolean; color?: string }) => (
     <div className={`w-10 h-5 rounded-full transition-colors ${active ? color : "bg-gray-300"} relative`}>
@@ -1010,91 +1223,98 @@ const MapView = ({
     </div>
   );
 
+  // Price formatter for PropertyCard (expects a string)
+  const formatPropertyPrice = useCallback((price: number): string => {
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "XAF",
+        maximumFractionDigits: 0,
+      }).format(price);
+    } catch {
+      return `${price.toLocaleString()} XAF`;
+    }
+  }, []);
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden">
       <div ref={mapContainer} className="w-full h-full" />
 
-      {/* Property preview card */}
+      {/* Property preview card — uses the real PropertyCard component */}
       {selectedProperty && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-20">
-          <Card className="overflow-hidden shadow-2xl">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full max-w-sm px-4 z-20">
+          <div className="relative">
+            {/* Close button overlaid top-right corner */}
             <button
               onClick={() => setSelectedProperty(null)}
               aria-label="Close preview"
-              className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md"
+              className="absolute top-2 right-2 z-30 w-7 h-7 bg-background/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-background shadow-md transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+            <PropertyCard
+              id={selectedProperty.id}
+              image={selectedProperty.image || PLACEHOLDER_IMAGE}
+              images={selectedProperty.images}
+              price={formatPropertyPrice(selectedProperty.price)}
+              timeAgo=""
+              address={selectedProperty.address || selectedProperty.title}
+              beds={selectedProperty.beds}
+              baths={selectedProperty.baths}
+              sqft={selectedProperty.sqft}
+              listingType={selectedProperty.listingType as "rent" | "sale" | "short_term" | undefined}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── Floating Draw-Boundary toolbar ──────────────────────────────── */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">
+        {!isDrawing && !drawnPolygon && (
+          <button
+            onClick={startDrawing}
+            className="flex items-center gap-2 bg-white text-gray-700 text-sm font-semibold px-4 py-2 rounded-full shadow-lg hover:shadow-xl hover:bg-blue-50 hover:text-blue-700 transition-all"
+            title="Draw a polygon to filter results to that area"
+          >
+            <Pencil className="w-4 h-4" />
+            Draw boundary
+          </button>
+        )}
+        {isDrawing && (
+          <div className="flex items-center gap-2">
+            <span className="bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow">
+              Click to add points
+            </span>
+            <button
+              onClick={finishDrawing}
+              className="flex items-center gap-2 bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-green-700 transition-colors"
+            >
+              ✓ Finish
+            </button>
+            <button
+              onClick={finishDrawing}
+              className="flex items-center gap-2 bg-white text-gray-600 text-sm font-medium px-3 py-2 rounded-full shadow hover:bg-red-50 hover:text-red-600 transition-colors"
+              title="Cancel drawing"
             >
               <X className="w-4 h-4" />
             </button>
-
-            <div className="relative h-48">
-              {selectedPropertyImages.length > 1 ? (
-                <Carousel className="w-full" opts={{ loop: true }}>
-                  <CarouselContent className="ml-0">
-                    {selectedPropertyImages.map((img, i) => (
-                      <CarouselItem key={i} className="pl-0">
-                        <img
-                          src={img}
-                          alt={`${selectedProperty.address ?? "Property"} — photo ${i + 1}`}
-                          loading="lazy"
-                          className="w-full h-48 object-cover"
-                          onError={(e) => { (e.currentTarget).src = PLACEHOLDER_IMAGE; }}
-                        />
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <div onClick={(e) => e.preventDefault()}>
-                    <CarouselPrevious className="left-2 bg-white/80 backdrop-blur-sm text-gray-800 border-0 hover:bg-white" />
-                    <CarouselNext className="right-2 bg-white/80 backdrop-blur-sm text-gray-800 border-0 hover:bg-white" />
-                  </div>
-                </Carousel>
-              ) : (
-                <img
-                  src={selectedPropertyImages[0]}
-                  alt={selectedProperty.address ?? "Property"}
-                  loading="lazy"
-                  className="w-full h-48 object-cover"
-                  onError={(e) => { (e.currentTarget).src = PLACEHOLDER_IMAGE; }}
-                />
-              )}
-
-              {selectedProperty.listingType && (
-                <Badge className={`absolute top-3 left-3 ${selectedProperty.listingType.toLowerCase() === "rent" ? "bg-blue-600" : "bg-green-600"}`}>
-                  {selectedProperty.listingType.toUpperCase()}
-                </Badge>
-              )}
-            </div>
-
-            <CardContent className="p-4">
-              <div className="mb-2">
-                <div className="flex items-baseline justify-between gap-2 mb-1">
-                  <span className="text-2xl font-bold">{selectedProperty.price.toLocaleString()} XAF</span>
-                  {selectedProperty.listingType?.toLowerCase() === "rent" && (
-                    <span className="text-sm text-gray-500">/month</span>
-                  )}
-                </div>
-                {selectedProperty.type && <p className="text-sm font-medium text-gray-700">{selectedProperty.type}</p>}
-              </div>
-
-              {selectedProperty.address && <p className="text-sm text-gray-600 mb-3">{selectedProperty.address}</p>}
-
-              <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                {selectedProperty.sqft && <div className="flex items-center gap-1.5"><Ruler className="h-4 w-4" /><span>{selectedProperty.sqft}</span></div>}
-                {(selectedProperty.beds ?? 0) > 0 && <div className="flex items-center gap-1.5"><Bed className="h-4 w-4" /><span>{selectedProperty.beds}</span></div>}
-                {(selectedProperty.baths ?? 0) > 0 && <div className="flex items-center gap-1.5"><Bath className="h-4 w-4" /><span>{selectedProperty.baths}</span></div>}
-              </div>
-
-              <button
-                onClick={handlePropertyView}
-                className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-              >
-                View Details
-                <ExternalLink className="w-4 h-4" />
-              </button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+          </div>
+        )}
+        {drawnPolygon && !isDrawing && (
+          <div className="flex items-center gap-2">
+            <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow border border-blue-200">
+              Boundary active
+            </span>
+            <button
+              onClick={clearDrawing}
+              className="flex items-center gap-2 bg-white text-red-600 text-sm font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-red-50 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" /> Clear boundary
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Settings */}
       <div className="absolute top-4 left-4 z-10">

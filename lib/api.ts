@@ -175,6 +175,59 @@ class ApiClient {
   async blockDates(propertyId: string, ranges: { from: string; to: string; reason?: string }[]) { return (await this.client.post(`/properties/${propertyId}/block-dates`, { ranges })).data; }
   async unblockDates(propertyId: string, fromDates: string[]) { return (await this.client.delete(`/properties/${propertyId}/block-dates`, { data: { fromDates } })).data; }
 
+  // ─── Rooms (Hotel / Hostel multi-room) ───────────────────────────────────
+  async createRoom(data: {
+    propertyId: string;
+    name: string;
+    roomType: string;
+    maxGuests: number;
+    roomNumber?: string;
+    bedCount?: number;
+    bedType?: string;
+    price?: number;
+    cleaningFee?: number;
+    amenities?: Record<string, any>;
+  }) { return (await this.client.post('/rooms', data)).data; }
+
+  async getRoomsByProperty(propertyId: string, includeInactive = false) {
+    return (await this.client.get(`/rooms/property/${propertyId}`, {
+      params: includeInactive ? { includeInactive: 'true' } : {},
+      skipAuth: true,
+    } as any)).data;
+  }
+
+  async getRoomById(roomId: string) { return (await this.client.get(`/rooms/${roomId}`, { skipAuth: true } as any)).data; }
+  async updateRoom(roomId: string, data: any) { return (await this.client.patch(`/rooms/${roomId}`, data)).data; }
+  async deleteRoom(roomId: string) { return (await this.client.delete(`/rooms/${roomId}`)).data; }
+
+  async uploadRoomImages(roomId: string, formData: FormData) {
+    return (await this.client.post(`/rooms/${roomId}/images`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })).data;
+  }
+  async deleteRoomImage(roomId: string, imagePublicId: string) {
+    return (await this.client.delete(`/rooms/${roomId}/images/${encodeURIComponent(imagePublicId)}`)).data;
+  }
+
+  async blockRoomDates(roomId: string, ranges: { from: string; to: string; reason?: string }[]) {
+    return (await this.client.post(`/rooms/${roomId}/block-dates`, { ranges })).data;
+  }
+  async unblockRoomDates(roomId: string, fromDates: string[]) {
+    return (await this.client.post(`/rooms/${roomId}/unblock-dates`, { fromDates })).data;
+  }
+
+  async setRoomIcalUrl(roomId: string, icalUrl: string) {
+    return (await this.client.patch(`/rooms/${roomId}/ical-url`, { icalUrl })).data;
+  }
+  async syncRoomIcal(roomId: string) { return (await this.client.post(`/rooms/${roomId}/sync-ical`)).data; }
+
+  async getRoomAvailability(roomId: string, from: string, to: string) {
+    return (await this.client.get(`/rooms/${roomId}/availability`, {
+      params: { from, to },
+      skipAuth: true,
+    } as any)).data;
+  }
+
   // ─── Saved Searches ───────────────────────────────────────────────────────
   async createSavedSearch(data: any) { return (await this.client.post('/saved-searches', data)).data; }
   async getSavedSearches() { return (await this.client.get('/saved-searches')).data; }
@@ -259,6 +312,7 @@ class ApiClient {
     propertyId: string; checkIn: string; checkOut: string;
     guests: { adults: number; children?: number; infants?: number };
     currency?: string; guestNote?: string;
+    roomId?: string;  // Optional — required for hotel/hostel properties with rooms
   }) { return (await this.client.post('/bookings', data)).data; }
   async getMyBookings(params?: any) { return (await this.client.get('/bookings/my', { params })).data; }
   async cancelBooking(id: string, data: { reason?: string }) { return (await this.client.patch(`/bookings/${id}/cancel`, data)).data; }
@@ -266,7 +320,7 @@ class ApiClient {
   async confirmBooking(id: string, data?: { hostNote?: string }) { return (await this.client.patch(`/bookings/${id}/confirm`, data ?? {})).data; }
   async rejectBooking(id: string, data?: { hostNote?: string; reason?: string }) { return (await this.client.patch(`/bookings/${id}/reject`, data ?? {})).data; }
   async completeBooking(id: string) { return (await this.client.patch(`/bookings/${id}/complete`)).data; }
-  async getPropertyAvailability(propertyId: string, from: string, to: string) { return (await this.client.get(`/bookings/availability/${propertyId}`, { params: { from, to }, skipAuth: true } as any)).data; }
+  async getPropertyAvailability(propertyId: string, from: string, to: string, roomId?: string) { return (await this.client.get(`/bookings/availability/${propertyId}`, { params: { from, to, ...(roomId ? { roomId } : {}) }, skipAuth: true } as any)).data; }
   async getBookingById(id: string) { return (await this.client.get(`/bookings/${id}`)).data; }
   async getBookingStats() { return (await this.client.get('/bookings/stats')).data; }
   async getAdminBookings(params?: any) { return (await this.client.get('/bookings/admin/all', { params })).data; }
@@ -274,6 +328,9 @@ class ApiClient {
   // ─── Payments ─────────────────────────────────────────────────────────────
   async initiateBookingPayment(bookingId: string): Promise<{ transaction: any; paymentLink: string; txRef: string }> {
     return (await this.client.post(`/payments/bookings/${bookingId}/initiate`)).data;
+  }
+  async verifyPayment(transactionId: string, flutterwaveReference?: string): Promise<any> {
+    return (await this.client.post('/payments/verify', { transactionId, flutterwaveReference })).data;
   }
   async getBookingPaymentStatus(bookingId: string): Promise<any> {
     return (await this.client.get(`/bookings/${bookingId}`)).data;

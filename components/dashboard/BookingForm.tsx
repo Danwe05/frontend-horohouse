@@ -1,16 +1,6 @@
 'use client';
 
-/**
- * BookingForm — rendered by BookingPanel when property.listingType === 'short_term'
- *
- * Flow:
- *   1. Guest selects dates + guest count
- *   2. Clicks "Book" → createBooking()
- *   3. BookingPaymentModal opens immediately (inline Flutterwave modal)
- *   4. On success → redirect to /dashboard/bookings/[id]
- */
-
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   format, differenceInDays, addDays,
@@ -19,7 +9,7 @@ import {
 import { DateRange } from 'react-day-picker';
 import {
   Calendar, Users, Zap, ShieldCheck,
-  ChevronDown, ChevronUp, Loader2, Lock, Info,
+  ChevronDown, ChevronUp, Loader2, Lock, Info, BedDouble
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -29,6 +19,8 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import apiClient from '@/lib/api';
 import BookingPaymentModal from './Bookingpaymentmodal';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Room, ROOM_TYPE_LABELS } from '@/types/room';
 
 // ─── Types (mirror what BookingPanel passes) ──────────────────────────────────
 
@@ -43,6 +35,10 @@ interface Property {
   isInstantBookable?: boolean;
   cancellationPolicy?: string;
   advanceNoticeDays?: number;
+  bookingWindowDays?: number;
+  weeklyDiscountPercent?: number;
+  monthlyDiscountPercent?: number;
+  propertyType?: string; // used to detect hotel/hostel
   shortTermAmenities?: {
     maxGuests?: number;
     checkInTime?: string;
@@ -62,9 +58,20 @@ function isDateBlocked(
   date: Date,
   unavailableDates: Array<{ from: string; to: string }> = [],
   advanceNoticeDays = 0,
+  bookingWindowDays = 0,
 ): boolean {
-  const minDate = addDays(startOfDay(new Date()), advanceNoticeDays);
+  const today = startOfDay(new Date());
+
+  // Advance notice
+  const minDate = addDays(today, advanceNoticeDays);
   if (isBefore(date, minDate)) return true;
+
+  // Booking window limit
+  if (bookingWindowDays > 0) {
+    const maxAllowedDate = addDays(today, bookingWindowDays);
+    if (isAfter(date, maxAllowedDate)) return true;
+  }
+
   return unavailableDates.some(({ from, to }) => {
     const f = startOfDay(new Date(from));
     const t = startOfDay(new Date(to));
@@ -75,18 +82,63 @@ function isDateBlocked(
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function BookingForm({ property }: Props) {
-  const router                    = useRouter();
+  const router = useRouter();
   const { isAuthenticated, user } = useAuth();
 
-  const [dateRange, setDateRange]         = useState<DateRange | undefined>();
-  const [guestCount, setGuestCount]       = useState({ adults: 1, children: 0, infants: 0 });
-  const [guestOpen, setGuestOpen]         = useState(false);
-  const [dateOpen, setDateOpen]           = useState(false);
-  const [submitting, setSubmitting]       = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [guestCount, setGuestCount] = useState({ adults: 1, children: 0, infants: 0 });
+  const [guestOpen, setGuestOpen] = useState(false);
+  const [dateOpen, setDateOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
 
+  // Multi-room support
+  const isMultiRoom = ['hotel', 'motel', 'hostel', 'guesthouse'].includes(property.propertyType?.toLowerCase() || '');
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | undefined>();
+  const [roomAvailabilityLoading, setRoomAvailabilityLoading] = useState(false);
+  const [roomUnavailableDates, setRoomUnavailableDates] = useState<Array<{ from: string; to: string }>>([]);
+
+  // Setup multi-room
+  useEffect(() => {
+    if (isMultiRoom && property._id) {
+      apiClient.getRoomsByProperty(property._id).then((res: any) => {
+        const roomsData = Array.isArray(res) ? res : (res.rooms || []);
+        if (roomsData.length > 0) {
+          setRooms(roomsData);
+          setSelectedRoomId(roomsData[0]._id);
+        }
+      }).catch(err => console.error("Failed to load rooms", err));
+    }
+  }, [isMultiRoom, property._id]);
+
+  const selectedRoom = useMemo(() => rooms.find(r => r._id === selectedRoomId), [rooms, selectedRoomId]);
+
+  // Refresh calendar blocks based on selected room
+  useEffect(() => {
+    if (!selectedRoomId || !dateRange?.from || !dateRange?.to) {
+      setRoomUnavailableDates(selectedRoom?.unavailableDates || property.unavailableDates || []);
+      return;
+    }
+    let active = true;
+
+    // Check specific room availability
+    setRoomAvailabilityLoading(true);
+    apiClient.getPropertyAvailability(property._id, format(dateRange.from, 'yyyy-MM-dd'), format(dateRange.to, 'yyyy-MM-dd'), selectedRoomId)
+      .then(res => {
+        if (active && res.unavailableDates) {
+          setRoomUnavailableDates(res.unavailableDates);
+        }
+      })
+      .catch(console.error)
+      .finally(() => { if (active) setRoomAvailabilityLoading(false); });
+
+    return () => { active = false; };
+  }, [selectedRoomId, property._id, property.unavailableDates, selectedRoom?.unavailableDates]);
+
+
   // Payment modal
-  const [paymentOpen, setPaymentOpen]       = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const [createdBooking, setCreatedBooking] = useState<any>(null);
 
   // ── Derived ───────────────────────────────────────────────────────────────
@@ -95,24 +147,41 @@ export default function BookingForm({ property }: Props) {
     return Math.max(differenceInDays(dateRange.to, dateRange.from), 0);
   }, [dateRange]);
 
-  const pricePerNight = property.price;
-  const cleaningFee   = property.cleaningFee ?? 0;
-  const serviceFee    = property.serviceFee  ?? 0;
-  const subtotal      = pricePerNight * nights;
-  const total         = subtotal + cleaningFee + serviceFee;
-  const currency      = property.currency ?? 'XAF';
-  const maxGuests     = property.shortTermAmenities?.maxGuests ?? 20;
-  const minNights     = property.minNights ?? 1;
-  const maxNights     = property.maxNights ?? 365;
-  const totalGuests   = guestCount.adults + guestCount.children;
+  const pricePerNight = selectedRoom?.price ?? property.price;
+  const cleaningFee = selectedRoom?.cleaningFee ?? property.cleaningFee ?? 0;
+  const serviceFee = property.serviceFee ?? 0;
+
+  const subtotalBeforeDiscount = pricePerNight * nights;
+
+  // Calculate Discounts
+  let discountAmount = 0;
+  let discountLabel = '';
+
+  if (nights >= 28 && property.monthlyDiscountPercent) {
+    discountAmount = subtotalBeforeDiscount * (property.monthlyDiscountPercent / 100);
+    discountLabel = `${property.monthlyDiscountPercent}% Monthly Discount`;
+  } else if (nights >= 7 && property.weeklyDiscountPercent) {
+    discountAmount = subtotalBeforeDiscount * (property.weeklyDiscountPercent / 100);
+    discountLabel = `${property.weeklyDiscountPercent}% Weekly Discount`;
+  }
+
+  const subtotal = subtotalBeforeDiscount - discountAmount;
+  const total = subtotal + cleaningFee + serviceFee;
+  const currency = property.currency ?? 'XAF';
+
+  const maxGuests = selectedRoom?.maxGuests ?? property.shortTermAmenities?.maxGuests ?? 20;
+  const minNights = property.minNights ?? 1;
+  const maxNights = property.maxNights ?? 365;
+  const totalGuests = guestCount.adults + guestCount.children;
 
   const validationError = useMemo(() => {
+    if (isMultiRoom && rooms.length > 0 && !selectedRoomId) return "Please select a room to continue";
     if (!dateRange?.from || !dateRange?.to) return null;
     if (nights < minNights) return `Minimum stay is ${minNights} night${minNights > 1 ? 's' : ''}`;
     if (nights > maxNights) return `Maximum stay is ${maxNights} nights`;
-    if (totalGuests > maxGuests) return `Maximum ${maxGuests} guests allowed`;
+    if (totalGuests > maxGuests) return `Maximum ${maxGuests} guests allowed for this ${isMultiRoom ? 'room' : 'property'}`;
     return null;
-  }, [dateRange, nights, minNights, maxNights, totalGuests, maxGuests]);
+  }, [dateRange, nights, minNights, maxNights, totalGuests, maxGuests, isMultiRoom, selectedRoomId, rooms.length]);
 
   const canBook = isAuthenticated && dateRange?.from && dateRange?.to && nights > 0 && !validationError;
 
@@ -122,7 +191,7 @@ export default function BookingForm({ property }: Props) {
       const next = Math.max(0, prev[key] + delta);
       if (key === 'adults' && next < 1) return prev;
       const newTotal = (key === 'adults' ? next : prev.adults) +
-                       (key === 'children' ? next : prev.children);
+        (key === 'children' ? next : prev.children);
       if (newTotal > maxGuests) return prev;
       return { ...prev, [key]: next };
     });
@@ -137,14 +206,15 @@ export default function BookingForm({ property }: Props) {
     try {
       const booking = await apiClient.createBooking({
         propertyId: property._id,
-        checkIn:    format(dateRange.from, 'yyyy-MM-dd'),
-        checkOut:   format(dateRange.to,   'yyyy-MM-dd'),
+        checkIn: format(dateRange.from, 'yyyy-MM-dd'),
+        checkOut: format(dateRange.to, 'yyyy-MM-dd'),
         guests: {
-          adults:   guestCount.adults,
+          adults: guestCount.adults,
           children: guestCount.children > 0 ? guestCount.children : undefined,
-          infants:  guestCount.infants  > 0 ? guestCount.infants  : undefined,
+          infants: guestCount.infants > 0 ? guestCount.infants : undefined,
         },
         currency,
+        roomId: selectedRoomId,
       });
 
       setCreatedBooking(booking);
@@ -172,8 +242,8 @@ export default function BookingForm({ property }: Props) {
   }, [createdBooking, router]);
 
   const isDisabled = useCallback(
-    (date: Date) => isDateBlocked(date, property.unavailableDates, property.advanceNoticeDays),
-    [property.unavailableDates, property.advanceNoticeDays],
+    (date: Date) => isDateBlocked(date, isMultiRoom && selectedRoomId ? roomUnavailableDates : property.unavailableDates, property.advanceNoticeDays, property.bookingWindowDays),
+    [isMultiRoom, selectedRoomId, roomUnavailableDates, property.unavailableDates, property.advanceNoticeDays, property.bookingWindowDays],
   );
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -196,6 +266,51 @@ export default function BookingForm({ property }: Props) {
             </span>
           )}
         </div>
+
+        {/* Room Selector (Hotels / Hostels) */}
+        {isMultiRoom && rooms.length > 0 && (
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Select Room</label>
+              <Select value={selectedRoomId} onValueChange={setSelectedRoomId}>
+                <SelectTrigger className="w-full h-12 rounded-xl border-slate-200">
+                  <SelectValue placeholder="Choose a room" />
+                </SelectTrigger>
+                <SelectContent>
+                  {rooms.map(room => (
+                    <SelectItem key={room._id} value={room._id} disabled={!room.isActive}>
+                      <div className="flex items-center gap-3 w-full py-1">
+                        <BedDouble className="h-4 w-4 text-slate-400" />
+                        <div className="flex flex-col text-left">
+                          <span className="font-semibold text-slate-900">{room.name} {room.roomNumber && `(#${room.roomNumber})`}</span>
+                          <span className="text-xs text-slate-500">{ROOM_TYPE_LABELS[room.roomType]} • Max {room.maxGuests} guests {room.price ? `• ${room.price}${currency}/night` : ''}</span>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Selected Room Details (Images/Amenities Preview) */}
+            {selectedRoom && selectedRoom.images && selectedRoom.images.length > 0 && (
+              <div className="space-y-2 pt-1 border-t border-slate-100">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Room Photos</p>
+                <div className="flex gap-2 overflow-x-auto pb-2 snap-x hide-scrollbar scroll-smooth">
+                  {selectedRoom.images.map((img, i) => (
+                    <div key={img.publicId || i} className="relative aspect-[4/3] w-32 flex-shrink-0 snap-start overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+                      <img
+                        src={img.url}
+                        alt={`${selectedRoom.name} photo ${i + 1}`}
+                        className="h-full w-full object-cover transition-transform hover:scale-105"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Date picker */}
         <Popover open={dateOpen} onOpenChange={setDateOpen}>
@@ -247,15 +362,15 @@ export default function BookingForm({ property }: Props) {
                 <Users className="h-4 w-4 text-slate-400" />
                 {guestCount.adults} adult{guestCount.adults > 1 ? 's' : ''}
                 {guestCount.children > 0 && `, ${guestCount.children} child${guestCount.children > 1 ? 'ren' : ''}`}
-                {guestCount.infants  > 0 && `, ${guestCount.infants} infant${guestCount.infants > 1 ? 's' : ''}`}
+                {guestCount.infants > 0 && `, ${guestCount.infants} infant${guestCount.infants > 1 ? 's' : ''}`}
               </p>
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-72 p-4 space-y-4" align="start">
             {([
-              { key: 'adults',   label: 'Adults',   sub: 'Age 13+',   min: 1 },
+              { key: 'adults', label: 'Adults', sub: 'Age 13+', min: 1 },
               { key: 'children', label: 'Children', sub: 'Ages 2–12', min: 0 },
-              { key: 'infants',  label: 'Infants',  sub: 'Under 2',   min: 0 },
+              { key: 'infants', label: 'Infants', sub: 'Under 2', min: 0 },
             ] as const).map(({ key, label, sub, min }) => (
               <div key={key} className="flex items-center justify-between">
                 <div>
@@ -280,7 +395,7 @@ export default function BookingForm({ property }: Props) {
 
         {/* Validation error */}
         {validationError && (
-          <p className="text-sm text-red-500 flex items-center gap-1.5">
+          <p className="text-sm text-red-500 flex items-center gap-1.5 p-3 rounded-lg bg-red-50">
             <Info className="h-4 w-4 shrink-0" /> {validationError}
           </p>
         )}
@@ -299,8 +414,14 @@ export default function BookingForm({ property }: Props) {
               <div className="space-y-1.5 pt-2">
                 <div className="flex justify-between text-slate-600">
                   <span>{pricePerNight.toLocaleString()} × {nights} nights</span>
-                  <span>{subtotal.toLocaleString()} {currency}</span>
+                  <span>{subtotalBeforeDiscount.toLocaleString()} {currency}</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-600 font-medium">
+                    <span>{discountLabel}</span>
+                    <span>-{discountAmount.toLocaleString()} {currency}</span>
+                  </div>
+                )}
                 {cleaningFee > 0 && (
                   <div className="flex justify-between text-slate-600">
                     <span>Cleaning fee</span><span>{cleaningFee.toLocaleString()} {currency}</span>
@@ -323,7 +444,7 @@ export default function BookingForm({ property }: Props) {
         {/* Check-in/out times */}
         {(property.shortTermAmenities?.checkInTime || property.shortTermAmenities?.checkOutTime) && (
           <div className="flex gap-4 text-xs text-slate-400">
-            {property.shortTermAmenities.checkInTime  && <span>Check-in after {property.shortTermAmenities.checkInTime}</span>}
+            {property.shortTermAmenities.checkInTime && <span>Check-in after {property.shortTermAmenities.checkInTime}</span>}
             {property.shortTermAmenities.checkOutTime && <span>Check-out before {property.shortTermAmenities.checkOutTime}</span>}
           </div>
         )}
@@ -338,8 +459,8 @@ export default function BookingForm({ property }: Props) {
             {submitting
               ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Creating booking…</>
               : nights > 0
-              ? `Book · ${total.toLocaleString()} ${currency}`
-              : 'Select dates to book'
+                ? `Book · ${total.toLocaleString()} ${currency}`
+                : 'Select dates to book'
             }
           </Button>
         ) : (

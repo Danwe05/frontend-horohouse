@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, Bed, Bath, Ruler, Share2, Flag, ShieldCheck, Cpu } from "lucide-react";
+import { Heart, Bed, Bath, Ruler, Share2, Flag, ShieldCheck, Cpu, Users, Calendar, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,19 +43,66 @@ interface PropertyCardProps {
   baths?: number;
   sqft?: string;
   tag?: string;
-  /** Optionally pass true/false to skip the favorites fetch entirely */
   initialIsFavorite?: boolean;
-  listingType?: "rent" | "sale";
-  /** Whether this card is in "comparison" mode */
+  listingType?: "rent" | "sale" | "short_term";
+  pricingUnit?: "nightly" | "weekly" | "monthly";
+  maxGuests?: number;
   isCompared?: boolean;
-  /** Called when the comparison checkbox changes */
   onCompareChange?: (id: string, checked: boolean) => void;
-  /** Whether the comparison checkbox should be shown at all */
   showCompare?: boolean;
-  /** Whether the listing has been manually verified by the platform */
   isVerified?: boolean;
-  /** Whether the listing is blockchain-verified (on-chain record exists) */
   isBlockchainVerified?: boolean;
+  /** For short-term: show availability hint */
+  availableFrom?: string;
+  /** Minimum stay nights for short-term */
+  minNights?: number;
+  /** Called when the card is hovered — used to highlight the map pin */
+  onMouseEnter?: () => void;
+  /** Called when the cursor leaves the card */
+  onMouseLeave?: () => void;
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function getListingTypeConfig(listingType: PropertyCardProps["listingType"]) {
+  switch (listingType) {
+    case "short_term":
+      return {
+        accentClass: "bg-violet-600",
+        borderClass: "border-violet-200 dark:border-violet-900",
+        labelBg: "bg-violet-600",
+        label: "Short Stay",
+        dotColor: "bg-violet-500",
+      };
+    case "rent":
+      return {
+        accentClass: "bg-blue-600",
+        borderClass: "border-blue-200 dark:border-blue-900",
+        labelBg: "bg-blue-600",
+        label: "For Rent",
+        dotColor: "bg-blue-500",
+      };
+    default:
+      return {
+        accentClass: "bg-emerald-600",
+        borderClass: "border-emerald-200 dark:border-emerald-900",
+        labelBg: "bg-emerald-600",
+        label: "For Sale",
+        dotColor: "bg-emerald-500",
+      };
+  }
+}
+
+function getPriceSuffix(listingType: PropertyCardProps["listingType"], pricingUnit?: string) {
+  if (listingType === "rent") return "/mo";
+  if (listingType === "short_term") {
+    if (pricingUnit === "weekly") return "/wk";
+    if (pricingUnit === "monthly") return "/mo";
+    return "/night";
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -63,8 +110,8 @@ interface PropertyCardProps {
 // ---------------------------------------------------------------------------
 
 export const PropertyCardSkeleton = () => (
-  <Card className="overflow-hidden border-0 shadow-sm animate-pulse py-0">
-    <div className="h-48 bg-muted w-full" />
+  <Card className="overflow-hidden border shadow-sm animate-pulse py-0">
+    <div className="h-52 bg-muted w-full" />
     <CardContent className="pb-4 pt-3 space-y-3">
       <div className="h-5 bg-muted rounded w-2/3" />
       <div className="h-4 bg-muted rounded w-full" />
@@ -99,28 +146,27 @@ const PropertyCard = ({
   showCompare = false,
   isVerified = false,
   isBlockchainVerified = false,
+  pricingUnit,
+  maxGuests,
+  availableFrom,
+  minNights,
+  onMouseEnter,
+  onMouseLeave,
 }: PropertyCardProps) => {
-  // ── Favorites from context ──────────────────────────────────────────────
   const { isFavorite, addFavorite, removeFavorite, isLoaded } = useFavorites();
-
-  const favorited =
-    initialIsFavorite !== undefined ? initialIsFavorite : isFavorite(id);
-
+  const favorited = initialIsFavorite !== undefined ? initialIsFavorite : isFavorite(id);
   const [localFavorite, setLocalFavorite] = useState(favorited);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
-  // Sync if context loads after mount
   useEffect(() => {
     if (isLoaded && initialIsFavorite === undefined) {
       setLocalFavorite(isFavorite(id));
     }
   }, [isLoaded, id, isFavorite, initialIsFavorite]);
 
-  // ── Auth / language ─────────────────────────────────────────────────────
   const { isAuthenticated } = useAuth();
   const { translate, language } = useLanguage();
 
-  // ── Auto-translation ────────────────────────────────────────────────────
   const [translatedAddress, setTranslatedAddress] = useState(address);
   const [translatedTag, setTranslatedTag] = useState(tag);
 
@@ -140,13 +186,9 @@ const PropertyCard = ({
     return () => { cancelled = true; };
   }, [language, address, tag, translate]);
 
-  // ── Report modal ────────────────────────────────────────────────────────
   const [reportOpen, setReportOpen] = useState(false);
-
-  // ── Carousel dot tracking ───────────────────────────────────────────────
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // ── Image processing ────────────────────────────────────────────────────
   const getImageSrc = (img: string | StaticImageData): string | null => {
     if (typeof img === "string") return img.trim() || null;
     return img.src || null;
@@ -158,31 +200,25 @@ const PropertyCard = ({
 
   const hasMultipleImages = imageArray.length > 1;
 
-  // ── Derived flags ────────────────────────────────────────────────────────
   const showNewBadge = isNew(timeAgo) && !tag;
   const displayTag = showNewBadge ? "New" : translatedTag;
   const formattedTime = formatTimeAgo(timeAgo);
   const formattedPrice = formatPrice(price);
+  const priceSuffix = getPriceSuffix(listingType, pricingUnit);
+  const typeConfig = getListingTypeConfig(listingType);
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
   const handleToggleFavorite = useCallback(
     async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-
       if (!isAuthenticated) {
-        toast.error("Login required", {
-          description: "Please login to add properties to your favorites.",
-        });
+        toast.error("Login required", { description: "Please login to add properties to your favorites." });
         return;
       }
-
       if (isTogglingFavorite) return;
-
       const prev = localFavorite;
       setLocalFavorite(!prev);
       setIsTogglingFavorite(true);
-
       try {
         if (prev) {
           await apiClient.removeFromFavorites(id);
@@ -196,8 +232,7 @@ const PropertyCard = ({
       } catch (error: any) {
         setLocalFavorite(prev);
         toast.error("Failed to update favorites", {
-          description:
-            error?.response?.data?.message || "Please try again later.",
+          description: error?.response?.data?.message || "Please try again later.",
         });
       } finally {
         setIsTogglingFavorite(false);
@@ -206,24 +241,19 @@ const PropertyCard = ({
     [isAuthenticated, isTogglingFavorite, localFavorite, id, addFavorite, removeFavorite]
   );
 
-  const handleShare = useCallback(
-    async (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const url = `${window.location.origin}/properties/${id}`;
-      try {
-        if (navigator.share) {
-          await navigator.share({ title: address, url });
-        } else {
-          await navigator.clipboard.writeText(url);
-          toast.success("Link copied to clipboard");
-        }
-      } catch {
-        // User cancelled share or clipboard failed
+  const handleShare = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/properties/${id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: address, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard");
       }
-    },
-    [id, address]
-  );
+    } catch { /* cancelled */ }
+  }, [id, address]);
 
   const handleReport = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -231,62 +261,43 @@ const PropertyCard = ({
     setReportOpen(true);
   }, []);
 
-  const handleCompare = useCallback(
-    (checked: boolean) => {
-      onCompareChange?.(id, checked);
-    },
-    [id, onCompareChange]
-  );
+  const handleCompare = useCallback((checked: boolean) => {
+    onCompareChange?.(id, checked);
+  }, [id, onCompareChange]);
 
-  // ── Guard ────────────────────────────────────────────────────────────────
   if (imageArray.length === 0) return null;
 
-  // ── Render ───────────────────────────────────────────────────────────────
+  const isShortTerm = listingType === "short_term";
+  const isRent = listingType === "rent";
+
   return (
     <>
-      {/* Report modal lives outside the Link to avoid nested-anchor issues */}
-      <ReportModal
-        propertyId={id}
-        open={reportOpen}
-        onClose={() => setReportOpen(false)}
-      />
+      <ReportModal propertyId={id} open={reportOpen} onClose={() => setReportOpen(false)} />
 
-      <div className="block relative group">
-        {/* Comparison checkbox — rendered outside the Link */}
+      <div className="block relative group" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
         {showCompare && (
-          <div
-            className="absolute top-3 left-3 z-20"
-            onClick={(e) => e.preventDefault()}
-          >
+          <div className="absolute top-3 left-3 z-20" onClick={(e) => e.preventDefault()}>
             <div className="w-6 h-6 bg-card rounded flex items-center justify-center shadow-md">
-              <Checkbox
-                checked={isCompared}
-                onCheckedChange={handleCompare}
-                aria-label="Compare this property"
-              />
+              <Checkbox checked={isCompared} onCheckedChange={handleCompare} aria-label="Compare this property" />
             </div>
           </div>
         )}
 
         <Link href={`/properties/${id}`} className="block">
-          <Card
-            className={cn(
-              "overflow-hidden shadow-none border-1 transition-all duration-200 py-0",
-              isCompared && "ring-2 ring-primary"
-            )}
-          >
+          <Card className={cn(
+            "overflow-hidden shadow-none border transition-all duration-200 py-0 hover:shadow-md",
+            isCompared && "ring-2 ring-primary",
+          )}>
+
             {/* ── Image carousel ── */}
-            <div className="relative">
+            <div className="relative overflow-hidden">
               <Carousel
                 className="w-full"
                 opts={{ loop: true }}
-                // Track active index via the Embla API exposed by shadcn Carousel
                 setApi={(api) => {
                   if (!api) return;
                   setActiveIndex(api.selectedScrollSnap());
-                  api.on("select", () =>
-                    setActiveIndex(api.selectedScrollSnap())
-                  );
+                  api.on("select", () => setActiveIndex(api.selectedScrollSnap()));
                 }}
               >
                 <CarouselContent className="ml-0">
@@ -296,7 +307,7 @@ const PropertyCard = ({
                         src={imgSrc}
                         alt={`${address} — photo ${index + 1}`}
                         loading="lazy"
-                        className="w-full h-48 object-cover transition-transform duration-300"
+                        className="w-full h-52 object-cover transition-transform duration-500"
                       />
                     </CarouselItem>
                   ))}
@@ -304,13 +315,13 @@ const PropertyCard = ({
 
                 {hasMultipleImages && (
                   <div onClick={(e) => e.preventDefault()}>
-                    <CarouselPrevious className="left-2 bg-black/40 text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm border-0 hover:bg-black/60 transition-all duration-200" />
-                    <CarouselNext className="right-2 bg-black/40 text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm border-0 hover:bg-black/60 transition-all duration-200" />
+                    <CarouselPrevious className="left-2 bg-black/40 text-white hover:text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm border-0 hover:bg-black/60 transition-all duration-200" />
+                    <CarouselNext className="right-2 bg-black/40 text-white hover:text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm border-0 hover:bg-black/60 transition-all duration-200" />
                   </div>
                 )}
               </Carousel>
 
-              {/* Dot indicators — shift up when verification strip is present */}
+              {/* Dot indicators */}
               {hasMultipleImages && (
                 <div
                   className={cn(
@@ -324,16 +335,14 @@ const PropertyCard = ({
                       key={i}
                       className={cn(
                         "block rounded-full transition-all duration-200",
-                        i === activeIndex
-                          ? "w-2 h-2 bg-white"
-                          : "w-1.5 h-1.5 bg-white/50"
+                        i === activeIndex ? "w-2 h-2 bg-white" : "w-1.5 h-1.5 bg-white/50"
                       )}
                     />
                   ))}
                 </div>
               )}
 
-              {/* Verification strip — frosted bar anchored to bottom of image */}
+              {/* Verification strip */}
               {(isVerified || isBlockchainVerified) && (
                 <div
                   className="absolute bottom-0 left-0 right-0 z-10 flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-md"
@@ -344,63 +353,51 @@ const PropertyCard = ({
                       <TooltipTrigger asChild>
                         <div className="flex items-center gap-1 text-white">
                           <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                          <span className="text-[11px] font-semibold tracking-wide text-emerald-300">
-                            Verified
-                          </span>
+                          <span className="text-[11px] font-semibold tracking-wide text-emerald-300">Verified</span>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side="top">
-                        This listing has been verified by our team
-                      </TooltipContent>
+                      <TooltipContent side="top">This listing has been verified by our team</TooltipContent>
                     </Tooltip>
                   )}
-
-                  {isVerified && isBlockchainVerified && (
-                    <span className="w-px h-3 bg-white/30 shrink-0" />
-                  )}
-
+                  {isVerified && isBlockchainVerified && <span className="w-px h-3 bg-white/30 shrink-0" />}
                   {isBlockchainVerified && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="flex items-center gap-1 text-white">
                           <Cpu className="h-3.5 w-3.5 text-violet-400 shrink-0" />
-                          <span className="text-[11px] font-semibold tracking-wide text-violet-300">
-                            Blockchain Verified
-                          </span>
+                          <span className="text-[11px] font-semibold tracking-wide text-violet-300">Blockchain Verified</span>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side="top">
-                        Ownership record secured on-chain
-                      </TooltipContent>
+                      <TooltipContent side="top">Ownership record secured on-chain</TooltipContent>
                     </Tooltip>
                   )}
-
-                  {/* Push dots up when strip is visible */}
                   <div className="ml-auto" />
                 </div>
               )}
 
-              {/* Tag / New badge */}
-              {displayTag && (
-                <Badge
-                  className={cn(
-                    "absolute top-3 z-10",
-                    showCompare ? "left-12" : "left-3",
-                    showNewBadge
-                      ? "bg-emerald-500 hover:bg-emerald-600"
-                      : "bg-primary"
-                  )}
-                >
-                  {displayTag}
-                </Badge>
-              )}
+              {/* Listing type pill — top left, always visible */}
+              <div
+                className={cn(
+                  "absolute top-3 z-10 flex items-center gap-1.5",
+                  showCompare ? "left-12" : "left-3"
+                )}
+              >
+                {/* <span className={cn("text-[11px] font-bold text-white px-2 py-0.5 rounded-full tracking-wide", typeConfig.labelBg)}>
+                  {typeConfig.label}
+                </span> */}
+                {displayTag && !showNewBadge && (
+                  <Badge className="bg-primary px-2 py-0.5">{displayTag}</Badge>
+                )}
+                {showNewBadge && (
+                  <Badge className="bg-emerald-500 hover:bg-emerald-600 text-[11px] px-2 py-0">New</Badge>
+                )}
+              </div>
 
-              {/* Action buttons — rendered inside a non-anchor div to avoid nested <a> */}
+              {/* Action buttons */}
               <div
                 className="absolute top-3 right-3 flex items-center gap-1.5 z-10"
                 onClick={(e) => e.preventDefault()}
               >
-                {/* Share */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -414,59 +411,91 @@ const PropertyCard = ({
                   <TooltipContent side="bottom">Share</TooltipContent>
                 </Tooltip>
 
-                {/* Favorite */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       onClick={handleToggleFavorite}
                       disabled={isTogglingFavorite}
-                      aria-label={
-                        localFavorite
-                          ? "Remove from favorites"
-                          : "Add to favorites"
-                      }
+                      aria-label={localFavorite ? "Remove from favorites" : "Add to favorites"}
                       aria-pressed={localFavorite}
                       className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md disabled:opacity-50"
                     >
-                      <Heart
-                        className={cn(
-                          "h-4 w-4 transition-colors",
-                          localFavorite
-                            ? "fill-destructive text-destructive"
-                            : "text-foreground"
-                        )}
-                      />
+                      <Heart className={cn("h-4 w-4 transition-colors", localFavorite ? "fill-destructive text-destructive" : "text-foreground")} />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    {localFavorite ? "Unfavorite" : "Favorite"}
-                  </TooltipContent>
+                  <TooltipContent side="bottom">{localFavorite ? "Unfavorite" : "Favorite"}</TooltipContent>
                 </Tooltip>
               </div>
+
+              {/* Short-term: image count badge */}
+              {hasMultipleImages && (
+                <div className="absolute bottom-2 right-3 z-10 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded backdrop-blur-sm font-medium">
+                  {activeIndex + 1}/{imageArray.length}
+                </div>
+              )}
             </div>
 
             {/* ── Card content ── */}
             <CardContent className="pb-4 pt-3">
+
+              {/* Price row */}
               <div className="mb-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-baseline gap-1">
                     <span className="text-lg font-bold text-foreground leading-tight">
                       {formattedPrice}
                     </span>
-                    {listingType === "rent" && (
-                      <span className="text-xs text-muted-foreground">/month</span>
+                    {priceSuffix && (
+                      <span className={cn(
+                        "text-xs font-semibold rounded px-1 py-0",
+                        isShortTerm
+                          ? "text-violet-600 bg-violet-50 dark:bg-violet-950 dark:text-violet-300"
+                          : "text-blue-600 bg-blue-50 dark:bg-blue-950 dark:text-blue-300"
+                      )}>
+                        {priceSuffix}
+                      </span>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    {formattedTime}
-                  </span>
+                  <span className="text-xs text-muted-foreground shrink-0">{formattedTime}</span>
                 </div>
               </div>
 
-              <p className="text-sm text-muted-foreground mb-3 truncate">
-                {translatedAddress}
-              </p>
+              {/* Address */}
+              <p className="text-sm text-muted-foreground mb-2.5 truncate">{translatedAddress}</p>
 
+              {/* Short-term specific info row */}
+              {isShortTerm && (maxGuests || minNights || availableFrom) && (
+                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2.5 pb-2.5 border-b border-dashed">
+                  {maxGuests && maxGuests > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      <span>Up to {maxGuests}</span>
+                    </div>
+                  )}
+                  {minNights && (
+                    <div className="flex items-center gap-1">
+                      <Moon className="h-3 w-3 text-violet-500" />
+                      <span>{minNights}+ nights</span>
+                    </div>
+                  )}
+                  {availableFrom && (
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3 text-violet-500" />
+                      <span>Avail. {availableFrom}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Long-term rent specific row */}
+              {/* {isRent && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-blue-400 mb-2.5">
+                  <Clock className="h-3 w-3" />
+                  <span>Long-term rental</span>
+                </div>
+              )} */}
+
+              {/* Stats row */}
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center gap-3">
                   {sqft && (
@@ -487,21 +516,27 @@ const PropertyCard = ({
                       <span>{baths}</span>
                     </div>
                   )}
+                  {/* For short-term, show guests in the stats row if not shown above */}
+                  {isShortTerm && maxGuests !== undefined && maxGuests > 0 && !availableFrom && !minNights && (
+                    <div className="flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5" />
+                      <span>{maxGuests}</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Report — plain button, not a Link (no nested anchor) */}
+                {/* Report button */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       onClick={handleReport}
                       aria-label="Report this listing"
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
+                      className="flex items-center hover:cursor-pointer gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
                     >
-                      <Flag className="h-3.5 w-3.5" />
-                      <span>Report</span>
+                      <Flag className="h-3.5 w-3.5" /> Report
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top">Report this listing</TooltipContent>
+                  <TooltipContent side="top">Report listing</TooltipContent>
                 </Tooltip>
               </div>
             </CardContent>
@@ -511,5 +546,12 @@ const PropertyCard = ({
     </>
   );
 };
+
+// Dummy Moon icon since lucide doesn't export it by default in all versions
+const Moon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+);
 
 export default PropertyCard;

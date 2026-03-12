@@ -234,11 +234,10 @@ export default function AboutPage() {
 
                     <FadeIn delay={0.2} className="relative">
                         {/* Solution Graphic Placeholder */}
-                        <div className="relative aspect-square md:aspect-[4/3] bg-blue-900 rounded-2xl border border-blue-800 p-8 flex flex-col justify-center items-center">
-                            <LayoutDashboard className="w-32 h-32 text-blue-400 mb-4" />
-                            <span className="text-blue-300 font-mono text-sm">Platform UI Preview</span>
+                        <div className="relative aspect-square md:aspect-[4/3] rounded-2xl border  p-8 flex flex-col justify-center items-center">
+                         
                             <Image
-                                src="../../public/ui.PNG"
+                                src="/ui.PNG"
                                 alt="Dashboard preview"
                                 fill
                                 className="object-cover rounded-2xl opacity-20"
@@ -549,28 +548,28 @@ export default function AboutPage() {
                         {
                             name: "Danwe Basga Kaokamla",
                             role: "Founder & CEO",
-                            image: "https://ifmages.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+                            image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=vformat&fit=crop&q=80&w=400",
                             bio: "Former Real Estate Investment Banker with a vision to digitize African property.",
                             socials: { linkedin: "#", twitter: "#" }
                         },
                         {
                             name: "Belaid Ilef",
                             role: "CTO",
-                            image: "https://ifmages.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
+                            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=vformat&fit=crop&q=80&w=400",
                             bio: "Tech veteran specializing in Blockchain and AI for secure transactions.",
                             socials: { linkedin: "#", twitter: "#" }
                         },
                         {
                             name: "Kouedjou Marcel",
                             role: "Head of Operations",
-                            image: "https://ifmages.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400",
+                            image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=vformat&fit=crop&q=80&w=400",
                             bio: "Expert in Cameroonian land law and operational strategy.",
                             socials: { linkedin: "#", twitter: "#" }
                         },
                         {
                             name: "Mevo Hubert",
                             role: "Lead Agent",
-                            image: "https://ifmages.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400",
+                            image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=vformat&fit=crop&q=80&w=400",
                             bio: "Connecting buyers with verified properties for over 10 years.",
                             socials: { linkedin: "#", twitter: "#" }
                         }

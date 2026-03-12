@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
 import { createPropertyWithMedia } from '@/lib/services/propertyCreateWithMedia';
+import { apiClient } from '@/lib/api';
 import { Building2, MapPin, Hash, ArrowLeft, ArrowRight, Home, DollarSign, Bed, Bath, Maximize, CheckCircle2, FileText, Wrench, Image as ImageIcon, Globe, X, Star, Users, Shield } from 'lucide-react';
 import MapView from '@/components/property/MapView';
 import { Input } from '@/components/ui/input';
@@ -78,6 +79,8 @@ interface PropertyFormData {
   cancellationPolicy: string;
   advanceNoticeDays: number;
   bookingWindowDays: number;
+  weeklyDiscountPercent: number;
+  monthlyDiscountPercent: number;
 
   // Short-Term Amenities
   maxGuests: number;
@@ -169,6 +172,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     cancellationPolicy: 'flexible',
     advanceNoticeDays: 0,
     bookingWindowDays: 365,
+    weeklyDiscountPercent: 0,
+    monthlyDiscountPercent: 0,
     maxGuests: 2,
     checkInTime: '14:00',
     checkOutTime: '11:00',
@@ -663,9 +668,11 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
           hasGenerator: formData.hasGenerator,
           furnished: formData.furnished,
         },
-        keywords: formData.keywords
-          ? formData.keywords.split(',').map(k => k.trim()).filter(Boolean)
-          : [],
+        keywords: Array.isArray(formData.keywords)
+          ? formData.keywords
+          : formData.keywords
+            ? formData.keywords.split(',').map(k => k.trim()).filter(Boolean)
+            : [],
         nearbyAmenities: formData.nearbyAmenities,
         transportAccess: formData.transportAccess,
         virtualTourUrl: formData.virtualTourUrl,
@@ -681,6 +688,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         cancellationPolicy: formData.cancellationPolicy,
         advanceNoticeDays: Number(formData.advanceNoticeDays || 0),
         bookingWindowDays: Number(formData.bookingWindowDays || 365),
+        weeklyDiscountPercent: Number(formData.weeklyDiscountPercent || 0),
+        monthlyDiscountPercent: Number(formData.monthlyDiscountPercent || 0),
         shortTermAmenities: {
           maxGuests: Number(formData.maxGuests || 2),
           checkInTime: formData.checkInTime,
@@ -711,24 +720,11 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
       if (isEditMode && propertyId) {
         // ===== EDIT MODE: Update existing property =====
-        const response = await fetch(`/api/properties/${propertyId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to update property');
-        }
-
-        created = await response.json();
+        created = await apiClient.updateProperty(propertyId, payload);
 
         // If there are new images, upload them separately
         if (imageFiles.length > 0) {
-          // You can add image upload logic here if needed
-          // For example, call a separate endpoint to add images
+          await apiClient.uploadPropertyImages(propertyId, imageFiles, onImageUploadProgress);
         }
 
       } else {
@@ -792,6 +788,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
           cancellationPolicy: 'flexible',
           advanceNoticeDays: 0,
           bookingWindowDays: 365,
+          weeklyDiscountPercent: 0,
+          monthlyDiscountPercent: 0,
           maxGuests: 2,
           checkInTime: '14:00',
           checkOutTime: '11:00',
@@ -1432,6 +1430,40 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         onChange={(e) => handleNumberChange('bookingWindowDays', parseInt(e.target.value) || 365)}
                         className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
+                    </div>
+                  </div>
+
+                  {/* Long-stay Discounts */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="weeklyDiscountPercent" className="text-sm font-semibold">Weekly Discount (%)</Label>
+                      <Input
+                        id="weeklyDiscountPercent"
+                        name="weeklyDiscountPercent"
+                        type="number"
+                        min={0}
+                        max={80}
+                        value={formData.weeklyDiscountPercent}
+                        onChange={(e) => handleNumberChange('weeklyDiscountPercent', parseInt(e.target.value) || 0)}
+                        placeholder="e.g. 10"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                      <p className="text-xs text-gray-500">Applied when stay ≥ 7 nights</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="monthlyDiscountPercent" className="text-sm font-semibold">Monthly Discount (%)</Label>
+                      <Input
+                        id="monthlyDiscountPercent"
+                        name="monthlyDiscountPercent"
+                        type="number"
+                        min={0}
+                        max={80}
+                        value={formData.monthlyDiscountPercent}
+                        onChange={(e) => handleNumberChange('monthlyDiscountPercent', parseInt(e.target.value) || 0)}
+                        placeholder="e.g. 20"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                      <p className="text-xs text-gray-500">Applied when stay ≥ 28 nights</p>
                     </div>
                   </div>
                 </div>

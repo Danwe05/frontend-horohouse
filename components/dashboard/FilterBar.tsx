@@ -80,6 +80,7 @@ export const FilterBar = ({
                         <SelectItem value="all">All Types</SelectItem>
                         <SelectItem value="sale">For Sale</SelectItem>
                         <SelectItem value="rent">For Rent</SelectItem>
+                        <SelectItem value="short_term">Short Term</SelectItem>
                     </SelectContent>
                 </Select>
 
@@ -93,6 +94,9 @@ export const FilterBar = ({
                         <SelectItem value="house">House</SelectItem>
                         <SelectItem value="villa">Villa</SelectItem>
                         <SelectItem value="studio">Studio</SelectItem>
+                        <SelectItem value="hotel">Hotel</SelectItem>
+                        <SelectItem value="guesthouse">Guest House</SelectItem>
+                        <SelectItem value="vacation_rental">Vacation Rental</SelectItem>
                         <SelectItem value="land">Land</SelectItem>
                         <SelectItem value="commercial">Commercial</SelectItem>
                     </SelectContent>

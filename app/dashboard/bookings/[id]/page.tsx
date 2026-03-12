@@ -12,16 +12,18 @@ import {
     ChevronLeft, ChevronRight, X, Utensils, Wind, Flame, WashingMachine,
     Bath, TreePine, Dog, Cigarette, Music2, Accessibility, Car, ConciergeBell,
     Home, Coffee, MonitorPlay, ExternalLink, ShieldCheck, Download, Copy,
-    MessageCircle, Printer, Map as MapIcon
+    MessageCircle, Printer, Map as MapIcon, CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import StayReviewForm from '@/components/dashboard/StayReviewForm';
+import { useAuth } from '@/contexts/AuthContext';
 import { AppSidebar } from '@/components/dashboard/Sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
 import { Badge } from '@/components/ui/badge';
+import BookingReceiptView from '@/components/dashboard/BookingReceiptView';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -65,11 +67,13 @@ const BookingTimeline = ({ status, checkIn }: { status: BookingStatus; checkIn: 
 
 export default function BookingDetailPage() {
     const { id } = useParams<{ id: string }>();
+    const { user } = useAuth();
     const router = useRouter();
     const [booking, setBooking] = useState<Booking | null>(null);
     const [loading, setLoading] = useState(true);
     const [reviewOpen, setReviewOpen] = useState(false);
     const [cancelling, setCancelling] = useState(false);
+    const [payingNow, setPayingNow] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -104,11 +108,34 @@ export default function BookingDetailPage() {
     const nights = booking.nights ?? differenceInDays(parseISO(booking.checkOut), parseISO(booking.checkIn));
     const statusInfo = STATUS_CONFIG[booking.status];
     const canCancel = [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status);
-    const canReview = booking.status === BookingStatus.COMPLETED && !booking.guestReviewLeft;
+
+    // Check if the current user is the guest who made the booking
+    const isGuest = user?.id === (typeof booking.guestId === 'string' ? booking.guestId : booking.guestId?._id);
+
+    const canReview = isGuest && booking.status === BookingStatus.COMPLETED && !booking.guestReviewLeft;
+    const canPay = isGuest && booking.paymentStatus !== 'paid' &&
+        ![BookingStatus.CANCELLED, BookingStatus.REJECTED].includes(booking.status);
+
+    const handlePay = async () => {
+        try {
+            setPayingNow(true);
+            const res = await apiClient.initiateBookingPayment(id);
+            window.location.href = res.paymentLink;
+        } catch (err: any) {
+            toast.error('Payment failed', {
+                description: err?.response?.data?.message ?? 'Could not initialize payment. Please try again.',
+            });
+            setPayingNow(false);
+        }
+    };
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-[#f8fafc]">
+            {/* The printable receipt (only visible in print mode) */}
+            <BookingReceiptView booking={booking} />
+
+            {/* The dashboard UI (hidden in print mode) */}
+            <div className="flex min-h-screen w-full bg-[#f8fafc] print:hidden">
                 <AppSidebar />
                 <SidebarInset className="bg-transparent">
                     <NavDash />
@@ -128,7 +155,7 @@ export default function BookingDetailPage() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button variant="outline" size="sm" className="rounded-xl border-slate-200 bg-white font-bold text-xs"><Printer className="h-3.5 w-3.5 mr-2" /> Print Receipt</Button>
+                                <Button variant="outline" size="sm" className="rounded-xl border-slate-200 bg-white font-bold text-xs" onClick={() => window.print()}><Printer className="h-3.5 w-3.5 mr-2" /> Print Receipt</Button>
                                 <Button variant="outline" size="sm" className="rounded-xl border-slate-200 bg-white font-bold text-xs"><Download className="h-3.5 w-3.5 mr-2" /> PDF</Button>
                             </div>
                         </div>
@@ -231,6 +258,17 @@ export default function BookingDetailPage() {
                                     </div>
 
                                     <div className="space-y-3">
+                                        {canPay && (
+                                            <Button
+                                                className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-100 gap-2"
+                                                onClick={handlePay}
+                                                disabled={payingNow}
+                                            >
+                                                {payingNow
+                                                    ? <><Loader2 className="h-5 w-5 animate-spin" /> Processing…</>
+                                                    : <><CreditCard className="h-5 w-5" /> Complete Payment</>}
+                                            </Button>
+                                        )}
                                         {canReview && (
                                             <Button className="w-full h-14 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-lg shadow-xl shadow-amber-100" onClick={() => setReviewOpen(true)}>
                                                 Rate Experience

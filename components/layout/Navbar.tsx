@@ -137,7 +137,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/properties?search=${encodeURIComponent(searchQuery)}`);
+      router.push(`/properties?city=${encodeURIComponent(searchQuery)}`);
       setIsSearchOpen(false);
       setSearchQuery('');
     }
@@ -169,20 +169,20 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
   const getNavLinks = (): NavLink[] => {
     const buyLink: NavLink = { href: '/properties?listingType=sale', label: 'Buy', icon: Building };
     const rentLink: NavLink = { href: '/properties?listingType=rent', label: 'Rent', icon: Building };
-    const sellLink: NavLink = { href: '/dashboard/propertyForm', label: 'Sell', icon: Building };
+    const staysLink: NavLink = { href: '/properties?listingType=short_term', label: 'Stays', icon: Building };
     const agentLink: NavLink = { href: '/agents', label: 'Find an agent', icon: Building };
     const contactLink: NavLink = { href: '/contact', label: 'Contact', icon: Globe };
     const aboutLink: NavLink = { href: '/about', label: 'About Us', icon: Award };
     const homeLink: NavLink = { href: '/', label: 'Home', icon: Home };
 
-    const baseLinks = [homeLink, rentLink, buyLink, agentLink, contactLink, aboutLink];
+    const baseLinks = [homeLink, rentLink, buyLink, staysLink, agentLink, contactLink, aboutLink];
 
     if (!isAuthenticated) return baseLinks;
 
     switch (user?.role) {
       case 'admin':
       case 'agent':
-        return [homeLink, rentLink, buyLink, sellLink, agentLink, aboutLink, contactLink];
+        return [homeLink, rentLink, buyLink, staysLink, agentLink, aboutLink, contactLink];
       default:
         return baseLinks;
     }
@@ -223,16 +223,9 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
 
   return (
     <>
-      {/* ── Navbar ─────────────────────────────────────────────────────────
-          IMPORTANT: Do NOT add `overflow-hidden` here — it would clip the
-          NotificationDropdown portal and any other absolute-positioned children.
-          The navbar uses `isolate` intentionally removed; z-index is handled
-          via the dropdown's own z-[9999] so it escapes the stacking context.
-      ───────────────────────────────────────────────────────────────────── */}
       <nav
-        className={`fixed top-0 left-0 right-0 w-full flex justify-between h-16 items-center px-4 md:px-6 z-50 transition-all duration-300 ${
-          scrolled ? 'bg-white backdrop-blur-lg border-b border-gray-200' : 'bg-white/80 backdrop-blur-lg'
-        }`}
+        className={`fixed top-0 left-0 right-0 w-full flex justify-between h-16 items-center px-4 md:px-6 z-50 transition-all duration-300 ${scrolled ? 'bg-white border-b border-gray-200' : 'bg-white/80 backdrop-blur-lg'
+          }`}
       >
         {/* LEFT: Burger (mobile) / Logo (desktop) */}
         <div className="flex items-center">
@@ -259,9 +252,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
           <div className="hidden md:flex items-center space-x-1 text-gray-700 text-sm font-medium">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setActiveLink(link.href)}>
-                <div className={`px-4 py-2 rounded-lg hover:text-blue-600 transition-all ${
-                  activeLink === link.href ? 'text-blue-600 font-semibold' : ''
-                }`}>
+                <div className={`px-4 py-2 rounded-lg hover:text-blue-600 transition-all ${activeLink === link.href ? 'text-blue-600 font-semibold' : ''
+                  }`}>
                   {link.label}
                 </div>
               </Link>
@@ -537,9 +529,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                     style={{ animationDelay: `${index * 60}ms` }}
                     className="block animate-in fade-in slide-in-from-left-3 duration-400"
                   >
-                    <div className={`px-5 py-3 rounded-xl transition-all hover:text-blue-600 duration-300 ${
-                      activeLink === link.href ? 'text-blue-600 font-semibold' : 'text-gray-700 font-medium'
-                    }`}>
+                    <div className={`px-5 py-3 rounded-xl transition-all hover:text-blue-600 duration-300 ${activeLink === link.href ? 'text-blue-600 font-semibold' : 'text-gray-700 font-medium'
+                      }`}>
                       <span className="text-[15px]">{link.label}</span>
                     </div>
                   </Link>

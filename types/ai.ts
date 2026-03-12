@@ -15,7 +15,7 @@ export interface Message {
 // Property search filters for AI chat
 export interface PropertySearchFilters {
   propertyType?: PropertyType | string;  // Support both enum and string
-  listingType?: ListingType | 'rent' | 'sale';
+  listingType?: ListingType | 'rent' | 'sale' | 'short_term';
   city?: string;
   state?: string;
   country?: string;

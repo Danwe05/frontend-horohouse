@@ -136,7 +136,7 @@ export default function AboutUs() {
                   className="space-y-6"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
+                    <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white ">
                       <CurrentIcon size={28} />
                     </div>
                     <span className="text-[10px] font-black tracking-[.2em] text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase">

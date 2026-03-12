@@ -183,11 +183,10 @@ export default function TopListing() {
                     key={city}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleCityChange(city)}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
-                      activeCity === city
+                    className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeCity === city
                         ? 'bg-blue-600 text-white'
                         : 'bg-white border border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
-                    }`}
+                      }`}
                   >
                     {city}
                   </motion.button>
@@ -202,9 +201,8 @@ export default function TopListing() {
                   whileTap={{ scale: 0.9 }}
                   onClick={handleLeftClick}
                   disabled={startIndex === 0}
-                  className={`w-10 h-10 bg-white border border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${
-                    startIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
-                  }`}
+                  className={`w-10 h-10 bg-white border border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${startIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
+                    }`}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </motion.button>
@@ -213,9 +211,8 @@ export default function TopListing() {
                   whileTap={{ scale: 0.9 }}
                   onClick={handleRightClick}
                   disabled={startIndex === maxStartIndex}
-                  className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${
-                    startIndex === maxStartIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
-                  }`}
+                  className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${startIndex === maxStartIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                    }`}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </motion.button>
@@ -281,9 +278,8 @@ export default function TopListing() {
                   <button
                     key={i}
                     onClick={() => setStartIndex(i)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      i === startIndex ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
-                    }`}
+                    className={`h-2 rounded-full transition-all duration-300 ${i === startIndex ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
+                      }`}
                   />
                 ))}
               </div>
@@ -296,9 +292,8 @@ export default function TopListing() {
                   whileTap={{ scale: 0.9 }}
                   onClick={handleLeftClick}
                   disabled={startIndex === 0}
-                  className={`w-12 h-12 bg-white border-2 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${
-                    startIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
-                  }`}
+                  className={`w-12 h-12 bg-white border-2 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${startIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
+                    }`}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </motion.button>
@@ -307,9 +302,8 @@ export default function TopListing() {
                   whileTap={{ scale: 0.9 }}
                   onClick={handleRightClick}
                   disabled={startIndex === maxStartIndex}
-                  className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${
-                    startIndex === maxStartIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
-                  }`}
+                  className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${startIndex === maxStartIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                    }`}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </motion.button>

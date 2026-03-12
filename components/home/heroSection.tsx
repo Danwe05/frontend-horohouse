@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, JSX } from 'react';
 import { Search, MapPin, Home, DollarSign, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -12,11 +12,58 @@ interface PlaceSuggestion {
 
 export default function HeroSection() {
   const router = useRouter();
-  const [selectedTab, setSelectedTab] = useState('sale');
+  const [selectedTab, setSelectedTab] = useState('rent');
+  const [visible, setVisible] = useState(true);
+
+  const handleTabChange = (tab: string) => {
+    if (tab === selectedTab) return;
+    setVisible(false);
+    setTimeout(() => {
+      setSelectedTab(tab);
+      setVisible(true);
+    }, 180);
+  };
+
+  const tabContent: Record<string, { badge: string; heading: JSX.Element; desc: string }> = {
+    sale: {
+      badge: 'Buy Property',
+      heading: (
+        <>
+          Find Your Forever{' '}
+          <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">Home</span>
+        </>
+      ),
+      desc: 'Discover premium properties for sale. Invest in your future with our exclusive real estate listings.',
+    },
+    rent: {
+      badge: 'Rent Property',
+      heading: (
+        <>
+          Your Perfect{' '}
+          <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">Rental</span>
+        </>
+      ),
+      desc: 'Explore top-tier apartments and houses for rent. Flexible living tailored to your modern lifestyle.',
+    },
+    short_term: {
+      badge: 'Book a Stay',
+      heading: (
+        <>
+          Unforgettable{' '}
+          <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">Stays</span>
+        </>
+      ),
+      desc: 'Book luxurious vacation rentals and short-term stays. Experience comfort anywhere you travel.',
+    },
+  };
+
+  const content = tabContent[selectedTab] || tabContent['sale'];
   const [searchData, setSearchData] = useState({
     city: '',
     propertyType: '',
     maxPrice: '',
+    checkIn: '',
+    checkOut: '',
   });
 
   // Autocomplete state
@@ -191,14 +238,12 @@ export default function HeroSection() {
     // Add listing type (sale/rent)
     params.append('listingType', selectedTab);
 
-    // Add property type if selected
-    if (searchData.propertyType) {
-      params.append('propertyType', searchData.propertyType);
-    }
-
-    // Add max price if selected
-    if (searchData.maxPrice) {
-      params.append('maxPrice', searchData.maxPrice);
+    if (selectedTab === 'short_term') {
+      if (searchData.checkIn) params.append('checkIn', searchData.checkIn);
+      if (searchData.checkOut) params.append('checkOut', searchData.checkOut);
+    } else {
+      if (searchData.propertyType) params.append('propertyType', searchData.propertyType);
+      if (searchData.maxPrice) params.append('maxPrice', searchData.maxPrice);
     }
 
     // Navigate to properties page with search params
@@ -213,48 +258,55 @@ export default function HeroSection() {
         <div className="w-full lg:w-2/5 space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-12 lg:py-8 z-20 order-2 lg:order-1">
 
           {/* Badge with animation */}
-          <div className="hidden lg:inline-flex items-center space-x-2 bg-linear-to-r from-blue-100 to-blue-100 text-blue-600 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 transform">
-            <span>Find Your Dream Home</span>
+          <div
+            className="hidden lg:inline-flex items-center space-x-2 bg-linear-to-r from-blue-100 to-blue-100 text-blue-600 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300"
+            style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(-6px)', transition: 'opacity 0.18s ease, transform 0.18s ease' }}
+          >
+            <span>{content.badge}</span>
           </div>
 
-          {/* Enhanced heading with gradient text */}
-          <div className="lg:block hidden space-y-3">
+          {/* Heading — distinct per tab */}
+          <div
+            className="lg:block hidden space-y-3"
+            style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}
+          >
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-              Your Partner in{' '}
-              <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
-                Real Estate
-              </span>
+              {content.heading}
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 leading-relaxed max-w-md">
-              Discover premium properties tailored to your lifestyle, from vibrant urban spaces to peaceful retreats.
+              {content.desc}
             </p>
           </div>
 
-          {/* Enhanced Tabs with smooth animations */}
+          {/* Desktop Tabs */}
           <div className="hidden lg:flex space-x-1 mb-0 bg-gray-100 p-1 rounded-xl w-[60vw] max-w-md">
             {[
+              { value: 'rent', label: 'Rent' },
               { value: 'sale', label: 'Buy' },
-              { value: 'rent', label: 'Rent' }
+              { value: 'short_term', label: 'Short Stays' }
             ].map((tab) => (
               <button
                 key={tab.value}
-                className={`flex-1 py-3 rounded-lg font-semibold capitalize transition-all duration-300 transform ${selectedTab === tab.value
-                  ? 'bg-white text-blue-600'
+                className={`flex-1 py-3 rounded-lg font-semibold capitalize transition-all duration-300 transform text-sm ${selectedTab === tab.value
+                  ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
                   }`}
-                onClick={() => setSelectedTab(tab.value)}
+                onClick={() => handleTabChange(tab.value)}
               >
                 {tab.label}
               </button>
             ))}
           </div>
 
-          {/*  Search Box - Desktop */}
+          {/* Search Box - Desktop */}
           <div className="hidden lg:block w-[70vw] max-w-4xl">
-            <div className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl border border-white/20 hover:shadow-2xl transition-all duration-300 w-full">
+            <div
+              className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl border border-white/20 hover:shadow-2xl transition-all duration-300 w-full"
+              style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}
+            >
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
 
-                {/* City search with autocomplete */}
+                {/* City — always shown */}
                 <div className="space-y-2 relative" ref={suggestionsRef}>
                   <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
                     <MapPin size={14} />
@@ -274,8 +326,6 @@ export default function HeroSection() {
                       onFocus={() => searchData.city && setShowSuggestions(true)}
                       autoComplete="off"
                     />
-
-                    {/* Autocomplete Dropdown */}
                     {showSuggestions && suggestions.length > 0 && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 max-h-[320px] overflow-y-auto">
                         <div className="p-1">
@@ -284,20 +334,15 @@ export default function HeroSection() {
                               key={index}
                               onClick={() => handleSuggestionClick(suggestion)}
                               onMouseEnter={() => setSelectedIndex(index)}
-                              className={`px-3 py-2.5 rounded-lg cursor-pointer flex items-start gap-3 transition-all ${selectedIndex === index
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'hover:bg-gray-100'
+                              className={`px-3 py-2.5 rounded-lg cursor-pointer flex items-start gap-3 transition-all ${selectedIndex === index ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-gray-100'
                                 }`}
                             >
-                              <MapPin className={`h-4 w-4 mt-0.5 flex-shrink-0 ${selectedIndex === index ? 'text-white' : 'text-gray-400'
-                                }`} />
+                              <MapPin className={`h-4 w-4 mt-0.5 flex-shrink-0 ${selectedIndex === index ? 'text-white' : 'text-gray-400'}`} />
                               <div className="flex-1 min-w-0">
-                                <p className={`text-sm font-semibold truncate ${selectedIndex === index ? 'text-white' : 'text-gray-900'
-                                  }`}>
+                                <p className={`text-sm font-semibold truncate ${selectedIndex === index ? 'text-white' : 'text-gray-900'}`}>
                                   {suggestion.text}
                                 </p>
-                                <p className={`text-xs truncate mt-0.5 ${selectedIndex === index ? 'text-white/80' : 'text-gray-500'
-                                  }`}>
+                                <p className={`text-xs truncate mt-0.5 ${selectedIndex === index ? 'text-white/80' : 'text-gray-500'}`}>
                                   {suggestion.place_name}
                                 </p>
                               </div>
@@ -309,39 +354,75 @@ export default function HeroSection() {
                   </div>
                 </div>
 
-                {/* Property Type */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
-                    <Home size={14} />
-                    <span>Property Type</span>
-                  </label>
-                  <select
-                    className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
-                    value={searchData.propertyType}
-                    onChange={(e) => setSearchData({ ...searchData, propertyType: e.target.value })}
-                  >
-                    {propertyTypes.map(type => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
-                    ))}
-                  </select>
-                </div>
+                {/* Buy / Rent fields: Property Type + Max Price */}
+                {selectedTab !== 'short_term' && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
+                        <Home size={14} />
+                        <span>Property Type</span>
+                      </label>
+                      <select
+                        className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
+                        value={searchData.propertyType}
+                        onChange={(e) => setSearchData({ ...searchData, propertyType: e.target.value })}
+                      >
+                        {propertyTypes.map(type => (
+                          <option key={type.value} value={type.value}>{type.label}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                {/* Price Range */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
-                    <DollarSign size={14} />
-                    <span>Max Price</span>
-                  </label>
-                  <select
-                    className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
-                    value={searchData.maxPrice}
-                    onChange={(e) => setSearchData({ ...searchData, maxPrice: e.target.value })}
-                  >
-                    {priceRanges.map(range => (
-                      <option key={range.value} value={range.value}>{range.label}</option>
-                    ))}
-                  </select>
-                </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
+                        <DollarSign size={14} />
+                        <span>Max Price</span>
+                      </label>
+                      <select
+                        className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
+                        value={searchData.maxPrice}
+                        onChange={(e) => setSearchData({ ...searchData, maxPrice: e.target.value })}
+                      >
+                        {priceRanges.map(range => (
+                          <option key={range.value} value={range.value}>{range.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                {/* Short Stays fields: Check-in + Check-out */}
+                {selectedTab === 'short_term' && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
+                        <DollarSign size={14} />
+                        <span>Check-in</span>
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
+                        value={searchData.checkIn}
+                        min={new Date().toISOString().split('T')[0]}
+                        onChange={(e) => setSearchData({ ...searchData, checkIn: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
+                        <DollarSign size={14} />
+                        <span>Check-out</span>
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
+                        value={searchData.checkOut}
+                        min={searchData.checkIn || new Date().toISOString().split('T')[0]}
+                        onChange={(e) => setSearchData({ ...searchData, checkOut: e.target.value })}
+                      />
+                    </div>
+                  </>
+                )}
 
                 {/* Search Button */}
                 <div className="space-y-2">
@@ -362,26 +443,23 @@ export default function HeroSection() {
         <div className="w-full lg:w-3/5 relative order-1 lg:order-2">
           <div className="relative h-[50vh] sm:h-[60vh] lg:h-screen">
 
-            {/* Gradient overlay for mobile */}
-            <div className="absolute inset-0 bg-gradient-to-t h-[50vh] sm:h-[60vh] bg-black/25 lg:hidden z-10" />
-            <div className="absolute w-full space-y-6 sm:space-y-8 px-4 sm:px-6 order-2 lg:order-1 mt-10 lg:hidden z-10" >
-              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-blue-100 text-blue-600 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 transform">
-                <span>Find Your Dream Home</span>
+            {/* Dark gradient overlay for mobile — ensures legibility over any image */}
+            <div className="absolute inset-0 lg:hidden z-10 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
+            <div
+              className="absolute w-full space-y-3 px-4 sm:px-6 mt-10 lg:hidden z-10"
+              style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateX(0)' : 'translateX(-8px)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}
+            >
+              <div className="inline-flex items-center bg-blue-100 text-blue-600 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold">
+                <span>{content.badge}</span>
               </div>
-
-              {/* Enhanced heading with gradient text */}
-              <div className="space-y-3 sm:space-y-4">
-                <h1 className="text-2xl sm:text-2xl md:text-2xl lg:text-6xl font-bold text-white leading-tight">
-                  Your Partner in{' '}
-                  <span className="">
-                    Real Estate
-                  </span>
+              <div className="space-y-2">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
+                  {content.heading}
                 </h1>
-                <p className="text-base sm:text-lg lg:text-xl text-white leading-relaxed max-w-md">
-                  Discover premium properties tailored to your lifestyle, from vibrant urban spaces to peaceful retreats.
+                <p className="text-sm sm:text-base md:text-lg text-white/90 leading-relaxed max-w-xs sm:max-w-sm">
+                  {content.desc}
                 </p>
               </div>
-
             </div>
 
             {/* Main image with enhanced styling */}
@@ -395,18 +473,19 @@ export default function HeroSection() {
           </div>
 
           {/* Mobile Tabs */}
-          <div className="flex lg:hidden justify-center space-x-1 bg-gray-100 mx-d4 p-1 rounded-xl -mt-16 sm:-mt-20 relative z-20 max-w-xs mx-auto">
+          <div className="flex lg:hidden justify-center space-x-1 bg-gray-100 mx-d4 p-1 rounded-xl -mt-16 sm:-mt-20 relative z-20 max-w-sm mx-auto">
             {[
+              { value: 'rent', label: 'Rent' },
               { value: 'sale', label: 'Buy' },
-              { value: 'rent', label: 'Rent' }
+              { value: 'short_term', label: 'Stays' }
             ].map((tab) => (
               <button
                 key={tab.value}
                 className={`flex-1 py-2.5 sm:py-3 rounded-lg font-semibold capitalize transition-all duration-300 text-sm ${selectedTab === tab.value
-                  ? 'bg-white text-blue-600'
+                  ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-gray-600'
                   }`}
-                onClick={() => setSelectedTab(tab.value)}
+                onClick={() => handleTabChange(tab.value)}
               >
                 {tab.label}
               </button>
@@ -415,8 +494,13 @@ export default function HeroSection() {
 
           {/* Mobile Search Box */}
           <div className="lg:hidden w-full px-4 mt-4 relative z-20">
-            <div className="bg-white/90 backdrop-blur-lg p-4 sm:p-5 rounded-2xl w-full max-w-md mx-auto shadow-lg">
+            <div
+              className="bg-white/90 backdrop-blur-lg p-4 sm:p-5 rounded-2xl w-full max-w-md mx-auto shadow-lg"
+              style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}
+            >
               <div className="grid grid-cols-1 gap-3 mb-3">
+
+                {/* City — always shown */}
                 <div className="relative">
                   <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
                     <MapPin size={12} />
@@ -431,36 +515,74 @@ export default function HeroSection() {
                     onKeyDown={handleKeyDown}
                   />
                 </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
-                    <Home size={12} />
-                    <span>Type</span>
-                  </label>
-                  <select
-                    className="w-full p-2.5 sm:p-3 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 text-gray-600"
-                    value={searchData.propertyType}
-                    onChange={(e) => setSearchData({ ...searchData, propertyType: e.target.value })}
-                  >
-                    {propertyTypes.map(type => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
-                    <DollarSign size={12} />
-                    <span>Max Price</span>
-                  </label>
-                  <select
-                    className="w-full p-2.5 sm:p-3 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 text-gray-600"
-                    value={searchData.maxPrice}
-                    onChange={(e) => setSearchData({ ...searchData, maxPrice: e.target.value })}
-                  >
-                    {priceRanges.map(range => (
-                      <option key={range.value} value={range.value}>{range.label}</option>
-                    ))}
-                  </select>
-                </div>
+
+                {/* Buy / Rent: Type + Price */}
+                {selectedTab !== 'short_term' && (
+                  <>
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
+                        <Home size={12} />
+                        <span>Type</span>
+                      </label>
+                      <select
+                        className="w-full p-2.5 sm:p-3 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 text-gray-600"
+                        value={searchData.propertyType}
+                        onChange={(e) => setSearchData({ ...searchData, propertyType: e.target.value })}
+                      >
+                        {propertyTypes.map(type => (
+                          <option key={type.value} value={type.value}>{type.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
+                        <DollarSign size={12} />
+                        <span>Max Price</span>
+                      </label>
+                      <select
+                        className="w-full p-2.5 sm:p-3 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 text-gray-600"
+                        value={searchData.maxPrice}
+                        onChange={(e) => setSearchData({ ...searchData, maxPrice: e.target.value })}
+                      >
+                        {priceRanges.map(range => (
+                          <option key={range.value} value={range.value}>{range.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                {/* Short Stays: Check-in + Check-out */}
+                {selectedTab === 'short_term' && (
+                  <>
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
+                        <DollarSign size={12} />
+                        <span>Check-in</span>
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full p-2.5 sm:p-3 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 text-gray-600"
+                        value={searchData.checkIn}
+                        min={new Date().toISOString().split('T')[0]}
+                        onChange={(e) => setSearchData({ ...searchData, checkIn: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
+                        <DollarSign size={12} />
+                        <span>Check-out</span>
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full p-2.5 sm:p-3 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 text-gray-600"
+                        value={searchData.checkOut}
+                        min={searchData.checkIn || new Date().toISOString().split('T')[0]}
+                        onChange={(e) => setSearchData({ ...searchData, checkOut: e.target.value })}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
 
               <button

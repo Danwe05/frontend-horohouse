@@ -77,6 +77,7 @@ export interface ShortTermAmenities {
 export interface Booking {
     _id: string;
     propertyId: {
+        country: ReactNode;
         _id: string;
         title: string;
         images?: Array<{ url: string }>;
