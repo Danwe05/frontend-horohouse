@@ -371,7 +371,6 @@ const IndexContent = () => {
 
   useEffect(() => {
     if (toastShownRef.current || filterChips.length === 0) return;
-    toast.info("Searching properties", { description: filterChips.map((c) => c.label).join(", ") });
     toastShownRef.current = true;
   }, [filterChips]);
 
@@ -408,7 +407,6 @@ const IndexContent = () => {
       checkOut: qs.checkOut ?? null,
       guests: qs.guests?.toString() ?? null,
     });
-    toast.success("Search updated");
     scrollToTop();
   }, [updateURLParams]);
 
@@ -421,7 +419,6 @@ const IndexContent = () => {
       minGuests: af.minGuests?.toString() ?? null,
       hasPool: af.hasPool !== undefined ? String(af.hasPool) : null,
     });
-    toast.success("Advanced filters applied");
     scrollToTop();
   }, [updateURLParams]);
 

@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export enum BookingStatus {
     PENDING = 'pending',
     CONFIRMED = 'confirmed',
