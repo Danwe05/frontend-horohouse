@@ -5,33 +5,15 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { AppSidebar } from '@/components/dashboard/Sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import TransactionList, { Transaction } from '@/components/dashboard/transactions';
+import TransactionList from '@/components/dashboard/transactions';
 import { Loader2 } from 'lucide-react';
+import { Transaction } from '@/types/paiement';
 
 function TransactionsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const selectedTxId = searchParams.get('tx') ?? undefined;
-  const pageParam = searchParams.get('page');
-  const page = useMemo(() => {
-    const n = Number(pageParam);
-    return Number.isFinite(n) && n > 0 ? n : 1;
-  }, [pageParam]);
-
-  const pageSize = 4;
-
-  const handleTransactionClick = (tx: Transaction) => {
-    router.push(`/dashboard/transactions?tx=${encodeURIComponent(tx.id)}&page=${page}`);
-  };
-
-  const handlePreviousPage = () => {
-    router.push(`/dashboard/transactions?page=${Math.max(1, page - 1)}${selectedTxId ? `&tx=${encodeURIComponent(selectedTxId)}` : ''}`);
-  };
-
-  const handleNextPage = () => {
-    router.push(`/dashboard/transactions?page=${page + 1}${selectedTxId ? `&tx=${encodeURIComponent(selectedTxId)}` : ''}`);
-  };
 
   return (
     <main className="flex-1 bg-gray-50">
@@ -42,13 +24,7 @@ function TransactionsContent() {
             <div className="text-sm text-slate-600">{selectedTxId}</div>
           </div>
         )}
-        <TransactionList
-          page={page}
-          pageSize={pageSize}
-          onTransactionClick={handleTransactionClick}
-          onPreviousPage={handlePreviousPage}
-          onNextPage={handleNextPage}
-        />
+        <TransactionList />
       </div>
     </main>
   );

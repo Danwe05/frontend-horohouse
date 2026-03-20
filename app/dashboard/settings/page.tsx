@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -68,10 +68,10 @@ const STUDENT_TAB = {
   icon: <GraduationCap className="h-4 w-4" />,
 };
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Inner component that uses useSearchParams ────────────────────────────────
+// Must be isolated so it can be wrapped in <Suspense> by the parent.
 
-export default function SettingsPage() {
-  const { user, isLoading } = useAuth();
+function SettingsContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>['user']> }) {
   const { isStudent } = useStudentMode();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -96,9 +96,104 @@ export default function SettingsPage() {
   };
 
   // Build tab list — append Student ID tab only for students
-  const settingsTabs = isStudent
-    ? [...BASE_TABS, STUDENT_TAB]
-    : BASE_TABS;
+  const settingsTabs = isStudent ? [...BASE_TABS, STUDENT_TAB] : BASE_TABS;
+
+  return (
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
+
+        {/* ── Sidebar nav ───────────────────────────────────── */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-8 space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-1">
+                Settings
+              </h1>
+              <p className="text-sm text-gray-500">
+                Manage your profile and preferences
+              </p>
+            </div>
+
+            <nav className="flex space-x-2 overflow-x-auto pb-2 lg:block lg:space-x-0 lg:space-y-1 lg:overflow-visible">
+              {settingsTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`relative flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 group flex-shrink-0 lg:w-full
+                    ${activeTab === tab.id
+                      ? 'text-blue-700 bg-blue-50/50'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                >
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="activeTabIndicator"
+                      className="absolute inset-0 bg-blue-50 rounded-xl"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  <div
+                    className={`relative z-10 flex items-center justify-center p-2 rounded-lg transition-colors
+                      ${activeTab === tab.id
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:shadow-sm'
+                      }
+                      ${tab.id === 'student-id' && activeTab !== 'student-id'
+                        ? 'bg-purple-50 text-purple-400 group-hover:bg-purple-50'
+                        : ''
+                      }`}
+                  >
+                    {tab.icon}
+                  </div>
+                  <div className="relative z-10 flex-1 min-w-0">
+                    <p
+                      className={`text-sm font-semibold whitespace-nowrap pr-2
+                        ${activeTab === tab.id
+                          ? 'text-blue-900'
+                          : 'text-gray-700 group-hover:text-gray-900'
+                        }`}
+                    >
+                      {tab.label}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        {/* ── Content area ──────────────────────────────────── */}
+        <div className="lg:col-span-3">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              className="space-y-6"
+            >
+              {activeTab === 'profile'       && <ProfileSettings user={user} />}
+              {activeTab === 'security'      && <SecuritySettings user={user} />}
+              {activeTab === 'notifications' && <NotificationSettings user={user} />}
+              {activeTab === 'privacy'       && <PrivacySettings user={user} />}
+              {activeTab === 'preferences'   && <PreferencesSettings user={user} />}
+              {activeTab === 'account'       && <AccountSettings user={user} />}
+              {activeTab === 'student-id'    && <StudentIdSettings />}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+      </div>
+    </main>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export default function SettingsPage() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -124,93 +219,16 @@ export default function SettingsPage() {
             <div className="flex-1 p-2 lg:p-4 bg-white lg:bg-transparent">
               <div className="bg-white rounded-xl shadow-ssm border border-gray-100 lg:border-none lg:shadow-none lg:rounded-none">
 
-                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-
-                    {/* ── Sidebar nav ───────────────────────────────────── */}
-                    <div className="lg:col-span-1">
-                      <div className="sticky top-8 space-y-6">
-                        <div>
-                          <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-1">
-                            Settings
-                          </h1>
-                          <p className="text-sm text-gray-500">
-                            Manage your profile and preferences
-                          </p>
-                        </div>
-
-                        <nav className="flex space-x-2 overflow-x-auto pb-2 lg:block lg:space-x-0 lg:space-y-1 lg:overflow-visible">
-                          {settingsTabs.map((tab) => (
-                            <button
-                              key={tab.id}
-                              onClick={() => handleTabChange(tab.id)}
-                              className={`relative flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 group flex-shrink-0 lg:w-full
-                                ${activeTab === tab.id
-                                  ? 'text-blue-700 bg-blue-50/50'
-                                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                                }`}
-                            >
-                              {activeTab === tab.id && (
-                                <motion.div
-                                  layoutId="activeTabIndicator"
-                                  className="absolute inset-0 bg-blue-50 rounded-xl"
-                                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                                />
-                              )}
-                              <div
-                                className={`relative z-10 flex items-center justify-center p-2 rounded-lg transition-colors
-                                  ${activeTab === tab.id
-                                    ? 'bg-blue-100 text-blue-600'
-                                    : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:shadow-sm'
-                                  }
-                                  ${tab.id === 'student-id' && activeTab !== 'student-id'
-                                    ? 'bg-purple-50 text-purple-400 group-hover:bg-purple-50'
-                                    : ''
-                                  }`}
-                              >
-                                {tab.icon}
-                              </div>
-                              <div className="relative z-10 flex-1 min-w-0">
-                                <p
-                                  className={`text-sm font-semibold whitespace-nowrap pr-2
-                                    ${activeTab === tab.id
-                                      ? 'text-blue-900'
-                                      : 'text-gray-700 group-hover:text-gray-900'
-                                    }`}
-                                >
-                                  {tab.label}
-                                </p>
-                              </div>
-                            </button>
-                          ))}
-                        </nav>
-                      </div>
+                {/* ✅ Suspense boundary wraps the component that calls useSearchParams() */}
+                <Suspense
+                  fallback={
+                    <div className="flex items-center justify-center py-24">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
                     </div>
-
-                    {/* ── Content area ──────────────────────────────────── */}
-                    <div className="lg:col-span-3">
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={activeTab}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.2, ease: 'easeInOut' }}
-                          className="space-y-6"
-                        >
-                          {activeTab === 'profile'     && <ProfileSettings user={user} />}
-                          {activeTab === 'security'    && <SecuritySettings user={user} />}
-                          {activeTab === 'notifications' && <NotificationSettings user={user} />}
-                          {activeTab === 'privacy'     && <PrivacySettings user={user} />}
-                          {activeTab === 'preferences' && <PreferencesSettings user={user} />}
-                          {activeTab === 'account'     && <AccountSettings user={user} />}
-                          {activeTab === 'student-id'  && <StudentIdSettings />}
-                        </motion.div>
-                      </AnimatePresence>
-                    </div>
-
-                  </div>
-                </main>
+                  }
+                >
+                  <SettingsContent user={user} />
+                </Suspense>
 
               </div>
             </div>

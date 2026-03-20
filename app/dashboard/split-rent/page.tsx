@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { AppSidebar } from '@/components/dashboard/Sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
@@ -400,13 +400,13 @@ function CycleCard({ cycle, currentUserId }: { cycle: PaymentCycle; currentUserI
     );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
+// ─── Inner component that uses useSearchParams ────────────────────────────────
 
-export default function SplitRentPage() {
+function SplitRentContent() {
     const { user } = useAuth();
+    const searchParams = useSearchParams();
     const [cycles, setCycles] = useState<PaymentCycle[]>([]);
     const [loading, setLoading] = useState(true);
-    const searchParams = useSearchParams();
     const [tab, setTab] = useState<'calculator' | 'my-payments'>(
         () => (searchParams.get('tab') as any) ?? 'calculator'
     );
@@ -428,114 +428,131 @@ export default function SplitRentPage() {
     const currentUserId = user?.id || (user as any)?._id || '';
 
     return (
+        <div className="mx-auto w-full p-4 md:p-6 lg:p-8 space-y-6">
+
+            {/* Page header */}
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-center gap-3 mb-1">
+                    <div className="p-2 bg-emerald-50 rounded-xl">
+                        <Wallet className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Rent Split</h1>
+                </div>
+                <p className="text-slate-500 text-sm pl-11">
+                    Calculate fair rent splits and track your payment cycles.
+                </p>
+            </motion.div>
+
+            {/* Tabs */}
+            <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit shadow-sm">
+                {[
+                    { key: 'calculator', label: 'Calculator', icon: Calculator },
+                    { key: 'my-payments', label: 'My Payments', icon: Wallet },
+                ].map(t => (
+                    <button
+                        key={t.key}
+                        onClick={() => {
+                            setTab(t.key as any);
+                            const params = new URLSearchParams(searchParams.toString());
+                            params.set('tab', t.key);
+                            window.history.replaceState(null, '', `?${params.toString()}`);
+                        }}
+                        className={cn(
+                            'flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all',
+                            tab === t.key
+                                ? 'bg-emerald-600 text-white shadow-sm'
+                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                        )}
+                    >
+                        <t.icon className="w-4 h-4" />
+                        {t.label}
+                        {t.key === 'my-payments' && cycles.length > 0 && (
+                            <span className={cn(
+                                'text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center',
+                                tab === t.key ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'
+                            )}>
+                                {cycles.length}
+                            </span>
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            {/* Calculator tab */}
+            {tab === 'calculator' && (
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-lg"
+                >
+                    <RentCalculator />
+                </motion.div>
+            )}
+
+            {/* My payments tab */}
+            {tab === 'my-payments' && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-slate-700">
+                            {cycles.length} payment cycle{cycles.length !== 1 ? 's' : ''}
+                        </p>
+                        <button
+                            onClick={fetchCycles}
+                            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors"
+                        >
+                            <RefreshCw className="w-3.5 h-3.5" /> Refresh
+                        </button>
+                    </div>
+
+                    {loading ? (
+                        <div className="flex items-center justify-center py-20">
+                            <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+                        </div>
+                    ) : cycles.length === 0 ? (
+                        <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
+                            <Wallet className="w-10 h-10 text-slate-200 mx-auto mb-3" />
+                            <p className="text-slate-500 font-semibold">No payment cycles yet</p>
+                            <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                                Once your landlord creates a billing cycle for your lease, it will appear here.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {cycles.map(cycle => (
+                                <CycleCard
+                                    key={cycle._id}
+                                    cycle={cycle}
+                                    currentUserId={currentUserId}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </motion.div>
+            )}
+        </div>
+    );
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
+export default function SplitRentPage() {
+    return (
         <SidebarProvider>
             <div className="flex min-h-screen w-full bg-[#f8fafc]">
                 <AppSidebar />
                 <SidebarInset className="bg-transparent">
                     <NavDash />
 
-                    <div className="mx-auto w-full p-4 md:p-6 lg:p-8 space-y-6">
-
-                        {/* Page header */}
-                        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-                            <div className="flex items-center gap-3 mb-1">
-                                <div className="p-2 bg-emerald-50 rounded-xl">
-                                    <Wallet className="w-5 h-5 text-emerald-600" />
-                                </div>
-                                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Rent Split</h1>
+                    {/* ✅ Suspense boundary wraps the component that calls useSearchParams() */}
+                    <Suspense
+                        fallback={
+                            <div className="flex items-center justify-center py-24">
+                                <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
                             </div>
-                            <p className="text-slate-500 text-sm pl-11">
-                                Calculate fair rent splits and track your payment cycles.
-                            </p>
-                        </motion.div>
-
-                        {/* Tabs */}
-                        <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit shadow-sm">
-                            {[
-                                { key: 'calculator', label: 'Calculator', icon: Calculator },
-                                { key: 'my-payments', label: 'My Payments', icon: Wallet },
-                            ].map(t => (
-                                <button
-                                    key={t.key}
-                                    onClick={() => {
-                                        setTab(t.key as any);
-                                        const params = new URLSearchParams(searchParams.toString());
-                                        params.set('tab', t.key);
-                                        window.history.replaceState(null, '', `?${params.toString()}`);
-                                    }}
-                                    className={cn(
-                                        'flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all',
-                                        tab === t.key
-                                            ? 'bg-emerald-600 text-white shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
-                                    )}
-                                >
-                                    <t.icon className="w-4 h-4" />
-                                    {t.label}
-                                    {t.key === 'my-payments' && cycles.length > 0 && (
-                                        <span className={cn(
-                                            'text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center',
-                                            tab === t.key ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'
-                                        )}>
-                                            {cycles.length}
-                                        </span>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Calculator tab */}
-                        {tab === 'calculator' && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="max-w-lg"
-                            >
-                                <RentCalculator />
-                            </motion.div>
-                        )}
-
-                        {/* My payments tab */}
-                        {tab === 'my-payments' && (
-                            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <p className="text-sm font-semibold text-slate-700">
-                                        {cycles.length} payment cycle{cycles.length !== 1 ? 's' : ''}
-                                    </p>
-                                    <button
-                                        onClick={fetchCycles}
-                                        className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors"
-                                    >
-                                        <RefreshCw className="w-3.5 h-3.5" /> Refresh
-                                    </button>
-                                </div>
-
-                                {loading ? (
-                                    <div className="flex items-center justify-center py-20">
-                                        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
-                                    </div>
-                                ) : cycles.length === 0 ? (
-                                    <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
-                                        <Wallet className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-                                        <p className="text-slate-500 font-semibold">No payment cycles yet</p>
-                                        <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-                                            Once your landlord creates a billing cycle for your lease, it will appear here.
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {cycles.map(cycle => (
-                                            <CycleCard
-                                                key={cycle._id}
-                                                cycle={cycle}
-                                                currentUserId={currentUserId}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                            </motion.div>
-                        )}
-                    </div>
+                        }
+                    >
+                        <SplitRentContent />
+                    </Suspense>
                 </SidebarInset>
             </div>
         </SidebarProvider>
