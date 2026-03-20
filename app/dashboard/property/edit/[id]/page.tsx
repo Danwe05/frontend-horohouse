@@ -105,6 +105,7 @@ interface PropertyFormData {
   documents: File[];
   virtualTourUrl: string;
   videoUrl: string;
+  tourType: string;
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -215,6 +216,7 @@ const PropertyEditPage = () => {
           documents: [],
           virtualTourUrl: data.virtualTourUrl || '',
           videoUrl: data.videoUrl || '',
+          tourType: data.tourType || 'images',
         };
 
         setInitialData(propertyData);
