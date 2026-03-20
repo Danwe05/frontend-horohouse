@@ -4,13 +4,15 @@ import PropertyDetailClient from './PropertyDetailClient';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
 
 export async function generateMetadata(
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const id = params.id;
+  const { id } = await params;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/properties/${id}`, { next: { revalidate: 3600 } });
+    const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
+      next: { revalidate: 3600 },
+    });
     const property = await response.json();
 
     if (!property || !property.title) {
@@ -26,20 +28,25 @@ export async function generateMetadata(
         title: property.title,
         description: property.description?.substring(0, 160),
         images: firstImage ? [firstImage] : [],
-        type: "website",
+        type: 'website',
       },
       twitter: {
-        card: "summary_large_image",
+        card: 'summary_large_image',
         title: property.title,
         description: property.description?.substring(0, 160),
         images: firstImage ? [firstImage] : [],
-      }
+      },
     };
-  } catch (error) {
+  } catch {
     return { title: 'Property | HoroHouse' };
   }
 }
 
-export default function PropertyPage() {
+export default async function PropertyPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  await params;
   return <PropertyDetailClient />;
 }
