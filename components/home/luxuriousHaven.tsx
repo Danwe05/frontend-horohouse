@@ -102,7 +102,7 @@ export default function LuxuriousHaven() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="flex-1 bg-slate-900 border border-slate-800 p-8 md:p-10 rounded-3xl flex flex-col justify-between relative overflow-hidden"
             >
-              <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-blue-500 to-emerald-400 opacity-90" />
+              <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-blue-500 to-blue-500 opacity-90" />
               
               <div className="mb-8">
                 <h4 className="text-blue-400 font-bold text-[10px] uppercase tracking-[0.2em] mb-3">
