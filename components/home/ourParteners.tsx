@@ -1,8 +1,10 @@
 "use client";
 
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function OurPartners() {
+  const { t } = useLanguage();
   const partners = [
     {
       name: 'Zillow',
@@ -56,17 +58,23 @@ export default function OurPartners() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center"
+          className="flex flex-col items-center text-center gap-6 mb-16 px-4"
         >
-          <span className="inline-block px-4 py-2 mb-3 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
-            Trusted By Industry Leaders
-          </span>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-            Our Partners
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            We're proud to work with world-class companies who trust our platform
-          </p>
+          <div className="max-w-3xl flex flex-col items-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span className="h-px w-12 bg-blue-600 hidden md:block" />
+              <span className="text-blue-600 font-bold text-xs uppercase tracking-[0.3em] px-2">
+                {t.ourPartners?.trustedBy || 'Trusted By Industry Leaders'}
+              </span>
+              <span className="h-px w-12 bg-blue-600 hidden md:block" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-6 mt-2">
+              {t.ourPartners?.title || 'Our Partners'}
+            </h2>
+            <p className="text-lg text-gray-500 font-medium max-w-2xl mx-auto">
+              {t.ourPartners?.description || "We're proud to work with world-class companies who trust our platform."}
+            </p>
+          </div>
         </motion.div>
       </div>
 

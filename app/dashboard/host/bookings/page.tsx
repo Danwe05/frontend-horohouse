@@ -7,7 +7,7 @@ import { format, parseISO, differenceInDays } from 'date-fns';
 import {
     Calendar, Users, CheckCircle2, XCircle, Clock, Loader2,
     BedDouble, AlertCircle, RotateCcw, Filter, ChevronRight, MapPin,
-    Search, CalendarDays, DollarSign, Inbox
+    Search, CalendarDays, DollarSign, Inbox, LayoutGrid, List
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { AppSidebar } from '@/components/dashboard/Sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -28,6 +29,7 @@ const STATUS_CONFIG: Record<BookingStatus, { label: string; className: string; i
     [BookingStatus.REJECTED]: { label: 'Declined', className: 'bg-red-100/50 text-red-700 border-red-200', icon: <XCircle className="h-3 w-3" /> },
     [BookingStatus.CANCELLED]: { label: 'Cancelled', className: 'bg-slate-100/50 text-slate-600 border-slate-200', icon: <RotateCcw className="h-3 w-3" /> },
     [BookingStatus.COMPLETED]: { label: 'Completed', className: 'bg-blue-100/50 text-blue-700 border-blue-200', icon: <CheckCircle2 className="h-3 w-3" /> },
+    [BookingStatus.NO_SHOW]: { label: 'No Show', className: 'bg-blue-100/50 text-blue-700 border-blue-200', icon: <AlertCircle className="h-3 w-3"/> },
 };
 
 export default function HostBookingsPage() {
@@ -43,6 +45,7 @@ export default function HostBookingsPage() {
     }>({ open: false, type: 'confirm', booking: null });
     const [actionNote, setActionNote] = useState('');
     const [actioning, setActioning] = useState(false);
+    const [layoutMode, setLayoutMode] = useState<'card' | 'table'>('card');
 
     // Stats Calculation
     const stats = useMemo(() => {
@@ -125,7 +128,7 @@ export default function HostBookingsPage() {
                                 { label: 'Pending Requests', value: stats.pendingCount, icon: Inbox, color: 'text-amber-700', bg: 'bg-amber-100/50', iconColor: 'text-amber-600' },
                                 { label: 'Confirmed Stays', value: stats.confirmedCount, icon: CalendarDays, color: 'text-emerald-700', bg: 'bg-emerald-100/50', iconColor: 'text-emerald-600' },
                             ].map((stat, i) => (
-                                <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 relative overflow-hidden group">
+                                <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300 relative overflow-hidden group">
                                     <div className="flex items-center justify-between relative z-10">
                                         <div>
                                             <p className="text-sm font-medium text-slate-500">{stat.label}</p>
@@ -145,17 +148,17 @@ export default function HostBookingsPage() {
                         {/* ── Control Bar ── */}
                         <div className="bg-white p-3 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3 sticky top-4 z-20">
                             <div className="relative w-full md:max-w-md flex-1 group">
-                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                                 <Input
                                     placeholder="Search by guest or property name..."
-                                    className="pl-10 h-11 w-full bg-slate-50/50 border-transparent hover:border-slate-200 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500 rounded-xl transition-all shadow-none"
+                                    className="pl-10 h-11 w-full bg-slate-50/50 border-transparent hover:border-slate-200 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 rounded-xl transition-all shadow-none"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
                             <div className="w-full md:w-auto">
                                 <Select value={filter} onValueChange={(v) => { setFilter(v); setPage(1); }}>
-                                    <SelectTrigger className="h-11 w-full md:w-[180px] bg-slate-50/50 border-transparent hover:border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 rounded-xl transition-all shadow-none">
+                                    <SelectTrigger className="h-11 w-full md:w-[180px] bg-slate-50/50 border-transparent hover:border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all shadow-none">
                                         <div className="flex items-center">
                                             <Filter className="h-4 w-4 mr-2 text-slate-400" />
                                             <SelectValue placeholder="Filter Status" />
@@ -174,7 +177,7 @@ export default function HostBookingsPage() {
                         {/* ── Booking Cards ── */}
                         {loading ? (
                             <div className="flex flex-col items-center justify-center py-40 gap-4">
-                                <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
+                                <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
                                 <p className="text-sm font-medium text-slate-500 animate-pulse">Loading reservations...</p>
                             </div>
                         ) : filteredBookings.length === 0 ? (
@@ -190,99 +193,127 @@ export default function HostBookingsPage() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {filteredBookings.map((booking) => {
-                                    const prop = booking.propertyId;
-                                    const guest = booking.guestId;
-                                    const status = STATUS_CONFIG[booking.status] || STATUS_CONFIG[BookingStatus.PENDING];
-                                    const nights = booking.nights ?? differenceInDays(parseISO(booking.checkOut), parseISO(booking.checkIn));
+                                {layoutMode === 'card' ? (
+                                    filteredBookings.map((booking) => {
+                                        const prop = booking.propertyId;
+                                        const guest = booking.guestId;
+                                        const status = STATUS_CONFIG[booking.status] || STATUS_CONFIG[BookingStatus.PENDING];
+                                        const nights = booking.nights ?? differenceInDays(parseISO(booking.checkOut), parseISO(booking.checkIn));
 
-                                    return (
-                                        <div key={booking._id} className="group flex flex-col md:flex-row bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-100 transition-all duration-300 overflow-hidden">
-                                            {/* Left side: Image & Status */}
-                                            <div className="relative h-56 md:h-auto md:w-72 shrink-0 bg-slate-100 overflow-hidden">
-                                                {prop?.images?.[0]?.url ? (
-                                                    <img src={prop.images[0].url} alt={prop.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                                                ) : (
-                                                    <div className="flex h-full items-center justify-center">
-                                                        <BedDouble className="h-10 w-10 text-slate-300" />
+                                        return (
+                                            <div key={booking._id} className="group flex flex-col md:flex-row bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-blue-100 transition-all duration-300 overflow-hidden">
+                                                {/* Left side: Image & Status */}
+                                                <div className="relative h-56 md:h-auto md:w-72 shrink-0 bg-slate-100 overflow-hidden">
+                                                    {prop?.images?.[0]?.url ? (
+                                                        <img src={prop.images[0].url} alt={prop.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                                    ) : (
+                                                        <div className="flex h-full items-center justify-center">
+                                                            <BedDouble className="h-10 w-10 text-slate-300" />
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute top-4 left-4">
+                                                        <Badge className={`${status.className} border backdrop-blur-md px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-sm`}>
+                                                            {status.icon}
+                                                            {status.label}
+                                                        </Badge>
                                                     </div>
-                                                )}
-                                                <div className="absolute top-4 left-4">
-                                                    <Badge className={`${status.className} border backdrop-blur-md px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-sm`}>
-                                                        {status.icon}
-                                                        {status.label}
-                                                    </Badge>
                                                 </div>
-                                            </div>
 
-                                            {/* Right side: Content */}
-                                            <div className="flex-1 p-6 md:p-8 flex flex-col justify-between bg-white">
-                                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
-                                                    <div>
-                                                        <h3 className="text-xl font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">{prop?.title}</h3>
-                                                        <div className="flex items-center text-sm text-slate-500 mt-2 font-medium">
-                                                            <MapPin className="mr-1.5 h-4 w-4 text-indigo-400" />
-                                                            {prop?.city || 'Location not specified'}
+                                                {/* Right side: Content */}
+                                                <div className="flex-1 p-6 md:p-8 flex flex-col justify-between bg-white">
+                                                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
+                                                        <div>
+                                                            <h3 className="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">{prop?.title}</h3>
+                                                            <div className="flex items-center text-sm text-slate-500 mt-2 font-medium">
+                                                                <MapPin className="mr-1.5 h-4 w-4 text-blue-400" />
+                                                                {prop?.city || 'Location not specified'}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="bg-slate-50/80 px-4 py-2.5 rounded-xl border border-slate-100 text-right">
+                                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Payout</p>
+                                                                <p className="text-xl font-bold text-slate-900 mt-1">
+                                                                    {booking.priceBreakdown?.totalAmount?.toLocaleString()} <span className="text-xs font-semibold text-slate-500">{booking.currency ?? 'XAF'}</span>
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
 
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="bg-slate-50/80 px-4 py-2.5 rounded-xl border border-slate-100 text-right">
-                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Payout</p>
-                                                            <p className="text-xl font-bold text-slate-900 mt-1">
-                                                                {booking.priceBreakdown?.totalAmount?.toLocaleString()} <span className="text-xs font-semibold text-slate-500">{booking.currency ?? 'XAF'}</span>
-                                                            </p>
+                                                    <Separator className="my-6 bg-slate-100" />
+
+                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Calendar className="h-3 w-3 text-blue-400" /> Check-in</p>
+                                                            <p className="text-sm font-semibold text-slate-900">{format(parseISO(booking.checkIn), 'MMM d, yyyy')}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Calendar className="h-3 w-3 text-blue-400" /> Check-out</p>
+                                                            <p className="text-sm font-semibold text-slate-900">{format(parseISO(booking.checkOut), 'MMM d, yyyy')}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Users className="h-3 w-3 text-blue-400" /> Guest</p>
+                                                            <p className="text-sm font-semibold text-slate-900">{guest?.name || 'Anonymous'}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Clock className="h-3 w-3 text-blue-400" /> Duration</p>
+                                                            <p className="text-sm font-semibold text-slate-900">{nights} night{nights !== 1 && 's'} · {(booking.guests?.adults ?? 1)} adult{(booking.guests?.adults ?? 1) !== 1 && 's'}</p>
                                                         </div>
                                                     </div>
-                                                </div>
 
-                                                <Separator className="my-6 bg-slate-100" />
-
-                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Calendar className="h-3 w-3 text-indigo-400" /> Check-in</p>
-                                                        <p className="text-sm font-semibold text-slate-900">{format(parseISO(booking.checkIn), 'MMM d, yyyy')}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Calendar className="h-3 w-3 text-indigo-400" /> Check-out</p>
-                                                        <p className="text-sm font-semibold text-slate-900">{format(parseISO(booking.checkOut), 'MMM d, yyyy')}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Users className="h-3 w-3 text-indigo-400" /> Guest</p>
-                                                        <p className="text-sm font-semibold text-slate-900">{guest?.name || 'Anonymous'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Clock className="h-3 w-3 text-indigo-400" /> Duration</p>
-                                                        <p className="text-sm font-semibold text-slate-900">{nights} night{nights !== 1 && 's'} · {(booking.guests?.adults ?? 1)} adult{(booking.guests?.adults ?? 1) !== 1 && 's'}</p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center justify-between mt-auto pt-2">
-                                                    <div className="flex items-center gap-3">
-                                                        {booking.status === BookingStatus.PENDING && (
-                                                            <>
-                                                                <Button variant="outline" className="h-10 px-5 rounded-xl border-slate-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-sm font-semibold transition-all" onClick={() => setActionDialog({ open: true, type: 'reject', booking })}>
-                                                                    Decline
+                                                    <div className="flex items-center justify-between mt-auto pt-2">
+                                                        <div className="flex items-center gap-3">
+                                                            {booking.status === BookingStatus.PENDING && (
+                                                                <>
+                                                                    <Button variant="outline" className="h-10 px-5 rounded-xl border-slate-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-sm font-semibold transition-all" onClick={() => setActionDialog({ open: true, type: 'reject', booking })}>
+                                                                        Decline
+                                                                    </Button>
+                                                                    <Button className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md shadow-blue-100 transition-all hover:-translate-y-0.5" onClick={() => setActionDialog({ open: true, type: 'confirm', booking })}>
+                                                                        Accept Request
+                                                                    </Button>
+                                                                </>
+                                                            )}
+                                                            {booking.status === BookingStatus.CONFIRMED && (
+                                                                <Button variant="secondary" className="h-10 px-5 rounded-xl bg-blue-50/80 hover:bg-blue-100 text-blue-700 text-sm font-semibold transition-all border border-blue-100" onClick={() => handleComplete(booking)}>
+                                                                    <CheckCircle2 className="mr-2 h-4 w-4" /> Mark Completed
                                                                 </Button>
-                                                                <Button className="h-10 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md shadow-indigo-100 transition-all hover:-translate-y-0.5" onClick={() => setActionDialog({ open: true, type: 'confirm', booking })}>
-                                                                    Accept Request
-                                                                </Button>
-                                                            </>
-                                                        )}
-                                                        {booking.status === BookingStatus.CONFIRMED && (
-                                                            <Button variant="secondary" className="h-10 px-5 rounded-xl bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 text-sm font-semibold transition-all border border-indigo-100" onClick={() => handleComplete(booking)}>
-                                                                <CheckCircle2 className="mr-2 h-4 w-4" /> Mark Completed
-                                                            </Button>
-                                                        )}
+                                                            )}
+                                                        </div>
+                                                        <Button variant="ghost" className="h-10 px-4 rounded-xl hover:bg-slate-100 text-slate-600 font-semibold text-sm transition-all flex items-center gap-1.5 hover:-translate-y-0.5" onClick={() => router.push(`/dashboard/host/bookings/${booking._id}`)}>
+                                                            Details <ChevronRight className="h-4 w-4" />
+                                                        </Button>
                                                     </div>
-                                                    <Button variant="ghost" className="h-10 px-4 rounded-xl hover:bg-slate-100 text-slate-600 font-semibold text-sm transition-all flex items-center gap-1.5 hover:-translate-y-0.5" onClick={() => router.push(`/dashboard/host/bookings/${booking._id}`)}>
-                                                        Details <ChevronRight className="h-4 w-4" />
-                                                    </Button>
                                                 </div>
                                             </div>
-                                        </div>
-                                    );
-                                })}
+                                        );
+                                    })
+                                ) : (
+                                    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden overflow-x-auto w-full">
+                                        <table className="w-full text-sm text-left">
+                                            <thead className="bg-slate-50/80 text-xs text-slate-500 uppercase font-semibold border-b border-slate-200/60">
+                                                <tr>
+                                                    <th className="px-6 py-4 rounded-tl-2xl">Property</th>
+                                                    <th className="px-6 py-4">Guest</th>
+                                                    <th className="px-6 py-4">Dates & Duration</th>
+                                                    <th className="px-6 py-4">Total Payout</th>
+                                                    <th className="px-6 py-4 text-center">Status</th>
+                                                    <th className="px-6 py-4 text-right rounded-tr-2xl">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100">
+                                                {filteredBookings.map((booking) => (
+                                                    <HostBookingTableRow
+                                                        key={booking._id}
+                                                        booking={booking}
+                                                        onViewDetail={() => router.push(`/dashboard/host/bookings/${booking._id}`)}
+                                                        onAction={(type, booking) => setActionDialog({ open: true, type, booking })}
+                                                        onComplete={() => handleComplete(booking)}
+                                                    />
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
 
                                 {totalPages > 1 && (
                                     <div className="flex items-center justify-between border-t border-slate-200/60 pt-6 mt-6">
@@ -306,7 +337,7 @@ export default function HostBookingsPage() {
                 <DialogContent className="sm:max-w-md rounded-2xl border-none p-0 overflow-hidden shadow-2xl">
                     <div className="p-8">
                         <DialogHeader className="space-y-4 mb-6 text-left">
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${actionDialog.type === 'confirm' ? 'bg-indigo-50 text-indigo-600' : 'bg-red-50 text-red-600'}`}>
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${actionDialog.type === 'confirm' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'}`}>
                                 {actionDialog.type === 'confirm' ? <CheckCircle2 className="h-7 w-7" /> : <AlertCircle className="h-7 w-7" />}
                             </div>
                             <div>
@@ -328,7 +359,7 @@ export default function HostBookingsPage() {
                                 placeholder={actionDialog.type === 'confirm' ? 'E.g. "Looking forward to hosting you. Here are some instructions..."' : 'E.g. "Unfortunately, the property is unavailable during these dates..."'}
                                 value={actionNote}
                                 onChange={(e) => setActionNote(e.target.value)}
-                                className="min-h-[120px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all resize-none shadow-sm"
+                                className="min-h-[120px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-blue-500 focus-visible:bg-white transition-all resize-none shadow-sm"
                             />
                         </div>
 
@@ -337,7 +368,7 @@ export default function HostBookingsPage() {
                                 Cancel
                             </Button>
                             <Button
-                                className={`rounded-xl h-12 w-full sm:w-1/2 font-semibold shadow-md ${actionDialog.type === 'confirm' ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100 text-white' : 'bg-red-600 hover:bg-red-700 shadow-red-100 text-white'}`}
+                                className={`rounded-xl h-12 w-full sm:w-1/2 font-semibold shadow-md ${actionDialog.type === 'confirm' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-100 text-white' : 'bg-red-600 hover:bg-red-700 shadow-red-100 text-white'}`}
                                 onClick={handleAction}
                                 disabled={actioning}
                             >
@@ -349,5 +380,86 @@ export default function HostBookingsPage() {
                 </DialogContent>
             </Dialog>
         </SidebarProvider>
+    );
+}
+
+function HostBookingTableRow({
+    booking, onViewDetail, onAction, onComplete
+}: {
+    booking: Booking;
+    onViewDetail: () => void;
+    onAction: (type: 'confirm' | 'reject', booking: Booking) => void;
+    onComplete: () => void;
+}) {
+    const prop = booking.propertyId;
+    const guest = booking.guestId;
+    const status = STATUS_CONFIG[booking.status] || STATUS_CONFIG[BookingStatus.PENDING];
+    const nights = booking.nights ?? differenceInDays(parseISO(booking.checkOut), parseISO(booking.checkIn));
+
+    return (
+        <tr className="hover:bg-slate-50/50 transition-colors group">
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex items-center gap-4">
+                    <div className="h-12 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0">
+                        {prop?.images?.[0]?.url ? (
+                            <img src={prop.images[0].url} alt={prop?.title} className="h-full w-full object-cover" />
+                        ) : (
+                            <div className="flex h-full items-center justify-center">
+                                <BedDouble className="h-5 w-5 text-slate-300" />
+                            </div>
+                        )}
+                    </div>
+                    <div>
+                        <p className="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors truncate max-w-[180px] lg:max-w-xs">{prop?.title}</p>
+                        <p className="text-xs text-slate-500 mt-0.5 max-w-[150px] truncate">{prop?.city || 'Location not specified'}</p>
+                    </div>
+                </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <p className="font-medium text-slate-900">{guest?.name || 'Anonymous'}</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                    {(booking.guests?.adults ?? 1) + (booking.guests?.children ?? 0)} guest{(booking.guests?.adults ?? 1) > 1 || (booking.guests?.children ?? 0) > 0 ? 's' : ''}
+                </p>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                <p className="font-medium text-slate-900">{format(parseISO(booking.checkIn), 'MMM d, yyyy')}</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                    {nights} night{nights !== 1 ? 's' : ''} (until {format(parseISO(booking.checkOut), 'MMM d')})
+                </p>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <p className="font-semibold text-slate-900">
+                    {booking.priceBreakdown?.totalAmount?.toLocaleString()} <span className="text-xs text-slate-500 font-normal">{booking.currency ?? 'XAF'}</span>
+                </p>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-center">
+                <span className={`inline-flex items-center gap-1.5 rounded-lg border backdrop-blur-md px-3 py-1.5 text-xs font-semibold shadow-none ${status.className}`}>
+                    {status.icon}
+                    {status.label}
+                </span>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-right">
+                <div className="flex items-center justify-end gap-2">
+                    {booking.status === BookingStatus.PENDING && (
+                        <>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50" onClick={(e) => { e.stopPropagation(); onAction('confirm', booking); }} title="Accept">
+                                <CheckCircle2 className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); onAction('reject', booking); }} title="Decline">
+                                <XCircle className="h-4 w-4" />
+                            </Button>
+                        </>
+                    )}
+                    {booking.status === BookingStatus.CONFIRMED && (
+                        <Button size="sm" variant="outline" className="h-8 px-3 rounded-lg text-xs font-semibold border-indigo-200 text-indigo-700 hover:bg-indigo-50" onClick={(e) => { e.stopPropagation(); onComplete(); }}>
+                            Complete
+                        </Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="h-8 px-3 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 group-hover:text-indigo-600" onClick={onViewDetail}>
+                        Details
+                    </Button>
+                </div>
+            </td>
+        </tr>
     );
 }

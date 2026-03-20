@@ -42,7 +42,7 @@ const PolicySection = ({
 }) => (
     <FadeIn delay={delay} className="mb-16">
         <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
                 <Icon className="w-6 h-6" />
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{title}</h2>
@@ -115,11 +115,11 @@ export default function PrivacyPolicyPage() {
                             Security isn't just a feature; it's our foundation. We implement banking-grade security measures:
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                            <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                            <div className="p-6 rounded-2xl bg-white border border-slate-100">
                                 <h4 className="font-bold text-slate-900 mb-2">Data Encryption</h4>
                                 <p className="text-sm">All sensitive data is encrypted using 256-bit SSL technology during transit and at rest.</p>
                             </div>
-                            <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                            <div className="p-6 rounded-2xl bg-white border border-slate-100">
                                 <h4 className="font-bold text-slate-900 mb-2">Access Control</h4>
                                 <p className="text-sm">Strict internal protocols ensure your private information is only accessible to authorized personnel.</p>
                             </div>
@@ -189,7 +189,7 @@ export default function PrivacyPolicyPage() {
                 </div>
             </section>
 
-            <Footer />
+            
         </main>
     );
 }

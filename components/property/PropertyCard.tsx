@@ -1,10 +1,10 @@
 "use client";
 
-import { Heart, Bed, Bath, Ruler, Share2, Flag, ShieldCheck, Cpu, Users, Calendar, Clock } from "lucide-react";
+import { Heart, Bed, Bath, Ruler, Share2, Flag, ShieldCheck, Cpu, Users, Calendar, Clock, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { StaticImageData } from "next/image";
 import apiClient from "@/lib/api";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useCurrency } from "@/hooks/useCurrency";
 import {
   Carousel,
   CarouselContent,
@@ -25,7 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ReportModal } from "./ReportModal";
-import { formatTimeAgo, isNew, formatPrice } from "@/lib/propertyutils";
+import { formatTimeAgo, isNew } from "@/lib/propertyutils";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -36,7 +37,7 @@ interface PropertyCardProps {
   id: string;
   image: string | StaticImageData;
   images?: (string | StaticImageData)[];
-  price: string;
+  price: number | string;
   timeAgo: string;
   address: string;
   beds?: number;
@@ -56,6 +57,10 @@ interface PropertyCardProps {
   availableFrom?: string;
   /** Minimum stay nights for short-term */
   minNights?: number;
+  /** Average review rating (0–5) */
+  rating?: number;
+  /** Total number of reviews */
+  reviewCount?: number;
   /** Called when the card is hovered — used to highlight the map pin */
   onMouseEnter?: () => void;
   /** Called when the cursor leaves the card */
@@ -128,6 +133,32 @@ export const PropertyCardSkeleton = () => (
 // Main component
 // ---------------------------------------------------------------------------
 
+const StopPropagationWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const stop = (e: Event) => e.stopPropagation();
+
+    el.addEventListener("pointerdown", stop);
+    el.addEventListener("touchstart", stop);
+    el.addEventListener("mousedown", stop);
+
+    return () => {
+      el.removeEventListener("pointerdown", stop);
+      el.removeEventListener("touchstart", stop);
+      el.removeEventListener("mousedown", stop);
+    };
+  }, []);
+
+  return (
+    <div ref={ref} className={className}>
+      {children}
+    </div>
+  );
+};
+
 const PropertyCard = ({
   id,
   image,
@@ -150,10 +181,13 @@ const PropertyCard = ({
   maxGuests,
   availableFrom,
   minNights,
+  rating,
+  reviewCount,
   onMouseEnter,
   onMouseLeave,
 }: PropertyCardProps) => {
   const { isFavorite, addFavorite, removeFavorite, isLoaded } = useFavorites();
+  const { formatMoney } = useCurrency();
   const favorited = initialIsFavorite !== undefined ? initialIsFavorite : isFavorite(id);
   const [localFavorite, setLocalFavorite] = useState(favorited);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
@@ -165,26 +199,8 @@ const PropertyCard = ({
   }, [isLoaded, id, isFavorite, initialIsFavorite]);
 
   const { isAuthenticated } = useAuth();
-  const { translate, language } = useLanguage();
 
-  const [translatedAddress, setTranslatedAddress] = useState(address);
-  const [translatedTag, setTranslatedTag] = useState(tag);
 
-  useEffect(() => {
-    let cancelled = false;
-    const run = async () => {
-      const [addr, t] = await Promise.all([
-        translate(address),
-        tag ? translate(tag) : Promise.resolve(tag),
-      ]);
-      if (!cancelled) {
-        setTranslatedAddress(addr);
-        setTranslatedTag(t || tag);
-      }
-    };
-    run();
-    return () => { cancelled = true; };
-  }, [language, address, tag, translate]);
 
   const [reportOpen, setReportOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -201,9 +217,9 @@ const PropertyCard = ({
   const hasMultipleImages = imageArray.length > 1;
 
   const showNewBadge = isNew(timeAgo) && !tag;
-  const displayTag = showNewBadge ? "New" : translatedTag;
+  const displayTag = showNewBadge ? "New" : tag;
   const formattedTime = formatTimeAgo(timeAgo);
-  const formattedPrice = formatPrice(price);
+  const formattedPrice = typeof price === 'number' ? formatMoney(price) : price;
   const priceSuffix = getPriceSuffix(listingType, pricingUnit);
   const typeConfig = getListingTypeConfig(listingType);
 
@@ -290,7 +306,7 @@ const PropertyCard = ({
           )}>
 
             {/* ── Image carousel ── */}
-            <div className="relative overflow-hidden">
+            <StopPropagationWrapper className="relative overflow-hidden">
               <Carousel
                 className="w-full"
                 opts={{ loop: true }}
@@ -433,7 +449,7 @@ const PropertyCard = ({
                   {activeIndex + 1}/{imageArray.length}
                 </div>
               )}
-            </div>
+            </StopPropagationWrapper>
 
             {/* ── Card content ── */}
             <CardContent className="pb-4 pt-3">
@@ -456,12 +472,22 @@ const PropertyCard = ({
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground shrink-0">{formattedTime}</span>
+                  {rating !== undefined ? (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <span className="text-xs font-semibold text-foreground">{rating.toFixed(1)}</span>
+                      {reviewCount !== undefined && reviewCount > 0 && (
+                        <span className="text-xs text-muted-foreground">· {reviewCount}</span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground/60 italic shrink-0">No reviews</span>
+                  )}
                 </div>
               </div>
 
               {/* Address */}
-              <p className="text-sm text-muted-foreground mb-2.5 truncate">{translatedAddress}</p>
+              <p className="text-sm text-muted-foreground mb-2.5 truncate">{address}</p>
 
               {/* Short-term specific info row */}
               {isShortTerm && (maxGuests || minNights || availableFrom) && (

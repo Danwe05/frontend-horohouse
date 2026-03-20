@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import apiClient from "@/lib/api";
 import ScheduleTourModal from "@/components/property/details/ScheduleTourModal";
 import BookingForm from "@/components/dashboard/BookingForm";
+import { useCurrency } from "@/hooks/useCurrency";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -94,7 +95,7 @@ interface BookingPanelProps {
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
 export const BookingPanelSkeleton = () => (
-  <div className="hidden lg:block bg-white rounded-3xl shadow-sm p-8 space-y-6 border border-slate-100 animate-pulse">
+  <div className="hidden lg:block bg-white rounded-3xl p-8 space-y-6 border border-slate-100 animate-pulse">
     <div className="flex items-center justify-between">
       <Skeleton className="h-9 w-48" />
       <div className="flex gap-2">
@@ -123,6 +124,7 @@ export const BookingPanelSkeleton = () => (
 const BookingPanel = ({ property }: BookingPanelProps) => {
   const { isAuthenticated, user } = useAuth();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
+  const { formatMoney } = useCurrency();
 
   // Short-term: delegate to dedicated booking form — pass the full property object
   if (property.listingType === "short_term") {
@@ -229,7 +231,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
       if (navigator.share) {
         await navigator.share({
           title: "Check out this property",
-          text: `${property.listingType} — ${costs.monthlyRent.toLocaleString()} XAF`,
+          text: `${property.listingType} — ${formatMoney(costs.monthlyRent)}`,
           url,
         });
       } else {
@@ -306,12 +308,12 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
     <>
       <div className="space-y-6">
         {/* ── Desktop Booking Card ── */}
-        <div className="hidden lg:block bg-white rounded-3xl shadow-sm p-8 space-y-8 border border-slate-100">
+        <div className="hidden lg:block bg-white rounded-3xl  p-8 space-y-8 border border-slate-100">
           {/* Price header */}
           <div className="flex items-center justify-between">
             <div>
               <span className="text-3xl font-black text-slate-900 tracking-tight">
-                {costs.monthlyRent.toLocaleString()} XAF
+                {formatMoney(costs.monthlyRent)}
               </span>
               {property.listingType === "rent" && (
                 <span className="text-slate-500 font-medium ml-1">/ mo</span>
@@ -437,23 +439,23 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                 <span className="text-slate-500">
                   {property.listingType === "rent" ? "Monthly rent" : "Price"}
                 </span>
-                <span className="text-slate-900">{costs.monthlyRent.toLocaleString()} XAF</span>
+                <span className="text-slate-900">{formatMoney(costs.monthlyRent)}</span>
               </div>
               {property.listingType === "rent" && (
                 <>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-500">Security deposit</span>
-                    <span className="text-slate-900">{costs.securityDeposit.toLocaleString()} XAF</span>
+                    <span className="text-slate-900">{formatMoney(costs.securityDeposit)}</span>
                   </div>
                   {costs.maintenanceFee > 0 && (
                     <div className="flex justify-between items-center">
                       <span className="text-slate-500">Maintenance fee</span>
-                      <span className="text-slate-900">{costs.maintenanceFee.toLocaleString()} XAF/mo</span>
+                      <span className="text-slate-900">{formatMoney(costs.maintenanceFee)}/mo</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center">
                     <span className="text-slate-500">Application fee</span>
-                    <span className="text-slate-900">{costs.applicationFee.toLocaleString()} XAF</span>
+                    <span className="text-slate-900">{formatMoney(costs.applicationFee)}</span>
                   </div>
                 </>
               )}
@@ -469,7 +471,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                 <div className="flex items-end justify-between">
                   <span className="font-bold text-slate-900">Due at move-in</span>
                   <span className="text-2xl font-black text-slate-900 tracking-tight">
-                    {costs.totalMoveInCost.toLocaleString()} XAF
+                    {formatMoney(costs.totalMoveInCost)}
                   </span>
                 </div>
                 <div
@@ -493,7 +495,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-900">Total Price</span>
                 <span className="text-2xl font-black text-slate-900">
-                  {costs.monthlyRent.toLocaleString()} XAF
+                  {formatMoney(costs.monthlyRent)}
                 </span>
               </div>
             )}
@@ -502,7 +504,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
           {/* CTAs */}
           <div className="space-y-3 pt-2">
             <Button
-              className="w-full h-14 text-base font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm"
+              className="w-full h-14 text-base font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
               size="lg"
             >
               {property.listingType === "rent" ? "Apply Now" : "Make an Offer"}
@@ -526,7 +528,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
 
         {/* ── Agent Card ── */}
         {agent && (
-          <div className="bg-slate-50 rounded-3xl p-6 lg:p-8 space-y-6 border border-slate-100 shadow-sm sticky top-24">
+          <div className="bg-white rounded-3xl p-6 lg:p-8 space-y-6 border border-slate-100 sticky top-24">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-slate-900 tracking-tight">Listed by</h3>
               {agent.rating && isAuthenticated && (
@@ -539,7 +541,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
             </div>
 
             <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16 shadow-sm border-2 border-white">
+              <Avatar className="h-16 w-16 border-2 border-white">
                 {agent.profilePicture && (
                   <AvatarImage src={agent.profilePicture} alt={agent.name} />
                 )}
@@ -674,7 +676,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                             <span className="truncate">{listing.city}</span>
                           </div>
                           <p className="font-semibold text-sm mt-1 text-primary">
-                            {listing.price.toLocaleString()} XAF
+                            {formatMoney(listing.price)}
                             {listing.listingType === "rent" && (
                               <span className="text-xs text-muted-foreground">/month</span>
                             )}
@@ -709,9 +711,8 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-bold text-primary">
-                {costs.monthlyRent.toLocaleString()}
+                {formatMoney(costs.monthlyRent)}
               </span>
-              <span className="text-sm text-muted-foreground">XAF</span>
             </div>
             {property.listingType === "rent" && (
               <span className="text-xs text-muted-foreground">/month</span>

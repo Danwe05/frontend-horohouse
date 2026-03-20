@@ -333,7 +333,7 @@ export default function AgentsPage() {
                 )}
             </div>
 
-            <Footer />
+            
         </main>
     );
 }

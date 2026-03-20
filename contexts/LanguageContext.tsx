@@ -1,9 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, defaultLanguage, getLanguageDirection, getTranslations } from '@/lib/i18n';
-import type { TranslationKeys } from '@/lib/i18n/translations/en';
-import { googleTranslate } from '@/lib/translation/google-translate';
+import { Language, defaultLanguage, getLanguageDirection, getTranslations, TranslationKeys, languages } from '@/lib/i18n';
 
 interface LanguageContextType {
   language: Language;
@@ -13,7 +11,18 @@ interface LanguageContextType {
   translate: (text: string, sourceLang?: Language) => Promise<string>;
   isAutoTranslateEnabled: boolean;
   setAutoTranslateEnabled: (enabled: boolean) => void;
+  currency: string;
+  setCurrency: (currency: string) => void;
 }
+
+export const CURRENCIES = [
+  { value: 'XAF', label: 'XAF (FCFA)', symbol: 'FCFA' },
+  { value: 'USD', label: 'USD ($)', symbol: '$' },
+  { value: 'EUR', label: 'EUR (€)', symbol: '€' },
+  { value: 'GBP', label: 'GBP (£)', symbol: '£' },
+  { value: 'CAD', label: 'CAD (C$)', symbol: 'C$' },
+  { value: 'AUD', label: 'AUD (A$)', symbol: 'A$' },
+];
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
@@ -25,13 +34,14 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguageState] = useState<Language>(defaultLanguage);
   const [translations, setTranslations] = useState<TranslationKeys>(getTranslations(defaultLanguage));
   const [isAutoTranslateEnabled, setAutoTranslateEnabled] = useState(true);
+  const [currency, setCurrencyState] = useState<string>('XAF');
 
   useEffect(() => {
     // Load language from localStorage on mount
     const savedLanguage = localStorage.getItem('language') as Language | null;
     const savedAutoTranslate = localStorage.getItem('autoTranslate');
     
-    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'fr' || savedLanguage === 'ar')) {
+    if (savedLanguage && savedLanguage in languages) {
       setLanguageState(savedLanguage);
       setTranslations(getTranslations(savedLanguage));
       
@@ -42,6 +52,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
     if (savedAutoTranslate !== null) {
       setAutoTranslateEnabled(savedAutoTranslate === 'true');
+    }
+
+    const savedCurrency = localStorage.getItem('currency');
+    if (savedCurrency) {
+      setCurrencyState(savedCurrency);
     }
   }, []);
 
@@ -55,11 +70,13 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     document.documentElement.lang = lang;
   };
 
-  const translate = async (text: string, sourceLang: Language = 'en'): Promise<string> => {
-    if (!isAutoTranslateEnabled || language === sourceLang) {
-      return text;
-    }
-    return googleTranslate(text, language, sourceLang);
+  // translate() is a no-op — all translations come from the JSON locale files.
+  // Dynamic content (addresses etc.) is displayed as-is from the API.
+  const translate = async (text: string, _sourceLang?: Language): Promise<string> => text;
+
+  const setCurrency = (newCurrency: string) => {
+    setCurrencyState(newCurrency);
+    localStorage.setItem('currency', newCurrency);
   };
 
   const setAutoTranslateEnabledWithStorage = (enabled: boolean) => {
@@ -77,6 +94,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     translate,
     isAutoTranslateEnabled,
     setAutoTranslateEnabled: setAutoTranslateEnabledWithStorage,
+    currency,
+    setCurrency,
   };
 
   return (

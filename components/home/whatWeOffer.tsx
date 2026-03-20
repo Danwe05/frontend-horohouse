@@ -10,53 +10,56 @@ import {
   FaHeadset,
 } from "react-icons/fa";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const cards = [
+const getCards = (t: any) => [
   {
     icon: <FaBuilding size={36} />,
-    title: "Smart Property Search",
-    desc: "Quickly find your ideal property with our advanced search engine.",
+    title: t.services?.smartSearch?.title || "Smart Property Search",
+    desc: t.services?.smartSearch?.desc || "Quickly find your ideal property with our advanced search engine.",
     gradient: "from-blue-400 to-blue-600",
     image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80",
   },
   {
     icon: <FaUsers size={36} />,
-    title: "Easy Listing Submission",
-    desc: "Individuals and agencies can easily publish their properties in just a few clicks.",
+    title: t.services?.easyListing?.title || "Easy Listing Submission",
+    desc: t.services?.easyListing?.desc || "Individuals and agencies can easily publish their properties in just a few clicks.",
     gradient: "from-blue-500 to-blue-700",
     image: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&q=80",
   },
   {
     icon: <FaStar size={36} />,
-    title: "Immersive Virtual Tours",
-    desc: "Explore properties remotely through our 3D tours and 360° videos.",
+    title: t.services?.virtualTours?.title || "Immersive Virtual Tours",
+    desc: t.services?.virtualTours?.desc || "Explore properties remotely through our 3D tours and 360° videos.",
     gradient: "from-sky-400 to-blue-600",
     image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
   },
   {
     icon: <FaLightbulb size={36} />,
-    title: "Personalized Recommendations",
-    desc: "Receive property suggestions tailored to your preferences using AI.",
+    title: t.services?.recommendations?.title || "Personalized Recommendations",
+    desc: t.services?.recommendations?.desc || "Receive property suggestions tailored to your preferences using AI.",
     gradient: "from-cyan-500 to-blue-600",
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
   },
   {
     icon: <FaCheckCircle size={36} />,
-    title: "Secure Title Verification",
-    desc: "Ensure property legitimacy with blockchain-based verification.",
+    title: t.services?.verification?.title || "Secure Title Verification",
+    desc: t.services?.verification?.desc || "Ensure property legitimacy with blockchain-based verification.",
     gradient: "from-indigo-500 to-blue-600",
     image: "https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800&q=80",
   },
   {
     icon: <FaHeadset size={36} />,
-    title: "Intelligent Customer Support",
-    desc: "Our AI chatbot assists you 24/7 with all your questions.",
+    title: t.services?.support?.title || "Intelligent Customer Support",
+    desc: t.services?.support?.desc || "Our AI chatbot assists you 24/7 with all your questions.",
     gradient: "from-blue-600 to-indigo-600",
     image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80",
   },
 ];
 
 export default function WhatWeOffer() {
+  const { t, language } = useLanguage();
+  const cards = getCards(t);
   const [activeIndex, setActiveIndex] = useState(2);
   const sectionRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -133,13 +136,13 @@ export default function WhatWeOffer() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative w-full min-h-screen select-none bg-slate-50 py-20 overflow-hidden">
+    <section ref={sectionRef} className="relative w-full min-h-screen select-none bg-slate-50 py-20 overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <motion.div
         style={{ x: textX }}
         className="absolute top-10 left-0 whitespace-nowrap select-none pointer-events-none opacity-[0.03] z-0"
       >
-        <h2 className="text-[10rem] sm:text-[14rem] lg:text-[20rem] font-black text-slate-900 tracking-tighter">
-          HOROHOUSE • SERVICES • AFRICA • HOROHOUSE • SERVICES • AFRICA
+        <h2 className="text-[10rem] sm:text-[14rem] lg:text-[20rem] font-black text-slate-900 tracking-tighter uppercase">
+          {t.services?.banner || 'HOROHOUSE • SERVICES • AFRICA • HOROHOUSE • SERVICES • AFRICA'}
         </h2>
       </motion.div>
 
@@ -155,11 +158,11 @@ export default function WhatWeOffer() {
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-1 bg-blue-500" />
-                <span className="text-blue-500 font-black text-xs uppercase tracking-[0.4em]">Our Services</span>
+                <span className="text-blue-500 font-black text-xs uppercase tracking-[0.4em]">{t.services?.title || 'Our Services'}</span>
               </div>
-              <h2 className="text-5xl md:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter">
-                WHAT WE <br />
-                <span className="text-blue-500">OFFER.</span>
+              <h2 className="text-5xl md:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter uppercase">
+                {t.services?.headingLine1 || 'WHAT WE'} <br />
+                <span className="text-blue-500">{t.services?.headingLine2 || 'OFFER.'}</span>
               </h2>
             </motion.div>
           </div>
@@ -172,7 +175,7 @@ export default function WhatWeOffer() {
               transition={{ delay: 0.2 }}
               className="text-slate-500 text-xl md:text-2xl leading-tight max-w-sm border-l-4 border-blue-500 pl-6"
             >
-              Premier real estate solutions across Africa — engineered for speed, trust, and clarity.
+              {t.services?.subtitle || 'Premier real estate solutions across Africa — engineered for speed, trust, and clarity.'}
             </motion.p>
           </div>
         </div>
@@ -303,7 +306,7 @@ export default function WhatWeOffer() {
             className="text-center mt-6 text-slate-500 text-sm md:hidden"
             aria-hidden="true"
           >
-            ← Swipe to explore →
+            {t.services?.swipe || '← Swipe to explore →'}
           </motion.div>
         </div>
       </div>

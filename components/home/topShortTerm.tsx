@@ -2,19 +2,38 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 import PropertyCard from '@/components/property/PropertyCard';
 import apiClient from '@/lib/api';
-import { toast } from 'sonner';
+import { useCurrency } from '@/hooks/useCurrency';
+// import { toast } from 'sonner' ;
 import { FaArrowRight } from 'react-icons/fa';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TopShortTerm() {
+    const { t, language } = useLanguage();
+    const _t = t as any;
+    const { formatMoney } = useCurrency();
     const [properties, setProperties] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [cardsPerView, setCardsPerView] = useState(4);
+    const [api, setApi] = useState<CarouselApi>();
+
+    useEffect(() => {
+        if (!api) return;
+        api.on("select", () => {
+            setCurrentIndex(api.selectedScrollSnap());
+        });
+    }, [api]);
 
     // Responsive cards per view
     useEffect(() => {
@@ -45,9 +64,6 @@ export default function TopShortTerm() {
                 const data = await apiClient.searchProperties(params);
                 setProperties(Array.isArray(data?.properties) ? data.properties : []);
             } catch (error: any) {
-                toast.error('Failed to load short stays', {
-                    description: error?.response?.data?.message || 'Please try again later.',
-                });
                 setProperties([]);
             } finally {
                 setLoading(false);
@@ -60,15 +76,7 @@ export default function TopShortTerm() {
     // Format properties for PropertyCard component
     const formatPrice = (value?: number) => {
         if (typeof value !== "number") return "";
-        try {
-            return new Intl.NumberFormat(undefined, {
-                style: "currency",
-                currency: "XAF",
-                maximumFractionDigits: 0
-            }).format(value);
-        } catch {
-            return `${value.toLocaleString()} XAF`;
-        }
+        return formatMoney(value);
     };
 
     const timeAgoFromDate = (iso?: string) => {
@@ -93,30 +101,23 @@ export default function TopShortTerm() {
         tag: p.type ? String(p.type).toUpperCase() : undefined,
         initialIsFavorite: p.isFavorite || false,
         listingType: p.listingType || 'short_term',
+        rating: typeof p.averageRating === "number" && p.averageRating > 0 ? p.averageRating : undefined,
+        reviewCount: typeof p.reviewCount === "number" ? p.reviewCount : undefined,
     }));
 
     // Slider navigation
     const maxIndex = Math.max(0, formattedProperties.length - cardsPerView);
 
     const handlePrevious = () => {
-        setCurrentIndex((prev) => Math.max(prev - 1, 0));
+        api?.scrollPrev();
     };
 
     const handleNext = () => {
-        setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
-    };
-
-    const handleDragEnd = (e: any, { offset, velocity }: any) => {
-        const swipe = Math.abs(offset.x) * velocity.x;
-        if (swipe < -100) {
-            handleNext();
-        } else if (swipe > 100) {
-            handlePrevious();
-        }
+        api?.scrollNext();
     };
 
     // Include +1 card to allow for the 'peek' effect
-    const visibleProperties = formattedProperties.slice(currentIndex, currentIndex + cardsPerView + 1);
+    const showPeek = formattedProperties.length > cardsPerView;
 
     // Skeleton loader for property cards
     const PropertyCardSkeleton = () => (
@@ -140,25 +141,20 @@ export default function TopShortTerm() {
     );
 
     return (
-        <div className="min-h-screen px-4 sm:px-6 md:px-10 py-10 bg-slate-50">
+        <div className="min-h-screen px-4 sm:px-6 md:px-10 bg-slate-50" dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="mb-10"
+                    className="mb-0"
                 >
                     <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <div className="flex items-center">
-                                <span className="inline-block px-4 py-2 mb-3 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
-                                    Short Stays
-                                </span>
-                            </div>
+                        <div> 
 
                             <h3 className="text-2xl md:text-2xl font-bold text-gray-900">
-                                Perfect Weekend Getaways
+                                {_t.topShortTerm?.title || 'Perfect Weekend Getaways'}
                             </h3>
 
                             <div className="flex items-center gap-2 text-gray-600 mt-2">
@@ -166,7 +162,10 @@ export default function TopShortTerm() {
                                     <Skeleton className="h-5 w-48" />
                                 ) : (
                                     <p>
-                                        {formattedProperties.length} {formattedProperties.length === 1 ? 'property' : 'properties'} ready for you
+                                        {(formattedProperties.length === 1 
+                                            ? (_t.topShortTerm?.ready || '{{count}} property ready') 
+                                            : (_t.topShortTerm?.ready_plural || '{{count}} properties ready for you')
+                                        ).replace('{{count}}', String(formattedProperties.length))}
                                     </p>
                                 )}
                             </div>
@@ -177,22 +176,22 @@ export default function TopShortTerm() {
                             <div className="hidden md:flex items-center gap-3">
                                 <motion.button
                                     whileTap={{ scale: 0.9 }}
-                                    onClick={handlePrevious}
-                                    disabled={currentIndex === 0}
-                                    className={`w-10 h-10 bg-white border-1 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
+                                    onClick={language === 'ar' ? handleNext : handlePrevious}
+                                    disabled={language === 'ar' ? currentIndex === maxIndex : currentIndex === 0}
+                                    className={`w-10 h-10 bg-white border-1 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all ${(language === 'ar' ? currentIndex === maxIndex : currentIndex === 0) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
                                         }`}
                                 >
-                                    <ChevronLeft className="w-5 h-5" />
+                                    <ChevronLeft className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
                                 </motion.button>
 
                                 <motion.button
                                     whileTap={{ scale: 0.9 }}
-                                    onClick={handleNext}
-                                    disabled={currentIndex === maxIndex}
-                                    className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                                    onClick={language === 'ar' ? handlePrevious : handleNext}
+                                    disabled={language === 'ar' ? currentIndex === 0 : currentIndex === maxIndex}
+                                    className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${(language === 'ar' ? currentIndex === 0 : currentIndex === maxIndex) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
                                         }`}
                                 >
-                                    <ChevronRight className="w-5 h-5" />
+                                    <ChevronRight className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
                                 </motion.button>
                             </div>
                         )}
@@ -216,46 +215,39 @@ export default function TopShortTerm() {
                         <Card className="py-20 shadow-none border-0 bg-transparent">
                             <CardContent className="text-center">
                                 <h4 className="text-xl font-semibold text-gray-700 mb-2">
-                                    No Short Stays Found
+                                    {_t.topShortTerm?.noStays || 'No Short Stays Found'}
                                 </h4>
                                 <p className="text-gray-500">
-                                    We couldn't find any short-term listings at the moment.
+                                    {_t.topShortTerm?.noStaysDesc || "We couldn't find any short-term listings at the moment."}
                                 </p>
                                 <p className="text-gray-500 mt-2">
-                                    Check back soon for new listings!
+                                    {_t.topShortTerm?.checkBack || "Check back soon for new listings!"}
                                 </p>
                             </CardContent>
                         </Card>
                     ) : (
                         <>
-                            <div className="relative overflow-hidden -mx-3 px-3 py-2">
-                                <AnimatePresence mode="wait">
-                                    <motion.div
-                                        key={currentIndex}
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="flex flex-nowrap cursor-grab active:cursor-grabbing"
-                                        drag="x"
-                                        dragConstraints={{ left: 0, right: 0 }}
-                                        dragElastic={0.2}
-                                        onDragEnd={handleDragEnd}
-                                    >
-                                        {visibleProperties.map((property) => {
-                                            const showPeek = formattedProperties.length > currentIndex + cardsPerView;
-                                            return (
-                                                <div
-                                                    key={property.id}
-                                                    className="flex-none px-3 mb-2"
-                                                    style={{ width: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
-                                                >
-                                                    <PropertyCard {...property} />
-                                                </div>
-                                            );
-                                        })}
-                                    </motion.div>
-                                </AnimatePresence>
+                            <div className="relative overflow-hidden w-full pt-2">
+                                <Carousel
+                                    setApi={setApi}
+                                    opts={{
+                                        align: "start",
+                                        loop: false,
+                                    }}
+                                    className="w-full"
+                                >
+                                    <CarouselContent className="-ml-3">
+                                        {formattedProperties.map((property) => (
+                                            <CarouselItem
+                                                key={property.id}
+                                                className="pl-3"
+                                                style={{ flexBasis: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
+                                            >
+                                                <PropertyCard {...property} />
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                </Carousel>
                             </div>
 
                             {/* Progress Indicator */}
@@ -264,7 +256,7 @@ export default function TopShortTerm() {
                                     {Array.from({ length: maxIndex + 1 }).map((_, i) => (
                                         <button
                                             key={i}
-                                            onClick={() => setCurrentIndex(i)}
+                                            onClick={() => api?.scrollTo(i)}
                                             className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
                                                 }`}
                                         />

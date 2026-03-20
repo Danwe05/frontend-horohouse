@@ -43,7 +43,7 @@ const TermsSection = ({
 }) => (
     <FadeIn delay={delay} className="mb-16">
         <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
                 <Icon className="w-6 h-6" />
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{title}</h2>
@@ -195,7 +195,7 @@ export default function TermsOfServicePage() {
                 </div>
             </section>
 
-            <Footer />
+            
         </main>
     );
 }

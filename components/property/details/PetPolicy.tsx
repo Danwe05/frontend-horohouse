@@ -70,14 +70,14 @@ const PetPolicy = ({ policy, currency = "XAF" }: PetPolicyProps) => {
   ];
 
   return (
-    <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-8 mt-10">
+    <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 space-y-8 mt-10">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Pet Policy</h2>
         <Badge
           className={
             petsAllowed
               ? "bg-emerald-50 text-emerald-600 px-3.5 py-1.5 font-bold border-none rounded-lg"
-              : "bg-red-50 text-red-600 px-3.5 py-1.5 font-bold border-none rounded-lg shadow-sm"
+              : "bg-red-50 text-red-600 px-3.5 py-1.5 font-bold border-none rounded-lg"
           }
         >
           {petsAllowed ? "Pet Friendly" : "No Pets"}
@@ -87,7 +87,7 @@ const PetPolicy = ({ policy, currency = "XAF" }: PetPolicyProps) => {
       {/* If no pets allowed, show a simple notice and stop */}
       {!petsAllowed ? (
         <div className="flex items-start gap-4 p-4 rounded-2xl bg-red-50 border border-red-100">
-          <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
             <PawPrint className="h-6 w-6 text-red-400" />
           </div>
           <div className="flex-1">

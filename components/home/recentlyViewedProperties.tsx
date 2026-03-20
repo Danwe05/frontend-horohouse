@@ -2,14 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { Eye, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 import PropertyCard from '@/components/property/PropertyCard';
 import apiClient from '@/lib/api';
-import { toast } from 'sonner';
+// import { toast } from 'sonner';
 import { FaArrowRight } from 'react-icons/fa';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrency } from '@/hooks/useCurrency';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Format time ago helper (moved outside component for performance)
 const formatTimeAgo = (date: string) => {
@@ -32,11 +40,22 @@ const formatTimeAgo = (date: string) => {
 };
 
 export default function RecentlyViewedProperties() {
+    const { t, language } = useLanguage();
+    const _t = t as any;
     const { user, isAuthenticated } = useAuth();
+    const { formatMoney } = useCurrency();
     const [properties, setProperties] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [cardsPerView, setCardsPerView] = useState(4);
+    const [api, setApi] = useState<CarouselApi>();
+
+    useEffect(() => {
+        if (!api) return;
+        api.on("select", () => {
+            setCurrentIndex(api.selectedScrollSnap());
+        });
+    }, [api]);
 
     // Responsive cards per view
     useEffect(() => {
@@ -90,15 +109,7 @@ export default function RecentlyViewedProperties() {
     // Format properties for PropertyCard component
     const formatPrice = (value?: number) => {
         if (typeof value !== "number") return "";
-        try {
-            return new Intl.NumberFormat(undefined, {
-                style: "currency",
-                currency: "XAF",
-                maximumFractionDigits: 0
-            }).format(value);
-        } catch {
-            return `${value.toLocaleString()} XAF`;
-        }
+        return formatMoney(value);
     };
 
     const formattedProperties = properties.map((p) => ({
@@ -121,24 +132,15 @@ export default function RecentlyViewedProperties() {
     const maxIndex = Math.max(0, formattedProperties.length - cardsPerView);
 
     const handlePrevious = () => {
-        setCurrentIndex((prev) => Math.max(prev - 1, 0));
+        api?.scrollPrev();
     };
 
     const handleNext = () => {
-        setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
-    };
-
-    const handleDragEnd = (e: any, { offset, velocity }: any) => {
-        const swipe = Math.abs(offset.x) * velocity.x;
-        if (swipe < -100) {
-            handleNext();
-        } else if (swipe > 100) {
-            handlePrevious();
-        }
+        api?.scrollNext();
     };
 
     // Include +1 card to allow for the 'peek' effect
-    const visibleProperties = formattedProperties.slice(currentIndex, currentIndex + cardsPerView + 1);
+    const showPeek = formattedProperties.length > cardsPerView;
 
     // Skeleton loader for property cards
     const PropertyCardSkeleton = () => (
@@ -167,7 +169,7 @@ export default function RecentlyViewedProperties() {
     }
 
     return (
-        <div className=" min-h-screen px-4 sm:px-6 md:px-10 py-10">
+        <div className=" min-h-screen px-4 sm:px-6 md:px-10 py-10" dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -178,14 +180,9 @@ export default function RecentlyViewedProperties() {
                 >
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <div className="flex items-center">
-                                <span className="inline-block px-4 py-2 mb-3 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
-                                    Your History
-                                </span>
-                            </div>
 
                             <h3 className="text-2xl md:text-2xl font-bold text-gray-900">
-                                Recently Viewed Properties
+                                {_t.recentlyViewed?.title || 'Recently Viewed Properties'}
                             </h3>
 
                             <div className="flex items-center gap-2 text-gray-600 mt-2">
@@ -194,7 +191,10 @@ export default function RecentlyViewedProperties() {
                                 ) : (
                                     <>
                                         <p>
-                                            {formattedProperties.length} {formattedProperties.length === 1 ? 'property' : 'properties'} recently viewed based on your activity
+                                            {(formattedProperties.length === 1 
+                                                ? (_t.recentlyViewed?.subtitle_one || '{{count}} property recently viewed based on your activity') 
+                                                : (_t.recentlyViewed?.subtitle_other || '{{count}} properties recently viewed based on your activity')
+                                            ).replace('{{count}}', String(formattedProperties.length))}
                                         </p>
                                     </>
                                 )}
@@ -208,20 +208,20 @@ export default function RecentlyViewedProperties() {
                                     whileTap={{ scale: 0.9 }}
                                     onClick={handlePrevious}
                                     disabled={currentIndex === 0}
-                                    className={`w-10 h-10 bg-white border-1 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
+                                    className={`w-10 h-10 bg-white border-1 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all ${currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
                                         }`}
                                 >
-                                    <ChevronLeft className="w-5 h-5" />
+                                    <ChevronLeft className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
                                 </motion.button>
 
                                 <motion.button
                                     whileTap={{ scale: 0.9 }}
                                     onClick={handleNext}
                                     disabled={currentIndex === maxIndex}
-                                    className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                                    className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
                                         }`}
                                 >
-                                    <ChevronRight className="w-5 h-5" />
+                                    <ChevronRight className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
                                 </motion.button>
                             </div>
                         )}
@@ -243,34 +243,28 @@ export default function RecentlyViewedProperties() {
                         </div>
                     ) : (
                         <>
-                            <div className="relative overflow-hidden -mx-3 px-3 py-2">
-                                <AnimatePresence mode="wait">
-                                    <motion.div
-                                        key={currentIndex}
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="flex flex-nowrap cursor-grab active:cursor-grabbing"
-                                        drag="x"
-                                        dragConstraints={{ left: 0, right: 0 }}
-                                        dragElastic={0.2}
-                                        onDragEnd={handleDragEnd}
-                                    >
-                                        {visibleProperties.map((property, index) => {
-                                            const showPeek = formattedProperties.length > currentIndex + cardsPerView;
-                                            return (
-                                                <div
-                                                    key={`${property.id}-${currentIndex + index}`}
-                                                    className="flex-none px-3 mb-2"
-                                                    style={{ width: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
-                                                >
-                                                    <PropertyCard {...property} />
-                                                </div>
-                                            );
-                                        })}
-                                    </motion.div>
-                                </AnimatePresence>
+                            <div className="relative overflow-hidden w-full pt-2">
+                                <Carousel
+                                    setApi={setApi}
+                                    opts={{
+                                        align: "start",
+                                        loop: false,
+                                        direction: language === 'ar' ? 'rtl' : 'ltr'
+                                    }}
+                                    className="w-full"
+                                >
+                                    <CarouselContent className="-ml-3">
+                                        {formattedProperties.map((property) => (
+                                            <CarouselItem
+                                                key={property.id}
+                                                className="pl-3"
+                                                style={{ flexBasis: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
+                                            >
+                                                <PropertyCard {...property} />
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                </Carousel>
                             </div>
 
                             {/* Progress Indicator */}
@@ -279,7 +273,7 @@ export default function RecentlyViewedProperties() {
                                     {Array.from({ length: maxIndex + 1 }).map((_, i) => (
                                         <button
                                             key={i}
-                                            onClick={() => setCurrentIndex(i)}
+                                            onClick={() => api?.scrollTo(i)}
                                             className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
                                                 }`}
                                         />
@@ -323,7 +317,7 @@ export default function RecentlyViewedProperties() {
                         className="text-center mt-10"
                     >
                         <a href="/dashboard/recent" className="flex items-center justify-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
-                            View All History <FaArrowRight className="text-sm" />
+                            {_t.recentlyViewed?.viewAll || 'View All History'} <FaArrowRight className={`text-sm ${language === 'ar' ? 'rotate-180' : ''}`} />
                         </a>
                     </motion.div>
                 )}

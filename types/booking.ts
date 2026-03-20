@@ -1,11 +1,12 @@
 import { ReactNode } from "react";
 
 export enum BookingStatus {
-    PENDING = 'pending',
-    CONFIRMED = 'confirmed',
-    REJECTED = 'rejected',
-    CANCELLED = 'cancelled',
-    COMPLETED = 'completed',
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  CANCELLED = 'cancelled',
+  COMPLETED = 'completed',
+  REJECTED = 'rejected',
+  NO_SHOW = 'no_show',  
 }
 
 export enum PaymentStatus {
@@ -90,6 +91,7 @@ export interface Booking {
     };
     guestId: {
         _id: string;
+        id?: string;
         name: string;
         email?: string;
         phoneNumber?: string;

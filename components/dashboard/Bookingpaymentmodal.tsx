@@ -24,6 +24,7 @@ import {
   Dialog, DialogContent, DialogHeader,
   DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
+import { useCurrency } from '@/hooks/useCurrency';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ interface FlwConfig {
 }
 
 const MAX_POLLS = 12;
-const POLL_MS   = 2500;
+const POLL_MS = 2500;
 
 // ─── Inner FLW button (owns the hook) ────────────────────────────────────────
 
@@ -92,19 +93,21 @@ function FlwPayButton({ config, onPaid, onCancelled }: {
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
 export default function BookingPaymentModal({ booking, open, onClose, onSuccess }: Props) {
-  const [step, setStep]           = useState<Step>('confirm');
+  const [step, setStep] = useState<Step>('confirm');
   const [flwConfig, setFlwConfig] = useState<FlwConfig | null>(null);
-  const [error, setError]         = useState('');
+  const [error, setError] = useState('');
   const [pollCount, setPollCount] = useState(0);
 
   useEffect(() => {
     if (open) { setStep('confirm'); setFlwConfig(null); setError(''); setPollCount(0); }
   }, [open]);
 
-  const pb         = booking.priceBreakdown;
-  const currency   = booking.currency ?? 'XAF';
-  const propTitle  = typeof booking.propertyId === 'string' ? 'Property' : booking.propertyId.title;
-  const guestName  = typeof booking.guestId === 'string' ? '' : (booking.guestId.name  ?? '');
+  const pb = booking.priceBreakdown;
+  const { formatMoney } = useCurrency();
+  // bookingCurrency is the ISO code used for the Flutterwave payment charge (always XAF from the API)
+  const bookingCurrency = booking.currency ?? 'XAF';
+  const propTitle = typeof booking.propertyId === 'string' ? 'Property' : booking.propertyId.title;
+  const guestName = typeof booking.guestId === 'string' ? '' : (booking.guestId.name ?? '');
   const guestEmail = typeof booking.guestId === 'string' ? '' : (booking.guestId.email ?? '');
   const guestPhone = typeof booking.guestId === 'string' ? '' : ((booking.guestId as any).phoneNumber ?? '');
 
@@ -114,16 +117,16 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
     try {
       const res = await apiClient.initiateBookingPayment(booking._id);
       setFlwConfig({
-        public_key:      process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY!,
-        tx_ref:          res.txRef,
-        amount:          pb.totalAmount,
-        currency,
+        public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY!,
+        tx_ref: res.txRef,
+        amount: pb.totalAmount,
+        currency: bookingCurrency,
         payment_options: 'card,mobilemoney,account,banktransfer',
-        customer:        { email: guestEmail, phone_number: guestPhone, name: guestName },
-        customizations:  {
-          title:       'HoroHouse Stay Payment',
+        customer: { email: guestEmail, phone_number: guestPhone, name: guestName },
+        customizations: {
+          title: 'HoroHouse Stay Payment',
           description: `${propTitle} · ${booking.nights} night${booking.nights !== 1 ? 's' : ''}`,
-          logo:        typeof window !== 'undefined' ? `${window.location.origin}/logo.png` : '',
+          logo: typeof window !== 'undefined' ? `${window.location.origin}/logo.png` : '',
         },
         meta: { bookingId: booking._id, transactionId: res.transaction?._id ?? '' },
       });
@@ -133,35 +136,37 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
       setError(typeof raw === 'string' ? raw : 'Failed to prepare payment. Please try again.');
       setStep('confirm');
     }
-  }, [booking, pb, currency, propTitle, guestEmail, guestPhone, guestName]);
+  }, [booking, pb, bookingCurrency, propTitle, guestEmail, guestPhone, guestName]);
 
   // Step 2 — poll until webhook confirms
-  const pollStatus = useCallback(async () => {
+  const pollStatus = useCallback(() => {
     setStep('verifying');
     let attempts = 0;
-    const poll = async (): Promise<void> => {
+
+    const timer = setInterval(async () => {
       try {
         const updated = await apiClient.getBookingPaymentStatus(booking._id);
         if (updated.paymentStatus === 'paid') {
+          clearInterval(timer);
           setStep('success');
           setTimeout(onSuccess, 1500);
           return;
         }
       } catch { /* keep polling */ }
+
       attempts++;
       setPollCount(attempts);
+
       if (attempts >= MAX_POLLS) {
+        clearInterval(timer);
         toast.warning('Payment received. Confirmation may take a moment.');
         setStep('success');
         setTimeout(onSuccess, 1500);
-        return;
       }
-      await new Promise(r => setTimeout(r, POLL_MS));
-      return poll();
-    };
-    await poll();
-  }, [booking._id, onSuccess]);
+    }, POLL_MS);
 
+    return timer;
+  }, [booking._id, onSuccess]);
   const handleFlwCancelled = useCallback(() => {
     toast.error('Payment not completed. Your booking is saved — pay later from your bookings page.');
     setStep('confirm'); setFlwConfig(null);
@@ -211,32 +216,32 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
             {/* Price breakdown */}
             <div className="rounded-xl bg-slate-50 p-4 space-y-2 text-sm">
               <div className="flex justify-between text-slate-600">
-                <span>{pb.pricePerNight?.toLocaleString()} × {booking.nights} nights</span>
-                <span>{pb.subtotal?.toLocaleString()} {currency}</span>
+                <span>{formatMoney(pb.pricePerNight)} × {booking.nights} nights</span>
+                <span>{formatMoney(pb.subtotal)}</span>
               </div>
               {pb.cleaningFee > 0 && (
                 <div className="flex justify-between text-slate-600">
-                  <span>Cleaning fee</span><span>{pb.cleaningFee.toLocaleString()} {currency}</span>
+                  <span>Cleaning fee</span><span>{formatMoney(pb.cleaningFee)}</span>
                 </div>
               )}
               {pb.serviceFee > 0 && (
                 <div className="flex justify-between text-slate-600">
-                  <span>Service fee</span><span>{pb.serviceFee.toLocaleString()} {currency}</span>
+                  <span>Service fee</span><span>{formatMoney(pb.serviceFee)}</span>
                 </div>
               )}
               {pb.taxAmount > 0 && (
                 <div className="flex justify-between text-slate-600">
-                  <span>Taxes</span><span>{pb.taxAmount.toLocaleString()} {currency}</span>
+                  <span>Taxes</span><span>{formatMoney(pb.taxAmount)}</span>
                 </div>
               )}
               {pb.discountAmount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Discount</span><span>−{pb.discountAmount.toLocaleString()} {currency}</span>
+                  <span>Discount</span><span>−{formatMoney(pb.discountAmount)}</span>
                 </div>
               )}
               <Separator className="my-1" />
               <div className="flex justify-between font-bold text-slate-900">
-                <span>Total</span><span>{pb.totalAmount?.toLocaleString()} {currency}</span>
+                <span>Total</span><span>{formatMoney(pb.totalAmount)}</span>
               </div>
             </div>
 

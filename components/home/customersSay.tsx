@@ -4,52 +4,50 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Quote, Star } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const customers = [
+const getCustomers = (t: any) => [
   {
     name: 'Jean-Marc T.',
     location: 'Lagos, Nigeria',
-    role: 'Real Estate Agent',
-    text: `"As an agent, I love the visibility and leads I get from HoroHouse. It's easy to use, and the support team is always available."`,
+    role: t.customersSay?.['0']?.role || 'Real Estate Agent',
+    text: `"${t.customersSay?.['0']?.text || "As an agent, I love the visibility and leads I get from HoroHouse. It's easy to use, and the support team is always available."}"`,
     rating: 5,
     img: 'https://images.unsplash.com/photo-1531384441138-2736e62e0919?w=150&h=150&fit=crop&crop=face',
   },
   {
     name: 'Julienne N.',
     location: 'Yaoundé, Cameroon',
-    role: 'Homeowner',
-    text: `"I finally found a platform that understands the African market. HoroHouse helped me find a home in Yaoundé in just 3 days."`,
+    role: t.customersSay?.['1']?.role || 'Homeowner',
+    text: `"${t.customersSay?.['1']?.text || "I finally found a platform that understands the African market. HoroHouse helped me find a home in Yaoundé in just 3 days."}"`,
     rating: 5,
     img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face',
   },
   {
     name: 'Fatima S.',
     location: 'Abidjan, Ivory Coast',
-    role: 'Property Buyer',
-    text: `"Clean interface, verified listings, and great customer service. Just waiting for the mobile app to drop!"`,
+    role: t.customersSay?.['2']?.role || 'Property Buyer',
+    text: `"${t.customersSay?.['2']?.text || "Clean interface, verified listings, and great customer service. Just waiting for the mobile app to drop!"}"`,
     rating: 5,
     img: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150&h=150&fit=crop&crop=face',
   },
   {
     name: 'Ali K.',
     location: 'Nairobi, Kenya',
-    role: 'Tenant',
-    text: `"Fantastic platform! Helped me find an apartment quickly and easily. The virtual tours feature is amazing!"`,
+    role: t.customersSay?.['3']?.role || 'Tenant',
+    text: `"${t.customersSay?.['3']?.text || "Fantastic platform! Helped me find an apartment quickly and easily. The virtual tours feature is amazing!"}"`,
     rating: 5,
     img: 'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=150&h=150&fit=crop&crop=face',
   },
   {
     name: 'Sophie M.',
     location: 'Johannesburg, South Africa',
-    role: 'Investor',
-    text: `"User-friendly and reliable service. The blockchain verification gives me peace of mind. Highly recommended!"`,
+    role: t.customersSay?.['4']?.role || 'Investor',
+    text: `"${t.customersSay?.['4']?.text || "User-friendly and reliable service. The blockchain verification gives me peace of mind. Highly recommended!"}"`,
     rating: 5,
     img: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=150&h=150&fit=crop&crop=face',
   },
 ];
-
-// Tripling the array to allow for infinite scrolling buffer
-const duplicatedCustomers = [...customers, ...customers, ...customers];
 
 function Stars({ count }: { count: number }) {
   return (
@@ -65,6 +63,10 @@ function Stars({ count }: { count: number }) {
 }
 
 export default function CustomersSay() {
+  const { t, language } = useLanguage();
+  const customers = getCustomers(t);
+  const duplicatedCustomers = [...customers, ...customers, ...customers];
+
   const containerRef = useRef<HTMLDivElement>(null);
   const [centerIndex, setCenterIndex] = useState(customers.length); // Start in the middle set
   const [isPaused, setIsPaused] = useState(false);
@@ -145,20 +147,25 @@ export default function CustomersSay() {
   }, [isPaused, centerIndex, scrollToIndex]);
 
   return (
-    <div className="bg-white py-24 relative overflow-hidden">
+    <div className="bg-white py-24 relative overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <style jsx global>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
       <section className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-16 px-4">
-          <span className="inline-block px-4 py-2 mb-3 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
-            Testimonials
-          </span>
-          <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-            What Our Customers Say
-          </h3>
+        {/* Header Section (Styled after StudentSection) */}
+        <div className="flex flex-col items-center text-center gap-6 mb-16 px-4">
+          <div className="max-w-3xl flex flex-col items-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span className="h-px w-12 bg-blue-600 hidden md:block" />
+              <span className="text-blue-600 font-bold text-xs uppercase tracking-[0.3em] px-2">{t.customersSay?.testimonials || 'Testimonials'}</span>
+              <span className="h-px w-12 bg-blue-600 hidden md:block" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-6 mt-2">
+              {t.customersSay?.title || 'What Our Customers Say'}
+            </h2>
+          </div>
         </div>
 
         <div 

@@ -45,7 +45,9 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { languages, Language } from '@/lib/i18n';
+import LanguageCurrencyModal from '@/components/layout/LanguageCurrencyModal';
 import { useRouter } from 'next/navigation';
+import { useStudentMode } from '@/contexts/StudentModeContext';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { apiClient } from '@/lib/api';
 import { authService } from '@/lib/auth';
@@ -59,11 +61,14 @@ interface NavbarProps {
 export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProps) {
   const { user, isAuthenticated, logout } = useAuth();
   const { language, setLanguage, t, dir } = useLanguage();
+  const _t = t as any;
+  const { isStudentMode, toggleStudentMode } = useStudentMode();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState('/');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isLangCurrencyModalOpen, setIsLangCurrencyModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [favoritesCount, setFavoritesCount] = useState(0);
@@ -143,7 +148,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
     }
   };
 
-  const canAddProperty = !isAuthenticated || user?.role === 'agent' || user?.role === 'admin';
+  const canAddProperty = user?.role === 'agent' || user?.role === 'landlord' || user?.role === 'admin';
 
   const handleAddProperty = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -158,8 +163,6 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
     router.push('/dashboard/propertyForm');
   };
 
-  const changeLanguage = (lang: Language) => setLanguage(lang);
-
   type NavLink = {
     href: string;
     label: string;
@@ -167,22 +170,22 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
   };
 
   const getNavLinks = (): NavLink[] => {
-    const buyLink: NavLink = { href: '/properties?listingType=sale', label: 'Buy', icon: Building };
-    const rentLink: NavLink = { href: '/properties?listingType=rent', label: 'Rent', icon: Building };
-    const staysLink: NavLink = { href: '/properties?listingType=short_term', label: 'Stays', icon: Building };
-    const agentLink: NavLink = { href: '/agents', label: 'Find an agent', icon: Building };
-    const contactLink: NavLink = { href: '/contact', label: 'Contact', icon: Globe };
-    const aboutLink: NavLink = { href: '/about', label: 'About Us', icon: Award };
-    const homeLink: NavLink = { href: '/', label: 'Home', icon: Home };
+    const buyLink: NavLink = { href: '/properties?listingType=sale', label: t.nav.buy || 'Buy', icon: Building };
+    const rentLink: NavLink = { href: '/properties?listingType=rent', label: t.nav.rent || 'Rent', icon: Building };
+    const staysLink: NavLink = { href: '/properties?listingType=short_term', label: _t.navbar?.stays || 'Stays', icon: Building };
+    const studentsLink: NavLink = { href: '/students', label: _t.navbar?.students || 'Students', icon: Building };
+    const contactLink: NavLink = { href: '/contact', label: t.nav.contact || 'Contact', icon: Globe };
+    const aboutLink: NavLink = { href: '/about', label: t.nav.about || 'About Us', icon: Award };
+    const homeLink: NavLink = { href: '/', label: t.nav.home || 'Home', icon: Home };
 
-    const baseLinks = [homeLink, rentLink, buyLink, staysLink, agentLink, contactLink, aboutLink];
+    const baseLinks = [homeLink, rentLink, buyLink, staysLink, studentsLink, contactLink, aboutLink];
 
     if (!isAuthenticated) return baseLinks;
 
     switch (user?.role) {
       case 'admin':
       case 'agent':
-        return [homeLink, rentLink, buyLink, staysLink, agentLink, aboutLink, contactLink];
+        return [homeLink, rentLink, buyLink, staysLink, studentsLink, aboutLink, contactLink];
       default:
         return baseLinks;
     }
@@ -219,12 +222,17 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
     }),
   };
 
-  const quickSuggestions = ['Apartments in Douala', 'Villas for sale', 'Studio rentals', 'Commercial space'];
+  const quickSuggestions = [
+    _t.navbar?.qs1 || 'Apartments in Douala',
+    _t.navbar?.qs2 || 'Villas for sale',
+    _t.navbar?.qs3 || 'Studio rentals',
+    _t.navbar?.qs4 || 'Commercial space'
+  ];
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 w-full flex justify-between h-16 items-center px-4 md:px-6 z-50 transition-all duration-300 ${scrolled ? 'bg-white border-b border-gray-200' : 'bg-white/80 backdrop-blur-lg'
+        className={`fixed top-0 left-0 right-0 w-full flex justify-between h-16 items-center px-4 md:px-6 z-50 transition-all duration-300 ${scrolled ? 'bg-white border-b border-gray-200' : 'bg-white'
           }`}
       >
         {/* LEFT: Burger (mobile) / Logo (desktop) */}
@@ -262,35 +270,36 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
         </div>
 
         {/* RIGHT: Actions */}
-        <div className="flex items-center justify-end gap-2">
-          {/* Language */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="hidden md:flex w-9 h-9 items-center justify-center rounded-full bg-gray-100 hover:bg-blue-50 transition-colors"
-                aria-label="Change language"
-              >
-                <img
-                  src={languages[language].flag}
-                  alt={languages[language].name}
-                  className="w-6 h-6 rounded-full object-cover shadow-sm"
-                  loading="lazy"
-                />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {Object.entries(languages).map(([key, lang]) => (
-                <DropdownMenuItem
-                  key={key}
-                  onClick={() => changeLanguage(key as Language)}
-                  className={language === key ? 'bg-blue-50 font-semibold' : ''}
-                >
-                  <img src={lang.flag} alt={lang.name} className="mr-2 w-5 h-5 rounded-full object-cover shadow-sm" loading="lazy" />
-                  {lang.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="flex items-center justify-end gap-2 pr-2">
+          
+          {/* Student Mode Toggle */}
+          {user?.role === 'student' && (
+            <button
+              onClick={toggleStudentMode}
+              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                isStudentMode 
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20' 
+                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${isStudentMode ? 'bg-white' : 'bg-gray-400'}`} />
+              {_t.navbar?.campusHub || 'Campus Hub'}
+            </button>
+          )}
+
+          {/* Language & Currency Trigger */}
+          <button
+            onClick={() => setIsLangCurrencyModalOpen(true)}
+            className="flex w-9 h-9 items-center  justify-center rounded-full bg-gray-100 hover:bg-blue-50 transition-colors"
+            aria-label="Language and Currency Preferences"
+          >
+            <img
+              src={languages[language]?.flag || languages['en'].flag}
+              alt={languages[language]?.name || 'Language'}
+              className="w-6 h-6 rounded-full object-cover shadow-sm"
+              loading="lazy"
+            />
+          </button>
 
           {/* Add Property */}
           {canAddProperty && (
@@ -300,13 +309,13 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                 className="flex relative items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 md:px-4 py-2 rounded-full transition-colors shadow-sm hover:shadow-md"
               >
                 <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Add Property</span>
-                <span className="absolute -top-2 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-sm">
-                  FREE
+                <span className={`hidden sm:inline ${language === 'ar' ? 'mr-1' : ''}`}>{t.nav.addProperty || 'Add Property'}</span>
+                <span className={`absolute -top-2 ${language === 'ar' ? '-left-2' : '-right-2'} bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-sm`}>
+                  {_t.navbar?.free || 'FREE'}
                 </span>
               </button>
               <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
-                List your property for free
+                {_t.navbar?.listFree || 'List your property for free'}
                 <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
               </div>
             </div>
@@ -395,6 +404,11 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
         </div>
       </nav>
 
+      <LanguageCurrencyModal 
+        isOpen={isLangCurrencyModalOpen} 
+        onClose={() => setIsLangCurrencyModalOpen(false)} 
+      />
+
       {/* ── Search Modal ─────────────────────────────────────────────────── */}
       <AnimatePresence>
         {isSearchOpen && (
@@ -441,7 +455,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                   </button>
                 </form>
                 <div className="px-5 py-4">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Quick searches</p>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">{_t.navbar?.quickSearches || 'Quick searches'}</p>
                   <div className="flex flex-wrap gap-2">
                     {quickSuggestions.map((s, i) => (
                       <motion.button
@@ -464,9 +478,9 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                     ))}
                   </div>
                 </div>
-                <div className="px-5 pb-4 flex items-center gap-1.5">
+                <div className="px-5 pb-4 flex items-center gap-1.5 text-left" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                   <kbd className="px-2 py-0.5 rounded bg-gray-100 text-gray-400 text-xs font-mono">Esc</kbd>
-                  <span className="text-xs text-gray-400">to close</span>
+                  <span className="text-xs text-gray-400">{_t.navbar?.escToClose || 'to close'}</span>
                 </div>
               </div>
             </motion.div>
@@ -513,8 +527,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                 </div>
               ) : (
                 <div className="mt-10">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome</h2>
-                  <p className="text-gray-500 text-sm">Discover your dream property</p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.nav.welcome || 'Welcome'}</h2>
+                  <p className="text-gray-500 text-sm">{t.nav.discoverProperty || 'Discover your dream property'}</p>
                 </div>
               )}
             </div>
@@ -536,6 +550,22 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                   </Link>
                 ))}
               </div>
+
+              {/* Language & Currency Row */}
+              <div className="h-px bg-gray-100 my-2 mx-3" />
+              <button
+                onClick={() => { setIsLangCurrencyModalOpen(true); setIsMobileMenuOpen(false); }}
+                className="w-full flex items-center gap-4 px-5 py-3 rounded-xl text-gray-700 hover:bg-gray-50 transition-all duration-200 font-medium"
+              >
+                <img
+                  src={languages[language]?.flag || languages['en'].flag}
+                  alt={languages[language]?.name || 'Language'}
+                  className="w-6 h-6 rounded-full object-cover shadow-sm"
+                  loading="lazy"
+                />
+                <span className={`text-[15px] flex-1 ${language === 'ar' ? 'text-right' : 'text-left'}`}>{_t.navbar?.langAndCurrency || 'Language & Currency'}</span>
+                <span className="text-xs text-gray-400 font-semibold uppercase tracking-wide">{languages[language]?.name || 'EN'}</span>
+              </button>
 
               {isAuthenticated && (
                 <div className="mt-4">
@@ -562,11 +592,11 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                   <button className="w-full relative overflow-hidden bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/50 group">
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {t.nav.signIn}
-                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className={`w-5 h-5 transition-transform duration-300 ${language === 'ar' ? 'group-hover:-translate-x-1 rotate-180' : 'group-hover:translate-x-1'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                       </svg>
                     </span>
-                    <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    <div className={`absolute inset-0 bg-white/20 ${language === 'ar' ? 'translate-x-full group-hover:-translate-x-full' : '-translate-x-full group-hover:translate-x-full'} transition-transform duration-1000`} />
                   </button>
                 </Link>
               </div>

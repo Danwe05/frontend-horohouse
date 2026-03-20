@@ -1223,18 +1223,7 @@ const MapView = ({
     </div>
   );
 
-  // Price formatter for PropertyCard (expects a string)
-  const formatPropertyPrice = useCallback((price: number): string => {
-    try {
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "XAF",
-        maximumFractionDigits: 0,
-      }).format(price);
-    } catch {
-      return `${price.toLocaleString()} XAF`;
-    }
-  }, []);
+
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -1257,7 +1246,7 @@ const MapView = ({
               id={selectedProperty.id}
               image={selectedProperty.image || PLACEHOLDER_IMAGE}
               images={selectedProperty.images}
-              price={formatPropertyPrice(selectedProperty.price)}
+              price={selectedProperty.price}
               timeAgo=""
               address={selectedProperty.address || selectedProperty.title}
               beds={selectedProperty.beds}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, JSX } from 'react';
 import { Search, MapPin, Home, DollarSign, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PlaceSuggestion {
   place_name: string;
@@ -12,6 +13,7 @@ interface PlaceSuggestion {
 
 export default function HeroSection() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [selectedTab, setSelectedTab] = useState('rent');
   const [visible, setVisible] = useState(true);
 
@@ -26,34 +28,34 @@ export default function HeroSection() {
 
   const tabContent: Record<string, { badge: string; heading: JSX.Element; desc: string }> = {
     sale: {
-      badge: 'Buy Property',
+      badge: t.hero?.tabs?.saleBadge || 'Buy Property',
       heading: (
         <>
-          Find Your Forever{' '}
-          <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">Home</span>
+          {t.hero?.tabContent?.sale?.heading1 || 'Find Your Forever'}{' '}
+          <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">{t.hero?.tabContent?.sale?.heading2 || 'Home'}</span>
         </>
       ),
-      desc: 'Discover premium properties for sale. Invest in your future with our exclusive real estate listings.',
+      desc: t.hero?.tabContent?.sale?.desc || 'Discover premium properties for sale. Invest in your future with our exclusive real estate listings.',
     },
     rent: {
-      badge: 'Rent Property',
+      badge: t.hero?.tabs?.rentBadge || 'Rent Property',
       heading: (
         <>
-          Your Perfect{' '}
-          <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">Rental</span>
+          {t.hero?.tabContent?.rent?.heading1 || 'Your Perfect'}{' '}
+          <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">{t.hero?.tabContent?.rent?.heading2 || 'Rental'}</span>
         </>
       ),
-      desc: 'Explore top-tier apartments and houses for rent. Flexible living tailored to your modern lifestyle.',
+      desc: t.hero?.tabContent?.rent?.desc || 'Explore top-tier apartments and houses for rent. Flexible living tailored to your modern lifestyle.',
     },
     short_term: {
-      badge: 'Book a Stay',
+      badge: t.hero?.tabs?.shortStaysBadge || 'Book a Stay',
       heading: (
         <>
-          Unforgettable{' '}
-          <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">Stays</span>
+          {t.hero?.tabContent?.shortStays?.heading1 || 'Unforgettable'}{' '}
+          <span className="bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">{t.hero?.tabContent?.shortStays?.heading2 || 'Stays'}</span>
         </>
       ),
-      desc: 'Book luxurious vacation rentals and short-term stays. Experience comfort anywhere you travel.',
+      desc: t.hero?.tabContent?.shortStays?.desc || 'Book luxurious vacation rentals and short-term stays. Experience comfort anywhere you travel.',
     },
   };
 
@@ -75,20 +77,20 @@ export default function HeroSection() {
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const propertyTypes = [
-    { value: '', label: 'Any Type' },
-    { value: 'apartment', label: 'Apartment' },
-    { value: 'house', label: 'House' },
-    { value: 'villa', label: 'Villa' },
-    { value: 'condo', label: 'Condo' },
-    { value: 'studio', label: 'Studio' },
+    { value: '', label: t.hero?.search?.anyType || 'Any Type' },
+    { value: 'apartment', label: t.hero?.search?.apartment || 'Apartment' },
+    { value: 'house', label: t.hero?.search?.house || 'House' },
+    { value: 'villa', label: t.hero?.search?.villa || 'Villa' },
+    { value: 'condo', label: t.hero?.search?.condo || 'Condo' },
+    { value: 'studio', label: t.hero?.search?.studio || 'Studio' },
   ];
 
   const priceRanges = [
-    { value: '', label: 'Any Price' },
-    { value: '200000', label: 'Up to 200k XAF' },
-    { value: '500000', label: 'Up to 500k XAF' },
-    { value: '1000000', label: 'Up to 1M XAF' },
-    { value: '2000000', label: 'Up to 2M XAF' },
+    { value: '', label: t.hero?.search?.anyPrice || 'Any Price' },
+    { value: '200000', label: t.hero?.search?.upTo200k || 'Up to 200k XAF' },
+    { value: '500000', label: t.hero?.search?.upTo500k || 'Up to 500k XAF' },
+    { value: '1000000', label: t.hero?.search?.upTo1M || 'Up to 1M XAF' },
+    { value: '2000000', label: t.hero?.search?.upTo2M || 'Up to 2M XAF' },
   ];
 
   // Fetch place suggestions from Maptiler Geocoding API
@@ -279,16 +281,16 @@ export default function HeroSection() {
           </div>
 
           {/* Desktop Tabs */}
-          <div className="hidden lg:flex space-x-1 mb-0 bg-gray-100 p-1 rounded-xl w-[60vw] max-w-md">
+          <div className="hidden lg:flex space-x-1 mb-0 bg-white p-1 rounded-tl-2xl rounded-tr-2xl w-[60vw] max-w-md">
             {[
-              { value: 'rent', label: 'Rent' },
-              { value: 'sale', label: 'Buy' },
-              { value: 'short_term', label: 'Short Stays' }
+              { value: 'rent', label: t.hero?.tabs?.rent || 'Rent' },
+              { value: 'sale', label: t.hero?.tabs?.sale || 'Buy' },
+              { value: 'short_term', label: t.hero?.tabs?.shortStays || 'Short Stays' }
             ].map((tab) => (
               <button
                 key={tab.value}
-                className={`flex-1 py-3 rounded-lg font-semibold capitalize transition-all duration-300 transform text-sm ${selectedTab === tab.value
-                  ? 'bg-white text-blue-600 shadow-sm'
+                className={`flex-1 py-3 rounded-tl-2xl rounded-tr-2xl font-semibold capitalize transition-all duration-300 transform text-sm ${selectedTab === tab.value
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
                   }`}
                 onClick={() => handleTabChange(tab.value)}
@@ -301,7 +303,7 @@ export default function HeroSection() {
           {/* Search Box - Desktop */}
           <div className="hidden lg:block w-[70vw] max-w-4xl">
             <div
-              className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl border border-white/20 hover:shadow-2xl transition-all duration-300 w-full"
+              className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl rounded-tl-none border border-white/20 hover:shadow-2xl transition-all duration-300 w-full"
               style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}
             >
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -310,7 +312,7 @@ export default function HeroSection() {
                 <div className="space-y-2 relative" ref={suggestionsRef}>
                   <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
                     <MapPin size={14} />
-                    <span>City</span>
+                    <span>{t.hero?.search?.city || 'City'}</span>
                   </label>
                   <div className="relative">
                     {isLoadingSuggestions && (
@@ -318,7 +320,7 @@ export default function HeroSection() {
                     )}
                     <input
                       type="text"
-                      placeholder="Search a city..."
+                      placeholder={t.hero?.search?.cityPlaceholder || 'Search a city...'}
                       className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
                       value={searchData.city}
                       onChange={(e) => handleCityChange(e.target.value)}
@@ -360,7 +362,7 @@ export default function HeroSection() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
                         <Home size={14} />
-                        <span>Property Type</span>
+                        <span>{t.hero?.search?.propertyType || 'Property Type'}</span>
                       </label>
                       <select
                         className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
@@ -376,7 +378,7 @@ export default function HeroSection() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
                         <DollarSign size={14} />
-                        <span>Max Price</span>
+                        <span>{t.hero?.search?.maxPrice || 'Max Price'}</span>
                       </label>
                       <select
                         className="w-full p-2 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/70"
@@ -397,7 +399,7 @@ export default function HeroSection() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
                         <DollarSign size={14} />
-                        <span>Check-in</span>
+                        <span>{t.hero?.search?.checkIn || 'Check-in'}</span>
                       </label>
                       <input
                         type="date"
@@ -411,7 +413,7 @@ export default function HeroSection() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-600 flex items-center space-x-1">
                         <DollarSign size={14} />
-                        <span>Check-out</span>
+                        <span>{t.hero?.search?.checkOut || 'Check-out'}</span>
                       </label>
                       <input
                         type="date"
@@ -431,7 +433,7 @@ export default function HeroSection() {
                     className="w-full mt-5 bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold flex items-center justify-center space-x-2 hover:bg-blue-700 transition-all duration-300 transform active:scale-95"
                   >
                     <Search size={18} />
-                    <span>Search</span>
+                    <span>{t.hero?.search?.button || 'Search'}</span>
                   </button>
                 </div>
               </div>
@@ -465,7 +467,7 @@ export default function HeroSection() {
             {/* Main image with enhanced styling */}
             <div className="relative w-full h-full overflow-hidden lg:rounded-l-[3rem]">
               <img
-                src="/hero-house.jpg"
+                src="/happy-african-american-young-family-bought-new-house.jpg"
                 alt="Luxury modern house with glass facades and contemporary architecture"
                 className="w-full h-full object-cover transform transition-transform duration-700"
               />
@@ -473,16 +475,16 @@ export default function HeroSection() {
           </div>
 
           {/* Mobile Tabs */}
-          <div className="flex lg:hidden justify-center space-x-1 bg-gray-100 mx-d4 p-1 rounded-xl -mt-16 sm:-mt-20 relative z-20 max-w-sm mx-auto">
+          <div className="flex lg:hidden justify-center space-x-1 bg-white mx-d4 p-1 rounded-xl -mt-16 sm:-mt-20 relative z-20 max-w-sm mx-auto">
             {[
-              { value: 'rent', label: 'Rent' },
-              { value: 'sale', label: 'Buy' },
-              { value: 'short_term', label: 'Stays' }
+              { value: 'rent', label: t.hero?.tabs?.rent || 'Rent' },
+              { value: 'sale', label: t.hero?.tabs?.sale || 'Buy' },
+              { value: 'short_term', label: t.hero?.tabs?.shortStays || 'Stays' }
             ].map((tab) => (
               <button
                 key={tab.value}
                 className={`flex-1 py-2.5 sm:py-3 rounded-lg font-semibold capitalize transition-all duration-300 text-sm ${selectedTab === tab.value
-                  ? 'bg-white text-blue-600 shadow-sm'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-gray-600'
                   }`}
                 onClick={() => handleTabChange(tab.value)}
@@ -504,11 +506,11 @@ export default function HeroSection() {
                 <div className="relative">
                   <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
                     <MapPin size={12} />
-                    <span>City</span>
+                    <span>{t.hero?.search?.city || 'City'}</span>
                   </label>
                   <input
                     type="text"
-                    placeholder="Search city..."
+                    placeholder={t.hero?.search?.cityPlaceholder || 'Search city...'}
                     className="w-full p-2.5 sm:p-3 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={searchData.city}
                     onChange={(e) => handleCityChange(e.target.value)}
@@ -522,7 +524,7 @@ export default function HeroSection() {
                     <div>
                       <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
                         <Home size={12} />
-                        <span>Type</span>
+                        <span>{t.hero?.search?.propertyType || 'Type'}</span>
                       </label>
                       <select
                         className="w-full p-2.5 sm:p-3 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 text-gray-600"
@@ -537,7 +539,7 @@ export default function HeroSection() {
                     <div>
                       <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
                         <DollarSign size={12} />
-                        <span>Max Price</span>
+                        <span>{t.hero?.search?.maxPrice || 'Max Price'}</span>
                       </label>
                       <select
                         className="w-full p-2.5 sm:p-3 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 text-gray-600"
@@ -558,7 +560,7 @@ export default function HeroSection() {
                     <div>
                       <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
                         <DollarSign size={12} />
-                        <span>Check-in</span>
+                        <span>{t.hero?.search?.checkIn || 'Check-in'}</span>
                       </label>
                       <input
                         type="date"
@@ -571,7 +573,7 @@ export default function HeroSection() {
                     <div>
                       <label className="text-xs font-medium text-gray-600 flex items-center space-x-1 mb-1.5">
                         <DollarSign size={12} />
-                        <span>Check-out</span>
+                        <span>{t.hero?.search?.checkOut || 'Check-out'}</span>
                       </label>
                       <input
                         type="date"
@@ -590,7 +592,7 @@ export default function HeroSection() {
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-600 text-white py-3 sm:py-3.5 rounded-xl font-semibold flex items-center justify-center space-x-2 hover:from-blue-700 hover:to-blue-700 transition-all duration-300 active:scale-95"
               >
                 <Search size={16} className="sm:w-[18px] sm:h-[18px]" />
-                <span>Search</span>
+                <span>{t.hero?.search?.button || 'Search'}</span>
               </button>
             </div>
           </div>

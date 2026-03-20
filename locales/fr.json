@@ -1,0 +1,977 @@
+{
+  "nav": {
+    "welcome": "Bienvenue",
+    "discoverProperty": "Découvrir votre bien de rêve",
+    "home": "Accueil",
+    "buy": "Acheter",
+    "rent": "Louer",
+    "sell": "Vendre",
+    "findAgent": "Trouver un agent",
+    "contact": "Contact",
+    "about": "À propos",
+    "dashboard": "Tableau de bord",
+    "settings": "Paramètres",
+    "addProperty": "Ajouter un bien",
+    "logout": "Déconnexion",
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "getStarted": "Commencer",
+    "myProperties": "Mes propriétés",
+    "allProperties": "Toutes les propriétés",
+    "users": "Utilisateurs",
+    "analytics": "Analytique",
+    "agents": "Agents",
+    "properties": "Propriétés",
+    "favorites": "Favoris"
+  },
+  "search": {
+    "placeholder": "Rechercher des biens...",
+    "button": "Rechercher",
+    "suggestions": "Essayez : appartement, maison, ville..."
+  },
+  "submenu": {
+    "propertyTypes": "Types de biens",
+    "popularLocations": "Lieux populaires",
+    "viewAll": "Voir tous les lieux",
+    "featured": "Collection en vedette",
+    "buyTitle": "Vie moderne",
+    "rentTitle": "Locations premium"
+  },
+  "property": {
+    "apartments": "Appartements",
+    "houses": "Maisons",
+    "villas": "Villas",
+    "commercial": "Commerciaux",
+    "land": "Terrains",
+    "office": "Bureaux",
+    "studios": "Studios",
+    "shared": "Chambres Partagées",
+    "propertyTypes": "Types de biens",
+    "FeaturedCollection": "Collection en vedette",
+    "viewCollection": "Voir la collection",
+    "ModernLiving": "Vie Moderne",
+    "PremiumRentals": "Locations haut de gamme",
+    "properties": "Biens",
+    "available": "Disponibles"
+  },
+  "locations": {
+    "popularLocations": "Emplacements populaires",
+    "downtown": "Centre-ville",
+    "waterfront": "Bord de mer",
+    "suburbs": "Banlieue",
+    "cityCenter": "Centre urbain",
+    "viewAllLocations": "Voir tous les lieux"
+  },
+  "hero": {
+    "badge": "Trouvez la maison de vos rêves",
+    "heading": "Votre partenaire dans",
+    "realEstate": "l'immobilier",
+    "description": "Découvrez des biens premium adaptés à votre style de vie, des espaces urbains dynamiques aux retraites paisibles.",
+    "tabs": {
+      "sale": "Acheter",
+      "rent": "Louer",
+      "shortStays": "Courts Séjours",
+      "saleBadge": "Acheter un bien",
+      "rentBadge": "Louer un bien",
+      "shortStaysBadge": "Réserver un séjour"
+    },
+    "tabContent": {
+      "sale": {
+        "heading1": "Trouvez votre",
+        "heading2": "Maison Idéale",
+        "desc": "Découvrez des biens premium à acheter. Investissez dans votre avenir avec nos offres exclusives."
+      },
+      "rent": {
+        "heading1": "Votre Location",
+        "heading2": "Parfaite",
+        "desc": "Explorez des appartements et maisons de qualité à louer, adaptés à votre mode de vie."
+      },
+      "shortStays": {
+        "heading1": "Séjours",
+        "heading2": "Inoubliables",
+        "desc": "Réservez des locations de vacances et des courts séjours luxueux partout en Afrique."
+      }
+    },
+    "search": {
+      "city": "Ville",
+      "cityPlaceholder": "Recherchez une ville...",
+      "propertyType": "Type de bien",
+      "maxPrice": "Prix max",
+      "button": "Rechercher",
+      "anyType": "Tous types",
+      "apartment": "Appartement",
+      "house": "Maison",
+      "villa": "Villa",
+      "condo": "Condo",
+      "studio": "Studio",
+      "anyPrice": "Tout prix",
+      "upTo200k": "Jusqu'à 200k XAF",
+      "upTo500k": "Jusqu'à 500k XAF",
+      "upTo1M": "Jusqu'à 1M XAF",
+      "upTo2M": "Jusqu'à 2M XAF",
+      "searchCity": "Recherchez une ville...",
+      "checkIn": "Arrivée",
+      "checkOut": "Départ"
+    }
+  },
+  "luxury": {
+    "collection": "Collection 2026",
+    "title1": "AU-DELÀ",
+    "title2": "DES LIMITES.",
+    "description": "Là où la vision architecturale rencontre l'âme africaine. Nous ne trouvons pas seulement des maisons, nous sécurisons des héritages.",
+    "explore": "Explorer",
+    "marketStatus": "État du marché",
+    "marketText": "Des biens d'exception prêts à être acquis immédiatement.",
+    "futureLine1": "Sécuriser",
+    "futureLine2": "L’avenir",
+    "stats": {
+      "investors": "Investisseurs",
+      "portfolio": "Portefeuille",
+      "regions": "Régions"
+    }
+  },
+  "propertyTypes": {
+    "residential": {
+      "title": "Résidentiel",
+      "description": "Trouvez la maison de vos rêves dans des emplacements privilégiés"
+    },
+    "commercial": {
+      "title": "Commercial",
+      "description": "Des espaces de bureaux premium pour votre entreprise"
+    },
+    "apartment": {
+      "title": "Appartement",
+      "description": "Des espaces modernes au cœur de la ville"
+    },
+    "industrial": {
+      "title": "Industriel",
+      "description": "Des installations à grande échelle pour vos activités"
+    }
+  },
+  "common": {
+    "explore": "Explorer"
+  },
+  "location": {
+    "nearYou": "Près de vous",
+    "title": "Biens dans votre zone",
+    "found_one": "{{count}} bien trouvé près de {{city}}",
+    "found_other": "{{count}} biens trouvés près de {{city}}",
+    "error": "Impossible de déterminer votre position - localisation par défaut affichée",
+    "noPropertiesTitle": "Aucun bien trouvé",
+    "noPropertiesNear": "Nous n'avons trouvé aucun bien près de {{city}}.",
+    "noProperties": "Aucun bien disponible pour le moment.",
+    "checkBack": "Revenez bientôt pour de nouvelles annonces !",
+    "seeAll": "Voir tous les biens",
+    "foundNear": "trouvés près de"
+  },
+  "time": {
+    "hoursAgo_one": "il y a {{count}} heure",
+    "hoursAgo_other": "il y a {{count}} heures",
+    "daysAgo_one": "il y a {{count}} jour",
+    "daysAgo_other": "il y a {{count}} jours"
+  },
+  "errors": {
+    "fetchProperties": "Erreur lors de la récupération des propriétés",
+    "loadNearby": "Impossible de charger les propriétés à proximité",
+    "tryAgain": "Veuillez réessayer plus tard."
+  },
+  "services": {
+    "title": "Nos Services",
+    "headingLine1": "CE QUE NOUS",
+    "headingLine2": "OFFRONS.",
+    "subtitle": "Des solutions immobilières premium en Afrique — rapides, fiables et transparentes.",
+    "banner": "HOROHOUSE • SERVICES • AFRIQUE • HOROHOUSE • SERVICES • AFRIQUE",
+    "swipe": "← Faites glisser →",
+    "smartSearch": {
+      "title": "Recherche intelligente",
+      "desc": "Trouvez rapidement le bien idéal grâce à notre moteur avancé."
+    },
+    "easyListing": {
+      "title": "Publication facile",
+      "desc": "Publiez vos biens facilement en quelques clics."
+    },
+    "virtualTours": {
+      "title": "Visites virtuelles",
+      "desc": "Explorez les biens à distance en 3D et vidéo 360°."
+    },
+    "recommendations": {
+      "title": "Recommandations personnalisées",
+      "desc": "Recevez des suggestions adaptées grâce à l’IA."
+    },
+    "verification": {
+      "title": "Vérification sécurisée",
+      "desc": "Garantissez la légitimité avec la blockchain."
+    },
+    "support": {
+      "title": "Support intelligent",
+      "desc": "Un assistant IA disponible 24/7."
+    }
+  },
+  "cities": {
+    "all": "Toutes",
+    "yaounde": "Yaoundé",
+    "douala": "Douala",
+    "maroua": "Maroua",
+    "garoua": "Garoua",
+    "kribi": "Kribi"
+  },
+  "topListing": {
+    "mostViewed": "Biens les plus consultés",
+    "topListings": "Top 15 Annonces",
+    "propertiesAvailable": "{{count}} bien",
+    "propertiesAvailable_plural": "{{count}} biens",
+    "seeAll": "Voir toutes les annonces",
+    "noProperties": "Aucun bien trouvé à {{city}}"
+  },
+  "topShortTerm": {
+    "title": "Escapades Parfaites",
+    "ready": "{{count}} bien prêt",
+    "ready_plural": "{{count}} biens prêts pour vous",
+    "noStays": "Aucun Court Séjour Trouvé",
+    "noStaysDesc": "Nous n'avons trouvé aucune annonce de court séjour pour le moment.",
+    "checkBack": "Revenez bientôt pour de nouvelles annonces !"
+  },
+  "recentlyViewed": {
+    "title": "Biens Récemment Consultés",
+    "subtitle_one": "{{count}} bien récemment consulté basé sur votre activité",
+    "subtitle_other": "{{count}} biens récemment consultés basés sur votre activité",
+    "viewAll": "Voir Tout l'Historique"
+  },
+  "propertyTypeCards": {
+    "marketAccess": "Accès au Marché",
+    "our": "NOS",
+    "assets": "ACTIFS.",
+    "subtitle": "Des résidences privées aux centres industriels — des biens soigneusement sélectionnés sur chaque segment de marché.",
+    "viewListings": "Voir les Annonces",
+    "types": {
+      "residential": "Résidentiel",
+      "residentialDesc": "Domaines familiaux sur mesure et villas privées dans des emplacements de choix.",
+      "commercial": "Commercial",
+      "commercialDesc": "Espaces de travail haute performance.",
+      "apartment": "Appartement",
+      "apartmentDesc": "Une vie de luxe vertigineuse.",
+      "industrial": "Industriel",
+      "industrialDesc": "Installations logistiques intelligentes."
+    }
+  },
+  "footer": {
+    "description": "Votre partenaire de confiance pour l'immobilier premium à travers l'Afrique. Construire des rêves, une propriété à la fois.",
+    "stayUpdated": "Restez Informé",
+    "subscribeDesc": "Abonnez-vous à notre newsletter pour les dernières annonces immobilières et offres exclusives.",
+    "enterEmail": "Entrez votre e-mail",
+    "subscribe": "S'abonner",
+    "allRightsReserved": "Tous droits réservés.",
+    "privacyPolicy": "Politique de Confidentialité",
+    "termsOfService": "Conditions d'Utilisation",
+    "cookiePolicy": "Politique des Cookies",
+    "sections": {
+      "realEstate": {
+        "title": "Immobilier",
+        "browseAll": "Parcourir toutes les maisons",
+        "cameroon": "Immobilier au Cameroun",
+        "nigeria": "Immobilier au Nigéria",
+        "ghana": "Immobilier au Ghana",
+        "zambia": "Immobilier en Zambie",
+        "kenya": "Immobilier au Kenya",
+        "southAfrica": "Immobilier en Afrique du Sud"
+      },
+      "rentals": {
+        "title": "Locations",
+        "buildings": "Bâtiments de location",
+        "garoua": "Garoua à louer",
+        "kribi": "Kribi à louer",
+        "maroua": "Maroua à louer",
+        "lagos": "Lagos à louer",
+        "abuja": "Abuja à louer",
+        "douala": "Douala à louer"
+      },
+      "company": {
+        "title": "Entreprise",
+        "about": "À propos",
+        "properties": "Biens",
+        "community": "Communauté",
+        "blog": "Blog",
+        "support": "Support client",
+        "terms": "Conditions générales",
+        "privacy": "Politique de confidentialité"
+      }
+    }
+  },
+  "locationProperties": {
+    "title": "Biens dans votre zone",
+    "showingDefault": "Localisation par défaut affichée",
+    "foundNear": "{{count}} bien trouvé près de",
+    "foundNear_plural": "{{count}} biens trouvés près de",
+    "noProperties": "Aucun bien trouvé",
+    "noPropertiesNear": "Nous n'avons trouvé aucun bien près de {{city}}.",
+    "noPropertiesAvailable": "Aucun bien disponible pour le moment.",
+    "checkBack": "Revenez bientôt pour de nouvelles annonces !",
+    "seeAll": "Voir tous les biens"
+  },
+  "studentSection": {
+    "metersToCampus": "{{meters}}m du campus",
+    "kmToCampus": "{{km}}km du campus",
+    "studentApproved": "Approuvé par les Étudiants",
+    "titlePrefix": "Trouvez votre espace ",
+    "titleHighlight": "idéal",
+    "titleSuffix": ".",
+    "subtitle": "Biens vérifiés, prix transparents et zéro tracas.",
+    "exploreAll": "Explorer tous les biens",
+    "noProperties": "Aucun bien étudiant trouvé.",
+    "studentHousing": "Logement Étudiant",
+    "nearCampus": "Près de {{campus}}",
+    "bedsFree": "{{count}} lits libres",
+    "minWalk": "{{count}} min de marche",
+    "bed": "Lit",
+    "beds": "Lits",
+    "bath": "Sdb",
+    "baths": "Sdb",
+    "perMo": "/mois",
+    "skipWaitlist": "Évitez la liste d'attente.",
+    "joinStudents": "Rejoignez plus de 5 000 étudiants qui ont trouvé leur logement avec nous. Visitez aujourd'hui, signez demain.",
+    "noHiddenFees": "Aucun frais de dossier caché",
+    "freeRoommateMatching": "Mise en relation gratuite de colocataires",
+    "browseProperties": "Parcourir les Biens Étudiants",
+    "verified100": "100% Vérifié",
+    "verifiedDesc": "Chaque propriété est inspectée physiquement.",
+    "stayConnected": "Restez Connecté",
+    "connectedDesc": "Wi-Fi haut débit inclus dans le loyer."
+  },
+  "stepSection": {
+    "badge": "Processus simple",
+    "heading": "Trouvez votre maison de rêve en 4 étapes",
+    "subtitle": "Notre processus simplifié rend l'achat ou la location de bien immobilier simple, transparent et sans stress.",
+    "cta": "Commencer maintenant",
+    "learnMore": "En savoir plus",
+    "joinText": "Rejoignez des milliers de clients satisfaits qui ont trouvé leur maison idéale",
+    "steps": {
+      "1": {
+        "title": "Parcourir les biens",
+        "desc": "Explorez notre collection de biens avec des filtres avancés et des visites virtuelles.",
+        "f1": "Filtres de recherche avancés",
+        "f2": "Visites virtuelles",
+        "f3": "Sauvegarder les favoris"
+      },
+      "2": {
+        "title": "Planifier une visite",
+        "desc": "Réservez des visites réelles ou virtuelles selon votre disponibilité.",
+        "f1": "Planning flexible",
+        "f2": "Visites virtuelles",
+        "f3": "Mise en relation avec un agent"
+      },
+      "3": {
+        "title": "Faire une offre",
+        "desc": "Soumettez votre offre numériquement avec une assistance guidée et une documentation transparente.",
+        "f1": "Dossier numérique",
+        "f2": "Suivi des offres",
+        "f3": "Assistance juridique"
+      },
+      "4": {
+        "title": "Clôture & Eménagement",
+        "desc": "Finalisez la transaction en toute fluidité et préparez-vous à emménager.",
+        "f1": "Paiement sécurisé",
+        "f2": "Remise des clés",
+        "f3": "Aide à l'eménagement"
+      }
+    }
+  },
+  "aboutUs": {
+    "cards": [
+      {
+        "title": "La vision pour l'Afrique",
+        "text": "Chez Horo House, nous redéfinissons la découverte immobilière sur tout le continent. Née d'une vision visant à simplifier l'accès à l'immobilier, notre plateforme combine une connaissance locale approfondie avec une technologie de classe mondiale.",
+        "tag": "OBJECTIF"
+      },
+      {
+        "title": "Technologie à grande échelle",
+        "text": "Nous utilisons l'IA de pointe pour garantir transparence et sécurité. Notre infrastructure prête pour la blockchain offre une expérience utilisateur inégalée sur les marchés africains émergents.",
+        "tag": "INNOVATION"
+      },
+      {
+        "title": "Connexions directes",
+        "text": "Notre plateforme supprime les frictions dans les transactions immobilières, connectant directement acheteurs et vendeurs pour renforcer la confiance et le développement économique local.",
+        "tag": "COMMUNAUTÉ"
+      },
+      {
+        "title": "Normes mondiales",
+        "text": "Avec des équipes dédiées sur le terrain dans plusieurs pays, nous fournissons une expertise locale soutenue par des standards internationaux de service et d'éthique.",
+        "tag": "EXCELLENCE"
+      }
+    ],
+    "cta": "Découvrez notre histoire complète",
+    "corporateProfile": "Profil d'entreprise",
+    "bornIn": "NÉE EN",
+    "africa": "AFRIQUE",
+    "verifiedListings": "Annonces vérifiées",
+    "securePayments": "Paiements sécurisés",
+    "description": "Nous ne sommes pas seulement une plateforme ; nous sommes un mouvement pour la transparence et la souveraineté numérique dans l'immobilier africain.",
+    "stats": {
+      "listings": "Annonces",
+      "cities": "Villes",
+      "trustScore": "Score de confiance"
+    }
+  },
+  "ourPartners": {
+    "trustedBy": "Fiable par les leaders de l'industrie",
+    "title": "Nos Partenaires",
+    "description": "Nous sommes fiers de collaborer avec des entreprises de classe mondiale qui font confiance à notre plateforme"
+  },
+  "customersSay": {
+    "0": {
+      "text": "En tant qu'agent, j'adore la visibilité et les prospects que je reçois grâce à HoroHouse. C'est facile à utiliser et l'équipe support est toujours disponible.",
+      "role": "Agent immobilier"
+    },
+    "1": {
+      "text": "J'ai enfin trouvé une plateforme qui comprend le marché africain. HoroHouse m'a aidé à trouver une maison à Yaoundé en seulement 3 jours.",
+      "role": "Propriétaire"
+    },
+    "2": {
+      "text": "Interface propre, annonces vérifiées et excellent service client. J'attends juste l'application mobile !",
+      "role": "Acheteur"
+    },
+    "3": {
+      "text": "Plateforme fantastique ! Elle m'a aidé à trouver rapidement un appartement. La fonction visites virtuelles est incroyable !",
+      "role": "Locataire"
+    },
+    "4": {
+      "text": "Service convivial et fiable. La vérification via blockchain me rassure. Fortement recommandé !",
+      "role": "Investisseur"
+    },
+    "testimonials": "Témoignages",
+    "title": "Ce que disent nos clients"
+  },
+  "footerOld": {
+    "sections": [
+      {
+        "title": "Immobilier",
+        "links": [
+          "Voir toutes les propriétés",
+          "Immobilier au Cameroun",
+          "Immobilier au Nigeria",
+          "Immobilier au Ghana",
+          "Immobilier en Zambie",
+          "Immobilier au Kenya",
+          "Immobilier en Afrique du Sud"
+        ]
+      },
+      {
+        "title": "Locations",
+        "links": [
+          "Immeubles à louer",
+          "Garoua à louer",
+          "Kribi à louer",
+          "Maroua à louer",
+          "Lagos à louer",
+          "Abuja à louer",
+          "Douala à louer"
+        ]
+      },
+      {
+        "title": "Entreprise",
+        "links": [
+          "À propos",
+          "Propriétés",
+          "Communauté",
+          "Blog",
+          "Support client",
+          "Conditions générales",
+          "Politique de confidentialité"
+        ]
+      }
+    ],
+    "newsletter": {
+      "title": "Restez informé",
+      "description": "Abonnez-vous à notre newsletter pour les dernières annonces et offres exclusives.",
+      "button": "S'abonner",
+      "placeholder": "Entrez votre email"
+    },
+    "bottom": {
+      "copyright": "© 2025 - {{year}} HoroHouse. Tous droits réservés.",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d'utilisation",
+      "cookies": "Politique de cookies"
+    },
+    "logo": {
+      "description": "Votre partenaire de confiance pour l'immobilier premium en Afrique. Réaliser des rêves, une propriété à la fois."
+    }
+  },
+  "contact": {
+    "hero": {
+      "title1": "DITES",
+      "title2": "BONJOUR.",
+      "subtitle": "Que vous recherchiez une villa de luxe ou un investissement foncier stratégique, notre équipe est là pour vous guider.",
+      "basedIn": "Basé au Cameroun",
+      "serving": "Au service de la diaspora mondiale"
+    },
+    "info": {
+      "email": {
+        "label": "Email"
+      },
+      "phone": {
+        "label": "WhatsApp / Appel"
+      },
+      "address": {
+        "label": "Siège",
+        "value": "Awae, Yaoundé, CM"
+      }
+    },
+    "service": {
+      "realEstate": "Concierge",
+      "concierge": "Immobilier",
+      "item1": "Recherche de biens",
+      "item2": "Vérification légale des terrains",
+      "item3": "Conception architecturale"
+    },
+    "form": {
+      "name": "VOTRE NOM",
+      "email": "ADRESSE EMAIL",
+      "message": "PARLEZ-NOUS DE VOTRE PROJET",
+      "sendButton": "Envoyer le message"
+    },
+    "success": {
+      "title": "Merci.",
+      "subtitle": "Votre vision a été envoyée à notre bureau."
+    },
+    "map": {
+      "title": "Visitez notre studio",
+      "address": "Awae, Yaoundé, Cameroun",
+      "button": "Obtenir l'itinéraire"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": {
+        "line1": "Réinventer l'immobilier",
+        "line2": "en Afrique"
+      },
+      "description": "Nous construisons la plateforme immobilière numérique la plus fiable d’Afrique.",
+      "cta": {
+        "explore": "Explorer les biens vérifiés",
+        "partner": "Devenir partenaire"
+      }
+    },
+    "whoWeAre": "Qui sommes-nous",
+    "description1": "HoroHouse est une startup proptech qui transforme la manière d’acheter, vendre et louer des biens immobiliers en Afrique.",
+    "description2": "En commençant par le Cameroun, nous combinons technologie, données et expertise locale pour éliminer la fraude, simplifier les transactions et restaurer la confiance dans l’immobilier. Nous servons aussi bien les primo-accédants que les investisseurs à grande échelle.",
+    "startingMarket": "Marché de départ",
+    "targetRegion": "Région cible",
+    "imageAlt": "Bureau ou équipe en travail",
+    "countries": {
+      "cameroon": "Cameroun",
+      "africa": "Afrique"
+    },
+    "challenge": {
+      "tag": "Le problème",
+      "title": "Pourquoi l'immobilier devait évoluer",
+      "subtitle": "Le marché traditionnel est marqué par des inefficacités qui pénalisent acheteurs, vendeurs et l’économie.",
+      "items": {
+        "fraud": {
+          "title": "Fraude foncière",
+          "desc": "Falsification de documents et ventes multiples d’un même bien."
+        },
+        "unverified": {
+          "title": "Annonces non vérifiées",
+          "desc": "Informations trompeuses et fausses publications immobilières."
+        },
+        "slow": {
+          "title": "Processus lents",
+          "desc": "Démarches manuelles, opaques et longues."
+        },
+        "data": {
+          "title": "Manque de données",
+          "desc": "Absence de prix basés sur les données, favorisant la spéculation."
+        },
+        "access": {
+          "title": "Accès limité",
+          "desc": "Difficultés pour la diaspora et les investisseurs internationaux."
+        }
+      }
+    },
+    "solution": {
+      "tag": "Notre solution",
+      "title": "Un écosystème tout-en-un",
+      "description": "HoroHouse est une plateforme immobilière numérique tout-en-un qui utilise la technologie et l’intelligence artificielle pour vérifier les biens, sécuriser les documents et connecter acheteurs, vendeurs, agents et investisseurs dans un écosystème fiable.",
+      "features": {
+        "ai": "Vérification par IA",
+        "records": "Documents numériques sécurisés",
+        "agents": "Réseau d’agents de confiance",
+        "investment": "Outils d’investissement à distance"
+      },
+      "cta": "Voir comment ça fonctionne",
+      "preview": "Aperçu de la plateforme"
+    },
+    "howItWorks": {
+      "badge": "Processus",
+      "title": "Comment ça marche",
+      "description": "De la découverte à l’acquisition, nous avons conçu un parcours simple et transparent.",
+      "steps": {
+        "step1": {
+          "title": "Rechercher et vérifier",
+          "desc": "Explorez des biens immobiliers vérifiés au Cameroun et en Afrique. Notre IA et nos partenaires locaux garantissent l’authenticité de chaque annonce avec des documents validés."
+        },
+        "step2": {
+          "title": "Se connecter et visiter",
+          "desc": "Contactez des agents de confiance, planifiez des visites ou explorez les biens via des visites virtuelles, idéal pour les utilisateurs locaux et la diaspora."
+        },
+        "step3": {
+          "title": "Sécuriser et acquérir",
+          "desc": "Finalisez votre transaction en toute sécurité grâce à des contrats numériques, des titres fonciers vérifiés et un accompagnement jusqu’à l’acquisition complète."
+        }
+      },
+      "stepLabel": "Étape {{number}}"
+    },
+    "offer": {
+      "title": "Ce que nous offrons",
+      "description": "Des fonctionnalités clés qui font de HoroHouse une plateforme de référence.",
+      "features": {
+        "verified": {
+          "title": "Annonces vérifiées",
+          "desc": "Des annonces authentiques et fiables."
+        },
+        "secure": {
+          "title": "Dossiers sécurisés",
+          "desc": "Des documents infalsifiables."
+        },
+        "ai": {
+          "title": "Estimation par IA",
+          "desc": "Analyse juste des prix du marché."
+        },
+        "fraud": {
+          "title": "Détection de fraude",
+          "desc": "Protocoles de sécurité avancés."
+        },
+        "platform": {
+          "title": "Plateforme tout-en-un",
+          "desc": "Transactions immobilières simplifiées."
+        },
+        "remote": {
+          "title": "Accès à distance",
+          "desc": "Investissez depuis n’importe où."
+        },
+        "tools": {
+          "title": "Outils professionnels",
+          "desc": "Suite complète pour les professionnels."
+        },
+        "insights": {
+          "title": "Analyses de marché",
+          "desc": "Décisions basées sur les données."
+        }
+      }
+    },
+    "mission": {
+      "title": "Notre Mission",
+      "description": "Rendre les transactions immobilières en Afrique sûres, transparentes et accessibles grâce à la technologie intelligente."
+    },
+    "vision": {
+      "title": "Notre Vision",
+      "description": "Devenir la plateforme immobilière intelligente et sécurisée de référence en Afrique, redéfinissant la confiance dans la propriété immobilière."
+    },
+    "values": {
+      "title": "Nos valeurs",
+      "description": "Les principes fondamentaux qui guident chacune de nos décisions et de nos produits.",
+      "items": {
+        "transparency": {
+          "title": "Transparence",
+          "desc": "Pas de frais cachés, pas de processus ambigus. Nous croyons en une totale ouverture dans chaque transaction."
+        },
+        "security": {
+          "title": "Sécurité",
+          "desc": "Nous utilisons des protocoles de sécurité de niveau bancaire pour protéger vos actifs, vos données et votre avenir."
+        },
+        "innovation": {
+          "title": "Innovation",
+          "desc": "Nous repoussons constamment les limites pour résoudre d’anciens problèmes avec des technologies nouvelles et spécifiques."
+        },
+        "integrity": {
+          "title": "Intégrité",
+          "desc": "Nous faisons ce qui est juste, même quand personne ne regarde. La confiance est notre monnaie."
+        },
+        "inclusion": {
+          "title": "Inclusion",
+          "desc": "Démocratiser l’accès à la richesse immobilière pour tous, quel que soit le lieu."
+        },
+        "impact": {
+          "title": "Impact",
+          "desc": "Nous mesurons le succès non seulement par le profit, mais aussi par le changement positif que nous apportons aux villes africaines."
+        }
+      }
+    },
+    "different": {
+      "title": "Pourquoi nous sommes différents",
+      "items": {
+        "builtForAfrica": {
+          "title": "Conçu pour l’Afrique",
+          "desc": "Des solutions adaptées aux réalités locales, et non copiées d’ailleurs."
+        },
+        "verificationFirst": {
+          "title": "La vérification avant tout",
+          "desc": "Nous priorisons la sécurité avant tout. Aucune transaction n’a lieu sans contrôle."
+        },
+        "techLocal": {
+          "title": "Technologie + Local",
+          "desc": "Combiner l’IA avancée avec des experts sur le terrain."
+        }
+      }
+    },
+    "impact": {
+      "title": "Notre impact",
+      "items": {
+        "jobCreation": {
+          "title": "Création d’emplois",
+          "desc": "Autonomiser les agents et professionnels."
+        },
+        "urbanDev": {
+          "title": "Développement urbain",
+          "desc": "Croissance durable des villes."
+        },
+        "confidence": {
+          "title": "Confiance",
+          "desc": "Attirer des investisseurs internationaux."
+        },
+        "empowerment": {
+          "title": "Autonomisation",
+          "desc": "Aider les familles à devenir propriétaires."
+        }
+      }
+    },
+    "whoWeServe": {
+      "title": "À qui nous nous adressons",
+      "items": {
+        "individuals": "Particuliers et familles",
+        "agents": "Agents immobiliers",
+        "developers": "Promoteurs immobiliers",
+        "investors": "Investisseurs",
+        "diaspora": "Diaspora africaine",
+        "financials": "Institutions financières"
+      }
+    },
+    "meetTheTeam": {
+      "title": "Rencontrez l'équipe",
+      "desc": "Notre équipe est composée de technologues passionnés, de professionnels de l'immobilier et d'innovateurs engagés à construire un écosystème immobilier plus sûr en Afrique.",
+      "members": {
+        "sarah": {
+          "name": "Sarah Mba",
+          "role": "Fondatrice & CEO",
+          "bio": "Ancienne banquière en investissement immobilier avec une vision de digitaliser l'immobilier africain."
+        },
+        "david": {
+          "name": "David Kamsi",
+          "role": "CTO",
+          "bio": "Vétéran de la tech spécialisé en Blockchain et IA pour des transactions sécurisées."
+        },
+        "amara": {
+          "name": "Amara Ndi",
+          "role": "Responsable des opérations",
+          "bio": "Experte en droit foncier camerounais et stratégie opérationnelle."
+        },
+        "jeanPaul": {
+          "name": "Jean-Paul Teno",
+          "role": "Agent principal",
+          "bio": "Met en relation des acheteurs avec des biens vérifiés depuis plus de 10 ans."
+        }
+      }
+    },
+    "roadmap": {
+      "label": "Feuille de route",
+      "title": "Notre Parcours",
+      "steps": {
+        "inception": {
+          "title": "La Genèse",
+          "year": "T1 2024",
+          "desc": "Identifier le vide sur le marché. Concevoir un écosystème immobilier vérifié pour l'Afrique."
+        },
+        "platformDev": {
+          "title": "Développement de la plateforme",
+          "year": "T3 2024",
+          "desc": "Construire l'infrastructure principale. Intégrer l'évaluation IA et la vérification sécurisée des documents."
+        },
+        "pilotLaunch": {
+          "title": "Lancement pilote",
+          "year": "T1 2025",
+          "desc": "Tests bêta au Cameroun avec des partenaires sélectionnés. Affiner l'expérience utilisateur selon les retours réels."
+        },
+        "panAfrican": {
+          "title": "Expansion panafricaine",
+          "year": "2026+",
+          "desc": "Étendre au Nigeria, Ghana et Kenya. Devenir la référence pour l'immobilier de confiance en Afrique."
+        }
+      }
+    },
+    "trustCompliance": {
+      "title": "Confiance & Conformité",
+      "desc": "Nous respectons les normes les plus strictes en matière de protection des données et nous conformons à toutes les lois locales sur l'immobilier pour votre tranquillité d'esprit.",
+      "dataProtection": "Protection des données",
+      "localCompliance": "Conformité locale",
+      "ethicalStandards": "Normes éthiques"
+    },
+    "cta": {
+      "title": {
+        "line1": "Prêt à découvrir le futur",
+        "line2": "de l'immobilier ?"
+      },
+      "button": "Rejoignez HoroHouse dès aujourd'hui"
+    }
+  },
+  "quickSearch": {
+    "location": "Localisation",
+    "search_city_or_place": "Rechercher une ville ou un lieu",
+    "type": "Type",
+    "any": "Tout",
+    "buy": "Acheter",
+    "rent": "Louer",
+    "min_price": "Prix min",
+    "max_price": "Prix max",
+    "no_min": "Aucun min",
+    "no_max": "Aucun max",
+    "beds": "Lits",
+    "baths": "Salles de bain",
+    "search": "Rechercher",
+    "save": "Enregistrer",
+    "active_filters": "Filtres actifs",
+    "clear_all": "Tout effacer",
+    "recent_searches": "Recherches récentes",
+    "suggestions": "Suggestions",
+    "city_neighborhood_area": "Ville, quartier ou zone",
+    "login_required": "Connexion requise",
+    "please_login_to_save": "Veuillez vous connecter pour enregistrer vos recherches",
+    "no_search_to_save": "Aucune recherche à enregistrer",
+    "please_perform_search": "Veuillez effectuer une recherche d'abord",
+    "search_saved_success": "Recherche enregistrée avec succès",
+    "search_saved_desc": "Vous serez notifié lorsque de nouvelles propriétés correspondront à vos critères",
+    "failed_to_save_search": "Échec de l'enregistrement de la recherche",
+    "please_try_again": "Veuillez réessayer plus tard"
+  },
+  "viewedProperties": {
+    "newest": "Nouvelles",
+    "price_low_to_high": "Prix croissant",
+    "price_high_to_low": "Prix décroissant",
+    "most_viewed": "Les plus vues",
+    "sort_by": "Trier par",
+    "listings_found": "Annonces trouvées",
+    "no_properties_found": "Aucun bien ne correspond à vos critères.",
+    "try_adjusting_filters": "Essayez d'ajuster vos filtres ou critères de recherche.",
+    "loading_more_properties": "Chargement de plus de biens...",
+    "hide_map": "Cacher la carte",
+    "show_map": "Afficher la carte",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "filters": "Filtres"
+  },
+  "advancedFilters": {
+    "title": "Filtres avancés",
+    "refine_property_search": "Affinez votre recherche de biens avec des filtres détaillés",
+    "price_range": "Fourchette de prix",
+    "property_types": "Types de propriété",
+    "house": "Maison",
+    "apartment": "Appartement",
+    "villa": "Villa",
+    "bedrooms": "Chambres",
+    "bathrooms": "Salles de bain",
+    "pool": "Piscine",
+    "with_pool": "Avec piscine",
+    "no_pool": "Sans piscine",
+    "any": "Peu importe",
+    "min": "Min",
+    "max": "Max",
+    "reset": "Réinitialiser",
+    "apply": "Appliquer"
+  },
+  "register": {
+    "welcome": "Bienvenue sur HoroHouse !",
+    "createAccount": "Créez votre compte et commencez votre aventure",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Adresse e-mail",
+    "phone": "Numéro de téléphone",
+    "accountType": "Type de compte",
+    "password": "Mot de passe",
+    "regularUser": "Utilisateur régulier",
+    "agent": "Agent",
+    "createAccountButton": "Créer un compte",
+    "creatingAccount": "Création de votre compte...",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "signIn": "Connecter",
+    "orContinueWith": "Ou continuer avec",
+    "weak": "Faible",
+    "medium": "Moyen",
+    "strong": "Fort"
+  },
+  "propertyCard": {
+    "price": "Prix",
+    "perMonth": "/mois",
+    "bedrooms": "Chambres",
+    "bathrooms": "Salles de bain",
+    "area": "Surface",
+    "type": "Type",
+    "status": "Statut",
+    "sold": "Vendu",
+    "rented": "Loué",
+    "forSale": "À vendre",
+    "forRent": "À louer",
+    "viewDetails": "Voir les détails",
+    "contactAgent": "Contacter l'agent",
+    "addToFavorites": "Ajouter aux favoris",
+    "removeFromFavorites": "Retirer des favoris",
+    "shareProperty": "Partager la propriété",
+    "scheduleTour": "Planifier une visite",
+    "applyNow": "Postuler maintenant",
+    "makeOffer": "Faire une offre"
+  },
+  "ui": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noNotifications": "Aucune notification",
+    "markAsRead": "Marquer comme lu",
+    "viewAll": "Voir tout"
+  },
+  "userRoles": {
+    "profile": "Profil",
+    "account": "Compte",
+    "preferences": "Préférences",
+    "security": "Sécurité",
+    "role": "Rôle",
+    "admin": "Administrateur",
+    "agent": "Agent",
+    "user": "Utilisateur"
+  },
+  "messages": {
+    "loginRequired": "Connexion requise",
+    "loginRequiredDesc": "Veuillez vous connecter pour accéder à cette fonctionnalité.",
+    "favoriteAdded": "Ajouté aux favoris",
+    "favoriteRemoved": "Retiré des favoris",
+    "inquirySent": "Demande envoyée avec succès !",
+    "inquiryFailed": "Échec de l'envoi de la demande",
+    "copiedToClipboard": "Lien copié dans le presse-papiers"
+  },
+  "navbar": {
+    "stays": "Séjours",
+    "students": "Étudiants",
+    "campusHub": "Campus Hub",
+    "free": "GRATUIT",
+    "listFree": "Proposez votre bien gratuitement",
+    "quickSearches": "Recherches rapides",
+    "escToClose": "pour fermer",
+    "langAndCurrency": "Langue & Devise",
+    "qs1": "Appartements à Douala",
+    "qs2": "Villas à vendre",
+    "qs3": "Locations de studios",
+    "qs4": "Espaces commerciaux"
+  }
+}

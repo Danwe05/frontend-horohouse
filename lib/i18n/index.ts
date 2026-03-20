@@ -1,6 +1,6 @@
-import { en } from './translations/en';
-import { fr } from './translations/fr';
-import { ar } from './translations/ar';
+import en from '@/locales/en.json';
+import fr from '@/locales/fr.json';
+import ar from '@/locales/ar.json';
 import { Language, defaultLanguage } from './config';
 
 const translations = {
@@ -9,7 +9,9 @@ const translations = {
   ar,
 };
 
-export function getTranslations(lang: Language) {
+export type TranslationKeys = typeof en;
+
+export function getTranslations(lang: Language): TranslationKeys {
   return translations[lang] || translations[defaultLanguage];
 }
 

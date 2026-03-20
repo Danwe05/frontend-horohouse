@@ -264,11 +264,11 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 shadow-none">
       {/* Header */}
       <div className="space-y-5">
         <div className="flex flex-wrap items-center gap-3">
-          <Badge className="bg-slate-900 text-white hover:bg-slate-800 px-3.5 py-1.5 capitalize text-sm font-bold shadow-sm rounded-lg border-none">
+          <Badge className="bg-slate-900 text-white hover:bg-slate-800 px-3.5 py-1.5 capitalize text-sm font-bold rounded-lg border-none">
             {property.type}
           </Badge>
           <Badge className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3.5 py-1.5 capitalize text-sm font-bold border-none rounded-lg">

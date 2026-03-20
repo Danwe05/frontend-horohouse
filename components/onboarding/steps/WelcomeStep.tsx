@@ -5,27 +5,23 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { onboardingApi } from '@/lib/onboarding-api';
-import { Loader2, Home, User, MapPin, DollarSign } from 'lucide-react';
+import { Loader2, Home, User, MapPin, DollarSign, ArrowRight } from 'lucide-react';
+import { motion, Variants } from 'framer-motion';
 
 export function WelcomeStep() {
   const router = useRouter();
   const { user } = useAuth();
-  const { nextStep, dispatch } = useOnboarding();
+  const { nextStep } = useOnboarding();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGetStarted = async () => {
     setIsLoading(true);
     try {
-      // Send welcome email
       await onboardingApi.sendWelcomeEmail();
-      
-      // Move to next step
       nextStep();
     } catch (error) {
       console.error('Failed to send welcome email:', error);
-      // Continue anyway
       nextStep();
     } finally {
       setIsLoading(false);
@@ -35,114 +31,121 @@ export function WelcomeStep() {
   const getFeatures = () => {
     if (user?.role === 'agent') {
       return [
-        {
-          icon: <User className="h-6 w-6" />,
-          title: 'Agent Profile',
-          description: 'Set up your professional profile and credentials'
-        },
-        {
-          icon: <Home className="h-6 w-6" />,
-          title: 'Property Types',
-          description: 'Choose the types of properties you specialize in'
-        },
-        {
-          icon: <MapPin className="h-6 w-6" />,
-          title: 'Service Areas',
-          description: 'Define your service areas and coverage'
-        },
-        {
-          icon: <DollarSign className="h-6 w-6" />,
-          title: 'Commission Setup',
-          description: 'Configure your commission structure'
-        }
+        { icon: <User className="w-5 h-5" />, title: 'Agent Profile', description: 'Set up credentials' },
+        { icon: <Home className="w-5 h-5" />, title: 'Property Types', description: 'Your specialties' },
+        { icon: <MapPin className="w-5 h-5" />, title: 'Service Areas', description: 'Regions covered' },
+        { icon: <DollarSign className="w-5 h-5" />, title: 'Commissions', description: 'Configure fees' }
       ];
     } else {
       return [
-        {
-          icon: <Home className="h-6 w-6" />,
-          title: 'Property Preferences',
-          description: 'Tell us what type of properties you\'re looking for'
-        },
-        {
-          icon: <MapPin className="h-6 w-6" />,
-          title: 'Location Preferences',
-          description: 'Set your preferred neighborhoods and areas'
-        },
-        {
-          icon: <DollarSign className="h-6 w-6" />,
-          title: 'Budget Range',
-          description: 'Define your budget range and financing preferences'
-        }
+        { icon: <Home className="w-5 h-5" />, title: 'Preferences', description: 'Tell us what you want' },
+        { icon: <MapPin className="w-5 h-5" />, title: 'Locations', description: 'Preferred neighborhoods' },
+        { icon: <DollarSign className="w-5 h-5" />, title: 'Budget', description: 'Financing details' }
       ];
     }
   };
 
-  return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-          <Home className="h-8 w-8 text-blue-600" />
-        </div>
-        <CardTitle className="text-3xl font-bold text-gray-900">
-          Welcome to HoroHouse, {user?.name?.split(' ')[0]}!
-        </CardTitle>
-        <CardDescription className="text-lg text-gray-600">
-          Let's set up your profile to get you the best experience on our platform.
-          This will only take a few minutes.
-        </CardDescription>
-      </CardHeader>
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
 
-      <CardContent className="space-y-6">
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
+  return (
+    <div className="flex flex-col h-full justify-between items-center text-center w-full max-w-2xl mx-auto py-2">
+      <div className="flex flex-col items-center justify-center flex-1 w-full space-y-6 sm:space-y-8 min-h-0">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", duration: 0.6 }}
+          className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-50/80 rounded-3xl flex items-center justify-center shadow-inner border border-blue-100/50 backdrop-blur-sm shrink-0"
+        >
+          <Home className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" />
+        </motion.div>
+
+        <div className="space-y-2 sm:space-y-3 shrink-0">
+          <motion.h1
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight"
+          >
+            Welcome to HoroHouse, <span className="text-blue-600">{user?.name?.split(' ')[0]}</span>!
+          </motion.h1>
+          <motion.p
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="text-base sm:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed px-4"
+          >
+            Let's customize your experience in just a few quick steps. This will help us find exactly what you're looking for.
+          </motion.p>
+        </div>
+
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-3xl sm:gap-4 flex-1 min-h-0 overflow-y-auto custom-scrollbar px-2 pb-2"
+        >
           {getFeatures().map((feature, index) => (
-            <div
+            <motion.div
               key={index}
-              className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg"
+              variants={itemVariants}
+              whileHover={{ scale: 1.03, y: -2 }}
+              className="flex items-center sm:flex-col sm:items-center sm:text-center p-3 sm:p-5 bg-white/60 backdrop-blur-md rounded-2xl border border-white/80 shadow-sm hover:shadow-md transition-all group cursor-default text-left gap-4 sm:gap-0"
             >
-              <div className="text-blue-600 mt-1">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 sm:mb-3 group-hover:scale-110 transition-transform bg-gradient-to-br from-blue-50 to-indigo-50 shrink-0">
                 {feature.icon}
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">{feature.title}</h3>
-                <p className="text-sm text-gray-600">{feature.description}</p>
+                <h3 className="font-semibold text-slate-800 mb-0.5 sm:mb-1 text-sm sm:text-base">{feature.title}</h3>
+                <p className="text-xs text-slate-500 line-clamp-2">{feature.description}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
+      </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-6">
-          <Button
-            onClick={handleGetStarted}
-            disabled={isLoading}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Setting up...
-              </>
-            ) : (
-              'Get Started'
-            )}
-          </Button>
-          
-          <Button
-            onClick={() => router.push('/dashboard')}
-            variant="outline"
-            className="flex-1"
-            size="lg"
-          >
-            Skip for Now
-          </Button>
-        </div>
-
-        <p className="text-center text-sm text-gray-500">
-          You can always complete your profile later from your dashboard.
-        </p>
-      </CardContent>
-    </Card>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="w-full pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3 justify-center items-center shrink-0"
+      >
+        <Button
+          onClick={() => router.push('/dashboard')}
+          variant="ghost"
+          size="lg"
+          className="text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 rounded-xl px-8 w-full sm:w-auto"
+        >
+          Skip for Now
+        </Button>
+        <Button
+          onClick={handleGetStarted}
+          disabled={isLoading}
+          size="lg"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-10 shadow-lg shadow-blue-200 group relative overflow-hidden w-full sm:w-auto"
+        >
+          {isLoading ? (
+            <span className="flex items-center">
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Preparing...
+            </span>
+          ) : (
+            <span className="flex items-center font-semibold text-base">
+              Start
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </span>
+          )}
+        </Button>
+      </motion.div>
+    </div>
   );
 }

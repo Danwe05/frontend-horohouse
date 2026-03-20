@@ -4,7 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useRouter } from 'next/navigation';
 import { createPropertyWithMedia } from '@/lib/services/propertyCreateWithMedia';
 import { apiClient } from '@/lib/api';
-import { Building2, MapPin, Hash, ArrowLeft, ArrowRight, Home, DollarSign, Bed, Bath, Maximize, CheckCircle2, FileText, Wrench, Image as ImageIcon, Globe, X, Star, Users, Shield } from 'lucide-react';
+import { Building2, MapPin, Hash, ArrowLeft, ArrowRight, Home, DollarSign, Bed, Bath, Maximize, CheckCircle2, FileText, Wrench, Image as ImageIcon, Globe, X, Star, Users, Shield, GraduationCap } from 'lucide-react';
+import { StudentEnrollmentStep, StudentEnrollmentData } from '@/components/dashboard/StudentEnrollmentStep';
 import MapView from '@/components/property/MapView';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -112,6 +113,7 @@ interface PropertyFormData {
   documents: File[];
   virtualTourUrl: string;
   videoUrl: string;
+  tourType: string;
 }
 
 interface PropertyFormProps {
@@ -199,6 +201,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     documents: [],
     virtualTourUrl: '',
     videoUrl: '',
+    tourType: 'images',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -206,6 +209,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [createdPropertyId, setCreatedPropertyId] = useState<string | null>(null);
+  const [studentEnrollment, setStudentEnrollment] = useState<StudentEnrollmentData>({
+    enabled: false,
+  });
   const [selectedMapLocation, setSelectedMapLocation] = useState<{ lng: number; lat: number } | null>(null);
   const [manualCoordsEnabled, setManualCoordsEnabled] = useState(false);
   const [cityTouched, setCityTouched] = useState(false);
@@ -597,6 +603,10 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         return true;
       case 6:
         return true;
+      case 7:
+        return true;
+      case 8:
+        return true;
       default:
         return false;
     }
@@ -677,6 +687,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         transportAccess: formData.transportAccess,
         virtualTourUrl: formData.virtualTourUrl,
         videoUrl: formData.videoUrl,
+        tourType: formData.tourType,
 
         // Short-term specific fields
         pricingUnit: formData.pricingUnit,
@@ -815,6 +826,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
           documents: [],
           virtualTourUrl: '',
           videoUrl: '',
+          tourType: 'images',
         });
         setCurrentStep(1);
       }
@@ -826,6 +838,42 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
       if (createdId) {
         setCreatedPropertyId(String(createdId));
+      }
+
+      // Enroll in student programme if opted in
+      if (studentEnrollment.enabled) {
+        const enrollId = String(
+          propertyId ||
+          (created && (created.id || created._id)) ||
+          (created?.property && (created.property.id || created.property._id))
+        );
+        if (enrollId) {
+          try {
+            await apiClient.enrollPropertyInStudentProgramme(enrollId, {
+              campusProximityMeters: studentEnrollment.campusProximityMeters,
+              nearestCampus: studentEnrollment.nearestCampus,
+              walkingMinutes: studentEnrollment.walkingMinutes,
+              taxiMinutes: studentEnrollment.taxiMinutes,
+              waterSource: studentEnrollment.waterSource,
+              electricityBackup: studentEnrollment.electricityBackup,
+              furnishingStatus: studentEnrollment.furnishingStatus,
+              genderRestriction: studentEnrollment.genderRestriction,
+              curfewTime: studentEnrollment.curfewTime,
+              visitorsAllowed: studentEnrollment.visitorsAllowed,
+              cookingAllowed: studentEnrollment.cookingAllowed,
+              hasGatedCompound: studentEnrollment.hasGatedCompound,
+              hasNightWatchman: studentEnrollment.hasNightWatchman,
+              hasFence: studentEnrollment.hasFence,
+              maxAdvanceMonths: studentEnrollment.maxAdvanceMonths,
+              acceptsRentAdvanceScheme: studentEnrollment.acceptsRentAdvanceScheme,
+              availableBeds: studentEnrollment.availableBeds,
+              totalBeds: studentEnrollment.totalBeds,
+              pricePerPersonMonthly: studentEnrollment.pricePerPersonMonthly,
+            });
+          } catch (err) {
+            console.warn('Student enrollment failed (property was still created):', err);
+          }
+        }
       }
 
       setSuccessModalOpen(true);
@@ -855,7 +903,10 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     { number: 4, label: 'Amenities', icon: Home },
     { number: 5, label: 'Features', icon: Wrench },
     { number: 6, label: 'Media', icon: ImageIcon },
-    { number: 7, label: 'Review', icon: CheckCircle2 },
+    ...(formData.listingType === 'rent'
+      ? [{ number: 7, label: 'Students', icon: GraduationCap }]
+      : []),
+    { number: formData.listingType === 'rent' ? 8 : 7, label: 'Review', icon: CheckCircle2 },
   ];
 
   return (
@@ -1980,25 +2031,107 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               </div>
 
               {/* Virtual Tour */}
-              <div className="space-y-2">
-                <Label htmlFor="virtualTourUrl" className="text-sm font-semibold flex items-center gap-2">
+              <div className="space-y-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <Label className="text-sm font-semibold flex items-center gap-2">
                   <Globe className="w-4 h-4 text-blue-600" />
-                  Virtual Tour URL (Optional)
+                  Virtual Tour (Optional)
                 </Label>
-                <Input
-                  id="virtualTourUrl"
-                  name="virtualTourUrl"
-                  type="text"
-                  value={formData.virtualTourUrl}
-                  onChange={handleChange}
-                  placeholder="e.g., https://matterport.com/your-tour"
-                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Supports: Matterport, Kuula, 3DVista, and other 360° tour platforms
-                </p>
-              </div>
 
+                {/* Tour type — pick first */}
+                <div className="space-y-2">
+                  <Label htmlFor="tourType" className="text-sm font-medium text-gray-700">
+                    Tour Type
+                  </Label>
+                  <select
+                    id="tourType"
+                    name="tourType"
+                    value={formData.tourType}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500 bg-white"
+                  >
+                    <option value="none">No virtual tour</option>
+                    <option value="kuula">360° Tour (Kuula)</option>
+                    <option value="youtube">Video Walkthrough (YouTube)</option>
+                    <option value="images">Photo Tour (use uploaded images)</option>
+                  </select>
+                </div>
+
+                {/* URL field — only shown when kuula or youtube is selected */}
+                {(formData.tourType === 'kuula' || formData.tourType === 'youtube') && (
+                  <div className="space-y-2">
+                    <Label htmlFor="virtualTourUrl" className="text-sm font-medium text-gray-700">
+                      {formData.tourType === 'kuula' ? 'Kuula Embed URL' : 'YouTube Video ID'}
+                    </Label>
+                    <Input
+                      id="virtualTourUrl"
+                      name="virtualTourUrl"
+                      type="text"
+                      value={formData.virtualTourUrl}
+                      onChange={handleChange}
+                      placeholder={
+                        formData.tourType === 'kuula'
+                          ? 'https://kuula.co/share/...'
+                          : 'e.g., dQw4w9WgXcQ'
+                      }
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                    />
+                    <p className="text-xs text-gray-500">
+                      {formData.tourType === 'kuula'
+                        ? 'In Kuula, go to Share → Embed → copy the src URL from the iframe code.'
+                        : 'Paste only the video ID from the YouTube URL, not the full link. e.g. from youtube.com/watch?v=dQw4w9WgXcQ use dQw4w9WgXcQ'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Photo tour info */}
+                {formData.tourType === 'images' && (
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                      <Globe className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                      <p className="text-xs text-blue-700">
+                        Your uploaded photos will be used as the virtual tour automatically.
+                        <span className="font-semibold ml-1">
+                          ({formData.images.length} image{formData.images.length !== 1 ? 's' : ''} ready)
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* Live mini-preview of uploaded images */}
+                    {formData.images.length > 0 && (
+                      <div className="flex gap-2 overflow-x-auto pb-1">
+                        {formData.images.slice(0, 6).map((img, i) => (
+                          <div
+                            key={img.id}
+                            className="relative shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-blue-200"
+                          >
+                            <img
+                              src={img.preview}
+                              alt={`Tour photo ${i + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            {i === 0 && (
+                              <div className="absolute bottom-0 inset-x-0 bg-blue-600/80 text-white text-[9px] text-center py-0.5 font-bold">
+                                COVER
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {formData.images.length > 6 && (
+                          <div className="shrink-0 w-20 h-14 rounded-lg border-2 border-dashed border-blue-200 flex items-center justify-center text-xs text-blue-500 font-bold">
+                            +{formData.images.length - 6} more
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {formData.images.length === 0 && (
+                      <p className="text-xs text-amber-600 font-medium">
+                        ⚠ No images uploaded yet. Upload images above first.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
               {/* Video URL */}
               <div className="space-y-2">
                 <Label htmlFor="videoUrl" className="text-sm font-semibold flex items-center gap-2">
@@ -2113,136 +2246,114 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
             </div>
           )}
 
-          {/* Step 7: Review */}
-          {currentStep === 7 && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 mb-4">
-                <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                <h3 className="text-lg font-semibold text-blue-600">Review Your Property Listing</h3>
-              </div>
-
-              <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                {/* Basic Information */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-blue-600" />
-                    Basic Information
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-semibold">Title:</span> {formData.title}</p>
-                    <p><span className="font-semibold">Description:</span> {formData.description}</p>
-                    <p><span className="font-semibold">Type:</span> {formData.type.charAt(0).toUpperCase() + formData.type.slice(1)}</p>
-                    <p><span className="font-semibold">Listing Type:</span> {formData.listingType === 'sale' ? 'For Sale' : 'For Rent'}</p>
-                    <p><span className="font-semibold">Price:</span> {formData.price}</p>
-                  </div>
-                </div>
-
-                {/* Location */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-blue-600" />
-                    Location
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-semibold">Address:</span> {formData.address}</p>
-                    <p><span className="font-semibold">City:</span> {formData.city}</p>
-                    {formData.neighborhood && <p><span className="font-semibold">Neighborhood:</span> {formData.neighborhood}</p>}
-                    {formData.country && <p><span className="font-semibold">Country:</span> {formData.country}</p>}
-                    <p><span className="font-semibold">Coordinates:</span> {formData.latitude}, {formData.longitude}</p>
-                  </div>
-                </div>
-
-                {/* Property Details */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-blue-600" />
-                    Property Details
-                  </h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    {formData.area && <p><span className="font-semibold">Area:</span> {formData.area} m²</p>}
-                    {formData.yearBuilt && <p><span className="font-semibold">Year Built:</span> {formData.yearBuilt}</p>}
-                    {formData.floorNumber && <p><span className="font-semibold">Floor:</span> {formData.floorNumber}</p>}
-                    {formData.totalFloors && <p><span className="font-semibold">Total Floors:</span> {formData.totalFloors}</p>}
-                    {formData.pricePerSqm && <p><span className="font-semibold">Price/m²:</span> {formData.pricePerSqm}</p>}
-                    {formData.depositAmount && <p><span className="font-semibold">Deposit:</span> {formData.depositAmount}</p>}
-                    {formData.maintenanceFee && <p><span className="font-semibold">Maintenance:</span> {formData.maintenanceFee}</p>}
-                  </div>
-                </div>
-
-                {/* Amenities */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                    <Home className="w-4 h-4 text-blue-600" />
-                    Amenities
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-semibold">Bedrooms:</span> {formData.bedrooms}</p>
-                    <p><span className="font-semibold">Bathrooms:</span> {formData.bathrooms}</p>
-                    <p><span className="font-semibold">Parking Spaces:</span> {formData.parkingSpaces}</p>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {formData.hasGarden && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Garden</span>}
-                      {formData.hasPool && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Pool</span>}
-                      {formData.hasGym && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Gym</span>}
-                      {formData.hasSecurity && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Security</span>}
-                      {formData.hasElevator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Elevator</span>}
-                      {formData.hasBalcony && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Balcony</span>}
-                      {formData.hasAirConditioning && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">A/C</span>}
-                      {formData.hasInternet && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Internet</span>}
-                      {formData.hasGenerator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Generator</span>}
-                      {formData.furnished && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Furnished</span>}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Features */}
-                {(formData.keywords || formData.nearbyAmenities.length > 0 || formData.transportAccess.length > 0) && (
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                      <Wrench className="w-4 h-4 text-blue-600" />
-                      Features
-                    </h4>
-                    <div className="space-y-2 text-sm">
-                      {formData.keywords && <p><span className="font-semibold">Keywords:</span> {formData.keywords}</p>}
-                      {formData.nearbyAmenities.length > 0 && (
-                        <div>
-                          <span className="font-semibold">Nearby:</span>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {formData.nearbyAmenities.map(amenity => (
-                              <span key={amenity} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">{amenity}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {formData.transportAccess.length > 0 && (
-                        <div>
-                          <span className="font-semibold">Transport:</span>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {formData.transportAccess.map(transport => (
-                              <span key={transport} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">{transport}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Media */}
-                {(formData.virtualTourUrl || formData.videoUrl) && (
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-blue-600" />
-                      Media
-                    </h4>
-                    <div className="space-y-2 text-sm">
-                      {formData.virtualTourUrl && <p><span className="font-semibold">Virtual Tour:</span> {formData.virtualTourUrl}</p>}
-                      {formData.videoUrl && <p><span className="font-semibold">Video:</span> {formData.videoUrl}</p>}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+          {/* Step 7: Student Enrollment — rent only */}
+          {currentStep === 7 && formData.listingType === 'rent' && (
+            <StudentEnrollmentStep
+              data={studentEnrollment}
+              onChange={setStudentEnrollment}
+            />
           )}
+
+          {/* Final step: Review
+    — step 7 for sale/short_term, step 8 for rent */}
+          {((currentStep === 7 && formData.listingType !== 'rent') ||
+            (currentStep === 8 && formData.listingType === 'rent')) && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-blue-600">Review Your Property Listing</h3>
+                </div>
+
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                  {/* Basic Information */}
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                      Basic Information
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-semibold">Title:</span> {formData.title}</p>
+                      <p><span className="font-semibold">Description:</span> {formData.description}</p>
+                      <p><span className="font-semibold">Type:</span> {formData.type.charAt(0).toUpperCase() + formData.type.slice(1)}</p>
+                      <p><span className="font-semibold">Listing Type:</span> {formData.listingType === 'sale' ? 'For Sale' : formData.listingType === 'short_term' ? 'Short-term Rental' : 'For Rent'}</p>
+                      <p><span className="font-semibold">Price:</span> {formData.price}</p>
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-blue-600" />
+                      Location
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-semibold">Address:</span> {formData.address}</p>
+                      <p><span className="font-semibold">City:</span> {formData.city}</p>
+                      {formData.neighborhood && <p><span className="font-semibold">Neighborhood:</span> {formData.neighborhood}</p>}
+                      {formData.country && <p><span className="font-semibold">Country:</span> {formData.country}</p>}
+                      <p><span className="font-semibold">Coordinates:</span> {formData.latitude}, {formData.longitude}</p>
+                    </div>
+                  </div>
+
+                  {/* Amenities */}
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                      <Home className="w-4 h-4 text-blue-600" />
+                      Amenities
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-semibold">Bedrooms:</span> {formData.bedrooms}</p>
+                      <p><span className="font-semibold">Bathrooms:</span> {formData.bathrooms}</p>
+                      <p><span className="font-semibold">Parking:</span> {formData.parkingSpaces}</p>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {formData.hasGarden && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Garden</span>}
+                        {formData.hasPool && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Pool</span>}
+                        {formData.hasGym && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Gym</span>}
+                        {formData.hasSecurity && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Security</span>}
+                        {formData.hasElevator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Elevator</span>}
+                        {formData.hasBalcony && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Balcony</span>}
+                        {formData.hasAirConditioning && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">A/C</span>}
+                        {formData.hasInternet && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Internet</span>}
+                        {formData.hasGenerator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Generator</span>}
+                        {formData.furnished && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Furnished</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Media */}
+                  {(formData.images.length > 0 || formData.virtualTourUrl || formData.videoUrl) && (
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4 text-blue-600" />
+                        Media
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <p><span className="font-semibold">Images:</span> {formData.images.length} uploaded</p>
+                        {formData.virtualTourUrl && <p><span className="font-semibold">Virtual Tour:</span> {formData.virtualTourUrl}</p>}
+                        {formData.videoUrl && <p><span className="font-semibold">Video:</span> {formData.videoUrl}</p>}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Student enrollment summary */}
+                  {studentEnrollment.enabled && (
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                      <h4 className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4" />
+                        Student Programme — Enrolled
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-blue-900">
+                        {studentEnrollment.nearestCampus && <p><span className="font-semibold">Campus:</span> {studentEnrollment.nearestCampus}</p>}
+                        {studentEnrollment.campusProximityMeters && <p><span className="font-semibold">Distance:</span> {studentEnrollment.campusProximityMeters}m</p>}
+                        {studentEnrollment.waterSource && <p><span className="font-semibold">Water:</span> {studentEnrollment.waterSource}</p>}
+                        {studentEnrollment.electricityBackup && <p><span className="font-semibold">Power backup:</span> {studentEnrollment.electricityBackup}</p>}
+                        {studentEnrollment.pricePerPersonMonthly && <p><span className="font-semibold">Per person:</span> {studentEnrollment.pricePerPersonMonthly.toLocaleString()} XAF</p>}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
           {/* Action Buttons */}
           {/* Upload progress */}
@@ -2267,7 +2378,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               Back
             </Button>
 
-            {currentStep < 7 ? (
+            {currentStep < (formData.listingType === 'rent' ? 8 : 7) ? (
               <Button
                 type="button"
                 disabled={!validateStep(currentStep)}

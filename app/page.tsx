@@ -1,5 +1,5 @@
-import HomePage from "@/components/home/homePage";
+import HomeWrapper from "@/components/home/HomeWrapper";
 
 export default function Home() {
-  return <HomePage />;
+  return <HomeWrapper />;
 }

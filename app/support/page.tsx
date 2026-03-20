@@ -239,7 +239,7 @@ export default function SupportPage() {
                 </div>
             </section>
 
-            <Footer />
+            
         </main>
     );
 }

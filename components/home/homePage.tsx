@@ -22,11 +22,11 @@ export default function HomePage() {
       <WhatWeOffer />
       <TopShortTerm />
       <PropertyTypeCards />
-      {/* <StudentSection /> */}
+      <StudentSection />
       <AboutUs />
       <OurParteners />
       <CustomersSay />
-      <Footer />
+      
 
     </>
   );

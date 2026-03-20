@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { useCurrency } from "@/hooks/useCurrency";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,18 +66,6 @@ const formatTimeAgoStr = (time?: string) => {
   return time;
 };
 
-// Reuse price format
-const formatPriceStr = (price: string | number) => {
-  try {
-    const numPrice = typeof price === 'number' ? price : parseFloat(String(price));
-    if (isNaN(numPrice) || numPrice === 0) return 'Contact for price';
-
-    // Format with XAF currency
-    return `${numPrice.toLocaleString()} XAF`;
-  } catch {
-    return 'Contact for price';
-  }
-};
 
 export const PropertyCard = ({
   id,
@@ -104,6 +93,7 @@ export const PropertyCard = ({
 }: PropertyCardProps) => {
   const { user } = useAuth();
   const router = useRouter();
+  const { formatMoney } = useCurrency();
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isDeleting, setIsDeleting] = useState(false);
   const [localFavoriteCount, setLocalFavoriteCount] = useState(favoriteCount);
@@ -222,7 +212,8 @@ export const PropertyCard = ({
     : imageArray;
 
   const formattedTimeAgo = formatTimeAgoStr(timeAgo);
-  const formattedPrice = formatPriceStr(price);
+  const numPrice = typeof price === 'number' ? price : parseFloat(String(price));
+  const formattedPrice = !isNaN(numPrice) && numPrice > 0 ? formatMoney(numPrice) : 'Contact for price';
 
   const displayTag = status !== 'active'
     ? status.charAt(0).toUpperCase() + status.slice(1)

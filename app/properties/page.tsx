@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import apiClient from "@/lib/api";
 import { toast } from "sonner";
+import { useCurrency } from "@/hooks/useCurrency";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,19 +28,6 @@ type GridLayout = "grid" | "list";
 const MAX_COMPARE = 3;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatPrice(value?: number): string {
-  if (typeof value !== "number") return "";
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: "XAF",
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${value.toLocaleString()} XAF`;
-  }
-}
 
 function isoTimestamp(iso?: string): string {
   return iso ?? "";
@@ -108,6 +96,7 @@ const IndexContent = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { formatMoney } = useCurrency();
 
   // ── UI state ──────────────────────────────────────────────────────────────
   const [showFilters, setShowFilters] = useState(false);
@@ -309,7 +298,7 @@ const IndexContent = () => {
       .map((p) => ({
         id: p._id || p.id,
         address: [p.address, p.city].filter(Boolean).join(", "),
-        price: formatPrice(p.price),
+        price: formatMoney(p.price),
         image: p.images?.[0]?.url,
       })),
     [properties, compareIds]
@@ -446,7 +435,7 @@ const IndexContent = () => {
       id: p._id || p.id,
       image: p.images?.[0]?.url || "/placeholder.svg",
       images: p.images?.map((img: { url: string }) => img.url).filter(Boolean),
-      price: formatPrice(p.price),
+      price: p.price,
       timeAgo: isoTimestamp(p.createdAt),
       address: [p.address, p.city, p.country].filter(Boolean).join(", "),
       beds: p.amenities?.bedrooms ?? 0,
@@ -458,6 +447,8 @@ const IndexContent = () => {
       maxGuests: p.shortTermAmenities?.maxGuests,
       isVerified: p.isVerified ?? false,
       isBlockchainVerified: p.isBlockchainVerified ?? false,
+      rating: typeof p.averageRating === "number" && p.averageRating > 0 ? p.averageRating : undefined,
+      reviewCount: typeof p.reviewCount === "number" ? p.reviewCount : undefined,
     })),
     [properties]
   );
@@ -526,7 +517,7 @@ const IndexContent = () => {
           </div>
         ) : (
           <>
-            <div className="w-full px-4 py-3">
+            <div className="sticky top-[45px] z-30 w-full px-4 py-3">
               <QuickSearch onSearch={handleQuickSearch} initialFilters={filtersFromURL} />
             </div>
             {/* {FilterChips && <div className="px-4 pb-3">{FilterChips}</div>} */}

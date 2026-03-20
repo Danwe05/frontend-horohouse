@@ -17,9 +17,14 @@ import { toast } from "sonner";
 import apiClient from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
+function normalizeDiacritics(str: string): string {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
 
 export interface QuickSearchFilters {
   city?: string;
@@ -286,23 +291,73 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
   };
 
   const fetchPlaceSuggestions = async (query: string) => {
-    if (!query || query.length < 2) { setSuggestions([]); return; }
-    const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
-    if (!apiKey) return;
-    try {
-      setIsLoadingSuggestions(true);
-      const response = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${apiKey}&limit=8&autocomplete=true`);
-      const data = await response.json();
-      if (data.features) {
-        const places: PlaceSuggestion[] = data.features
-          .filter((f: any) => (f.place_type || []).some((t: string) => ["place", "municipality", "region", "district", "locality", "neighborhood"].includes(t)))
-          .map((f: any) => ({ place_name: f.place_name, text: f.text, place_type: f.place_type || [] }));
-        setSuggestions(places);
+  if (!query || query.length < 2) { setSuggestions([]); return; }
+  const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
+  if (!apiKey) return;
+  try {
+    setIsLoadingSuggestions(true);
+
+    // Normalize the query so "yaounde" hits "Yaoundé" etc.
+    const normalizedQuery = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // Try both the raw query and the normalized one for best coverage
+    const queries = query === normalizedQuery ? [query] : [query, normalizedQuery];
+    const allFeatures: any[] = [];
+
+    await Promise.all(
+      queries.map(async (q) => {
+        const response = await fetch(
+          `https://api.maptiler.com/geocoding/${encodeURIComponent(q)}.json?key=${apiKey}&limit=10&autocomplete=true`
+        );
+        const data = await response.json();
+        if (data.features) allFeatures.push(...data.features);
+      })
+    );
+
+    // Filter to city-level place types
+    const cityTypes = ["place", "municipality", "region", "district", "locality", "neighborhood"];
+    const cityFeatures = allFeatures.filter((f: any) =>
+      (f.place_type || []).some((t: string) => cityTypes.includes(t))
+    );
+
+    // Deduplicate: strip roman numerals + ordinal suffixes and collapse duplicates.
+    // "Yaoundé I", "Yaoundé II", "Yaoundé III" → all collapse to "Yaoundé"
+    const seen = new Map<string, PlaceSuggestion>();
+    for (const f of cityFeatures) {
+      const rawText: string = f.text || "";
+      // Strip trailing roman numerals and Arabic ordinals (e.g. "Maroua I", "Arrondissement 3")
+      const baseText = rawText
+        .replace(/\s+(I{1,3}|IV|VI{0,3}|IX|X{0,3}|[0-9]+)(e?r?e?me?)?\s*$/i, "")
+        .replace(/\s+arrondissement\s*$/i, "")
+        .trim();
+
+      const key = normalizeDiacritics(baseText);
+      if (!seen.has(key)) {
+        seen.set(key, {
+          // Use the cleaned base name as the display text
+          text: baseText,
+          // Use the full place_name from the first match for the subtitle
+          place_name: f.place_name,
+          place_type: f.place_type || [],
+        });
       }
-    } catch { /* ignore */ } finally {
-      setIsLoadingSuggestions(false);
     }
-  };
+
+    // Sort: exact prefix matches first, then alphabetical
+    const nq = normalizeDiacritics(query);
+    const results = Array.from(seen.values()).sort((a, b) => {
+      const aStarts = normalizeDiacritics(a.text).startsWith(nq);
+      const bStarts = normalizeDiacritics(b.text).startsWith(nq);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return a.text.localeCompare(b.text);
+    });
+
+    setSuggestions(results.slice(0, 6));
+  } catch { /* ignore */ } finally {
+    setIsLoadingSuggestions(false);
+  }
+};
 
   const handleCityChange = (value: string) => {
     setCity(value);
@@ -349,11 +404,18 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
   }, []);
 
   const handleSearch = () => {
-    if (city) addToRecentSearches(city);
-    setHasSearched(true);
-    onSearch?.(getCurrentFilters());
-    setShowSuggestions(false);
-  };
+  // Attempt to match the typed city against a known suggestion text (accent-insensitive)
+  const typedNorm = normalizeDiacritics(city);
+  const matched = suggestions.find((s) => normalizeDiacritics(s.text) === typedNorm);
+  const resolvedCity = matched ? matched.text : city;
+
+  if (resolvedCity) addToRecentSearches(resolvedCity);
+  setHasSearched(true);
+  const f = getCurrentFilters();
+  f.city = resolvedCity || undefined;
+  onSearch?.(f);
+  setShowSuggestions(false);
+};
 
   // Auto-search when non-city filters change
   useEffect(() => {
@@ -572,7 +634,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
           </div>
         ) : (
           // ── Mobile Expanded Full-Screen Drawer ── 
-          <div className="fixed inset-0 z-[100] bg-[#f7f7f9] flex flex-col animate-in slide-in-from-bottom-8 duration-300">
+          <div className="fixed inset-0 top-[50px] z-[100] bg-[#f7f7f9] flex flex-col animate-in slide-in-from-bottom-8 duration-300">
             {/* Header */}
             <div className="flex items-center justify-between p-4 bg-white border-b border-slate-100">
               <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 bg-slate-50 hover:bg-slate-100 text-slate-600 focus-visible:ring-0" onClick={() => setIsMobileExpanded(false)}>

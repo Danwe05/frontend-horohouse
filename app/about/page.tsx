@@ -743,7 +743,7 @@ export default function AboutPage() {
             </section>
 
             {/* 16. Contact */}
-            <Footer />
+            
 
 
         </main>

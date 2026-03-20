@@ -69,12 +69,16 @@ export const NavDash = () => {
 
       // Wait for user to see the success message, then reload/refresh
       setTimeout(async () => {
-        if (refreshAuth) {
-          await refreshAuth();
-        } else {
-          window.location.reload();
+        try {
+          if (refreshAuth) {
+            await refreshAuth();
+          } else {
+            window.location.reload();
+          }
+        } finally {
+          setShowRoleSuccess(false);
+          setIsSwappingRole(false);
         }
-        setShowRoleSuccess(false);
       }, 2000);
 
     } catch (error) {

@@ -24,6 +24,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface Property {
   id: string;
@@ -96,6 +97,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   isOwner = false,
   isLoading = false 
 }) => {
+  const { formatMoney } = useCurrency();
   if (isLoading) {
     return <PropertyCardSkeleton />;
   }
@@ -169,7 +171,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             <div className="flex items-center space-x-1">
               <DollarSign className="h-4 w-4 text-green-600" />
               <span className="font-bold text-lg text-green-600">
-                ${property.price.toLocaleString()}
+                {formatMoney(property.price)}
               </span>
             </div>
             <Badge variant="outline">{property.type}</Badge>

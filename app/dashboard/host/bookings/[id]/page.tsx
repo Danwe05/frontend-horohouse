@@ -28,6 +28,7 @@ const STATUS_CONFIG: Record<BookingStatus, { label: string; color: string; bg: s
     [BookingStatus.REJECTED]: { label: 'Declined', color: 'text-red-700', bg: 'bg-red-100/50' },
     [BookingStatus.CANCELLED]: { label: 'Cancelled by Guest', color: 'text-slate-600', bg: 'bg-slate-100/50' },
     [BookingStatus.COMPLETED]: { label: 'Stay Completed', color: 'text-blue-700', bg: 'bg-blue-100/50' },
+    [BookingStatus.NO_SHOW]: { label: 'No Show', color: 'text-orange-700', bg: 'bg-orange-100/50' },
 };
 
 export default function HostBookingDetailPage() {

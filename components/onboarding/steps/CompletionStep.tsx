@@ -5,20 +5,19 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { onboardingApi } from '@/lib/onboarding-api';
-import { Loader2, CheckCircle, Home, User, MapPin, DollarSign } from 'lucide-react';
+import { Loader2, CheckCircle2, Home, User, Sparkles, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export function CompletionStep() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, refreshAuth } = useAuth();
   const { state, dispatch } = useOnboarding();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleComplete = async () => {
     setIsLoading(true);
     try {
-      // Complete onboarding on backend
       await onboardingApi.completeOnboarding({
         isCompleted: true,
         propertyPreferences: state.propertyPreferences,
@@ -26,12 +25,10 @@ export function CompletionStep() {
       });
 
       dispatch({ type: 'SET_COMPLETED', payload: true });
-      
-      // Redirect to dashboard
+      await refreshAuth(); // re-fetch user so preferences appear immediately in Settings
       router.push('/dashboard');
     } catch (error) {
       console.error('Failed to complete onboarding:', error);
-      // Still redirect to dashboard
       router.push('/dashboard');
     } finally {
       setIsLoading(false);
@@ -41,84 +38,109 @@ export function CompletionStep() {
   const getCompletionMessage = () => {
     if (user?.role === 'agent') {
       return {
-        title: 'Agent Profile Complete!',
-        description: 'Your professional profile is now set up. You can start listing properties and connecting with potential clients.',
-        icon: <User className="h-12 w-12 text-blue-600" />
+        title: 'Ready for Business!',
+        description: 'Your professional profile is complete. Start listing properties and connecting with the right clients today.',
+        icon: <User className="h-10 w-10 text-white" />,
+        color: 'from-blue-500 to-indigo-600',
+        tasks: [
+          'Publish your first property listing',
+          'Review messages from potential clients',
+          'Optimize your agent public profile'
+        ]
       };
     } else {
       return {
-        title: 'Profile Setup Complete!',
-        description: 'Your preferences are saved. We\'ll use this information to show you the best properties that match your criteria.',
-        icon: <Home className="h-12 w-12 text-blue-600" />
+        title: 'You\'re All Set!',
+        description: 'We\'ve customized your experience. Now you\'ll see properties that exactly match what you\'re looking for.',
+        icon: <Sparkles className="h-10 w-10 text-white" />,
+        color: 'from-blue-500 to-indigo-600',
+        tasks: [
+          'Browse matched properties in your areas',
+          'Save favorites to get instant price updates',
+          'Connect with verified agents directly'
+        ]
       };
     }
   };
 
-  const completionMessage = getCompletionMessage();
+  const data = getCompletionMessage();
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <div className="mx-auto w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-          {completionMessage.icon}
-        </div>
-        <CardTitle className="text-3xl font-bold text-gray-900">
-          {completionMessage.title}
-        </CardTitle>
-        <CardDescription className="text-lg text-gray-600">
-          {completionMessage.description}
-        </CardDescription>
-      </CardHeader>
+    <div className="flex flex-col h-full w-full max-w-2xl mx-auto items-center justify-center py-8">
 
-      <CardContent className="space-y-6">
-        {/* What's Next */}
-        <div className="bg-blue-50 rounded-lg p-6">
-          <h3 className="font-semibold text-blue-800 mb-3">What's Next?</h3>
-          <div className="space-y-2">
-            <div className="flex items-center text-blue-700">
-              <CheckCircle className="h-4 w-4 mr-2" />
-              <span>Browse properties in your preferred areas</span>
-            </div>
-            <div className="flex items-center text-blue-700">
-              <CheckCircle className="h-4 w-4 mr-2" />
-              <span>Save favorites and get notifications</span>
-            </div>
-            <div className="flex items-center text-blue-700">
-              <CheckCircle className="h-4 w-4 mr-2" />
-              <span>Connect with agents and schedule viewings</span>
-            </div>
-            {user?.role === 'agent' && (
-              <div className="flex items-center text-blue-700">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                <span>Start listing your properties</span>
-              </div>
-            )}
-          </div>
-        </div>
+      <motion.div
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className={`w-24 h-24 rounded-[2rem] flex items-center justify-center shadow-xl mb-8 bg-gradient-to-br ${data.color}`}
+      >
+        {data.icon}
+      </motion.div>
 
-        {/* Action Button */}
-        <div className="pt-6">
-          <Button
-            onClick={handleComplete}
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Completing Setup...
-              </>
-            ) : (
-              'Go to Dashboard'
-            )}
-          </Button>
-        </div>
-
-        <p className="text-center text-sm text-gray-500">
-          You can always update your preferences later from your profile settings.
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="text-center space-y-3 mb-10 max-w-lg"
+      >
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">
+          {data.title}
+        </h2>
+        <p className="text-lg text-slate-500">
+          {data.description}
         </p>
-      </CardContent>
-    </Card>
+      </motion.div>
+
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="w-full max-w-md bg-white/60 backdrop-blur-sm border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm mb-10"
+      >
+        <h3 className="font-semibold text-slate-800 mb-4 flex items-center">
+          <CheckCircle2 className="w-5 h-5 mr-2 text-blue-500" />
+          Recommended Next Steps
+        </h3>
+        <ul className="space-y-4">
+          {data.tasks.map((task, idx) => (
+            <motion.li
+              key={idx}
+              initial={{ x: -10, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.4 + (idx * 0.1) }}
+              className="flex items-start text-slate-600"
+            >
+              <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold mr-3 shrink-0 mt-0.5">
+                {idx + 1}
+              </div>
+              <span className="text-sm font-medium pt-0.5">{task}</span>
+            </motion.li>
+          ))}
+        </ul>
+      </motion.div>
+
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.8 }}
+        className="w-full max-w-xs"
+      >
+        <Button
+          onClick={handleComplete}
+          disabled={isLoading}
+          className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-2xl h-14 text-lg font-semibold shadow-lg shadow-slate-300 transition-all group"
+        >
+          {isLoading ? (
+            <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+          ) : (
+            <span className="flex items-center justify-center">
+              Go to Dashboard
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </span>
+          )}
+        </Button>
+      </motion.div>
+
+    </div>
   );
 }

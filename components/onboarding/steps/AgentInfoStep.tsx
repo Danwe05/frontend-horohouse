@@ -4,28 +4,19 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { onboardingApi } from '@/lib/onboarding-api';
-import { Loader2, User, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Loader2, User, ChevronRight, ChevronLeft, Building2, MapPin, Briefcase, Award } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SPECIALIZATIONS = [
-  'Residential Sales',
-  'Commercial Real Estate',
-  'Luxury Properties',
-  'First-time Buyers',
-  'Investment Properties',
-  'New Construction',
-  'Foreclosures',
-  'Short Sales',
-  'Rental Properties',
-  'Property Management',
-  'Land Sales',
-  'Relocation Services'
+  'Residential Sales', 'Commercial Real Estate', 'Luxury Properties',
+  'First-time Buyers', 'Investment Properties', 'New Construction',
+  'Foreclosures', 'Short Sales', 'Rental Properties',
+  'Property Management', 'Land Sales', 'Relocation Services'
 ];
 
 const EXPERIENCE_RANGES = [
@@ -41,250 +32,194 @@ export function AgentInfoStep() {
   const { user } = useAuth();
   const { state, nextStep, prevStep, dispatch } = useOnboarding();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [agentInfo, setAgentInfo] = useState({
     licenseNumber: state.agentPreferences?.licenseNumber || '',
     agency: state.agentPreferences?.agency || '',
     experience: state.agentPreferences?.experience || 0,
-    specializations: state.agentPreferences?.specializations || [],
-    serviceAreas: state.agentPreferences?.serviceAreas || []
+    specializations: state.agentPreferences?.specializations || []
   });
-
-  const [serviceAreaInput, setServiceAreaInput] = useState('');
 
   const handleSpecializationChange = (specialization: string, checked: boolean) => {
     setAgentInfo(prev => ({
       ...prev,
-      specializations: checked 
+      specializations: checked
         ? [...prev.specializations, specialization]
         : prev.specializations.filter(s => s !== specialization)
     }));
   };
 
-  const handleAddServiceArea = () => {
-    if (serviceAreaInput.trim() && !agentInfo.serviceAreas.includes(serviceAreaInput.trim())) {
-      setAgentInfo(prev => ({
-        ...prev,
-        serviceAreas: [...prev.serviceAreas, serviceAreaInput.trim()]
-      }));
-      setServiceAreaInput('');
-    }
-  };
-
-  const handleRemoveServiceArea = (area: string) => {
-    setAgentInfo(prev => ({
-      ...prev,
-      serviceAreas: prev.serviceAreas.filter(a => a !== area)
-    }));
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddServiceArea();
-    }
-  };
-
   const isFormValid = () => {
-    return agentInfo.licenseNumber.trim() !== '' && 
-           agentInfo.agency.trim() !== '' && 
-           agentInfo.specializations.length > 0 &&
-           agentInfo.serviceAreas.length > 0;
+    return agentInfo.licenseNumber.trim() !== '' &&
+      agentInfo.agency.trim() !== '' &&
+      agentInfo.specializations.length > 0;
   };
 
   const handleNext = async () => {
     if (!isFormValid()) {
-      alert('Please fill in all required fields');
       return;
     }
 
     setIsLoading(true);
     try {
-      // Update preferences in context
-      dispatch({ 
-        type: 'SET_AGENT_PREFERENCES', 
-        payload: agentInfo
+      dispatch({
+        type: 'SET_AGENT_PREFERENCES',
+        payload: { ...state.agentPreferences, ...agentInfo, serviceAreas: state.agentPreferences?.serviceAreas || [] }
       });
 
-      // Update step on backend
       await onboardingApi.updateOnboardingStep({
         currentStep: state.currentStep + 1,
         stepName: 'agent-info',
-        agentPreferences: agentInfo
+        agentPreferences: { ...state.agentPreferences, ...agentInfo, serviceAreas: state.agentPreferences?.serviceAreas || [] }
       });
 
       nextStep();
     } catch (error) {
       console.error('Failed to update agent info:', error);
-      // Continue anyway
       nextStep();
     } finally {
       setIsLoading(false);
     }
   };
 
+  const fadeUpVariant = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+  };
+
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-          <User className="h-8 w-8 text-blue-600" />
-        </div>
-        <CardTitle className="text-2xl font-bold text-gray-900">
-          Agent Information
-        </CardTitle>
-        <CardDescription className="text-gray-600">
-          Tell us about your professional background and expertise
-        </CardDescription>
-      </CardHeader>
+    <div className="flex flex-col w-full max-w-3xl mx-auto">
+      <div className="text-center mb-6 sm:mb-8 shrink-0">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="mx-auto w-14 h-14 bg-indigo-50/80 rounded-2xl flex items-center justify-center mb-3 shadow-inner border border-indigo-100/50"
+        >
+          <Briefcase className="h-7 w-7 text-indigo-600" />
+        </motion.div>
+        <motion.h2 variants={fadeUpVariant} initial="hidden" animate="visible" className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
+          Professional Details
+        </motion.h2>
+        <motion.p variants={fadeUpVariant} initial="hidden" animate="visible" className="text-slate-500 mt-2 text-sm sm:text-base">
+          Let's set up your agent credentials
+        </motion.p>
+      </div>
 
-      <CardContent className="space-y-6">
-        {/* License Number */}
-        <div>
-          <Label htmlFor="license" className="text-base font-semibold text-gray-900 mb-2 block">
-            License Number *
-          </Label>
-          <Input
-            id="license"
-            value={agentInfo.licenseNumber}
-            onChange={(e) => setAgentInfo(prev => ({ ...prev, licenseNumber: e.target.value }))}
-            placeholder="Enter your real estate license number"
-            className="w-full"
-          />
-        </div>
+      <div className="flex-1 px-1 pb-4">
+        <div className="space-y-6 sm:space-y-8">
 
-        {/* Agency */}
-        <div>
-          <Label htmlFor="agency" className="text-base font-semibold text-gray-900 mb-2 block">
-            Agency/Brokerage *
-          </Label>
-          <Input
-            id="agency"
-            value={agentInfo.agency}
-            onChange={(e) => setAgentInfo(prev => ({ ...prev, agency: e.target.value }))}
-            placeholder="Enter your agency or brokerage name"
-            className="w-full"
-          />
-        </div>
-
-        {/* Experience */}
-        <div>
-          <Label htmlFor="experience" className="text-base font-semibold text-gray-900 mb-2 block">
-            Years of Experience
-          </Label>
-          <Select
-            value={agentInfo.experience.toString()}
-            onValueChange={(value) => setAgentInfo(prev => ({ ...prev, experience: parseInt(value) }))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select your experience level" />
-            </SelectTrigger>
-            <SelectContent>
-              {EXPERIENCE_RANGES.map((range) => (
-                <SelectItem key={range.value} value={range.value.toString()}>
-                  {range.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Specializations */}
-        <div>
-          <Label className="text-base font-semibold text-gray-900 mb-3 block">
-            Specializations * (Select at least one)
-          </Label>
-          <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto">
-            {SPECIALIZATIONS.map((specialization) => (
-              <div key={specialization} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`spec-${specialization}`}
-                  checked={agentInfo.specializations.includes(specialization)}
-                  onCheckedChange={(checked) => handleSpecializationChange(specialization, checked as boolean)}
-                />
-                <Label htmlFor={`spec-${specialization}`} className="text-sm cursor-pointer">
-                  {specialization}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Service Areas */}
-        <div>
-          <Label className="text-base font-semibold text-gray-900 mb-2 block">
-            Service Areas * (Cities, neighborhoods, etc.)
-          </Label>
-          <div className="space-y-3">
-            <div className="flex gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* License Number */}
+            <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-2">
+              <Label htmlFor="license" className="text-sm font-semibold text-slate-700 flex items-center">
+                <Award className="w-4 h-4 mr-1 text-slate-400" /> License Number *
+              </Label>
               <Input
-                value={serviceAreaInput}
-                onChange={(e) => setServiceAreaInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Enter a city or area"
-                className="flex-1"
+                id="license"
+                value={agentInfo.licenseNumber}
+                onChange={(e) => setAgentInfo(prev => ({ ...prev, licenseNumber: e.target.value }))}
+                placeholder="e.g. DRE# 01234567"
+                className="bg-white/50 border-slate-200 focus-visible:ring-indigo-500 rounded-xl h-11"
               />
-              <Button 
-                type="button"
-                onClick={handleAddServiceArea}
-                variant="outline"
-                disabled={!serviceAreaInput.trim()}
-              >
-                Add
-              </Button>
-            </div>
-            
-            {agentInfo.serviceAreas.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {agentInfo.serviceAreas.map((area, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-                  >
-                    {area}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveServiceArea(area)}
-                      className="ml-2 text-blue-600 hover:text-blue-800"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+            </motion.div>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between pt-6">
-          <Button
-            onClick={prevStep}
-            variant="outline"
-            className="flex items-center"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          
-          <Button
-            onClick={handleNext}
-            disabled={isLoading || !isFormValid()}
-            className="flex items-center bg-blue-600 hover:bg-blue-700"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                Next
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </>
-            )}
-          </Button>
+            {/* Agency */}
+            <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-2">
+              <Label htmlFor="agency" className="text-sm font-semibold text-slate-700 flex items-center">
+                <Building2 className="w-4 h-4 mr-1 text-slate-400" /> Agency/Brokerage *
+              </Label>
+              <Input
+                id="agency"
+                value={agentInfo.agency}
+                onChange={(e) => setAgentInfo(prev => ({ ...prev, agency: e.target.value }))}
+                placeholder="Where do you work?"
+                className="bg-white/50 border-slate-200 focus-visible:ring-indigo-500 rounded-xl h-11"
+              />
+            </motion.div>
+          </div>
+
+          {/* Experience */}
+          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-2 max-w-md">
+            <Label htmlFor="experience" className="text-sm font-semibold text-slate-700">
+              Years of Experience
+            </Label>
+            <Select
+              value={agentInfo.experience.toString()}
+              onValueChange={(value) => setAgentInfo(prev => ({ ...prev, experience: parseInt(value) }))}
+            >
+              <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-indigo-500 rounded-xl h-11">
+                <SelectValue placeholder="Select your experience level" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+                {EXPERIENCE_RANGES.map((range) => (
+                  <SelectItem key={range.value} value={range.value.toString()} className="hover:bg-indigo-50 focus:bg-indigo-50 focus:text-indigo-900 cursor-pointer">
+                    {range.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </motion.div>
+
+          {/* Specializations */}
+          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3">
+            <Label className="text-base font-semibold text-slate-800">
+              Specializations * <span className="text-xs font-normal text-slate-500 ml-1">(Select at least one)</span>
+            </Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {SPECIALIZATIONS.map((specialization) => {
+                const isSelected = agentInfo.specializations.includes(specialization);
+                return (
+                  <Label
+                    key={specialization}
+                    className={`flex items-center space-x-3 p-3 rounded-xl border transition-all cursor-pointer select-none
+                      ${isSelected
+                        ? 'border-indigo-300 bg-indigo-50/50 text-indigo-800 shadow-sm shadow-indigo-100/50'
+                        : 'border-slate-200 bg-white/50 hover:bg-slate-50 hover:border-slate-300 text-slate-600'
+                      }`}
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={(checked) => handleSpecializationChange(specialization, checked as boolean)}
+                      className="data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                    />
+                    <span className="text-sm font-medium">{specialization}</span>
+                  </Label>
+                );
+              })}
+            </div>
+          </motion.div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Navigation Buttons fixed at bottom */}
+      <motion.div
+        variants={fadeUpVariant} initial="hidden" animate="visible"
+        className="shrink-0 pt-6 mt-4 border-t border-slate-100 flex justify-between items-center"
+      >
+        <Button
+          onClick={prevStep}
+          variant="ghost"
+          className="text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl px-4 sm:px-6"
+        >
+          <ChevronLeft className="w-5 h-5 mr-1" />
+          Back
+        </Button>
+
+        <Button
+          onClick={handleNext}
+          disabled={isLoading || !isFormValid()}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-6 sm:px-8 shadow-md shadow-indigo-200/50"
+        >
+          {isLoading ? (
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+          ) : (
+            <span className="flex items-center font-medium">
+              Next Step
+              <ChevronRight className="w-5 h-5 ml-1" />
+            </span>
+          )}
+        </Button>
+      </motion.div>
+    </div>
   );
 }

@@ -8,6 +8,7 @@ import { Toaster } from 'sonner';
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from "@vercel/analytics/next";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -22,11 +23,63 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HoroHouse - Find Your Dream Home in Africa",
-  description: "Discover, buy, rent, and sell properties across Africa with HoroHouse. AI-powered recommendations, verified listings, and trusted agents.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://horohouse.com"),
+  title: {
+    default: "HoroHouse - Africa's #1 AI-Powered Real Estate Platform",
+    template: "%s | HoroHouse",
+  },
+  description: "Experience the future of property hunting with HoroHouse, Africa's #1 AI-driven real estate platform. Discover, buy, rent, and sell dream homes and student housing with smart recommendations and verified listings.",
+  keywords: ["real estate Africa", "buy property Africa", "rent home Africa", "HoroHouse", "African real estate", "property listings", "student housing", "AI real estate"],
+  authors: [{ name: "HoroHouse" }],
+  creator: "HoroHouse",
+  publisher: "HoroHouse",
+  alternates: {
+    canonical: "/",
+    languages: {
+      en: "/en",
+      fr: "/fr",
+      ar: "/ar",
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["fr_FR", "ar_SA"],
+    url: "/",
+    title: "HoroHouse - Africa's #1 AI-Powered Real Estate Platform",
+    description: "Experience the future of property hunting with HoroHouse, Africa's #1 AI-driven real estate platform. Discover, buy, rent, and sell dream homes and student housing with smart recommendations and verified listings.",
+    siteName: "HoroHouse",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "HoroHouse - Africa's #1 AI-Powered Real Estate Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HoroHouse - Africa's #1 AI-Powered Real Estate Platform",
+    description: "Experience the future of property hunting with HoroHouse, Africa's #1 AI-driven real estate platform. Discover, buy, rent, and sell dream homes and student housing with smart recommendations and verified listings.",
+    images: ["/og-image.png"],
+    creator: "@HoroHouse",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
-// Extract only the string values — never pass font objects into JSX
+import { StudentModeProvider } from '@/contexts/StudentModeContext';
+
 const fontClassNames = `${montserrat.variable} ${geistMono.variable} antialiased`;
 
 export default function RootLayout({
@@ -39,21 +92,24 @@ export default function RootLayout({
       <body className={fontClassNames} suppressHydrationWarning>
         <LanguageProvider>
           <AuthProvider>
-            <ChatProviderWrapper>
-              <ConditionalNavbar />
-              {children}
-              <Toaster
-                position="top-right"
-                expand={false}
-                richColors
-                closeButton
-                toastOptions={{
-                  duration: 3000,
-                }}
-              />
-              <Analytics />
-              <SpeedInsights />
-            </ChatProviderWrapper>
+            <StudentModeProvider>
+                <ChatProviderWrapper>
+                  <ConditionalNavbar />
+                  {children}
+                  <Toaster
+                    position="top-right"
+                    expand={false}
+                    richColors
+                    closeButton
+                    toastOptions={{
+                      duration: 3000,
+                    }}
+                  />
+                  <ConditionalFooter />
+                  <Analytics />
+                  <SpeedInsights />
+                </ChatProviderWrapper>
+              </StudentModeProvider>
           </AuthProvider>
         </LanguageProvider>
       </body>

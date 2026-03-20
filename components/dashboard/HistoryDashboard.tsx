@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrency } from '@/hooks/useCurrency';
 
 // Types
 interface ActivityStat {
@@ -69,6 +70,7 @@ const HistoryDashboard = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const isAgent = user?.role === 'agent' || isAdmin;
+  const { formatMoney } = useCurrency();
 
   // State
   const [timeframe, setTimeframe] = useState(30);
@@ -566,8 +568,8 @@ const HistoryDashboard = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-semibold text-gray-900">
-                          {property.property?.price?.toLocaleString()} FCFA
+                         <span className="text-sm font-semibold text-gray-900">
+                          {property.property?.price ? formatMoney(property.property.price) : '—'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

@@ -3,26 +3,15 @@
 import React, { useState, useEffect, useRef, Suspense, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
-import { PatternFormat } from 'react-number-format';
 import PromoSection from '@/components/auth/RightSideAuth';
 import { authService } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Eye, EyeOff, User, Mail, Phone, Lock, ChevronDown } from 'lucide-react';
+import { Loader2, Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 // Constants moved outside component
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const LANGUAGES = [
-  { code: "ENG", img: "/Flags/uk.jpg", label: "English" },
-  { code: "FR", img: "/flags/fr.jpg", label: "Français" },
-  { code: "AR", img: "/flags/ar.jpg", label: "العربية" },
-];
-const COUNTRY_CODES = [
-  { code: "+237", label: "Cameroon", flag: "/Flags/cameroun.jpg" },
-  { code: "+234", label: "Nigeria", flag: "/Flags/nigeria.jpg" },
-  { code: "+216", label: "Tunisia", flag: "/Flags/tunisie.jpg" },
-  { code: "+33", label: "France", flag: "/Flags/fr.jpg" },
-  { code: "+44", label: "UK", flag: "/Flags/uk.jpg" },
-];
 
 // Memoized Google Icon
 const GoogleIcon = React.memo(() => (
@@ -38,14 +27,12 @@ GoogleIcon.displayName = 'GoogleIcon';
 // Password strength calculator moved outside
 const calculatePasswordStrength = (password: string) => {
   if (!password) return { strength: 0, label: '', color: '' };
-
   let strength = 0;
   if (password.length >= 8) strength++;
   if (/[A-Z]/.test(password)) strength++;
   if (/[a-z]/.test(password)) strength++;
   if (/[0-9]/.test(password)) strength++;
   if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
-
   if (strength <= 2) return { strength: 33, label: 'Weak', color: 'bg-red-500' };
   if (strength <= 4) return { strength: 66, label: 'Medium', color: 'bg-yellow-500' };
   return { strength: 100, label: 'Strong', color: 'bg-green-500' };
@@ -62,25 +49,22 @@ function RegisterContent() {
   const [socialLoading, setSocialLoading] = useState({ google: false, facebook: false, apple: false });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [showLangMenu, setShowLangMenu] = useState(false);
-  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
-  const [countryCode, setCountryCode] = useState("+237");
-  const [showCountryMenu, setShowCountryMenu] = useState(false);
+  const [phone, setPhone] = useState('237');
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    password: "",
-    role: "registered_user",
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    role: 'registered_user',
   });
   const [errors, setErrors] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    password: "",
-    role: "",
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    role: '',
   });
   const [touched, setTouched] = useState({
     firstName: false,
@@ -91,45 +75,44 @@ function RegisterContent() {
     role: false,
   });
 
-  // Memoized validation function
   const validateField = useCallback((id: string, value: string) => {
-    let error = "";
+    let error = '';
     switch (id) {
-      case "firstName":
-        if (!value.trim()) error = "First name is required";
-        else if (value.trim().length < 2) error = "First name must be at least 2 characters";
+      case 'firstName':
+        if (!value.trim()) error = 'First name is required';
+        else if (value.trim().length < 2) error = 'First name must be at least 2 characters';
         break;
-      case "lastName":
-        if (!value.trim()) error = "Last name is required";
-        else if (value.trim().length < 2) error = "Last name must be at least 2 characters";
+      case 'lastName':
+        if (!value.trim()) error = 'Last name is required';
+        else if (value.trim().length < 2) error = 'Last name must be at least 2 characters';
         break;
-      case "email":
-        if (!value.trim()) error = "Email is required";
-        else if (!EMAIL_REGEX.test(value)) error = "Please enter a valid email address";
+      case 'email':
+        if (!value.trim()) error = 'Email is required';
+        else if (!EMAIL_REGEX.test(value)) error = 'Please enter a valid email address';
         break;
-      case "phone":
+      case 'phone': {
         const cleanPhone = value.replace(/\D/g, '');
-        if (!cleanPhone) error = "Phone number is required";
-        else if (cleanPhone.length < 8) error = "Phone number must be at least 8 digits";
-        else if (cleanPhone.length > 15) error = "Phone number is too long";
+        if (!cleanPhone || cleanPhone.length < 3) error = 'Phone number is required';
+        else if (cleanPhone.length < 10) error = 'Please enter a valid phone number';
+        else if (cleanPhone.length > 15) error = 'Phone number is too long';
         break;
-      case "password":
-        if (!value.trim()) error = "Password is required";
-        else if (value.length < 8) error = "Must be at least 8 characters";
-        else if (!/[A-Z]/.test(value)) error = "Must contain an uppercase letter";
-        else if (!/[a-z]/.test(value)) error = "Must contain a lowercase letter";
-        else if (!/[0-9]/.test(value)) error = "Must contain a number";
-        else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) error = "Must contain a special character";
+      }
+      case 'password':
+        if (!value.trim()) error = 'Password is required';
+        else if (value.length < 8) error = 'Must be at least 8 characters';
+        else if (!/[A-Z]/.test(value)) error = 'Must contain an uppercase letter';
+        else if (!/[a-z]/.test(value)) error = 'Must contain a lowercase letter';
+        else if (!/[0-9]/.test(value)) error = 'Must contain a number';
+        else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) error = 'Must contain a special character';
         break;
-      case "role":
-        if (!value) error = "Please select an account type";
+      case 'role':
+        if (!value) error = 'Please select an account type';
         break;
     }
     setErrors(prev => ({ ...prev, [id]: error }));
-    return error === "";
+    return error === '';
   }, []);
 
-  // Memoized handlers
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
     setForm(prev => ({ ...prev, [id]: value }));
@@ -139,8 +122,8 @@ function RegisterContent() {
     setError('');
   }, [touched, validateField]);
 
-  const handlePhoneChange = useCallback((values: any) => {
-    const { value } = values;
+  const handlePhoneChange = useCallback((value: string) => {
+    setPhone(value);
     setForm(prev => ({ ...prev, phone: value }));
     if (touched.phone) {
       validateField('phone', value);
@@ -152,11 +135,6 @@ function RegisterContent() {
     setTouched(prev => ({ ...prev, [id]: true }));
     validateField(id, form[id as keyof typeof form] || '');
   }, [form, validateField]);
-
-  const handleLangSelect = useCallback((lang: typeof LANGUAGES[0]) => {
-    setSelectedLang(lang);
-    setShowLangMenu(false);
-  }, []);
 
   const handleEmailRegister = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,8 +165,8 @@ function RegisterContent() {
     setError('');
 
     try {
-      const cleanPhone = form.phone.replace(/\D/g, '');
-      const fullPhoneNumber = countryCode + cleanPhone;
+      // react-phone-input-2 already includes country code digits
+      const fullPhoneNumber = '+' + form.phone.replace(/\D/g, '');
 
       const tokens = await authService.registerWithEmail({
         name: `${form.firstName} ${form.lastName}`,
@@ -206,12 +184,11 @@ function RegisterContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [form, countryCode, validateField, login, router]);
+  }, [form, validateField, login, router]);
 
   const handleSocialRegister = useCallback(async (provider: 'google' | 'facebook' | 'apple') => {
     setSocialLoading(prev => ({ ...prev, [provider]: true }));
     setError('');
-
     try {
       if (provider === 'google') {
         await authService.loginWithGoogle();
@@ -224,7 +201,6 @@ function RegisterContent() {
     }
   }, []);
 
-  // Initial setup
   useEffect(() => {
     if (isAuthenticated) {
       router.push(searchParams.get('redirect') || '/');
@@ -233,58 +209,30 @@ function RegisterContent() {
     firstNameInputRef.current?.focus();
   }, [isAuthenticated, router, searchParams]);
 
-  // Memoized computed values
   const passwordStrength = useMemo(() => calculatePasswordStrength(form.password), [form.password]);
   const isAnyLoading = useMemo(() =>
     isLoading || Object.values(socialLoading).some(loading => loading),
     [isLoading, socialLoading]
   );
-  const selectedCountry = useMemo(() =>
-    COUNTRY_CODES.find(c => c.code === countryCode),
-    [countryCode]
-  );
+
+  // Shared input class builder
+  const inputClass = (field: keyof typeof touched) =>
+    `w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${
+      touched[field] && errors[field]
+        ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
+        : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
+    }`;
 
   return (
     <div className="min-h-screen flex pt-11 relative">
-      {/* Language Switch */}
-      <div className="absolute hidden lg:fixed top-6 right-6 z-50">
-        <button
-          onClick={() => setShowLangMenu(!showLangMenu)}
-          className="flex items-center gap-2 bg-white text-gray-700 font-semibold rounded-xl px-4 py-2.5 text-xs border border-gray-200 cursor-pointer hover:shadow-md transition-all duration-200 hover:border-blue-300"
-          aria-label="Select language"
-          aria-expanded={showLangMenu}
-        >
-          <img src={selectedLang.img} alt={selectedLang.code} className="w-5 h-5 rounded-full object-cover shadow-sm" loading="lazy" />
-          {selectedLang.code}
-          <ChevronDown className="w-3.5 h-3.5" />
-        </button>
-
-        {showLangMenu && (
-          <div className="absolute right-0 mt-2 bg-white text-black rounded-xl border border-gray-200 shadow-xl py-2 w-44">
-            {LANGUAGES.map(lang => (
-              <button
-                key={lang.code}
-                onClick={() => handleLangSelect(lang)}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 w-full text-left text-sm font-medium transition-colors duration-150"
-              >
-                <img src={lang.img} alt={lang.code} className="w-5 h-5 rounded-full object-cover shadow-sm" loading="lazy" />
-                <span className="text-gray-700">{lang.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
       <div className="w-full md:w-1/2 md:mr-[50%] flex flex-col justify-center items-center px-6 md:px-16 mb-10">
         <div className="w-full max-w-md">
-          <div className="mb-8 flex justify-center content-center flex-col items-center">
+
+          {/* Header */}
+          <div className="mb-8 flex justify-center flex-col items-center">
             <a href="/"><img src="/horohouse.png" alt="HoroHouse" className="h-[130px] w-[130px] mb-2" loading="eager" /></a>
-            <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">
-              Welcome to HoroHouse!
-            </h1>
-            <p className="text-gray-600 md:text-left text-center text-sm">
-              Create your account and start your journey
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">Welcome to HoroHouse!</h1>
+            <p className="text-gray-600 text-center text-sm">Create your account and start your journey</p>
           </div>
 
           {/* Messages */}
@@ -293,21 +241,19 @@ function RegisterContent() {
               {error}
             </div>
           )}
-
           {success && (
             <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg text-sm flex gap-3" role="alert">
-              <span>✓</span>
-              <span>{success}</span>
+              <span>✓</span><span>{success}</span>
             </div>
           )}
 
           <form className="space-y-5" onSubmit={handleEmailRegister} noValidate>
-            {/* Name Fields */}
+
+            {/* Name */}
             <div className="grid lg:grid-cols-2 gap-4">
+              {/* First Name */}
               <div>
-                <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  First Name
-                </label>
+                <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   <input
@@ -320,10 +266,7 @@ function RegisterContent() {
                     onBlur={() => handleBlur('firstName')}
                     placeholder="John"
                     disabled={isAnyLoading}
-                    className={`w-full pl-10 pr-4 py-3 border-1 rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400
-                      ${touched.firstName && errors.firstName
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50"
-                        : "border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300"}`}
+                    className={inputClass('firstName')}
                   />
                 </div>
                 {touched.firstName && errors.firstName && (
@@ -331,10 +274,9 @@ function RegisterContent() {
                 )}
               </div>
 
+              {/* Last Name */}
               <div>
-                <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Last Name
-                </label>
+                <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   <input
@@ -346,10 +288,7 @@ function RegisterContent() {
                     onBlur={() => handleBlur('lastName')}
                     placeholder="Doe"
                     disabled={isAnyLoading}
-                    className={`w-full pl-10 pr-4 py-3 border-1 rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400
-                      ${touched.lastName && errors.lastName
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50"
-                        : "border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300"}`}
+                    className={inputClass('lastName')}
                   />
                 </div>
                 {touched.lastName && errors.lastName && (
@@ -360,9 +299,7 @@ function RegisterContent() {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
-              </label>
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
@@ -374,10 +311,7 @@ function RegisterContent() {
                   onBlur={() => handleBlur('email')}
                   placeholder="john.doe@example.com"
                   disabled={isAnyLoading}
-                  className={`w-full pl-10 pr-4 py-3 border-1 rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400
-                    ${touched.email && errors.email
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50"
-                      : "border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300"}`}
+                  className={inputClass('email')}
                 />
               </div>
               {touched.email && errors.email && (
@@ -387,59 +321,61 @@ function RegisterContent() {
 
             {/* Phone */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
-                Phone Number
-              </label>
-              <div className="flex gap-2">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowCountryMenu(!showCountryMenu)}
-                    disabled={isAnyLoading}
-                    className="flex items-center gap-2 px-3 py-3 border-1 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 font-semibold text-sm hover:border-gray-300 bg-white transition-all duration-200 min-w-[100px] disabled:opacity-50"
-                  >
-                    <img src={selectedCountry?.flag} alt="flag" className="w-6 h-6 rounded-full object-cover shadow-sm" loading="lazy" />
-                    <span>{countryCode}</span>
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
-
-                  {showCountryMenu && (
-                    <div className="absolute text-gray-700 text-sm z-50 top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl w-56 max-h-64 overflow-y-auto">
-                      {COUNTRY_CODES.map(c => (
-                        <button
-                          key={c.code}
-                          onClick={() => {
-                            setCountryCode(c.code);
-                            setShowCountryMenu(false);
-                          }}
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 w-full text-left transition-colors duration-150"
-                        >
-                          <img src={c.flag} alt={c.label} className="w-6 h-6 rounded-full object-cover shadow-sm" loading="lazy" />
-                          <span className="flex-1 font-medium">{c.label}</span>
-                          <span className="text-gray-500">{c.code}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1 relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10 pointer-events-none" />
-                  <PatternFormat
-                    format="### ### ####"
-                    mask="_"
-                    value={form.phone}
-                    onValueChange={handlePhoneChange}
-                    onBlur={() => handleBlur('phone')}
-                    placeholder="123 456 7890"
-                    disabled={isAnyLoading}
-                    className={`w-full pl-10 pr-4 py-3 border-1 rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400
-                      ${touched.phone && errors.phone
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50"
-                        : "border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300"}`}
-                  />
-                </div>
-              </div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+              <PhoneInput
+                country="cm"
+                value={phone}
+                onChange={handlePhoneChange}
+                onBlur={() => handleBlur('phone')}
+                disabled={isAnyLoading}
+                enableSearch
+                searchPlaceholder="Search country..."
+                inputProps={{
+                  id: 'phone',
+                  name: 'phone',
+                  autoComplete: 'tel',
+                }}
+                containerClass="w-full"
+                inputStyle={{
+                  width: '100%',
+                  height: '48px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  borderRadius: '12px',
+                  border: touched.phone && errors.phone
+                    ? '1px solid #fca5a5'
+                    : '1px solid #e5e7eb',
+                  backgroundColor: touched.phone && errors.phone ? '#fef2f2' : '#ffffff',
+                  color: '#1f2937',
+                  paddingLeft: '52px',
+                }}
+                buttonStyle={{
+                  borderRadius: '12px 0 0 12px',
+                  border: touched.phone && errors.phone
+                    ? '1px solid #fca5a5'
+                    : '1px solid #e5e7eb',
+                  backgroundColor: '#ffffff',
+                  borderRight: 'none',
+                  paddingLeft: '4px',
+                  paddingRight: '4px',
+                }}
+                dropdownStyle={{
+                  borderRadius: '12px',
+                  border: '1px solid #e5e7eb',
+                  boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                  fontSize: '13px',
+                  maxHeight: '220px',
+                  zIndex: 9999,
+                }}
+                searchStyle={{
+                  width: '93%',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb',
+                  padding: '6px 10px',
+                  fontSize: '13px',
+                  margin: '4px 0',
+                }}
+              />
               {touched.phone && errors.phone && (
                 <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.phone}</p>
               )}
@@ -447,9 +383,7 @@ function RegisterContent() {
 
             {/* Account Type */}
             <div>
-              <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2">
-                Account Type
-              </label>
+              <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2">Account Type</label>
               <div className="relative">
                 <select
                   id="role"
@@ -457,16 +391,20 @@ function RegisterContent() {
                   onChange={handleChange}
                   onBlur={() => handleBlur('role')}
                   disabled={isAnyLoading}
-                  className={`w-full px-4 py-3 border-1 rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm appearance-none bg-white cursor-pointer transition-all duration-200 hover:border-gray-300 disabled:opacity-50
-                    ${touched.role && errors.role
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                      : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"}`}
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm appearance-none bg-white cursor-pointer transition-all duration-200 hover:border-gray-300 disabled:opacity-50 ${
+                    touched.role && errors.role
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
+                  }`}
                 >
                   <option value="registered_user">Regular User</option>
+                  <option value="student">Student</option>
                   <option value="agent">Agent</option>
                   <option value="landlord">Landlord</option>
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </div>
               {touched.role && errors.role && (
                 <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.role}</p>
@@ -475,35 +413,35 @@ function RegisterContent() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Password
-              </label>
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
                   id="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={form.password}
                   onChange={handleChange}
                   onBlur={() => handleBlur('password')}
                   placeholder="Enter your password"
                   disabled={isAnyLoading}
-                  className={`w-full pl-10 pr-12 py-3 border-1 rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400
-                    ${touched.password && errors.password
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50"
-                      : "border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300"}`}
+                  className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${
+                    touched.password && errors.password
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
+                      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
 
+              {/* Password strength bar */}
               {form.password && (
                 <div className="mt-2">
                   <div className="flex items-center gap-2 mb-1">
@@ -513,52 +451,51 @@ function RegisterContent() {
                         style={{ width: `${passwordStrength.strength}%` }}
                       />
                     </div>
-                    <span className={`text-xs font-semibold ${passwordStrength.label === 'Weak' ? 'text-red-500' :
-                        passwordStrength.label === 'Medium' ? 'text-yellow-500' :
-                          'text-green-500'
-                      }`}>
+                    <span className={`text-xs font-semibold ${
+                      passwordStrength.label === 'Weak' ? 'text-red-500' :
+                      passwordStrength.label === 'Medium' ? 'text-yellow-500' :
+                      'text-green-500'
+                    }`}>
                       {passwordStrength.label}
                     </span>
                   </div>
                 </div>
               )}
-
               {touched.password && errors.password && (
                 <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.password}</p>
               )}
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={isAnyLoading}
-              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6
-                ${!isAnyLoading
-                  ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:shadow-md active:scale-[0.98]"
-                  : "bg-gray-200 text-gray-500 cursor-not-allowed"}`}
+              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6 ${
+                !isAnyLoading
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:shadow-md active:scale-[0.98]'
+                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              }`}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   Creating your account...
                 </span>
-              ) : (
-                'Create Account'
-              )}
+              ) : 'Create Account'}
             </button>
           </form>
 
+          {/* Sign in link */}
           <p className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{" "}
-            <a href="/auth/login" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">
-              Sign in
-            </a>
+            Already have an account?{' '}
+            <a href="/auth/login" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">Sign in</a>
           </p>
 
+          {/* Social auth */}
           <div className="mt-8">
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
+                <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative bg-white px-4">
                 <p className="text-sm text-gray-500 font-medium">Or continue with</p>
@@ -570,7 +507,7 @@ function RegisterContent() {
                 type="button"
                 onClick={() => handleSocialRegister('google')}
                 disabled={isAnyLoading}
-                className="flex items-center justify-center gap-2 border-1 border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 border border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50"
               >
                 {socialLoading.google ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
                 <span className="text-sm">Google</span>
@@ -580,7 +517,7 @@ function RegisterContent() {
                 type="button"
                 onClick={() => handleSocialRegister('facebook')}
                 disabled={isAnyLoading}
-                className="flex items-center justify-center gap-2 border-1 border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 border border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50"
               >
                 {socialLoading.facebook ? <Loader2 className="w-5 h-5 animate-spin" /> : <FaFacebook className="w-5 h-5" color="#1877F2" />}
                 <span className="text-sm">Facebook</span>
@@ -590,13 +527,14 @@ function RegisterContent() {
                 type="button"
                 onClick={() => handleSocialRegister('apple')}
                 disabled={isAnyLoading}
-                className="flex items-center justify-center gap-2 border-1 border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 border border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50"
               >
                 {socialLoading.apple ? <Loader2 className="w-5 h-5 animate-spin" /> : <FaApple className="w-5 h-5" color="#000000" />}
                 <span className="text-sm">Apple</span>
               </button>
             </div>
           </div>
+
         </div>
       </div>
 

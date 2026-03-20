@@ -42,7 +42,7 @@ const CookieSection = ({
 }) => (
     <FadeIn delay={delay} className="mb-16">
         <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
                 <Icon className="w-6 h-6" />
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{title}</h2>
@@ -99,28 +99,28 @@ export default function CookiePolicyPage() {
                             We use both session cookies (which expire once you close your web browser) and persistent cookies (which stay on your device until you delete them or they expire). We use these for the following purposes:
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                            <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                            <div className="p-6 rounded-2xl bg-white border border-slate-100">
                                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-4">
                                     <Lock className="w-5 h-5" />
                                 </div>
                                 <h4 className="font-bold text-slate-900 mb-2">Essential Cookies</h4>
                                 <p className="text-sm text-slate-500">Necessary for the website to function. They enable basic features like page navigation and access to secure areas. The website cannot function properly without these cookies.</p>
                             </div>
-                            <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                            <div className="p-6 rounded-2xl bg-white border border-slate-100">
                                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-4">
                                     <BarChart3 className="w-5 h-5" />
                                 </div>
                                 <h4 className="font-bold text-slate-900 mb-2">Analytics Cookies</h4>
                                 <p className="text-sm text-slate-500">Help us understand how visitors interact with our website by collecting and reporting information anonymously. This helps us improve our platform's performance and UX.</p>
                             </div>
-                            <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                            <div className="p-6 rounded-2xl bg-white border border-slate-100">
                                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-4">
                                     <MousePointer2 className="w-5 h-5" />
                                 </div>
                                 <h4 className="font-bold text-slate-900 mb-2">Preference Cookies</h4>
                                 <p className="text-sm text-slate-500">Allow a website to remember information that changes the way the website behaves or looks, like your preferred language or the region that you are in.</p>
                             </div>
-                            <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                            <div className="p-6 rounded-2xl bg-white border border-slate-100">
                                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-4">
                                     <ExternalLink className="w-5 h-5" />
                                 </div>
@@ -206,7 +206,7 @@ export default function CookiePolicyPage() {
                 </div>
             </section>
 
-            <Footer />
+            
         </main>
     );
 }

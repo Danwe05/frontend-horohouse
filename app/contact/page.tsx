@@ -73,7 +73,7 @@ export default function ContactPage() {
                     whileHover={{ x: 6 }}
                     className="flex items-start gap-4 sm:gap-6 group"
                   >
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-2xl bg-white shadow-lg flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-2xl bg-white flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
                       {item.icon}
                     </div>
                     <div>
@@ -85,7 +85,7 @@ export default function ContactPage() {
               </div>
 
               {/* SERVICE CARD */}
-              <div className="p-8 sm:p-10 bg-blue-500 rounded-[2.5rem] sm:rounded-[3rem] text-white shadow-2xl shadow-blue-500/20 relative overflow-hidden">
+              <div className="p-8 sm:p-10 bg-blue-500 rounded-[2.5rem] sm:rounded-[3rem] text-white shadow-sm shadow-blue-500/20 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-6 sm:p-8 opacity-20">
                   <ArrowUpRight size={64} />
                 </div>
@@ -156,7 +156,7 @@ export default function ContactPage() {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="group w-full sm:w-auto px-10 sm:px-16 py-5 sm:py-7 bg-blue-500 text-white rounded-full font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] shadow-2xl shadow-blue-500/40 hover:bg-slate-900 transition-all duration-500 flex items-center justify-center gap-4 sm:gap-6 text-sm sm:text-base"
+                        className="group w-full sm:w-auto px-10 sm:px-16 py-5 sm:py-7 bg-blue-500 text-white rounded-full font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] hover:bg-slate-900 transition-all duration-500 flex items-center justify-center gap-4 sm:gap-6 text-sm sm:text-base"
                       >
                         {isSubmitting ? <Loader2 className="animate-spin" /> : (
                           <>
@@ -193,8 +193,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
 
       <style jsx>{`
         .animate-spin-slow {

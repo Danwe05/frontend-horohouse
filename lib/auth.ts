@@ -128,58 +128,58 @@ class AuthService {
     window.location.href = `${this.baseUrl}/auth/google`;
   }
 
-/**
- * Request password reset
- */
-async requestPasswordReset(email: string): Promise<{ message: string }> {
-  const response = await fetch(`${this.baseUrl}/auth/forgot-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
+  /**
+   * Request password reset
+   */
+  async requestPasswordReset(email: string): Promise<{ message: string }> {
+    const response = await fetch(`${this.baseUrl}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
 
-  if (!response.ok) {
-    const error: ApiError = await response.json();
-    throw new Error(error.message || "Failed to send password reset email");
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.message || "Failed to send password reset email");
+    }
+
+    return response.json();
   }
 
-  return response.json();
-}
+  /**
+   * Validate reset token
+   */
+  async validateResetToken(token: string): Promise<{ valid: boolean; email?: string }> {
+    const response = await fetch(`${this.baseUrl}/auth/validate-reset-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
 
-/**
- * Validate reset token
- */
-async validateResetToken(token: string): Promise<{ valid: boolean; email?: string }> {
-  const response = await fetch(`${this.baseUrl}/auth/validate-reset-token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token }),
-  });
+    if (!response.ok) {
+      return { valid: false };
+    }
 
-  if (!response.ok) {
-    return { valid: false };
+    return response.json();
   }
 
-  return response.json();
-}
+  /**
+   * Reset password with token
+   */
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const response = await fetch(`${this.baseUrl}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
 
-/**
- * Reset password with token
- */
-async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
-  const response = await fetch(`${this.baseUrl}/auth/reset-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token, newPassword }),
-  });
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.message || "Failed to reset password");
+    }
 
-  if (!response.ok) {
-    const error: ApiError = await response.json();
-    throw new Error(error.message || "Failed to reset password");
+    return response.json();
   }
-
-  return response.json();
-}
 
 
   async logout(): Promise<void> {
@@ -225,7 +225,7 @@ async resetPassword(token: string, newPassword: string): Promise<{ message: stri
   isTokenExpired(): boolean {
     const accessToken = this.getAccessToken();
     if (!accessToken) return true;
-    
+
     try {
       // Decode JWT token to check expiration
       const payload = JSON.parse(atob(accessToken.split('.')[1]));
@@ -239,12 +239,12 @@ async resetPassword(token: string, newPassword: string): Promise<{ message: stri
 
   async ensureValidToken(): Promise<boolean> {
     if (!this.isLoggedIn()) return false;
-    
+
     if (this.isTokenExpired()) {
       const newTokens = await this.refreshToken();
       return !!newTokens;
     }
-    
+
     return true;
   }
 
@@ -312,7 +312,15 @@ async resetPassword(token: string, newPassword: string): Promise<{ message: stri
     if (typeof window === "undefined") return;
     localStorage.setItem("accessToken", tokens.accessToken);
     localStorage.setItem("refreshToken", tokens.refreshToken);
-    localStorage.setItem("user", JSON.stringify(tokens.user));
+
+    // Normalise: backend may send _id or id depending on serialisation path
+    const user = tokens.user as any;
+    const normalisedUser = {
+      ...user,
+      id: user.id ?? user._id ?? '',
+    };
+
+    localStorage.setItem("user", JSON.stringify(normalisedUser));
   }
 
   getAccessToken(): string | null {
@@ -328,7 +336,10 @@ async resetPassword(token: string, newPassword: string): Promise<{ message: stri
   getStoredUser() {
     if (typeof window === "undefined") return null;
     const userStr = localStorage.getItem("user");
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr) return null;
+    const user = JSON.parse(userStr);
+    // Normalise id on read so existing sessions are fixed immediately
+    return { ...user, id: user.id ?? user._id ?? '' };
   }
 
   private clearTokens(): void {

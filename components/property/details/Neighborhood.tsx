@@ -106,7 +106,7 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
   ];
 
   return (
-    <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-8 mt-10">
+    <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 space-y-8 mt-10">
       <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Neighborhood</h2>
 
       {/* Walk / Transit / Bike Scores */}

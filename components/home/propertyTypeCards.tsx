@@ -3,41 +3,45 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
-
-const propertyTypes = [
-  {
-    id: '01',
-    label: 'Residential',
-    description: 'Bespoke family estates and private villas in prime locations.',
-    image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&q=80',
-    gridClass: 'md:col-span-2 md:row-span-2',
-  },
-  {
-    id: '02',
-    label: 'Commercial',
-    description: 'High-performance workspaces.',
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
-    gridClass: 'md:col-span-2 md:row-span-1',
-  },
-  {
-    id: '03',
-    label: 'Apartment',
-    description: 'Sky-high luxury living.',
-    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80',
-    gridClass: 'md:col-span-1 md:row-span-1',
-  },
-  {
-    id: '04',
-    label: 'Industrial',
-    description: 'Smart logistics facilities.',
-    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80',
-    gridClass: 'md:col-span-1 md:row-span-1',
-  }
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PropertyBentoGrid() {
+  const { t, language } = useLanguage();
+  const _t = t as any;
+
+  const propertyTypes = [
+    {
+      id: '01',
+      label: _t.propertyTypeCards?.types?.residential || 'Residential',
+      description: _t.propertyTypeCards?.types?.residentialDesc || 'Bespoke family estates and private villas in prime locations.',
+      image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&q=80',
+      gridClass: 'md:col-span-2 md:row-span-2',
+    },
+    {
+      id: '02',
+      label: _t.propertyTypeCards?.types?.commercial || 'Commercial',
+      description: _t.propertyTypeCards?.types?.commercialDesc || 'High-performance workspaces.',
+      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+      gridClass: 'md:col-span-2 md:row-span-1',
+    },
+    {
+      id: '03',
+      label: _t.propertyTypeCards?.types?.apartment || 'Apartment',
+      description: _t.propertyTypeCards?.types?.apartmentDesc || 'Sky-high luxury living.',
+      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80',
+      gridClass: 'md:col-span-1 md:row-span-1',
+    },
+    {
+      id: '04',
+      label: _t.propertyTypeCards?.types?.industrial || 'Industrial',
+      description: _t.propertyTypeCards?.types?.industrialDesc || 'Smart logistics facilities.',
+      image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80',
+      gridClass: 'md:col-span-1 md:row-span-1',
+    }
+  ];
+
   return (
-    <section className="bg-slate-50 py-24 px-6 overflow-hidden">
+    <section className="bg-slates-50 py-10 px-6 overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
 
         {/* Header — matching "What We Offer" two-column layout */}
@@ -52,11 +56,11 @@ export default function PropertyBentoGrid() {
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-1 bg-blue-600" />
-                <span className="text-blue-600 font-black text-xs uppercase tracking-[0.4em]">Market Access</span>
+                <span className="text-blue-600 font-black text-xs uppercase tracking-[0.4em]">{_t.propertyTypeCards?.marketAccess || 'Market Access'}</span>
               </div>
               <h2 className="text-5xl md:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter">
-                OUR <br />
-                <span className="text-blue-600">ASSETS.</span>
+                {_t.propertyTypeCards?.our || 'OUR'} <br />
+                <span className="text-blue-600">{_t.propertyTypeCards?.assets || 'ASSETS.'}</span>
               </h2>
             </motion.div>
           </div>
@@ -67,9 +71,9 @@ export default function PropertyBentoGrid() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-slate-500 text-xl md:text-2xl leading-tight max-w-sm border-l-4 border-blue-600 pl-6"
+              className={`text-slate-500 text-xl md:text-2xl leading-tight max-w-sm ${language === 'ar' ? 'border-r-4 pr-6' : 'border-l-4 pl-6'} border-blue-600`}
             >
-              From private residences to industrial hubs — curated properties across every market segment.
+              {_t.propertyTypeCards?.subtitle || 'From private residences to industrial hubs — curated properties across every market segment.'}
             </motion.p>
           </div>
         </div>
@@ -99,13 +103,13 @@ export default function PropertyBentoGrid() {
 
                 {/* Card Content */}
                 <div className="relative z-10 h-full flex flex-col justify-between p-8">
-                  <div className="flex justify-end items-start">
-                    <ArrowUpRight className="text-white opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300" />
+                  <div className={`flex items-start ${language === 'ar' ? 'justify-start' : 'justify-end'}`}>
+                    <ArrowUpRight className={`text-white opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 ${language === 'ar' ? '-rotate-90' : ''}`} />
                   </div>
 
                   <div className="space-y-2">
                     <p className="text-blue-400 text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      View Listings
+                      {_t.propertyTypeCards?.viewListings || 'View Listings'}
                     </p>
                     {/* Thin line divider */}
                     <div className="w-8 h-[1.5px] bg-white/40 group-hover:w-12 group-hover:bg-blue-400 transition-all duration-500" />

@@ -41,6 +41,8 @@ interface PropertyData {
   area?: number;
   createdAt: string; // ISO timestamp — passed directly to PropertyCard
   isFavorite?: boolean;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -155,7 +157,7 @@ const SimilarProperties = ({
                   id={property._id}
                   image={imageUrls[0]}
                   images={imageUrls}
-                  price={property.price.toString()}
+                  price={property.price}
                   // Pass raw ISO timestamp — PropertyCard's formatTimeAgo handles it accurately
                   timeAgo={property.createdAt}
                   address={fullAddress}
@@ -164,6 +166,8 @@ const SimilarProperties = ({
                   sqft={formatArea(property.area)}
                   initialIsFavorite={property.isFavorite ?? false}
                   listingType={property.listingType as "rent" | "sale"}
+                  rating={typeof property.averageRating === "number" && property.averageRating > 0 ? property.averageRating : undefined}
+                  reviewCount={typeof property.reviewCount === "number" ? property.reviewCount : undefined}
                 />
               </CarouselItem>
             );
@@ -171,8 +175,8 @@ const SimilarProperties = ({
         </CarouselContent>
 
         {/* Show nav on all breakpoints with sensible positioning */}
-        <CarouselPrevious className="-left-4 lg:-left-12 h-12 w-12 bg-white border-2 border-slate-100 shadow-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
-        <CarouselNext className="-right-4 lg:-right-12 h-12 w-12 bg-white border-2 border-slate-100 shadow-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
+        <CarouselPrevious className="-left-4 lg:-left-12 h-12 w-12 bg-white border-2 border-slate-100 text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
+        <CarouselNext className="-right-4 lg:-right-12 h-12 w-12 bg-white border-2 border-slate-100 text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
       </Carousel>
     </section>
   );

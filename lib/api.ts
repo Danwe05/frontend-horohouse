@@ -168,6 +168,29 @@ class ApiClient {
   async getComparisonHistory() { return (await this.client.get('/properties/compare/history')).data; }
   async saveComparison(propertyIds: string[], name?: string) { return (await this.client.post('/properties/compare/save', { propertyIds, name })).data; }
 
+  // ─── Virtual Tour ─────────────────────────────────────────────────────────
+  async trackTourView(propertyId: string): Promise<void> {
+    try {
+      await this.client.post(
+        '/properties/tour/track',
+        { propertyId },
+        { skipAuth: true } as any,   // public endpoint — no auth needed
+      );
+    } catch {
+      // silent fail — analytics should never break the UI
+    }
+  }
+
+  async updatePropertyTour(
+    propertyId: string,
+    data: {
+      tourType: 'kuula' | 'youtube' | 'images' | 'none';
+      virtualTourUrl?: string;
+      tourThumbnail?: string;
+    },
+  ): Promise<any> {
+    return (await this.client.patch(`/properties/${propertyId}`, data)).data;
+  }
   // ─── Short-term ───────────────────────────────────────────────────────────
   async getShortTermListings(params?: any) { return (await this.client.get('/properties/short-term', { params, skipAuth: true } as any)).data; }
   async getShortTermById(id: string) { return (await this.client.get(`/properties/short-term/${id}`, { skipAuth: true } as any)).data; }
@@ -268,16 +291,21 @@ class ApiClient {
   async getAgentStats(id: string) { return (await this.client.get(`/users/agents/${id}/stats`, { skipAuth: true } as any)).data; }
   async getAgentProperties(id: string, params?: any) { return (await this.client.get(`/users/agents/${id}/properties`, { params, skipAuth: true } as any)).data; }
   async getAgentReviews(id: string, params?: any) { return (await this.client.get(`/users/agents/${id}/reviews`, { params, skipAuth: true } as any)).data; }
-  async getAdminAnalyticsDashboard(params?: any) { return (await this.client.get('/admin/analytics/dashboard', { params })).data; }
-  async getAdminKPIs(params?: any) { return (await this.client.get('/admin/analytics/kpis', { params })).data; }
-  async getAdminRevenue(params?: any) { return (await this.client.get('/admin/analytics/revenue', { params })).data; }
-  async getAdminOccupancy(params?: any) { return (await this.client.get('/admin/analytics/occupancy', { params })).data; }
-  async getAdminBookingStatusBreakdown(params?: any) { return (await this.client.get('/admin/analytics/status-breakdown', { params })).data; }
-  async getAdminPropertyTypeBreakdown(params?: any) { return (await this.client.get('/admin/analytics/property-type-breakdown', { params })).data; }
-  async getAdminTopProperties(params?: any) { return (await this.client.get('/admin/analytics/top-properties', { params })).data; }
-  async getAdminCityPerformance(params?: any) { return (await this.client.get('/admin/analytics/city-performance', { params })).data; }
-  async getAdminHostLeaderboard(params?: any) { return (await this.client.get('/admin/analytics/host-leaderboard', { params })).data; }
-  async getAdminAnalyticsComparison(params?: any) { return (await this.client.get('/admin/analytics/comparison', { params })).data; }
+
+  // ─── Admin Analytics ──────────────────────────────────────────────────────
+  // NestJS controller: @Controller('analytics/admin')
+  // All routes below match GET /analytics/admin/<route>
+  async getAdminAnalyticsDashboard(params?: any) { return (await this.client.get('/analytics/admin/dashboard', { params })).data; }
+  async getAdminKPIs(params?: any) { return (await this.client.get('/analytics/admin/kpis', { params })).data; }
+  async getAdminRevenue(params?: any) { return (await this.client.get('/analytics/admin/revenue', { params })).data; }
+  async getAdminOccupancy(params?: any) { return (await this.client.get('/analytics/admin/occupancy', { params })).data; }
+  // NestJS routes: @Get('breakdown/status') and @Get('breakdown/property-type')
+  async getAdminBookingStatusBreakdown(params?: any) { return (await this.client.get('/analytics/admin/breakdown/status', { params })).data; }
+  async getAdminPropertyTypeBreakdown(params?: any) { return (await this.client.get('/analytics/admin/breakdown/property-type', { params })).data; }
+  async getAdminTopProperties(params?: any) { return (await this.client.get('/analytics/admin/top-properties', { params })).data; }
+  async getAdminCityPerformance(params?: any) { return (await this.client.get('/analytics/admin/city-performance', { params })).data; }
+  async getAdminHostLeaderboard(params?: any) { return (await this.client.get('/analytics/admin/host-leaderboard', { params })).data; }
+  async getAdminAnalyticsComparison(params?: any) { return (await this.client.get('/analytics/admin/comparison', { params })).data; }
 
   // ─── Recommendations ──────────────────────────────────────────────────────
   async getRecommendations(params?: any) { return (await this.client.get('/recommendations', { params })).data; }
@@ -312,7 +340,7 @@ class ApiClient {
     propertyId: string; checkIn: string; checkOut: string;
     guests: { adults: number; children?: number; infants?: number };
     currency?: string; guestNote?: string;
-    roomId?: string;  // Optional — required for hotel/hostel properties with rooms
+    roomId?: string;
   }) { return (await this.client.post('/bookings', data)).data; }
   async getMyBookings(params?: any) { return (await this.client.get('/bookings/my', { params })).data; }
   async cancelBooking(id: string, data: { reason?: string }) { return (await this.client.patch(`/bookings/${id}/cancel`, data)).data; }
@@ -439,6 +467,318 @@ class ApiClient {
   async removeTenant(tenantId: string) { return (await this.client.delete(`/users/me/tenants/${tenantId}`)).data; }
 
   async request(config: AxiosRequestConfig) { return (await this.client.request(config)).data; }
+
+  // ─── Student Profiles ────────────────────────────────────────────────────
+  async createStudentProfile(data: {
+    universityName: string;
+    campusCity: string;
+    campusName: string;
+    faculty?: string;
+    studyLevel?: string;
+    enrollmentYear?: number;
+    campusLatitude?: number;
+    campusLongitude?: number;
+  }) {
+    return (await this.client.post('/student-profiles', data)).data;
+  }
+
+  async getMyStudentProfile() {
+    return (await this.client.get('/student-profiles/me')).data;
+  }
+
+  async updateMyStudentProfile(data: {
+    universityName?: string;
+    campusCity?: string;
+    campusName?: string;
+    faculty?: string;
+    studyLevel?: string;
+    enrollmentYear?: number;
+    campusLatitude?: number;
+    campusLongitude?: number;
+    roommateMode?: 'have_room' | 'need_room';
+    isSeekingRoommate?: boolean;
+  }) {
+    return (await this.client.patch('/student-profiles/me', data)).data;
+  }
+
+  async uploadStudentId(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return (await this.client.post('/student-profiles/me/student-id', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })).data;
+  }
+
+  async getStudentVerificationStatus() {
+    return (await this.client.get('/student-profiles/me/verification-status')).data;
+  }
+
+  async getAmbassadorStats() {
+    return (await this.client.get('/student-profiles/me/ambassador-stats')).data;
+  }
+
+  async checkStudentVerified() {
+    return (await this.client.get('/student-profiles/verified-check')).data;
+  }
+
+  async validateAmbassadorCode(code: string) {
+    return (await this.client.get(`/student-profiles/ambassador/${code}`, { skipAuth: true } as any)).data;
+  }
+
+  async adminGetStudentProfiles(params?: {
+    page?: number;
+    limit?: number;
+    verificationStatus?: string;
+    campusCity?: string;
+    isAmbassador?: boolean;
+  }) {
+    return (await this.client.get('/student-profiles/admin/all', { params })).data;
+  }
+
+  async adminGetStudentProfileStats() {
+    return (await this.client.get('/student-profiles/admin/stats')).data;
+  }
+
+  async adminGetStudentProfileById(id: string) {
+    return (await this.client.get(`/student-profiles/admin/${id}`)).data;
+  }
+
+  async adminReviewStudentId(id: string, data: {
+    decision: 'verified' | 'rejected';
+    rejectionReason?: string;
+  }) {
+    return (await this.client.patch(`/student-profiles/admin/${id}/review`, data)).data;
+  }
+
+  async adminGrantAmbassador(id: string, ambassadorCode: string) {
+    return (await this.client.patch(`/student-profiles/admin/${id}/ambassador`, { ambassadorCode })).data;
+  }
+
+  // ─── Roommate Matching ───────────────────────────────────────────────────
+  async createRoommateProfile(data: {
+    mode: 'have_room' | 'need_room';
+    campusCity: string;
+    budgetPerPersonMax: number;
+    moveInDate: string;
+    sleepSchedule: 'early_bird' | 'night_owl' | 'flexible';
+    cleanlinessLevel: 'very_neat' | 'neat' | 'relaxed';
+    socialHabit: 'introverted' | 'balanced' | 'social';
+    studyHabit: 'home_studier' | 'library_goer' | 'mixed';
+    propertyId?: string;
+    preferredNeighborhood?: string;
+    budgetPerPersonMin?: number;
+    moveInFlexibilityDays?: number;
+    isSmoker?: boolean;
+    acceptsSmoker?: boolean;
+    hasPet?: boolean;
+    acceptsPet?: boolean;
+    preferredRoommateGender?: 'male' | 'female' | 'any';
+    bio?: string;
+  }) {
+    return (await this.client.post('/roommate-matching/profile', data)).data;
+  }
+
+  async getMyRoommateProfile() {
+    return (await this.client.get('/roommate-matching/profile/me')).data;
+  }
+
+  async updateMyRoommateProfile(data: any) {
+    return (await this.client.patch('/roommate-matching/profile/me', data)).data;
+  }
+
+  async pauseRoommateProfile() {
+    return (await this.client.delete('/roommate-matching/profile/me')).data;
+  }
+
+  async reactivateRoommateProfile() {
+    return (await this.client.patch('/roommate-matching/profile/me/reactivate')).data;
+  }
+
+  async getRoommateProfileById(id: string) {
+    return (await this.client.get(`/roommate-matching/profile/${id}`)).data;
+  }
+
+  async searchRoommates(params?: {
+    page?: number;
+    limit?: number;
+    campusCity?: string;
+    mode?: 'have_room' | 'need_room';
+    maxBudget?: number;
+    sleepSchedule?: string;
+    cleanlinessLevel?: string;
+    preferredRoommateGender?: string;
+    acceptsSmoker?: boolean;
+    acceptsPet?: boolean;
+  }) {
+    return (await this.client.get('/roommate-matching/search', { params })).data;
+  }
+
+  async expressRoommateInterest(receiverUserId: string) {
+    return (await this.client.post(`/roommate-matching/interest/${receiverUserId}`)).data;
+  }
+
+  async acceptRoommateMatch(matchId: string) {
+    return (await this.client.patch(`/roommate-matching/matches/${matchId}/accept`)).data;
+  }
+
+  async rejectRoommateMatch(matchId: string) {
+    return (await this.client.patch(`/roommate-matching/matches/${matchId}/reject`)).data;
+  }
+
+  async getMyRoommateMatches() {
+    return (await this.client.get('/roommate-matching/matches')).data;
+  }
+
+  // ─── Student Properties ──────────────────────────────────────────────────
+  async searchStudentProperties(params?: {
+    page?: number; limit?: number; sortBy?: string; sortOrder?: 'asc' | 'desc';
+    city?: string; neighborhood?: string; nearestCampus?: string;
+    maxCampusProximityMeters?: number; minPricePerPerson?: number; maxPricePerPerson?: number;
+    waterSource?: string; electricityBackup?: string; furnishingStatus?: string;
+    genderRestriction?: string; noCurfew?: boolean; visitorsAllowed?: boolean;
+    hasGatedCompound?: boolean; hasNightWatchman?: boolean; studentApprovedOnly?: boolean;
+    acceptsRentAdvanceScheme?: boolean; maxAdvanceMonths?: number;
+    hasAvailableBeds?: boolean; minAvailableBeds?: number;
+  }) {
+    return (await this.client.get('/student-properties/search', { params, skipAuth: true } as any)).data;
+  }
+
+  async getStudentPropertyStats() {
+    return (await this.client.get('/student-properties/stats', { skipAuth: true } as any)).data;
+  }
+
+  async enrollPropertyInStudentProgramme(propertyId: string, data: {
+    campusProximityMeters?: number; nearestCampus?: string; walkingMinutes?: number;
+    taxiMinutes?: number; waterSource?: string; electricityBackup?: string;
+    furnishingStatus?: string; genderRestriction?: string; curfewTime?: string;
+    visitorsAllowed?: boolean; cookingAllowed?: boolean; hasGatedCompound?: boolean;
+    hasNightWatchman?: boolean; hasFence?: boolean; maxAdvanceMonths?: number;
+    acceptsRentAdvanceScheme?: boolean; availableBeds?: number; totalBeds?: number;
+    pricePerPersonMonthly?: number;
+  }) {
+    return (await this.client.post(`/student-properties/${propertyId}/enroll`, data)).data;
+  }
+
+  async updateStudentPropertyEnrollment(propertyId: string, data: any) {
+    return (await this.client.patch(`/student-properties/${propertyId}/enroll`, data)).data;
+  }
+
+  async removeStudentPropertyEnrollment(propertyId: string) {
+    return (await this.client.delete(`/student-properties/${propertyId}/enroll`)).data;
+  }
+
+  async adminGrantStudentApproved(propertyId: string) {
+    return (await this.client.patch(`/student-properties/admin/${propertyId}/approve`)).data;
+  }
+
+  async adminRevokeStudentApproved(propertyId: string) {
+    return (await this.client.patch(`/student-properties/admin/${propertyId}/revoke`)).data;
+  }
+
+  // ─── Split Payments ──────────────────────────────────────────────────────
+  async calculateRentSplit(data: {
+    totalRent: number; numberOfTenants: number; customPercentages?: number[];
+  }) {
+    return (await this.client.post('/split-payments/calculate', data)).data;
+  }
+
+  async createPaymentCycle(data: {
+    propertyId: string; leaseId: string; cycleLabel: string;
+    cycleStart: string; cycleEnd: string; totalRent: number;
+    tenantShares: Array<{
+      tenantUserId: string; tenantName: string; tenantPhone?: string;
+      amountDue: number; momoPhone?: string; momoProvider?: 'mtn' | 'orange'; dueDate: string;
+    }>;
+  }) {
+    return (await this.client.post('/split-payments/cycles', data)).data;
+  }
+
+  async getLandlordPaymentCycles(status?: string) {
+    return (await this.client.get('/split-payments/cycles/landlord', { params: status ? { status } : {} })).data;
+  }
+
+  async getMyTenantPayments() {
+    return (await this.client.get('/split-payments/cycles/mine')).data;
+  }
+
+  async getPaymentCyclesByLease(leaseId: string) {
+    return (await this.client.get(`/split-payments/cycles/lease/${leaseId}`)).data;
+  }
+
+  async getPaymentCycle(cycleId: string) {
+    return (await this.client.get(`/split-payments/cycles/${cycleId}`)).data;
+  }
+
+  async initiateTenantMomoCharge(cycleId: string, data: {
+    tenantUserId: string; momoPhone: string; momoProvider: 'mtn' | 'orange';
+  }) {
+    return (await this.client.post(`/split-payments/cycles/${cycleId}/charge`, data)).data;
+  }
+
+  async recordTenantPayment(cycleId: string, data: {
+    tenantUserId: string; amountPaid: number;
+    momoTransactionId?: string; momoProvider?: 'mtn' | 'orange';
+  }) {
+    return (await this.client.patch(`/split-payments/cycles/${cycleId}/payment`, data)).data;
+  }
+
+  async adminMarkCycleDisbursed(cycleId: string, disbursementTransactionId?: string) {
+    return (await this.client.patch(`/split-payments/cycles/${cycleId}/disburse`, { disbursementTransactionId })).data;
+  }
+
+  // ─── Digital Leases ──────────────────────────────────────────────────────
+  async createDigitalLease(data: {
+    propertyId: string;
+    tenants: Array<{
+      tenantUserId: string; tenantName: string;
+      tenantEmail?: string; tenantPhone?: string; rentShare: number;
+    }>;
+    leaseStart: string; leaseEnd: string; monthlyRent: number;
+    depositAmount?: number; advanceMonths?: number;
+    customClauses?: Array<{ heading: string; body: string }>;
+  }) {
+    return (await this.client.post('/digital-leases', data)).data;
+  }
+
+  async getLandlordLeases(status?: string) {
+    return (await this.client.get('/digital-leases/mine/landlord', { params: status ? { status } : {} })).data;
+  }
+
+  async getMyTenantLeases() {
+    return (await this.client.get('/digital-leases/mine/tenant')).data;
+  }
+
+  async getDigitalLease(leaseId: string) {
+    return (await this.client.get(`/digital-leases/${leaseId}`)).data;
+  }
+
+  async signDigitalLease(leaseId: string, signatureBase64: string) {
+    return (await this.client.patch(`/digital-leases/${leaseId}/sign`, { signatureBase64 })).data;
+  }
+
+  async addLeaseConditionLog(leaseId: string, data: {
+    type: 'move_in' | 'move_out';
+    items: Array<{ label: string; rating: 'excellent' | 'good' | 'fair' | 'poor'; notes?: string }>;
+    overallNotes?: string;
+  }) {
+    return (await this.client.post(`/digital-leases/${leaseId}/condition-log`, data)).data;
+  }
+
+  async uploadLeaseConditionPhotos(
+    leaseId: string, logType: 'move_in' | 'move_out', itemLabel: string, files: File[],
+  ) {
+    const formData = new FormData();
+    files.forEach(f => formData.append('file', f));
+    return (await this.client.post(
+      `/digital-leases/${leaseId}/condition-photos`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' }, params: { logType, itemLabel } },
+    )).data;
+  }
+
+  async terminateDigitalLease(leaseId: string, reason: string) {
+    return (await this.client.patch(`/digital-leases/${leaseId}/terminate`, { reason })).data;
+  }
 }
 
 export const apiClient = new ApiClient();

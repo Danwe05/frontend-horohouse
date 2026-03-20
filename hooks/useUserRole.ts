@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
-export type UserRole = 'user' | 'agent' | 'landlord' | 'admin';
+export type UserRole = 'user' | 'agent' | 'landlord' | 'admin' | 'student';
 
 export interface RolePermissions {
   // Property Management
@@ -35,10 +35,14 @@ export interface RolePermissions {
   // Financial
   canViewRevenue: boolean;
   canManagePayments: boolean;
+
+  // Student features
+  canAccessStudentHousing: boolean;
+  canAccessRoommatePool: boolean;
 }
 
 export interface RoleCapabilities {
-  maxProperties: number | null; // null means unlimited
+  maxProperties: number | null;
   maxImagesPerProperty: number;
   canAccessPremiumFeatures: boolean;
   prioritySupport: boolean;
@@ -54,6 +58,7 @@ export interface UseUserRoleReturn {
   isAdmin: boolean;
   isAgentOnly: boolean;
   isLandlordOnly: boolean;
+  isStudent: boolean;
 
   // Permissions
   permissions: RolePermissions;
@@ -69,56 +74,66 @@ export interface UseUserRoleReturn {
 }
 
 // Role configuration constants
-const ROLE_CONFIGS = {
+const ROLE_CONFIGS: Record<UserRole, RoleCapabilities> = {
   user: {
     maxProperties: 0,
     maxImagesPerProperty: 5,
     canAccessPremiumFeatures: false,
     prioritySupport: false,
-    apiAccessLevel: 'none' as const,
+    apiAccessLevel: 'none',
+  },
+  student: {
+    maxProperties: 0,
+    maxImagesPerProperty: 5,
+    canAccessPremiumFeatures: false,
+    prioritySupport: false,
+    apiAccessLevel: 'none',
   },
   agent: {
     maxProperties: 50,
     maxImagesPerProperty: 20,
     canAccessPremiumFeatures: true,
     prioritySupport: true,
-    apiAccessLevel: 'basic' as const,
+    apiAccessLevel: 'basic',
   },
   landlord: {
     maxProperties: 20,
     maxImagesPerProperty: 15,
     canAccessPremiumFeatures: true,
     prioritySupport: false,
-    apiAccessLevel: 'basic' as const,
+    apiAccessLevel: 'basic',
   },
   admin: {
     maxProperties: null,
     maxImagesPerProperty: 50,
     canAccessPremiumFeatures: true,
     prioritySupport: true,
-    apiAccessLevel: 'full' as const,
+    apiAccessLevel: 'full',
   },
 };
 
 // Resource access mapping
 const RESOURCE_ACCESS_MAP: Record<string, UserRole[]> = {
-  'dashboard': ['user', 'agent', 'landlord', 'admin'],
-  'properties': ['user', 'agent', 'landlord', 'admin'],
-  'properties:create': ['agent', 'landlord', 'admin'],
-  'properties:manage': ['agent', 'landlord', 'admin'],
-  'properties:all': ['admin'],
-  'analytics': ['agent', 'landlord', 'admin'],
-  'analytics:all': ['admin'],
-  'users': ['admin'],
-  'settings': ['admin'],
-  'admin-panel': ['admin'],
-  'reports': ['agent', 'landlord', 'admin'],
-  'reviews': ['user', 'agent', 'landlord', 'admin'],
-  'reviews:moderate': ['admin'],
-  'favorites': ['user', 'agent', 'landlord', 'admin'],
-  'inquiries': ['agent', 'landlord', 'admin'],
-  'messages': ['user', 'agent', 'landlord', 'admin'],
-  'tenants': ['landlord', 'admin'],
+  'dashboard':          ['user', 'agent', 'landlord', 'admin', 'student'],
+  'properties':         ['user', 'agent', 'landlord', 'admin', 'student'],
+  'properties:create':  ['agent', 'landlord', 'admin'],
+  'properties:manage':  ['agent', 'landlord', 'admin'],
+  'properties:all':     ['admin'],
+  'analytics':          ['agent', 'landlord', 'admin'],
+  'analytics:all':      ['admin'],
+  'users':              ['admin'],
+  'settings':           ['admin'],
+  'admin-panel':        ['admin'],
+  'reports':            ['agent', 'landlord', 'admin'],
+  'reviews':            ['user', 'agent', 'landlord', 'admin', 'student'],
+  'reviews:moderate':   ['admin'],
+  'favorites':          ['user', 'agent', 'landlord', 'admin', 'student'],
+  'inquiries':          ['agent', 'landlord', 'admin'],
+  'messages':           ['user', 'agent', 'landlord', 'admin', 'student'],
+  'tenants':            ['landlord', 'admin'],
+  // Student-specific
+  'student-housing':    ['student', 'admin'],
+  'roommate-pool':      ['student', 'admin'],
 };
 
 export const useUserRole = (): UseUserRoleReturn => {
@@ -127,58 +142,58 @@ export const useUserRole = (): UseUserRoleReturn => {
   const role = (user?.role as UserRole) || 'user';
 
   const computed = useMemo(() => {
-    // Basic role checks
-    const isUser = role === 'user';
-    const isAgent = role === 'agent' || role === 'landlord' || role === 'admin';
-    const isLandlord = role === 'landlord';
-    const isAdmin = role === 'admin';
-    const isAgentOnly = role === 'agent';
+    const isStudent    = role === 'student';
+    const isUser       = role === 'user';
+    const isAgentOnly  = role === 'agent';
     const isLandlordOnly = role === 'landlord';
+    const isLandlord   = role === 'landlord';
+    const isAdmin      = role === 'admin';
+    // isAgent is true for any role that can manage properties
+    const isAgent      = role === 'agent' || role === 'landlord' || role === 'admin';
 
-    // Permissions based on role
     const permissions: RolePermissions = {
       // Property Management
-      canManageProperties: isAgent,
+      canManageProperties:  isAgent,
       canViewAllProperties: isAdmin,
-      canCreateProperties: isAgent,
-      canDeleteProperties: isAgent,
+      canCreateProperties:  isAgent,
+      canDeleteProperties:  isAgent,
       canFeatureProperties: isAdmin,
-      canVerifyProperties: isAdmin,
+      canVerifyProperties:  isAdmin,
 
       // User Management
-      canManageUsers: isAdmin,
+      canManageUsers:  isAdmin,
       canViewAllUsers: isAdmin,
       canPromoteUsers: isAdmin,
-      canDeleteUsers: isAdmin,
+      canDeleteUsers:  isAdmin,
 
       // Analytics & Reports
-      canViewAnalytics: isAgent,
+      canViewAnalytics:    isAgent,
       canViewAllAnalytics: isAdmin,
-      canExportData: isAgent,
+      canExportData:       isAgent,
 
       // System & Settings
-      canEditSettings: isAdmin,
-      canManageRoles: isAdmin,
-      canAccessAdminPanel: isAdmin,
+      canEditSettings:      isAdmin,
+      canManageRoles:       isAdmin,
+      canAccessAdminPanel:  isAdmin,
 
       // Content Management
       canModerateContent: isAdmin,
-      canManageReviews: isAdmin,
+      canManageReviews:   isAdmin,
 
       // Financial
-      canViewRevenue: isLandlord || isAdmin,
+      canViewRevenue:    isLandlord || isAdmin,
       canManagePayments: isAdmin,
+
+      // Student features
+      canAccessStudentHousing: isStudent || isAdmin,
+      canAccessRoommatePool:   isStudent || isAdmin,
     };
 
-    // Capabilities based on role
-    const capabilities: RoleCapabilities = ROLE_CONFIGS[role] || ROLE_CONFIGS.user;
+    const capabilities: RoleCapabilities = ROLE_CONFIGS[role] ?? ROLE_CONFIGS.user;
 
-    // Helper: Check if user has specific permission
-    const hasPermission = (permission: keyof RolePermissions): boolean => {
-      return permissions[permission];
-    };
+    const hasPermission = (permission: keyof RolePermissions): boolean =>
+      permissions[permission];
 
-    // Helper: Check if user can access a resource
     const canAccess = (resource: string): boolean => {
       const allowedRoles = RESOURCE_ACCESS_MAP[resource];
       if (!allowedRoles) {
@@ -188,36 +203,24 @@ export const useUserRole = (): UseUserRoleReturn => {
       return allowedRoles.includes(role);
     };
 
-    // Helper: Get formatted role name
     const getRoleName = (): string => {
-      const roleNames: Record<UserRole, string> = {
-        user: 'User',
-        agent: 'Agent',
+      const names: Record<UserRole, string> = {
+        user:     'User',
+        student:  'Student',
+        agent:    'Agent',
         landlord: 'Landlord',
-        admin: 'Administrator',
+        admin:    'Administrator',
       };
-      return roleNames[role];
+      return names[role];
     };
 
-    // Helper: Get role badge configuration
     const getRoleBadge = (): { text: string; color: string } => {
       const badges: Record<UserRole, { text: string; color: string }> = {
-        user: {
-          text: 'User',
-          color: 'bg-gray-100 text-gray-700'
-        },
-        agent: {
-          text: 'Agent',
-          color: 'bg-blue-100 text-blue-700'
-        },
-        landlord: {
-          text: 'Landlord',
-          color: 'bg-emerald-100 text-emerald-700'
-        },
-        admin: {
-          text: 'Admin',
-          color: 'bg-purple-100 text-purple-700'
-        },
+        user:     { text: 'User',      color: 'bg-gray-100 text-gray-700'     },
+        student:  { text: 'Student',   color: 'bg-blue-100 text-blue-700'     },
+        agent:    { text: 'Agent',     color: 'bg-blue-100 text-blue-700'     },
+        landlord: { text: 'Landlord',  color: 'bg-emerald-100 text-emerald-700' },
+        admin:    { text: 'Admin',     color: 'bg-purple-100 text-purple-700' },
       };
       return badges[role];
     };
@@ -230,6 +233,7 @@ export const useUserRole = (): UseUserRoleReturn => {
       isAdmin,
       isAgentOnly,
       isLandlordOnly,
+      isStudent,
       permissions,
       capabilities,
       hasPermission,
@@ -248,23 +252,20 @@ export const useRoleBasedContent = () => {
 
   return {
     ...roleInfo,
-    // Conditional rendering helper
     renderForRole: (content: Partial<Record<UserRole, React.ReactNode>>) => {
       return content[roleInfo.role] || content.user || null;
     },
-    // Show content only if user has permission
     renderIfPermission: (
       permission: keyof RolePermissions,
       content: React.ReactNode,
-      fallback?: React.ReactNode
+      fallback?: React.ReactNode,
     ) => {
       return roleInfo.hasPermission(permission) ? content : (fallback || null);
     },
-    // Show content only if user can access resource
     renderIfAccess: (
       resource: string,
       content: React.ReactNode,
-      fallback?: React.ReactNode
+      fallback?: React.ReactNode,
     ) => {
       return roleInfo.canAccess(resource) ? content : (fallback || null);
     },

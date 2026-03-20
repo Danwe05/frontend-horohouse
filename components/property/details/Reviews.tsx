@@ -117,13 +117,13 @@ export default function Reviews({ propertyId }: ReviewsProps) {
   }
 
   return (
-    <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-8 mt-10">
+    <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 space-y-8 mt-10">
       <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Tenant Reviews</h2>
         {user && !userHasReviewed && !showReviewForm && (
           <Button
             onClick={() => setShowReviewForm(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-10 px-5 rounded-xl shadow-sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-10 px-5 rounded-xl"
           >
             Write a Review
           </Button>
@@ -215,13 +215,14 @@ export default function Reviews({ propertyId }: ReviewsProps) {
                 ) : (
                   <>
                     <div className="flex items-start gap-4">
-                      <Avatar className="h-12 w-12 border-2 border-white shadow-sm ring-1 ring-slate-100">
-                        {review.userId.profilePicture && (
-                          <AvatarImage src={review.userId.profilePicture} />
-                        )}
+                      <Avatar className="h-12 w-12 border-2 border-white ring-1 ring-slate-100">
+                        <AvatarImage 
+                          src={review.userId?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(review.userName || 'User')}&backgroundColor=ffdfbf`} 
+                          alt={review.userName}
+                        />
                         <AvatarFallback className="bg-blue-100 text-blue-700 font-bold">
                           {review.userName
-                            .split(" ")
+                            ?.split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </AvatarFallback>
@@ -231,7 +232,7 @@ export default function Reviews({ propertyId }: ReviewsProps) {
                           <div className="flex items-center gap-2.5">
                             <p className="font-bold text-slate-900">{review.userName}</p>
                             {review.verified && (
-                              <Badge className="bg-emerald-50 text-emerald-600 font-bold px-2 py-0.5 border-none shadow-sm text-xs">
+                              <Badge className="bg-emerald-50 text-emerald-600 font-bold px-2 py-0.5 border-none text-xs">
                                 Verified
                               </Badge>
                             )}
@@ -281,7 +282,7 @@ export default function Reviews({ propertyId }: ReviewsProps) {
                         {/* Agent Response */}
                         {review.response && (
                           <>
-                            <div className="mt-4 bg-white rounded-xl p-4 border border-slate-100 shadow-sm space-y-2">
+                            <div className="mt-4 bg-white rounded-xl p-4 border border-slate-100 space-y-2">
                               <div className="flex items-center gap-2">
                                 <MessageSquare className="h-4 w-4 text-blue-500" />
                                 <p className="text-sm font-bold text-slate-800">

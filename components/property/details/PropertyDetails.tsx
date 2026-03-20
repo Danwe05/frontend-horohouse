@@ -1,10 +1,9 @@
-"use client"
-
 import { useMemo } from "react";
 import {
   Home, Ruler, Calendar, Car, Shield, Zap, Wifi,
   TreePine, Waves, Dumbbell, Check,
 } from "lucide-react";
+import { useCurrency } from "@/hooks/useCurrency";
 
 interface PropertyDetailsProps {
   property: {
@@ -34,6 +33,7 @@ interface PropertyDetailsProps {
 
 const PropertyDetails = ({ property }: PropertyDetailsProps) => {
   const amenities = property.amenities ?? {};
+  const { formatMoney } = useCurrency();
 
   const details = useMemo(() => [
     { label: "Property Type", value: property.type, icon: Home },
@@ -53,7 +53,7 @@ const PropertyDetails = ({ property }: PropertyDetailsProps) => {
     ...(amenities.bathrooms ? [{ label: "Bathrooms", value: amenities.bathrooms.toString() }] : []),
     ...(property.area ? [{ label: "Square Meters", value: property.area.toString() }] : []),
     ...(property.area && property.price
-      ? [{ label: "Price / sqm", value: `${Math.round(property.price / property.area).toLocaleString()} XAF` }]
+      ? [{ label: "Price / sqm", value: formatMoney(Math.round(property.price / property.area)) }]
       : []),
     { label: "Available", value: property.availability },
     ...(property.listingType === "rent"
@@ -76,7 +76,7 @@ const PropertyDetails = ({ property }: PropertyDetailsProps) => {
   ], [amenities]);
 
   return (
-    <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-8 mt-10">
+    <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 space-y-8 mt-10">
       <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Property Details</h2>
 
       {/* Quick-glance tiles */}

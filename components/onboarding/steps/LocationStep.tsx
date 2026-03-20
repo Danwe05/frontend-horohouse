@@ -4,20 +4,20 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { onboardingApi } from '@/lib/onboarding-api';
-import { Loader2, MapPin, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Loader2, MapPin, ChevronRight, ChevronLeft, Plus, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function LocationStep() {
   const { user } = useAuth();
   const { state, nextStep, prevStep, dispatch } = useOnboarding();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [locationInput, setLocationInput] = useState('');
   const [locations, setLocations] = useState<string[]>(
-    user?.role === 'agent' 
+    user?.role === 'agent'
       ? state.agentPreferences?.serviceAreas || []
       : state.propertyPreferences?.location || []
   );
@@ -50,17 +50,17 @@ export function LocationStep() {
       return {
         title: 'Service Areas',
         description: 'Where do you provide your real estate services?',
-        placeholder: 'Enter cities, neighborhoods, or areas you serve',
-        helpText: 'Add all the areas where you actively work as a real estate agent',
-        popularAreas: ['Downtown', 'Financial District', 'Suburbs', 'Waterfront', 'Historic District']
+        placeholder: 'Enter a city or neighborhood...',
+        helpText: 'Add all the areas where you actively work',
+        popularAreas: ['Downtown', 'Suburbs', 'Northside', 'West End', 'Historic District']
       };
     } else {
       return {
         title: 'Preferred Locations',
         description: 'Where would you like to find properties?',
-        placeholder: 'Enter cities, neighborhoods, or areas of interest',
-        helpText: 'Add all the locations where you\'d like to search for properties',
-        popularAreas: ['City Center', 'Suburbs', 'Near Schools', 'Near Transit', 'Quiet Neighborhoods']
+        placeholder: 'Enter a city or neighborhood...',
+        helpText: 'Add all locations you\'d like to search in',
+        popularAreas: ['City Center', 'Suburbs', 'Uptown', 'Near Transit', 'Quiet Neighborhoods']
       };
     }
   };
@@ -69,24 +69,18 @@ export function LocationStep() {
 
   const handleNext = async () => {
     if (!isFormValid()) {
-      alert('Please add at least one location');
       return;
     }
 
     setIsLoading(true);
     try {
-      // Update preferences based on user role
       if (user?.role === 'agent') {
         const updatedAgentPreferences = {
           ...state.agentPreferences!,
           serviceAreas: locations
         };
-        
-        dispatch({ 
-          type: 'SET_AGENT_PREFERENCES', 
-          payload: updatedAgentPreferences
-        });
 
+        dispatch({ type: 'SET_AGENT_PREFERENCES', payload: updatedAgentPreferences });
         await onboardingApi.updateOnboardingStep({
           currentStep: state.currentStep + 1,
           stepName: 'service-areas',
@@ -97,12 +91,8 @@ export function LocationStep() {
           ...state.propertyPreferences!,
           location: locations
         };
-        
-        dispatch({ 
-          type: 'SET_PROPERTY_PREFERENCES', 
-          payload: updatedPropertyPreferences
-        });
 
+        dispatch({ type: 'SET_PROPERTY_PREFERENCES', payload: updatedPropertyPreferences });
         await onboardingApi.updateOnboardingStep({
           currentStep: state.currentStep + 1,
           stepName: 'preferred-locations',
@@ -113,34 +103,42 @@ export function LocationStep() {
       nextStep();
     } catch (error) {
       console.error('Failed to update location preferences:', error);
-      // Continue anyway
       nextStep();
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-          <MapPin className="h-8 w-8 text-blue-600" />
-        </div>
-        <CardTitle className="text-2xl font-bold text-gray-900">
-          {stepData.title}
-        </CardTitle>
-        <CardDescription className="text-gray-600">
-          {stepData.description}
-        </CardDescription>
-      </CardHeader>
+  const fadeUpVariant = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+  };
 
-      <CardContent className="space-y-6">
-        {/* Location Input */}
-        <div>
-          <Label htmlFor="location" className="text-base font-semibold text-gray-900 mb-2 block">
-            Add Locations *
-          </Label>
-          <div className="space-y-3">
+  return (
+    <div className="flex flex-col w-full max-w-2xl mx-auto">
+      <div className="text-center mb-6 sm:mb-8 shrink-0">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="mx-auto w-14 h-14 bg-teal-50/80 rounded-2xl flex items-center justify-center mb-3 shadow-inner border border-teal-100/50"
+        >
+          <MapPin className="h-7 w-7 text-teal-600" />
+        </motion.div>
+        <motion.h2 variants={fadeUpVariant} initial="hidden" animate="visible" className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
+          {stepData.title}
+        </motion.h2>
+        <motion.p variants={fadeUpVariant} initial="hidden" animate="visible" className="text-slate-500 mt-2 text-sm sm:text-base px-4">
+          {stepData.description}
+        </motion.p>
+      </div>
+
+      <div className="flex-1 px-1 pb-4">
+        <div className="space-y-6 sm:space-y-8 max-w-xl mx-auto">
+
+          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <Label htmlFor="location" className="text-base font-semibold text-slate-800 mb-3 block">
+              Add Areas *
+            </Label>
             <div className="flex gap-2">
               <Input
                 id="location"
@@ -148,132 +146,113 @@ export function LocationStep() {
                 onChange={(e) => setLocationInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={stepData.placeholder}
-                className="flex-1"
+                className="flex-1 bg-white/70 border-slate-200 focus-visible:ring-teal-500 h-12 rounded-xl text-base shadow-sm"
               />
-              <Button 
+              <Button
                 type="button"
                 onClick={handleAddLocation}
-                variant="outline"
                 disabled={!locationInput.trim()}
+                className="h-12 w-12 rounded-xl shrink-0 bg-slate-900 hover:bg-slate-800 text-white p-0"
               >
-                Add
+                <Plus className="w-5 h-5" />
               </Button>
             </div>
-            
-            <p className="text-sm text-gray-500">
-              {stepData.helpText}
+            <p className="text-sm text-slate-400 mt-2 text-center">
+              Press Enter or click + to add multiple locations
             </p>
-          </div>
-        </div>
+          </motion.div>
 
-        {/* Added Locations */}
-        {locations.length > 0 && (
-          <div>
-            <Label className="text-base font-semibold text-gray-900 mb-3 block">
-              Selected Locations ({locations.length})
-            </Label>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {locations.map((location, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-gray-900">{location}</span>
+          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <div className="min-h-[120px] p-4 rounded-2xl border-2 border-dashed border-slate-200 bg-white/30 backdrop-blur-sm">
+              <AnimatePresence>
+                {locations.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {locations.map((loc, idx) => (
+                      <motion.div
+                        key={loc}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                        className="inline-flex items-center px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-100/50 text-teal-800 text-sm font-medium shadow-sm"
+                      >
+                        <MapPin className="w-3.5 h-3.5 mr-1.5 text-teal-500" />
+                        {loc}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveLocation(loc)}
+                          className="ml-2 hover:bg-teal-200/50 rounded-md p-0.5 transition-colors text-teal-600"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </motion.div>
+                    ))}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveLocation(location)}
-                    className="text-red-500 hover:text-red-700 p-1"
-                    title="Remove location"
-                  >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-slate-400 py-6">
+                    <MapPin className="w-8 h-8 opacity-20 mb-2" />
+                    <span className="text-sm">No selected locations yet</span>
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+
+          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <Label className="text-sm border-b border-slate-100 pb-2 font-medium text-slate-600 mb-3 block">
+              Suggestions
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              {stepData.popularAreas.map((area) => (
+                <button
+                  key={area}
+                  type="button"
+                  onClick={() => handleAddLocationSuggestion(area)}
+                  disabled={locations.includes(area)}
+                  className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:bg-slate-50 text-slate-600"
+                >
+                  + {area}
+                </button>
               ))}
             </div>
-          </div>
-        )}
+          </motion.div>
 
-        {/* Empty State */}
-        {locations.length === 0 && (
-          <div className="text-center py-8">
-            <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No locations added yet</p>
-            <p className="text-sm text-gray-400">Start typing to add your preferred locations</p>
-          </div>
-        )}
-
-        {/* Popular Suggestions */}
-        <div>
-          <Label className="text-base font-semibold text-gray-900 mb-3 block">
-            Popular Areas
-          </Label>
-          <div className="flex flex-wrap gap-2">
-            {stepData.popularAreas.map((area) => (
-              <button
-                key={area}
-                type="button"
-                onClick={() => {
-                  if (!locations.includes(area)) {
-                    setLocations(prev => [...prev, area]);
-                  }
-                }}
-                disabled={locations.includes(area)}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                + {area}
-              </button>
-            ))}
-          </div>
         </div>
+      </div>
 
-        {/* Tips Section */}
-        <div className="bg-blue-50 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-800 mb-2">💡 Tips</h3>
-          <ul className="text-blue-700 text-sm space-y-1">
-            <li>• Be specific with neighborhood names for better matches</li>
-            <li>• Include nearby landmarks or districts</li>
-            <li>• You can always update these preferences later</li>
-            {user?.role === 'agent' && (
-              <li>• Consider including areas you're planning to expand into</li>
-            )}
-          </ul>
-        </div>
+      <motion.div
+        variants={fadeUpVariant} initial="hidden" animate="visible"
+        className="shrink-0 pt-6 mt-4 border-t border-slate-100 flex justify-between items-center"
+      >
+        <Button
+          onClick={prevStep}
+          variant="ghost"
+          className="text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl px-4 sm:px-6"
+        >
+          <ChevronLeft className="w-5 h-5 mr-1" />
+          Back
+        </Button>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between pt-6">
-          <Button
-            onClick={prevStep}
-            variant="outline"
-            className="flex items-center"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          
-          <Button
-            onClick={handleNext}
-            disabled={isLoading || !isFormValid()}
-            className="flex items-center bg-blue-600 hover:bg-blue-700"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                Next
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </>
-            )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        <Button
+          onClick={handleNext}
+          disabled={isLoading || !isFormValid()}
+          className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl px-6 sm:px-8 shadow-md shadow-teal-200/50"
+        >
+          {isLoading ? (
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+          ) : (
+            <span className="flex items-center font-medium">
+              Next Step
+              <ChevronRight className="w-5 h-5 ml-1" />
+            </span>
+          )}
+        </Button>
+      </motion.div>
+    </div>
   );
+
+  function handleAddLocationSuggestion(area: string) {
+    if (!locations.includes(area)) {
+      setLocations(prev => [...prev, area]);
+    }
+  }
 }

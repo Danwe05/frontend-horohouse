@@ -21,6 +21,7 @@ import apiClient from '@/lib/api';
 import BookingPaymentModal from './Bookingpaymentmodal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Room, ROOM_TYPE_LABELS } from '@/types/room';
+import { useCurrency } from '@/hooks/useCurrency';
 
 // ─── Types (mirror what BookingPanel passes) ──────────────────────────────────
 
@@ -84,6 +85,7 @@ function isDateBlocked(
 export default function BookingForm({ property }: Props) {
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
+  const { formatMoney } = useCurrency();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [guestCount, setGuestCount] = useState({ adults: 1, children: 0, infants: 0 });
@@ -115,27 +117,26 @@ export default function BookingForm({ property }: Props) {
   const selectedRoom = useMemo(() => rooms.find(r => r._id === selectedRoomId), [rooms, selectedRoomId]);
 
   // Refresh calendar blocks based on selected room
+  // Load initial blocked dates whenever room changes
   useEffect(() => {
-    if (!selectedRoomId || !dateRange?.from || !dateRange?.to) {
-      setRoomUnavailableDates(selectedRoom?.unavailableDates || property.unavailableDates || []);
-      return;
-    }
-    let active = true;
+    if (!property._id) return;
 
-    // Check specific room availability
-    setRoomAvailabilityLoading(true);
-    apiClient.getPropertyAvailability(property._id, format(dateRange.from, 'yyyy-MM-dd'), format(dateRange.to, 'yyyy-MM-dd'), selectedRoomId)
+    const from = format(new Date(), 'yyyy-MM-dd');
+    const to = format(addDays(new Date(), property.bookingWindowDays ?? 365), 'yyyy-MM-dd');
+
+    apiClient.getPropertyAvailability(property._id, from, to, selectedRoomId ?? undefined)
       .then(res => {
-        if (active && res.unavailableDates) {
-          setRoomUnavailableDates(res.unavailableDates);
+        if (res.unavailableDates) setRoomUnavailableDates(res.unavailableDates);
+        if (res.bookedRanges) {
+          // Merge bookedRanges into unavailableDates format
+          setRoomUnavailableDates(prev => [
+            ...prev,
+            ...res.bookedRanges.map((r: any) => ({ from: r.checkIn, to: r.checkOut }))
+          ]);
         }
       })
-      .catch(console.error)
-      .finally(() => { if (active) setRoomAvailabilityLoading(false); });
-
-    return () => { active = false; };
-  }, [selectedRoomId, property._id, property.unavailableDates, selectedRoom?.unavailableDates]);
-
+      .catch(() => { });
+  }, [property._id, selectedRoomId, property.bookingWindowDays]);
 
   // Payment modal
   const [paymentOpen, setPaymentOpen] = useState(false);
@@ -256,7 +257,7 @@ export default function BookingForm({ property }: Props) {
         <div className="flex items-baseline justify-between">
           <div>
             <span className="text-3xl font-black text-slate-900 tracking-tight">
-              {pricePerNight.toLocaleString()} {currency}
+              {formatMoney(pricePerNight)}
             </span>
             <span className="text-slate-400 ml-1 font-medium">/ night</span>
           </div>
@@ -283,7 +284,7 @@ export default function BookingForm({ property }: Props) {
                         <BedDouble className="h-4 w-4 text-slate-400" />
                         <div className="flex flex-col text-left">
                           <span className="font-semibold text-slate-900">{room.name} {room.roomNumber && `(#${room.roomNumber})`}</span>
-                          <span className="text-xs text-slate-500">{ROOM_TYPE_LABELS[room.roomType]} • Max {room.maxGuests} guests {room.price ? `• ${room.price}${currency}/night` : ''}</span>
+                           <span className="text-xs text-slate-500">{ROOM_TYPE_LABELS[room.roomType]} • Max {room.maxGuests} guests {room.price ? `• ${formatMoney(room.price)}/night` : ''}</span>
                         </div>
                       </div>
                     </SelectItem>
@@ -413,30 +414,30 @@ export default function BookingForm({ property }: Props) {
             {showBreakdown && (
               <div className="space-y-1.5 pt-2">
                 <div className="flex justify-between text-slate-600">
-                  <span>{pricePerNight.toLocaleString()} × {nights} nights</span>
-                  <span>{subtotalBeforeDiscount.toLocaleString()} {currency}</span>
+                  <span>{formatMoney(pricePerNight)} × {nights} nights</span>
+                  <span>{formatMoney(subtotalBeforeDiscount)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-600 font-medium">
                     <span>{discountLabel}</span>
-                    <span>-{discountAmount.toLocaleString()} {currency}</span>
+                    <span>-{formatMoney(discountAmount)}</span>
                   </div>
                 )}
                 {cleaningFee > 0 && (
                   <div className="flex justify-between text-slate-600">
-                    <span>Cleaning fee</span><span>{cleaningFee.toLocaleString()} {currency}</span>
+                    <span>Cleaning fee</span><span>{formatMoney(cleaningFee)}</span>
                   </div>
                 )}
                 {serviceFee > 0 && (
                   <div className="flex justify-between text-slate-600">
-                    <span>Service fee</span><span>{serviceFee.toLocaleString()} {currency}</span>
+                    <span>Service fee</span><span>{formatMoney(serviceFee)}</span>
                   </div>
                 )}
               </div>
             )}
             <Separator />
             <div className="flex items-center justify-between font-bold text-slate-900">
-              <span>Total</span><span>{total.toLocaleString()} {currency}</span>
+              <span>Total</span><span>{formatMoney(total)}</span>
             </div>
           </div>
         )}
@@ -459,7 +460,7 @@ export default function BookingForm({ property }: Props) {
             {submitting
               ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Creating booking…</>
               : nights > 0
-                ? `Book · ${total.toLocaleString()} ${currency}`
+                ? `Book · ${formatMoney(total)}`
                 : 'Select dates to book'
             }
           </Button>
