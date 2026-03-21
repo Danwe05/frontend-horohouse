@@ -18,6 +18,7 @@ import {
   Save
 } from 'lucide-react';
 import apiClient from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface User {
   id: string;
@@ -48,6 +49,8 @@ interface NotificationPreference {
 export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const { t } = useLanguage();
+  const s = (t as any)?.settings || {};
   
   const [preferences, setPreferences] = useState<NotificationPreference[]>([
     // General Notifications
@@ -143,8 +146,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
     // Marketing Notifications
     {
       id: 'newsletter',
-      title: 'Newsletter',
-      description: 'Weekly newsletter with market insights and tips',
+      title: s?.newsletter || 'Newsletter',
+      description: s?.newsletterDesc || 'Weekly newsletter with market insights and tips',
       icon: <Mail className="h-4 w-4" />,
       email: true,
       sms: false,
@@ -153,8 +156,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
     },
     {
       id: 'promotions',
-      title: 'Promotions',
-      description: 'Special offers and promotional content',
+      title: s?.promotions || 'Promotions',
+      description: s?.promotionsDesc || 'Special offers and promotional content',
       icon: <TrendingUp className="h-4 w-4" />,
       email: false,
       sms: false,
@@ -246,7 +249,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Bell className="h-5 w-5" />
-            <span>Global Notification Settings</span>
+            <span>{s?.globalNotificationSettings || "Global Notification Settings"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -258,8 +261,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                   <Mail className="h-4 w-4 text-blue-600" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Email Notifications</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">Receive notifications via email</p>
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.emailNotifications || "Email Notifications"}</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">{s?.receiveNotificationsViaEmail || "Receive notifications via email"}</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
@@ -280,8 +283,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                   <Smartphone className="h-4 w-4 text-green-600" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">SMS Notifications</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">Receive notifications via SMS</p>
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.smsNotifications || "SMS Notifications"}</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">{s?.receiveNotificationsViaSms || "Receive notifications via SMS"}</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
@@ -302,8 +305,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                   <Bell className="h-4 w-4 text-purple-600" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Push Notifications</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">Receive push notifications in browser</p>
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.pushNotifications || "Push Notifications"}</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">{s?.receivePushNotificationsInBrowser || "Receive push notifications in browser"}</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
@@ -404,20 +407,20 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Bell className="h-5 w-5" />
-            <span>Notification Schedule</span>
+            <span>{s?.notificationSchedule || "Notification Schedule"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {/* Quiet Hours */}
             <div>
-              <Label className="text-sm font-medium text-gray-700">Quiet Hours</Label>
+              <Label className="text-sm font-medium text-gray-700">{s?.quietHours || "Quiet Hours"}</Label>
               <p className="text-xs sm:text-sm text-gray-500 mb-3">
-                Don't send push notifications during these hours
+                {s?.quietHoursDesc || "Don't send push notifications during these hours"}
               </p>
               <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                 <div className="flex items-center space-x-2">
-                  <Label htmlFor="quiet-start" className="text-xs sm:text-sm whitespace-nowrap">From:</Label>
+                  <Label htmlFor="quiet-start" className="text-xs sm:text-sm whitespace-nowrap">{s?.from || "From:"}</Label>
                   <input
                     type="time"
                     id="quiet-start"
@@ -426,7 +429,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                   />
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Label htmlFor="quiet-end" className="text-xs sm:text-sm whitespace-nowrap">To:</Label>
+                  <Label htmlFor="quiet-end" className="text-xs sm:text-sm whitespace-nowrap">{s?.to || "To:"}</Label>
                   <input
                     type="time"
                     id="quiet-end"
@@ -439,15 +442,15 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
 
             {/* Digest Frequency */}
             <div>
-              <Label className="text-sm font-medium text-gray-700">Digest Frequency</Label>
+              <Label className="text-sm font-medium text-gray-700">{s?.digestFrequency || "Digest Frequency"}</Label>
               <p className="text-xs sm:text-sm text-gray-500 mb-3">
-                How often would you like to receive summary emails?
+                {s?.digestFrequencyDesc || "How often would you like to receive summary emails?"}
               </p>
               <select className="px-2 sm:px-3 py-1 sm:py-2 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
-                <option value="immediate">Immediate</option>
-                <option value="daily">Daily digest</option>
-                <option value="weekly">Weekly digest</option>
-                <option value="never">Never</option>
+                <option value="immediate">{s?.immediate || "Immediate"}</option>
+                <option value="daily">{s?.dailyDigest || "Daily digest"}</option>
+                <option value="weekly">{s?.weeklyDigest || "Weekly digest"}</option>
+                <option value="never">{s?.never || "Never"}</option>
               </select>
             </div>
           </div>
@@ -485,7 +488,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
           ) : (
             <Save className="h-4 w-4 mr-2" />
           )}
-          {isLoading ? 'Saving...' : 'Save Settings'}
+          {isLoading ? (s?.saving || 'Saving...') : (s?.saveSettings || 'Save Settings')}
         </Button>
       </div>
     </div>

@@ -13,6 +13,7 @@ import {
   DialogOverlay,
 } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface AdvancedFilters {
   minPrice?: number;
@@ -42,6 +43,7 @@ const FilterSidebar = ({
   initialFilters,
   listingType = "any",
 }: FilterSidebarProps) => {
+  const { t } = useLanguage();
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
@@ -102,9 +104,9 @@ const FilterSidebar = ({
       <DialogOverlay className="backdrop-blur-sm">
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <DialogHeader>
-            <DialogTitle>Advanced Filters</DialogTitle>
+            <DialogTitle>{t.advancedFilters.title}</DialogTitle>
             <DialogDescription>
-              Refine your property search with detailed filters
+              {t.advancedFilters.refine_property_search}
             </DialogDescription>
           </DialogHeader>
 
@@ -113,17 +115,17 @@ const FilterSidebar = ({
 
             {/* Price Range */}
             <div className="space-y-3">
-              <Label className="text-sm font-semibold">Price Range (XAF)</Label>
+              <Label className="text-sm font-semibold">{t.advancedFilters.price_range} (XAF)</Label>
               <div className="flex gap-2">
                 <Input
-                  placeholder="Min"
+                  placeholder={t.advancedFilters.min}
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
                   type="number"
                   className="text-sm"
                 />
                 <Input
-                  placeholder="Max"
+                  placeholder={t.advancedFilters.max}
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                   type="number"
@@ -134,15 +136,15 @@ const FilterSidebar = ({
 
             {/* Property Types */}
             <div className="space-y-3">
-              <Label className="text-sm font-semibold">Property Types</Label>
+              <Label className="text-sm font-semibold">{t.advancedFilters.property_types}</Label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: "house", label: "House" },
-                  { id: "apartment", label: "Apartment" },
-                  { id: "villa", label: "Villa" },
-                  { id: "hotel", label: "Hotel" },
-                  { id: "guesthouse", label: "Guest House" },
-                  { id: "vacation_rental", label: "Vacation Rental" },
+                  { id: "house", label: t.advancedFilters.house },
+                  { id: "apartment", label: t.advancedFilters.apartment },
+                  { id: "villa", label: t.advancedFilters.villa },
+                  { id: "hotel", label: t.advancedFilters.hotel || "Hotel" },
+                  { id: "guesthouse", label: t.advancedFilters.guesthouse || "Guest House" },
+                  { id: "vacation_rental", label: t.advancedFilters.vacation_rental || "Vacation Rental" },
                 ].map(({ id, label }) => (
                   <div key={id} className="flex items-center space-x-2">
                     <Checkbox
@@ -159,10 +161,10 @@ const FilterSidebar = ({
             {/* Bedrooms — hidden for short-term */}
             {showBedroomFilter && (
               <div className="space-y-3">
-                <Label className="text-sm font-semibold">Bedrooms</Label>
+                <Label className="text-sm font-semibold">{t.advancedFilters.bedrooms}</Label>
                 <div className="flex gap-2">
-                  <Input placeholder="Min" value={minBedrooms} onChange={(e) => setMinBedrooms(e.target.value)} type="number" className="text-sm" />
-                  <Input placeholder="Max" value={maxBedrooms} onChange={(e) => setMaxBedrooms(e.target.value)} type="number" className="text-sm" />
+                  <Input placeholder={t.advancedFilters.min} value={minBedrooms} onChange={(e) => setMinBedrooms(e.target.value)} type="number" className="text-sm" />
+                  <Input placeholder={t.advancedFilters.max} value={maxBedrooms} onChange={(e) => setMaxBedrooms(e.target.value)} type="number" className="text-sm" />
                 </div>
               </div>
             )}
@@ -170,10 +172,10 @@ const FilterSidebar = ({
             {/* Bathrooms — hidden for short-term */}
             {showBedroomFilter && (
               <div className="space-y-3">
-                <Label className="text-sm font-semibold">Bathrooms</Label>
+                <Label className="text-sm font-semibold">{t.advancedFilters.bathrooms}</Label>
                 <div className="flex gap-2">
-                  <Input placeholder="Min" value={minBathrooms} onChange={(e) => setMinBathrooms(e.target.value)} type="number" className="text-sm" />
-                  <Input placeholder="Max" value={maxBathrooms} onChange={(e) => setMaxBathrooms(e.target.value)} type="number" className="text-sm" />
+                  <Input placeholder={t.advancedFilters.min} value={minBathrooms} onChange={(e) => setMinBathrooms(e.target.value)} type="number" className="text-sm" />
+                  <Input placeholder={t.advancedFilters.max} value={maxBathrooms} onChange={(e) => setMaxBathrooms(e.target.value)} type="number" className="text-sm" />
                 </div>
               </div>
             )}
@@ -182,7 +184,7 @@ const FilterSidebar = ({
             {showGuestFilter && (
               <div className="space-y-3">
                 <Label className="text-sm font-semibold">
-                  {isShortTerm ? "Minimum Guests Capacity" : "Max Guests (short-term)"}
+                  {isShortTerm ? t.quickSearchExtras.guests : t.quickSearchExtras.guests}
                 </Label>
                 <Input
                   placeholder="e.g. 2"
@@ -196,18 +198,18 @@ const FilterSidebar = ({
 
             {/* Pool */}
             <div className="space-y-3">
-              <Label className="text-sm font-semibold">Pool</Label>
+              <Label className="text-sm font-semibold">{t.advancedFilters.pool}</Label>
               <div className="flex gap-2">
-                <Button variant={hasPool === true ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setHasPool(true)}>With Pool</Button>
-                <Button variant={hasPool === false ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setHasPool(false)}>No Pool</Button>
-                <Button variant={hasPool === undefined ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setHasPool(undefined)}>Any</Button>
+                <Button variant={hasPool === true ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setHasPool(true)}>{t.advancedFilters.with_pool}</Button>
+                <Button variant={hasPool === false ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setHasPool(false)}>{t.advancedFilters.no_pool}</Button>
+                <Button variant={hasPool === undefined ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setHasPool(undefined)}>{t.advancedFilters.any}</Button>
               </div>
             </div>
 
             {/* Action Buttons — always last, always inside the space-y-6 div */}
             <div className="flex gap-3 pt-2">
-              <Button variant="outline" className="flex-1" onClick={handleReset}>Reset</Button>
-              <Button className="flex-1" onClick={handleApply}>Apply Filters</Button>
+              <Button variant="outline" className="flex-1" onClick={handleReset}>{t.advancedFilters.reset}</Button>
+              <Button className="flex-1" onClick={handleApply}>{t.advancedFilters.apply}</Button>
             </div>
           </div>
         </DialogContent>

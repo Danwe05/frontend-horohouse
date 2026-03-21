@@ -10,6 +10,7 @@ import { RoommateProfileModal } from './components/RoommateProfileModal';
 import { MatchInbox } from './components/MatchInbox';
 import Navbar from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Select,
   SelectContent,
@@ -51,6 +52,9 @@ export default function RoommatesPage() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
   const studentCtx = useStudentMode();
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.roommates || {};
 
   const isStudent: boolean = (studentCtx as any).isStudent ?? false;
   const isVerified: boolean = (studentCtx as any).isVerified ?? false;
@@ -155,14 +159,14 @@ export default function RoommatesPage() {
     try {
       if (myProfile.isActive) {
         await apiClient.pauseRoommateProfile();
-        toast.success('Profile paused — you are no longer visible in the pool.');
+        toast.success(s.profilePaused || 'Profile paused — you are no longer visible in the pool.');
       } else {
         await apiClient.reactivateRoommateProfile();
-        toast.success('Profile reactivated — you are visible again.');
+        toast.success(s.profileReactivated || 'Profile reactivated — you are visible again.');
       }
       fetchMyProfile();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Action failed.');
+      toast.error(err?.response?.data?.message || s.actionFailed || 'Action failed.');
     }
   };
 
@@ -181,9 +185,9 @@ export default function RoommatesPage() {
           <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <GraduationCap className="w-8 h-8 text-blue-600" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Students only</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">{s.studentsOnly || 'Students only'}</h2>
           <p className="text-slate-500 text-sm mb-6">
-            Create a student profile to access the roommate matching pool.
+            {s.studentsOnlyDesc || 'Create a student profile to access the roommate matching pool.'}
           </p>
           <Link href="/onboarding">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
@@ -204,16 +208,16 @@ export default function RoommatesPage() {
           <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <ShieldCheck className="w-8 h-8 text-amber-500" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Verify your student ID first</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">{s.verifyIdFirst || 'Verify your student ID first'}</h2>
           <p className="text-slate-500 text-sm mb-2">
             {verificationStatus === 'pending'
-              ? "Your ID is under review. You'll get access within 24 hours."
-              : 'Upload your university ID to join the roommate pool.'}
+              ? (s.idUnderReview || "Your ID is under review. You'll get access within 24 hours.")
+              : (s.uploadIdToJoin || 'Upload your university ID to join the roommate pool.')}
           </p>
           {verificationStatus !== 'pending' && (
             <Link href="/dashboard/settings?tab=student-id">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl mt-4">
-                Upload student ID
+                {s.uploadStudentId || 'Upload student ID'}
               </Button>
             </Link>
           )}
@@ -247,15 +251,14 @@ export default function RoommatesPage() {
               >
                 <div className="inline-flex items-center gap-2 bg-blue-500/30 text-blue-50 text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full mb-6 border border-white/10 backdrop-blur-md">
                   <Users className="w-3.5 h-3.5" />
-                  Roommate matching
+                  {s.roommateMatching || 'Roommate matching'}
                 </div>
                 <h1 className="text-4xl sm:text-6xl font-black text-white leading-[0.95] tracking-tighter mb-6 uppercase">
-                  Find your<br />
-                  <span className="text-blue-200">Perfect match.</span>
+                  {s.findYour || 'Find your'}<br />
+                  <span className="text-blue-200">{s.perfectMatch || 'Perfect match.'}</span>
                 </h1>
                 <p className="text-blue-50/80 text-base sm:text-lg font-medium max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed">
-                  Matched by sleep schedule, cleanliness, and vibes.
-                  When both of you like each other, a chat opens instantly.
+                  {s.matchedDesc || 'Matched by sleep schedule, cleanliness, and vibes. When both of you like each other, a chat opens instantly.'}
                 </p>
 
                 {/* My profile status card (Flat) */}
@@ -270,7 +273,7 @@ export default function RoommatesPage() {
                         <div className="flex items-center gap-3">
                           <div className={`w-2 h-2 rounded-full ${myProfile.isActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
                           <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest">
-                            {myProfile.isActive ? 'Profile Active' : 'Profile Paused'}
+                            {myProfile.isActive ? (s.profileActive || 'Profile Active') : (s.profilePausedStatus || 'Profile Paused')}
                           </span>
                         </div>
                         <div className="flex gap-2">
@@ -284,13 +287,13 @@ export default function RoommatesPage() {
                             onClick={() => setShowModal(true)}
                             className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
                           >
-                            Edit Profile
+                            {s.editProfile || 'Edit Profile'}
                           </button>
                         </div>
                       </div>
                       <div className="space-y-1">
                         <p className="text-white font-bold text-lg">
-                          {myProfile.mode === 'have_room' ? 'Have a room' : 'Looking for a room'}
+                          {myProfile.mode === 'have_room' ? (s.haveRoom || 'Have a room') : (s.lookForRoom || 'Looking for a room')}
                         </p>
                         <p className="text-blue-100/60 text-xs font-medium uppercase tracking-widest">
                           {myProfile.campusCity} {myProfile.preferredNeighborhood ? `· ${myProfile.preferredNeighborhood}` : ''}
@@ -300,14 +303,14 @@ export default function RoommatesPage() {
                   ) : (
                     <div className="bg-white text-blue-600 rounded-[32px] p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl shadow-blue-900/40 border border-blue-400/20">
                       <div className="text-center sm:text-left">
-                        <p className="text-sm font-black uppercase tracking-widest mb-1 opacity-60">Join the pool</p>
-                        <p className="text-xl font-black text-slate-900 leading-tight">Appear in searches & find matches.</p>
+                        <p className="text-sm font-black uppercase tracking-widest mb-1 opacity-60">{s.joinPool || 'Join the pool'}</p>
+                        <p className="text-xl font-black text-slate-900 leading-tight">{s.appearInSearches || 'Appear in searches & find matches.'}</p>
                       </div>
                       <Button
                         onClick={() => setShowModal(true)}
                         className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 px-8 text-xs font-black uppercase tracking-widest transition-all hover:scale-105"
                       >
-                        Create profile
+                        {s.createProfile || 'Create profile'}
                       </Button>
                     </div>
                   )}
@@ -336,8 +339,8 @@ export default function RoommatesPage() {
                   {/* Floating Badge */}
                   <div className="absolute bottom-6 left-6 right-6 bg-white p-6 rounded-[2.5rem] flex items-center justify-between shadow-xl shadow-black/10 transition-transform group-hover:-translate-y-2 duration-500">
                     <div>
-                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">Featured Match</p>
-                      <p className="text-slate-900 font-black text-base uppercase tracking-tight">The Perfect Suite</p>
+                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">{s.featuredMatch || 'Featured Match'}</p>
+                      <p className="text-slate-900 font-black text-base uppercase tracking-tight">{s.perfectSuite || 'The Perfect Suite'}</p>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white">
                       <ArrowRight className="w-5 h-5" />
@@ -357,10 +360,10 @@ export default function RoommatesPage() {
             {/* Tabs (Flat Style) */}
             <div className="flex gap-1 bg-slate-50 border border-slate-100 rounded-2xl p-1 shrink-0">
               {[
-                { key: 'browse', label: 'Browse', icon: <Search className="w-3.5 h-3.5" /> },
+                { key: 'browse', label: s.browse || 'Browse', icon: <Search className="w-3.5 h-3.5" /> },
                 {
                   key: 'matches',
-                  label: 'Matches',
+                  label: s.matches || 'Matches',
                   icon: <Inbox className="w-3.5 h-3.5" />,
                   badge: pendingCount > 0 ? pendingCount : undefined,
                 },
@@ -398,7 +401,7 @@ export default function RoommatesPage() {
                     className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0"
                   >
                     <Filter className="w-3 h-3" />
-                    {modeFilter === 'have_room' ? 'Has Room' : 'Needs Room'}
+                    {modeFilter === 'have_room' ? (s.hasRoom || 'Has Room') : (s.needsRoom || 'Needs Room')}
                     <button onClick={() => setModeFilter('')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
                   </motion.div>
                 )}
@@ -409,7 +412,7 @@ export default function RoommatesPage() {
                     exit={{ opacity: 0, scale: 0.8 }}
                     className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0"
                   >
-                    Max {maxBudget/1000}K
+                    {s.maxLabel || 'Max'} {maxBudget/1000}K
                     <button onClick={() => setMaxBudget(undefined)} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
                   </motion.div>
                 )}
@@ -424,12 +427,12 @@ export default function RoommatesPage() {
               onValueChange={(v) => setModeFilter(v === 'all' ? '' : v as 'have_room' | 'need_room')}
             >
               <SelectTrigger className="w-full sm:w-44 h-11 rounded-full border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wide px-5 focus:ring-blue-100 border-none transition-all hover:bg-slate-100">
-                <SelectValue placeholder="All modes" />
+                <SelectValue placeholder={s.allModes || 'All modes'} />
               </SelectTrigger>
               <SelectContent className="rounded-2xl border-slate-100 p-1 shadow-2xl">
-                <SelectItem value="all" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">All modes</SelectItem>
-                <SelectItem value="need_room" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">Needs a room</SelectItem>
-                <SelectItem value="have_room" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">Has a room</SelectItem>
+                <SelectItem value="all" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.allModes || 'All modes'}</SelectItem>
+                <SelectItem value="need_room" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.needsRoom || 'Needs a room'}</SelectItem>
+                <SelectItem value="have_room" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.hasRoom || 'Has a room'}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -438,14 +441,14 @@ export default function RoommatesPage() {
               onValueChange={(v) => setMaxBudget(v === 'any' ? undefined : Number(v))}
             >
               <SelectTrigger className="w-full sm:w-44 h-11 rounded-full border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wide px-5 focus:ring-blue-100 border-none transition-all hover:bg-slate-100">
-                <SelectValue placeholder="Any budget" />
+                <SelectValue placeholder={s.anyBudget || 'Any budget'} />
               </SelectTrigger>
               <SelectContent className="rounded-2xl border-slate-100 p-1 shadow-2xl">
-                <SelectItem value="any" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">Any budget</SelectItem>
-                <SelectItem value="30000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">Max 30K</SelectItem>
-                <SelectItem value="50000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">Max 50K</SelectItem>
-                <SelectItem value="75000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">Max 75K</SelectItem>
-                <SelectItem value="100000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">Max 100K</SelectItem>
+                <SelectItem value="any" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.anyBudget || 'Any budget'}</SelectItem>
+                <SelectItem value="30000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max30k || 'Max 30K'}</SelectItem>
+                <SelectItem value="50000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max50k || 'Max 50K'}</SelectItem>
+                <SelectItem value="75000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max75k || 'Max 75K'}</SelectItem>
+                <SelectItem value="100000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max100k || 'Max 100K'}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -458,10 +461,10 @@ export default function RoommatesPage() {
         <div className="flex items-center justify-between mb-8">
            <div>
              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">
-               {tab === 'browse' ? 'Available Roommates' : 'Your Matching Pool'}
+               {tab === 'browse' ? (s.availableRoommates || 'Available Roommates') : (s.yourMatchingPool || 'Your Matching Pool')}
              </h2>
              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">
-               {total} active profiles tracking
+               {total} {s.activeTracking || 'active profiles tracking'}
              </p>
            </div>
            
@@ -470,7 +473,7 @@ export default function RoommatesPage() {
                 onClick={() => { setModeFilter(''); setMaxBudget(undefined); }}
                 className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-all border border-blue-100"
               >
-                Clear Filters
+                {s.clearFilters || 'Clear Filters'}
               </button>
            )}
         </div>
@@ -506,15 +509,15 @@ export default function RoommatesPage() {
                 <div className="w-20 h-20 bg-slate-50 rounded-[40px] flex items-center justify-center mx-auto mb-6">
                   <Users className="w-10 h-10 text-slate-200" />
                 </div>
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">No Roommates found</h3>
+                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">{s.noRoommatesFound || 'No Roommates found'}</h3>
                 <p className="text-slate-400 font-medium max-w-sm mx-auto text-sm">
-                  We couldn't find any profiles matching your current filters. Try adjusting your preferences.
+                  {s.noProfilesDesc || "We couldn't find any profiles matching your current filters. Try adjusting your preferences."}
                 </p>
                 <button
                   onClick={() => { setModeFilter(''); setMaxBudget(undefined); }}
                   className="mt-8 text-[11px] font-black uppercase tracking-widest bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-xl shadow-slate-900/20 hover:scale-105 transition-all"
                 >
-                  Reset all filters
+                  {s.resetAllFilters || 'Reset all filters'}
                 </button>
               </div>
             ) : (
@@ -542,7 +545,7 @@ export default function RoommatesPage() {
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   className="rounded-2xl h-12 px-6 border-slate-100 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-2" /> Previous
+                  <ChevronLeft className="w-4 h-4 mr-2" /> {s.previous || 'Previous'}
                 </Button>
                 <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 rounded-2xl">
                    <span className="text-[10px] font-black text-slate-900">{page}</span>
@@ -556,7 +559,7 @@ export default function RoommatesPage() {
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   className="rounded-2xl h-12 px-6 border-slate-100 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
                 >
-                  Next <ChevronRight className="w-4 h-4 ml-2" />
+                  {s.next || 'Next'} <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             )}
@@ -569,7 +572,7 @@ export default function RoommatesPage() {
             {isLoadingMatches ? (
               <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[48px] border border-slate-100">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-4" />
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading matching pool...</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.loadingMatches || 'Loading matching pool...'}</p>
               </div>
             ) : (
               <MatchInbox

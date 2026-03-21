@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useSubscription } from '@/hooks/usePayment';
 import { SubscriptionCards } from '@/components/subscription/SubscriptionCards';
 import { PaymentModal } from '@/components/payment/PaymentModal';
@@ -21,6 +21,8 @@ import {
   Shield,
   Loader2,
   Sparkles,
+  AlertTriangle,
+  RotateCcw,
 } from 'lucide-react';
 import { SubscriptionPlan, BillingCycle, PaymentMethod, Currency } from '@/types/paiement';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -44,12 +46,44 @@ export default function SubscriptionsPage() {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [selectedBillingCycle, setSelectedBillingCycle] = useState<BillingCycle>(BillingCycle.MONTHLY);
 
+  // Cancel confirmation inline state
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
+  // Saved payment info from wallet (for pre-filling PaymentModal)
+  const [savedPhone, setSavedPhone] = useState('');
+  const [savedProvider, setSavedProvider] = useState<'MTN' | 'ORANGE' | null>(null);
+
+  useEffect(() => {
+    // Load saved MoMo details from wallet to pre-fill PaymentModal
+    import('@/lib/api').then(({ apiClient }) => {
+      apiClient.getWallet().then((w: any) => {
+        const momo = w?.mobileMoneyAccount;
+        if (momo?.phoneNumber) setSavedPhone(momo.phoneNumber);
+        if (momo?.provider) setSavedProvider(momo.provider as 'MTN' | 'ORANGE');
+      }).catch(() => {});
+    });
+  }, []);
+
   // --- Handlers ---
 
   const handleSelectPlan = (plan: SubscriptionPlan, billingCycle: BillingCycle) => {
     setSelectedPlan(plan);
     setSelectedBillingCycle(billingCycle);
     setPaymentModalOpen(true);
+  };
+
+  // Renew: re-open payment for the current plan
+  const handleRenew = () => {
+    if (!subscription) return;
+    const currentPlan = plans.find(p => p.name === subscription.plan);
+    if (currentPlan) {
+      setSelectedPlan(currentPlan);
+      setSelectedBillingCycle((subscription.billingCycle as BillingCycle) ?? BillingCycle.MONTHLY);
+      setPaymentModalOpen(true);
+    }
   };
 
   const handlePaymentSubmit = async (paymentMethodOrObject: any) => {
@@ -73,17 +107,19 @@ export default function SubscriptionsPage() {
     }
   };
 
-  const handleCancel = async () => {
-    if (
-      !subscription ||
-      !window.confirm('Are you sure? You will retain access until the end of the period.')
-    )
-      return;
+  // Inline cancel with reason
+  const handleCancelConfirmed = async () => {
+    setCancelling(true);
+    setCancelError(null);
     try {
-      await cancelSubscription({ reason: 'User requested cancellation', feedback: '', cancelImmediately: false });
+      await cancelSubscription({ reason: cancelReason || 'User requested cancellation', feedback: '' });
       await fetchSubscription();
-    } catch (err) {
-      console.error('Cancellation failed:', err);
+      setShowCancelConfirm(false);
+      setCancelReason('');
+    } catch (err: any) {
+      setCancelError(err?.response?.data?.message ?? 'Cancellation failed. Please try again.');
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -94,6 +130,14 @@ export default function SubscriptionsPage() {
     const diff = new Date(subscription.endDate).getTime() - new Date().getTime();
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }, [subscription?.endDate]);
+
+  // Detect if subscription has expired but backend still shows "active"
+  const isExpired = useMemo(() => {
+    if (!subscription?.endDate) return false;
+    return new Date(subscription.endDate) < new Date();
+  }, [subscription?.endDate]);
+
+  const effectiveStatus = isExpired ? 'expired' : (subscription?.status ?? 'inactive');
 
   const currentPrice = useMemo(() => {
     if (!selectedPlan) return 0;
@@ -169,10 +213,10 @@ export default function SubscriptionsPage() {
                   />
                   <KPICard
                     title="Status"
-                    amount="Active"
+                    amount={effectiveStatus}
                     subtext={subscription.autoRenew ? "Auto-renew ON" : "Auto-renew OFF"}
                     icon={CheckCircle2}
-                    colorClass="emerald"
+                    colorClass={isExpired ? 'red' : 'emerald'}
                   />
                 </div>
               )}
@@ -215,6 +259,16 @@ export default function SubscriptionsPage() {
                               Billing Overview
                             </CardTitle>
                           </CardHeader>
+                          {/* Expired banner */}
+                          {isExpired && (
+                            <div className="flex items-center gap-3 bg-red-50 border-b border-red-200 px-6 py-3">
+                              <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+                              <p className="text-sm font-semibold text-red-700 flex-1">Subscription expired on {new Date(subscription!.endDate).toLocaleDateString()} — renew to restore access.</p>
+                              <Button size="sm" onClick={handleRenew} className="bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl gap-1.5 text-xs h-8">
+                                <RotateCcw className="h-3.5 w-3.5" /> Renew Now
+                              </Button>
+                            </div>
+                          )}
                           <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-4">
                               <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-100">
@@ -235,21 +289,50 @@ export default function SubscriptionsPage() {
                             <div className="space-y-4">
                               <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-100">
                                 <span className="text-slate-500 text-sm font-medium">Next Payment</span>
-                                <span className="font-bold text-slate-700">{new Date(subscription.endDate).toLocaleDateString()}</span>
+                                <span className="font-bold text-slate-700">{new Date(subscription!.endDate).toLocaleDateString()}</span>
                               </div>
                               <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-100">
-                                <span className="text-slate-500 text-sm font-medium">Days Remaining</span>
-                                <span className="font-black text-orange-600 tracking-tight">{remainingDays} Days</span>
+                                <span className="text-slate-500 text-sm font-medium">{isExpired ? 'Expired' : 'Days Remaining'}</span>
+                                <span className={`font-black tracking-tight ${isExpired ? 'text-red-600' : 'text-orange-600'}`}>{isExpired ? 'Expired' : `${remainingDays} Days`}</span>
                               </div>
-                              <div className="flex justify-end pt-2">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-destructive hover:bg-destructive/5 font-bold h-9 rounded-xl"
-                                  onClick={handleCancel}
-                                >
-                                  Cancel Subscription
-                                </Button>
+                              <div className="flex justify-end pt-2 gap-2 flex-wrap">
+                                {isExpired && (
+                                  <Button size="sm" onClick={handleRenew}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-9 rounded-xl gap-1.5">
+                                    <RotateCcw className="h-4 w-4" /> Renew Subscription
+                                  </Button>
+                                )}
+                                {!showCancelConfirm ? (
+                                  <Button
+                                    variant="ghost" size="sm"
+                                    className="text-destructive hover:bg-destructive/5 font-bold h-9 rounded-xl"
+                                    onClick={() => setShowCancelConfirm(true)}
+                                    disabled={isExpired}
+                                  >
+                                    Cancel Subscription
+                                  </Button>
+                                ) : (
+                                  <div className="w-full space-y-3 pt-2 border-t border-red-100">
+                                    <p className="text-sm font-semibold text-red-700">Reason for cancelling (optional)</p>
+                                    <input
+                                      value={cancelReason}
+                                      onChange={e => setCancelReason(e.target.value)}
+                                      placeholder="Tell us why..."
+                                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200"
+                                    />
+                                    {cancelError && <p className="text-xs text-red-600">{cancelError}</p>}
+                                    <p className="text-xs text-slate-500">You'll keep access until {new Date(subscription!.endDate).toLocaleDateString()}.</p>
+                                    <div className="flex gap-2">
+                                      <Button size="sm" variant="ghost" onClick={() => { setShowCancelConfirm(false); setCancelError(null); }} disabled={cancelling}
+                                        className="rounded-xl h-9 border border-slate-200">Keep Plan</Button>
+                                      <Button size="sm" onClick={handleCancelConfirmed} disabled={cancelling}
+                                        className="bg-red-600 hover:bg-red-700 text-white font-bold h-9 rounded-xl gap-1.5">
+                                        {cancelling && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                                        {cancelling ? 'Cancelling…' : 'Confirm Cancel'}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </CardContent>
@@ -289,11 +372,11 @@ export default function SubscriptionsPage() {
                               <Sparkles className="h-5 w-5 text-blue-400" />
                               Plan Power
                             </CardTitle>
-                            <CardDescription className="text-slate-400">Everything in your {subscription.plan} plan.</CardDescription>
+                            <CardDescription className="text-slate-400">Everything in your {subscription!.plan} plan.</CardDescription>
                           </CardHeader>
                           <CardContent className="px-6 pb-8 relative z-10">
                             <ul className="space-y-4">
-                              {Object.entries(subscription.features).map(([key, value]) => (
+                              {Object.entries(subscription!.features).map(([key, value]) => (
                                 <li key={key} className="flex items-start gap-3 text-sm">
                                   {value ? (
                                     <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
@@ -355,6 +438,8 @@ export default function SubscriptionsPage() {
           description={`${selectedPlan.displayName} - ${selectedBillingCycle}`}
           onPaymentSubmit={handlePaymentSubmit}
           loading={loading}
+          savedPhone={savedPhone || undefined}
+          savedProvider={savedProvider || undefined}
         />
       )}
     </SidebarProvider>
@@ -368,6 +453,7 @@ const KPICard = ({ title, amount, subtext, icon: Icon, colorClass, isCurrency = 
     blue: "bg-blue-50 text-blue-600 border-blue-100",
     emerald: "bg-emerald-50 text-emerald-600 border-emerald-100",
     indigo: "bg-indigo-50 text-indigo-600 border-indigo-100",
+    red: "bg-red-50 text-red-600 border-red-100",
   };
 
   return (

@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import apiClient from "@/lib/api";
 import { toast } from "sonner";
 import { useCurrency } from "@/hooks/useCurrency";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -97,6 +98,7 @@ const IndexContent = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { formatMoney } = useCurrency();
+  const { t } = useLanguage();
 
   // ── UI state ──────────────────────────────────────────────────────────────
   const [showFilters, setShowFilters] = useState(false);
@@ -228,7 +230,7 @@ const IndexContent = () => {
     const chips: Array<{ key: string; label: string }> = [];
     if (filters.city) chips.push({ key: "city", label: filters.city });
     if (filters.listingType) {
-      const map: Record<string, string> = { sale: "For Sale", rent: "For Rent", short_term: "Short Stay" };
+      const map: Record<string, string> = { sale: t.propertyCardExtras?.forSale || "For Sale", rent: t.propertyCardExtras?.forRent || "For Rent", short_term: t.propertyCardExtras?.shortStay || "Short Stay" };
       chips.push({ key: "listingType", label: map[filters.listingType] ?? filters.listingType });
     }
     if (filters.minPrice) chips.push({ key: "minPrice", label: `Min: ${(filters.minPrice / 1000).toFixed(0)}k XAF` });
@@ -265,14 +267,14 @@ const IndexContent = () => {
     setFilters(nf);
     setAdvancedFilters(na);
     updateURLParams(urlUpdates);
-    toast.success("Filter removed");
+    toast.success(t.propertiesPage?.filterRemoved || "Filter removed");
   }, [filters, advancedFilters, updateURLParams]);
 
   const clearAllFilters = useCallback(() => {
     setFilters({});
     setAdvancedFilters({});
     router.push(pathname, { scroll: false });
-    toast.success("All filters cleared");
+    toast.success(t.propertiesPage?.allFiltersCleared || "All filters cleared");
   }, [router, pathname]);
 
   // ── Comparison handlers ───────────────────────────────────────────────────
@@ -281,7 +283,7 @@ const IndexContent = () => {
       const next = new Set(prev);
       if (checked) {
         if (next.size >= MAX_COMPARE) {
-          toast.error(`You can compare up to ${MAX_COMPARE} properties at once.`);
+          toast.error((t.propertiesPage?.compareUpTo || "You can compare up to {max} properties at once.").replace("{max}", String(MAX_COMPARE)));
           return prev;
         }
         next.add(id);
@@ -525,8 +527,8 @@ const IndexContent = () => {
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h1 className="text-xl font-bold">Properties</h1>
-                    <p className="text-xs text-muted-foreground">{loading ? "Loading…" : `${total} listings`}</p>
+                    <h1 className="text-xl font-bold">{t.propertiesPage?.title || "Properties"}</h1>
+                    <p className="text-xs text-muted-foreground">{loading ? (t.propertiesPage?.loading || "Loading…") : `${total} ${t.propertiesPage?.listings || "listings"}`}</p>
                   </div>
                   <div className="flex gap-2">
                     {/* Compare toggle */}
@@ -548,24 +550,24 @@ const IndexContent = () => {
                 {clusterFilterIds && (
                   <div className="bg-primary/10 border border-primary/20 rounded-md p-3 mb-4 flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-primary">Map Cluster Active</p>
-                      <p className="text-xs text-muted-foreground">Showing {displayedProperties.length} properties from the selected area.</p>
+                      <p className="text-sm font-medium text-primary">{t.propertiesPage?.mapClusterActive || "Map Cluster Active"}</p>
+                      <p className="text-xs text-muted-foreground">{(t.propertiesPage?.showingPropertiesFromArea || "Showing {count} properties from the selected area.").replace("{count}", String(displayedProperties.length))}</p>
                     </div>
                     <Button variant="ghost" size="sm" onClick={() => setClusterFilterIds(null)} className="h-8">
-                      Clear
+                      {t.propertiesPage?.clear || "Clear"}
                     </Button>
                   </div>
                 )}
 
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs text-muted-foreground">Sort:</span>
+                  <span className="text-xs text-muted-foreground">{t.propertiesPage?.sort || "Sort"}:</span>
                   <Select value={sortValue} onValueChange={handleSortChange}>
                     <SelectTrigger className="h-8 text-sm flex-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="newest">Newest</SelectItem>
-                      <SelectItem value="price-low">Price: Low → High</SelectItem>
-                      <SelectItem value="price-high">Price: High → Low</SelectItem>
-                      <SelectItem value="most-viewed">Most Viewed</SelectItem>
+                      <SelectItem value="newest">{t.propertiesPage?.newest || "Newest"}</SelectItem>
+                      <SelectItem value="price-low">{t.propertiesPage?.priceLowToHigh || "Price: Low → High"}</SelectItem>
+                      <SelectItem value="price-high">{t.propertiesPage?.priceHighToLow || "Price: High → Low"}</SelectItem>
+                      <SelectItem value="most-viewed">{t.propertiesPage?.mostViewed || "Most Viewed"}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -574,8 +576,8 @@ const IndexContent = () => {
                   {loading && properties.length === 0 && Array.from({ length: 4 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
                   {!loading && properties.length === 0 && (
                     <div className="text-center py-12">
-                      <p className="text-muted-foreground">No properties found.</p>
-                      <p className="text-sm text-muted-foreground mt-2">Try adjusting your filters.</p>
+                      <p className="text-muted-foreground">{t.propertiesPage?.noPropertiesFound || "No properties found."}</p>
+                      <p className="text-sm text-muted-foreground mt-2">{t.propertiesPage?.tryAdjustingFilters || "Try adjusting your filters."}</p>
                     </div>
                   )}
                   {displayedProperties.map((property) => (
@@ -591,13 +593,13 @@ const IndexContent = () => {
                   ))}
                 </div>
                 <div ref={observerTarget} className="h-10 flex items-center justify-center">
-                  {loadingMore && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /><span className="text-sm">Loading more…</span></div>}
-                  {!hasMore && properties.length > 0 && <p className="text-sm text-muted-foreground">No more properties</p>}
+                  {loadingMore && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /><span className="text-sm">{t.propertiesPage?.loadingMore || "Loading more…"}</span></div>}
+                  {!hasMore && properties.length > 0 && <p className="text-sm text-muted-foreground">{t.propertiesPage?.noMoreProperties || "No more properties"}</p>}
                 </div>
               </div>
             </div>
             <Button onClick={() => setMobileMapFullScreen(true)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 shadow-lg z-40" size="lg">
-              <Map className="h-5 w-5" /> Show Map ({total})
+              <Map className="h-5 w-5" /> {t.propertiesPage?.showMap || "Show Map"} ({total})
             </Button>
           </>
         )}
@@ -644,22 +646,22 @@ const IndexContent = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <p className="text-muted-foreground text-sm">
-                {loading && properties.length === 0 ? "Loading…" : error ? "" : `${total} listings found`}
+                {loading && properties.length === 0 ? (t.propertiesPage?.loading || "Loading…") : error ? "" : `${total} ${t.propertiesPage?.listings || "listings found"}`}
               </p>
               <span className="text-muted-foreground/30 text-sm">|</span>
-              <span className="text-sm text-muted-foreground">Sort by</span>
+              <span className="text-sm text-muted-foreground">{t.propertiesPage?.sortBy || "Sort by"}</span>
               <Select value={sortValue} onValueChange={handleSortChange}>
                 <SelectTrigger className="w-[180px] h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="price-low">Price: Low → High</SelectItem>
-                  <SelectItem value="price-high">Price: High → Low</SelectItem>
-                  <SelectItem value="most-viewed">Most Viewed</SelectItem>
+                  <SelectItem value="newest">{t.propertiesPage?.newest || "Newest"}</SelectItem>
+                  <SelectItem value="price-low">{t.propertiesPage?.priceLowToHigh || "Price: Low → High"}</SelectItem>
+                  <SelectItem value="price-high">{t.propertiesPage?.priceHighToLow || "Price: High → Low"}</SelectItem>
+                  <SelectItem value="most-viewed">{t.propertiesPage?.mostViewed || "Most Viewed"}</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant={showFilters ? "default" : "outline"} size="sm" onClick={() => setShowFilters((v) => !v)} className="gap-2">
                 <SlidersHorizontal className="h-4 w-4" />
-                {showFilters ? "Hide" : "Show"} Filters
+                {showFilters ? (t.propertiesPage?.hideFilters || "Hide Filters") : (t.propertiesPage?.showFilters || "Show Filters")}
                 {activeFilterCount > 0 && <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">{activeFilterCount}</Badge>}
               </Button>
             </div>
@@ -678,10 +680,10 @@ const IndexContent = () => {
               </Button> */}
 
               {/* Grid / List toggle */}
-              <Button variant={gridLayout === "grid" ? "default" : "outline"} size="sm" onClick={() => setGridLayout("grid")} aria-label="Grid view" aria-pressed={gridLayout === "grid"}>
+              <Button variant={gridLayout === "grid" ? "default" : "outline"} size="sm" onClick={() => setGridLayout("grid")} aria-label={t.propertiesPage?.gridView || "Grid view"} aria-pressed={gridLayout === "grid"}>
                 <Grid className="h-4 w-4" />
               </Button>
-              <Button variant={gridLayout === "list" ? "default" : "outline"} size="sm" onClick={() => setGridLayout("list")} aria-label="List view" aria-pressed={gridLayout === "list"}>
+              <Button variant={gridLayout === "list" ? "default" : "outline"} size="sm" onClick={() => setGridLayout("list")} aria-label={t.propertiesPage?.listView || "List view"} aria-pressed={gridLayout === "list"}>
                 <List className="h-4 w-4" />
               </Button>
             </div>
@@ -696,14 +698,14 @@ const IndexContent = () => {
                   <Map className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-primary">Map Cluster Selected</p>
+                  <p className="text-sm font-medium text-primary">{t.propertiesPage?.mapClusterSelected || "Map Cluster Selected"}</p>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    Showing <span className="font-semibold text-foreground">{displayedProperties.length}</span> properties from the selected map area.
+                    <span dangerouslySetInnerHTML={{ __html: (t.propertiesPage?.showingPropertiesFromArea || "Showing {count} properties from the selected area.").replace("{count}", `<span class="font-semibold text-foreground">${displayedProperties.length}</span>`) }} />
                   </p>
                 </div>
               </div>
               <Button variant="outline" size="sm" onClick={() => setClusterFilterIds(null)} className="gap-2 bg-background hover:bg-muted">
-                <X className="w-3.5 h-3.5" /> Clear Map Filter
+                <X className="w-3.5 h-3.5" /> {t.propertiesPage?.clearMapFilter || "Clear Map Filter"}
               </Button>
             </div>
           )}
@@ -712,8 +714,8 @@ const IndexContent = () => {
             {loading && displayedProperties.length === 0 && Array.from({ length: 6 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
             {!loading && displayedProperties.length === 0 && (
               <div className="col-span-full text-center py-12">
-                <p className="text-muted-foreground">No properties found matching your criteria.</p>
-                <p className="text-sm text-muted-foreground mt-2">Try adjusting your filters or search criteria.</p>
+                <p className="text-muted-foreground">{t.propertiesPage?.noPropertiesFoundMatching || "No properties found matching your criteria."}</p>
+                <p className="text-sm text-muted-foreground mt-2">{t.propertiesPage?.tryAdjustingSearch || "Try adjusting your filters or search criteria."}</p>
               </div>
             )}
             {displayedProperties.map((property) => (
@@ -730,13 +732,13 @@ const IndexContent = () => {
           </div>
 
           <div ref={observerTarget} className="flex items-center justify-center py-8">
-            {loadingMore && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /><span>Loading more properties…</span></div>}
-            {!hasMore && properties.length > 0 && <p className="text-muted-foreground">You've reached the end of the listings</p>}
+            {loadingMore && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /><span>{t.propertiesPage?.loadingMore || "Loading more properties…"}</span></div>}
+            {!hasMore && properties.length > 0 && <p className="text-muted-foreground">{t.propertiesPage?.reachedEnd || "You've reached the end of the listings"}</p>}
           </div>
 
           {/* Show/Hide map FAB */}
           <Button onClick={() => setShowMap((v) => !v)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 shadow-lg z-40" size="lg">
-            {showMap ? <><EyeOff className="h-5 w-5" />Hide Map</> : <><Eye className="h-5 w-5" />Show Map</>}
+            {showMap ? <><EyeOff className="h-5 w-5" />{t.propertiesPage?.hideMap || "Hide Map"}</> : <><Eye className="h-5 w-5" />{t.propertiesPage?.showMap || "Show Map"}</>}
           </Button>
         </div>
       </main>

@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useStudentMode } from '@/contexts/StudentModeContext';
 import { apiClient } from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Status config ────────────────────────────────────────────────────────────
 
@@ -70,11 +71,11 @@ const STATUS_CONFIG = {
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
-function StepIndicator({ status }: { status: string | null }) {
+function StepIndicator({ status, s }: { status: string | null, s: any }) {
   const steps = [
-    { key: 'upload', label: 'Upload ID' },
-    { key: 'review', label: 'Under Review' },
-    { key: 'verified', label: 'Verified' },
+    { key: 'upload', label: s?.uploadId || 'Upload ID' },
+    { key: 'review', label: s?.underReview || 'Under Review' },
+    { key: 'verified', label: s?.verified || 'Verified' },
   ];
 
   const getStepState = (stepKey: string) => {
@@ -147,11 +148,13 @@ function DropZone({
   disabled,
   preview,
   onClear,
+  s,
 }: {
   onFileSelect: (file: File) => void;
   disabled: boolean;
   preview: string | null;
   onClear: () => void;
+  s: any;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -189,7 +192,7 @@ function DropZone({
         </button>
         <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white/90 rounded-full px-2.5 py-1">
           <FileImage className="w-3 h-3 text-emerald-600" />
-          <span className="text-[11px] font-semibold text-emerald-700">Image selected</span>
+          <span className="text-[11px] font-semibold text-emerald-700">{s?.imageSelected || "Image selected"}</span>
         </div>
       </div>
     );
@@ -227,9 +230,9 @@ function DropZone({
         <p className={`text-sm font-semibold transition-colors
           ${isDragging ? 'text-blue-700' : 'text-gray-600 group-hover:text-blue-700'}`}
         >
-          {isDragging ? 'Drop your image here' : 'Drop image or click to browse'}
+          {isDragging ? (s?.dropYourImageHere || 'Drop your image here') : (s?.dropImageOrClickToBrowse || 'Drop image or click to browse')}
         </p>
-        <p className="text-xs text-gray-400 mt-0.5">JPG, PNG, WEBP or HEIC · max 10 MB</p>
+        <p className="text-xs text-gray-400 mt-0.5">{s?.jpgPngWebpOrHeic || "JPG, PNG, WEBP or HEIC · max 10 MB"}</p>
       </div>
     </div>
   );
@@ -245,6 +248,9 @@ export function StudentIdSettings() {
     studentProfile,
     refreshStudentProfile,
   } = useStudentMode();
+
+  const { t } = useLanguage();
+  const s = (t as any)?.settings || {};
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -323,12 +329,12 @@ export function StudentIdSettings() {
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-gray-800">
               <ShieldCheck className="h-5 w-5 text-gray-400" />
-              <span>Student ID Verification</span>
+              <span>{s?.studentIdVerification || "Student ID Verification"}</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold ${cfg.badge}`}>
                 {cfg.icon}
-                {cfg.label}
+                {s?.[status] || cfg.label}
               </Badge>
               <button
                 onClick={handleRefreshStatus}
@@ -344,7 +350,7 @@ export function StudentIdSettings() {
 
         <CardContent className="pt-5 space-y-5">
           {/* Progress steps */}
-          <StepIndicator status={status} />
+          <StepIndicator status={status} s={s} />
 
           {/* Status message */}
           <AnimatePresence mode="wait">
@@ -370,33 +376,33 @@ export function StudentIdSettings() {
               <div>
                 {status === 'unverified' && (
                   <>
-                    <p className="text-sm font-semibold text-gray-800">Upload your student ID to get verified</p>
+                    <p className="text-sm font-semibold text-gray-800">{s?.uploadYourStudentIdToGetVerified || "Upload your student ID to get verified"}</p>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Upload a clear photo of your valid student ID card. Verification usually takes less than 24 hours.
+                      {s?.uploadYourStudentIdDesc || "Upload a clear photo of your valid student ID card. Verification usually takes less than 24 hours."}
                     </p>
                   </>
                 )}
                 {status === 'pending' && (
                   <>
-                    <p className="text-sm font-semibold text-amber-800">Your ID is being reviewed</p>
+                    <p className="text-sm font-semibold text-amber-800">{s?.yourIdIsBeingReviewed || "Your ID is being reviewed"}</p>
                     <p className="text-xs text-amber-700 mt-0.5">
-                      Our team is reviewing your submission. You'll be notified once it's approved — usually within 24 hours.
+                      {s?.yourIdIsBeingReviewedDesc || "Our team is reviewing your submission. You'll be notified once it's approved — usually within 24 hours."}
                     </p>
                   </>
                 )}
                 {status === 'verified' && (
                   <>
-                    <p className="text-sm font-semibold text-emerald-800">You're fully verified!</p>
+                    <p className="text-sm font-semibold text-emerald-800">{s?.youAreFullyVerified || "You're fully verified!"}</p>
                     <p className="text-xs text-emerald-700 mt-0.5">
-                      You have full access to the roommate pool and all student-exclusive features.
+                      {s?.youAreFullyVerifiedDesc || "You have full access to the roommate pool and all student-exclusive features."}
                     </p>
                   </>
                 )}
                 {status === 'rejected' && (
                   <>
-                    <p className="text-sm font-semibold text-red-800">Your ID could not be verified</p>
+                    <p className="text-sm font-semibold text-red-800">{s?.yourIdCouldNotBeVerified || "Your ID could not be verified"}</p>
                     <p className="text-xs text-red-700 mt-0.5">
-                      The photo was unclear or the ID was invalid. Please upload a clearer image and resubmit.
+                      {s?.yourIdCouldNotBeVerifiedDesc || "The photo was unclear or the ID was invalid. Please upload a clearer image and resubmit."}
                     </p>
                   </>
                 )}
@@ -435,7 +441,7 @@ export function StudentIdSettings() {
             <CardHeader className="pb-4 border-b border-gray-50">
               <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
                 <Upload className="h-4 w-4 text-gray-400" />
-                {status === 'rejected' ? 'Re-upload Student ID' : 'Upload Student ID'}
+                {status === 'rejected' ? (s?.reUploadStudentId || 'Re-upload Student ID') : (s?.uploadStudentId || 'Upload Student ID')}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-5 space-y-4">
@@ -443,10 +449,10 @@ export function StudentIdSettings() {
               {/* Tips */}
               <div className="flex flex-wrap gap-2">
                 {[
-                  'Photo must be clear and legible',
-                  'Show full ID card including name',
-                  'Avoid glare or shadows',
-                  'Must be a current valid ID',
+                  s?.photoMustBeClear || 'Photo must be clear and legible',
+                  s?.showFullId || 'Show full ID card including name',
+                  s?.avoidGlare || 'Avoid glare or shadows',
+                  s?.mustBeCurrentId || 'Must be a current valid ID',
                 ].map((tip) => (
                   <span
                     key={tip}
@@ -464,6 +470,7 @@ export function StudentIdSettings() {
                 disabled={isUploading}
                 preview={preview}
                 onClear={handleClear}
+                s={s}
               />
 
               {/* Submit button */}
@@ -477,12 +484,12 @@ export function StudentIdSettings() {
                   {isUploading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Uploading...
+                      {s?.uploading || 'Uploading...'}
                     </>
                   ) : (
                     <>
                       <Upload className="w-4 h-4 mr-2" />
-                      {status === 'rejected' ? 'Resubmit ID' : 'Submit ID'}
+                      {status === 'rejected' ? (s?.resubmitId || 'Resubmit ID') : (s?.submitId || 'Submit ID')}
                     </>
                   )}
                 </Button>
@@ -497,7 +504,7 @@ export function StudentIdSettings() {
         <CardHeader className="pb-3 border-b border-gray-50">
           <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
             <GraduationCap className="h-4 w-4 text-gray-400" />
-            What verification unlocks
+            {s?.whatVerificationUnlocks || "What verification unlocks"}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
@@ -506,26 +513,26 @@ export function StudentIdSettings() {
               {
                 icon: <Users className="w-4 h-4" />,
                 color: 'bg-purple-100 text-purple-600',
-                title: 'Roommate pool',
-                desc: 'Browse and match with verified students looking to share housing.',
+                title: s?.roommatePool || 'Roommate pool',
+                desc: s?.roommatePoolDesc || 'Browse and match with verified students looking to share housing.',
               },
               {
                 icon: <Home className="w-4 h-4" />,
                 color: 'bg-blue-100 text-blue-600',
-                title: 'Student-verified listings',
-                desc: 'See properties approved for students with student-friendly terms.',
+                title: s?.studentVerifiedListings || 'Student-verified listings',
+                desc: s?.studentVerifiedListingsDesc || 'See properties approved for students with student-friendly terms.',
               },
               {
                 icon: <CreditCard className="w-4 h-4" />,
                 color: 'bg-teal-100 text-teal-600',
-                title: 'Rent advance scheme',
-                desc: 'Access landlords offering flexible advance payment plans for students.',
+                title: s?.rentAdvanceScheme || 'Rent advance scheme',
+                desc: s?.rentAdvanceSchemeDesc || 'Access landlords offering flexible advance payment plans for students.',
               },
               {
                 icon: <Star className="w-4 h-4" />,
                 color: 'bg-amber-100 text-amber-600',
-                title: 'Ambassador programme',
-                desc: 'Eligible verified students can become campus ambassadors.',
+                title: s?.ambassadorProgramme || 'Ambassador programme',
+                desc: s?.ambassadorProgrammeDesc || 'Eligible verified students can become campus ambassadors.',
               },
             ].map(({ icon, color, title, desc }) => (
               <div

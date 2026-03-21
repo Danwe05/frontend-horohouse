@@ -17,6 +17,7 @@ import SimilarProperties from "@/components/property/details/SimilarProperties";
 import StudentFeaturesPanel from "@/components/property/details/StudentFeaturesPanel";
 import apiClient from "@/lib/api";
 import TourPreview from "@/components/property/details/TourPreview";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -203,6 +204,7 @@ export default function PropertyDetailClient() {
   const params = useParams();
   const router = useRouter();
   const propertyId = params.id as string;
+  const { t } = useLanguage();
 
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
@@ -217,7 +219,7 @@ export default function PropertyDetailClient() {
       const data = await apiClient.getProperty(propertyId);
       setProperty(data);
     } catch (err: any) {
-      setError(err.response?.data?.message ?? "Failed to load property details");
+      setError(err.response?.data?.message ?? t.propertyDetails?.failedToLoad ?? "Failed to load property details");
     } finally {
       setLoading(false);
     }
@@ -240,12 +242,12 @@ export default function PropertyDetailClient() {
           className="rounded-xl font-bold h-11 px-6 border-slate-200 text-slate-600 hover:bg-slate-50"
         >
           <ChevronLeft className="h-4 w-4 mr-2" />
-          Go Back
+          {t.propertyDetails?.goBack || "Go Back"}
         </Button>
         <Alert className="border-red-200 bg-red-50 rounded-2xl shadow-sm">
           <AlertCircle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-600 font-medium">
-            {error || "Property not found"}
+            {error || t.propertyDetails?.propertyNotFound || "Property not found"}
           </AlertDescription>
         </Alert>
       </div>
@@ -269,7 +271,7 @@ export default function PropertyDetailClient() {
           className="mb-6 -ml-2 rounded-xl font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Back
+          {t.propertyDetails?.back || "Back"}
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

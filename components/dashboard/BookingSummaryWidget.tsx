@@ -8,6 +8,7 @@ import { Calendar, ChevronRight, Clock, MapPin, User } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { format, parseISO, isValid } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Defined locally so we don't depend on @/types/booking import shapes
@@ -95,9 +96,11 @@ interface BookingSummaryWidgetProps {
 export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
   role,
   limit = 5,
-  title = 'Recent Bookings',
+  title,
 }) => {
   const router = useRouter()
+  const { t } = useLanguage()
+  const s = (t as any)?.bookings?.summaryWidget || {}
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -175,7 +178,7 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
         <CardHeader className="pb-3 px-6 pt-6">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Calendar className="h-5 w-5 text-blue-500" />
-            {title}
+            {title || s.recentBookings || 'Recent Bookings'}
           </CardTitle>
         </CardHeader>
         <CardContent className="px-6 pb-6">
@@ -195,13 +198,13 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
     )
   }
 
-  // ── Main render ─────────────────────────────────────────────────────────────
+  // ─── Main render ─────────────────────────────────────────────────────────────
   return (
     <Card className="border-0 shadow-lg h-full flex flex-col">
       <CardHeader className="pb-3 px-6 pt-6 flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Calendar className="h-5 w-5 text-blue-500" />
-          {title}
+          {title || s.recentBookings || 'Recent Bookings'}
         </CardTitle>
         <Button
           variant="ghost"
@@ -209,7 +212,7 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
           className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
           onClick={() => router.push('/dashboard/bookings')}
         >
-          View All
+          {s.viewAll || 'View All'}
         </Button>
       </CardHeader>
 
@@ -218,7 +221,7 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
           {bookings.length === 0 ? (
             <div className="text-center py-10">
               <Clock className="h-10 w-10 mx-auto mb-3 text-slate-300" />
-              <p className="text-sm text-slate-500">No recent bookings found.</p>
+              <p className="text-sm text-slate-500">{s.noRecentBookings || 'No recent bookings found.'}</p>
             </div>
           ) : (
             bookings.map((booking) => {
@@ -292,7 +295,7 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
         <CardFooter className="px-6 py-4 border-t bg-slate-50/50 rounded-b-lg mt-auto">
           <p className="text-[11px] text-slate-500 flex items-center gap-1.5 font-medium">
             <Clock className="h-3.5 w-3.5" />
-            Last booking {safeDate(bookings[0].createdAt, 'MMM d, h:mm a')}
+            {s.lastBooking || 'Last booking'} {safeDate(bookings[0].createdAt, 'MMM d, h:mm a')}
           </p>
         </CardFooter>
       )}

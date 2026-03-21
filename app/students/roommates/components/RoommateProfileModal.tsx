@@ -23,6 +23,7 @@ import { apiClient } from '@/lib/api';
 import { Loader2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -113,6 +114,10 @@ export function RoommateProfileModal({
   existingProfile,
   campusCity,
 }: RoommateProfileModalProps) {
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.roommates?.modal || {};
+
   const isEdit = !!existingProfile;
 
   const [form, setForm] = useState({
@@ -156,16 +161,16 @@ export function RoommateProfileModal({
 
       if (isEdit) {
         await apiClient.updateMyRoommateProfile(payload);
-        toast.success('Roommate profile updated.');
+        toast.success(s.profileUpdated || 'Roommate profile updated.');
       } else {
         await apiClient.createRoommateProfile(payload as any);
-        toast.success('Roommate profile created! You are now visible in the pool.');
+        toast.success(s.profileCreated || 'Roommate profile created! You are now visible in the pool.');
       }
 
       onSuccess();
       onClose();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Failed to save profile.');
+      toast.error(err?.response?.data?.message || s.saveError || 'Failed to save profile.');
     } finally {
       setIsSubmitting(false);
     }
@@ -181,10 +186,10 @@ export function RoommateProfileModal({
             </div>
             <div>
               <DialogTitle className="text-lg font-bold text-slate-800">
-                {isEdit ? 'Edit roommate profile' : 'Create roommate profile'}
+                {isEdit ? (s.editProfileTitle || 'Edit roommate profile') : (s.createProfileTitle || 'Create roommate profile')}
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500">
-                Tell potential roommates about yourself so they can find you.
+                {s.modalDesc || 'Tell potential roommates about yourself so they can find you.'}
               </DialogDescription>
             </div>
           </div>
@@ -195,12 +200,12 @@ export function RoommateProfileModal({
           {/* Mode */}
           <div>
             <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              What are you looking for?
+              {s.whatLookingFor || 'What are you looking for?'}
             </Label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { value: 'need_room', label: 'I need a room', desc: 'Looking for a place to co-lease' },
-                { value: 'have_room', label: 'I have a room', desc: 'Spare bed in my current place' },
+                { value: 'need_room', label: s.needRoom || 'I need a room', desc: s.needRoomDesc || 'Looking for a place to co-lease' },
+                { value: 'have_room', label: s.haveRoom || 'I have a room', desc: s.haveRoomDesc || 'Spare bed in my current place' },
               ].map((o) => (
                 <button
                   key={o.value}
@@ -225,11 +230,11 @@ export function RoommateProfileModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-                Campus city *
+                {s.campusCity || 'Campus city *'}
               </Label>
               <Select value={form.campusCity} onValueChange={set('campusCity')}>
                 <SelectTrigger className="rounded-xl border-slate-200 h-10 text-sm">
-                  <SelectValue placeholder="Select city" />
+                  <SelectValue placeholder={s.selectCity || "Select city"} />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   {CITIES.map((c) => (
@@ -240,12 +245,12 @@ export function RoommateProfileModal({
             </div>
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-                Preferred neighbourhood
+                {s.preferredNeighborhood || 'Preferred neighbourhood'}
               </Label>
               <Input
                 value={form.preferredNeighborhood}
                 onChange={(e) => set('preferredNeighborhood')(e.target.value)}
-                placeholder="e.g. Molyko, Bonduma"
+                placeholder={s.neighborhoodPlaceholder || "e.g. Molyko, Bonduma"}
                 className="rounded-xl border-slate-200 h-10 text-sm"
               />
             </div>
@@ -255,7 +260,7 @@ export function RoommateProfileModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-                Max budget / person (XAF) *
+                {s.maxBudget || 'Max budget / person (XAF) *'}
               </Label>
               <Input
                 type="number"
@@ -268,7 +273,7 @@ export function RoommateProfileModal({
             </div>
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-                Target move-in date *
+                {s.targetMoveInDate || 'Target move-in date *'}
               </Label>
               <Input
                 type="date"
@@ -282,72 +287,72 @@ export function RoommateProfileModal({
 
           {/* Lifestyle */}
           <ToggleGroup
-            label="Sleep schedule"
+            label={s.sleepSchedule || "Sleep schedule"}
             value={form.sleepSchedule as any}
             onChange={set('sleepSchedule')}
             options={[
-              { value: 'early_bird', label: 'Early bird', desc: 'Up by 7am' },
-              { value: 'flexible',   label: 'Flexible',   desc: 'Goes with flow' },
-              { value: 'night_owl',  label: 'Night owl',  desc: 'Up past midnight' },
+              { value: 'early_bird', label: s.earlyBird || 'Early bird', desc: s.earlyBirdDesc || 'Up by 7am' },
+              { value: 'flexible',   label: s.flexible || 'Flexible', desc: s.flexibleDesc || 'Goes with flow' },
+              { value: 'night_owl',  label: s.nightOwl || 'Night owl', desc: s.nightOwlDesc || 'Up past midnight' },
             ]}
           />
 
           <ToggleGroup
-            label="Cleanliness"
+            label={s.cleanliness || "Cleanliness"}
             value={form.cleanlinessLevel as any}
             onChange={set('cleanlinessLevel')}
             options={[
-              { value: 'very_neat', label: 'Very neat',  desc: 'Always tidy' },
-              { value: 'neat',      label: 'Neat',       desc: 'Weekly clean' },
-              { value: 'relaxed',   label: 'Relaxed',    desc: 'Some clutter OK' },
+              { value: 'very_neat', label: s.veryNeat || 'Very neat', desc: s.veryNeatDesc || 'Always tidy' },
+              { value: 'neat',      label: s.neat || 'Neat', desc: s.neatDesc || 'Weekly clean' },
+              { value: 'relaxed',   label: s.relaxed || 'Relaxed', desc: s.relaxedDesc || 'Some clutter OK' },
             ]}
           />
 
           <ToggleGroup
-            label="Social habits"
+            label={s.socialHabits || "Social habits"}
             value={form.socialHabit as any}
             onChange={set('socialHabit')}
             options={[
-              { value: 'introverted', label: 'Quiet home', desc: 'Rarely has guests' },
-              { value: 'balanced',    label: 'Balanced',   desc: 'Occasional guests' },
-              { value: 'social',      label: 'Social',     desc: 'Friends over often' },
+              { value: 'introverted', label: s.quietHome || 'Quiet home', desc: s.quietHomeDesc || 'Rarely has guests' },
+              { value: 'balanced',    label: s.balanced || 'Balanced', desc: s.balancedDesc || 'Occasional guests' },
+              { value: 'social',      label: s.social || 'Social', desc: s.socialDesc || 'Friends over often' },
             ]}
           />
 
           <ToggleGroup
-            label="Study habits"
+            label={s.studyHabits || "Study habits"}
             value={form.studyHabit as any}
             onChange={set('studyHabit')}
             options={[
-              { value: 'home_studier',  label: 'Studies home',    desc: 'Needs quiet' },
-              { value: 'mixed',         label: 'Mixed',           desc: 'Flexible' },
-              { value: 'library_goer',  label: 'Studies out',     desc: 'Home is relaxed' },
+              { value: 'home_studier',  label: s.studiesHome || 'Studies home', desc: s.studiesHomeDesc || 'Needs quiet' },
+              { value: 'mixed',         label: s.mixed || 'Mixed', desc: s.mixedDesc || 'Flexible' },
+              { value: 'library_goer',  label: s.studiesOut || 'Studies out', desc: s.studiesOutDesc || 'Home is relaxed' },
             ]}
           />
 
           {/* Smoking + pets */}
           <div>
             <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              Smoking & pets
+              {s.smokingAndPets || 'Smoking & pets'}
             </Label>
             <div className="flex flex-wrap gap-2">
-              <BoolToggle label="I smoke"         value={form.isSmoker}       onChange={set('isSmoker')} />
-              <BoolToggle label="Smokers OK"       value={form.acceptsSmoker}  onChange={set('acceptsSmoker')} />
-              <BoolToggle label="I have a pet"     value={form.hasPet}         onChange={set('hasPet')} />
-              <BoolToggle label="Pets OK"          value={form.acceptsPet}     onChange={set('acceptsPet')} />
+              <BoolToggle label={s.iSmoke || "I smoke"}         value={form.isSmoker}       onChange={set('isSmoker')} />
+              <BoolToggle label={s.smokersOk || "Smokers OK"}       value={form.acceptsSmoker}  onChange={set('acceptsSmoker')} />
+              <BoolToggle label={s.iHavePet || "I have a pet"}     value={form.hasPet}         onChange={set('hasPet')} />
+              <BoolToggle label={s.petsOk || "Pets OK"}          value={form.acceptsPet}     onChange={set('acceptsPet')} />
             </div>
           </div>
 
           {/* Gender preference */}
           <div>
             <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              Preferred roommate gender
+              {s.preferredGender || 'Preferred roommate gender'}
             </Label>
             <div className="flex gap-2">
               {[
-                { value: 'any',    label: 'No preference' },
-                { value: 'female', label: 'Female' },
-                { value: 'male',   label: 'Male' },
+                { value: 'any',    label: s.noPreference || 'No preference' },
+                { value: 'female', label: s.female || 'Female' },
+                { value: 'male',   label: s.male || 'Male' },
               ].map((o) => (
                 <button
                   key={o.value}
@@ -368,12 +373,12 @@ export function RoommateProfileModal({
           {/* Bio */}
           <div>
             <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              Short bio <span className="normal-case font-normal text-slate-400">(optional, max 300 chars)</span>
+              {s.shortBio || 'Short bio'} <span className="normal-case font-normal text-slate-400">({s.optionalMax300 || 'optional, max 300 chars'})</span>
             </Label>
             <Textarea
               value={form.bio}
               onChange={(e) => set('bio')(e.target.value.slice(0, 300))}
-              placeholder="Tell potential roommates a bit about yourself…"
+              placeholder={s.bioPlaceholder || "Tell potential roommates a bit about yourself…"}
               rows={3}
               className="rounded-xl border-slate-200 text-sm resize-none"
             />
@@ -387,9 +392,9 @@ export function RoommateProfileModal({
             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-md shadow-blue-200/50"
           >
             {isSubmitting ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving…</>
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {s.saving || 'Saving…'}</>
             ) : (
-              isEdit ? 'Save changes' : 'Join the roommate pool'
+              isEdit ? (s.saveChanges || 'Save changes') : (s.joinPoolBtn || 'Join the roommate pool')
             )}
           </Button>
         </div>

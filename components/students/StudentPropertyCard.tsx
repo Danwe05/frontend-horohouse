@@ -31,6 +31,8 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useCurrency } from '@/hooks/useCurrency';
 
+import { useLanguage } from '@/contexts/LanguageContext';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface StudentDetails {
@@ -80,21 +82,6 @@ function formatDistance(meters?: number): string | null {
   return meters < 1000 ? `${meters}m` : `${(meters / 1000).toFixed(1)}km`;
 }
 
-const WATER_LABELS: Record<string, string> = {
-  camwater:              'CAMWATER',
-  borehole:              'Borehole',
-  camwater_and_borehole: 'Dual water',
-  well:                  'Well',
-  tanker:                'Tanker',
-};
-
-const ELECTRICITY_LABELS: Record<string, string> = {
-  none:                'ENEO only',
-  solar:               'Solar',
-  generator:           'Generator',
-  solar_and_generator: 'Solar + Gen',
-};
-
 function getImageSrc(img: { url: string } | string): string {
   return typeof img === 'string' ? img : img.url;
 }
@@ -111,6 +98,9 @@ export function StudentPropertyCard({
   const id = property._id || property.id || '';
   const sd = property.studentDetails;
   const { formatMoney } = useCurrency();
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.card || {};
 
   const { isAuthenticated } = useAuth();
   const { isFavorite, addFavorite, removeFavorite, isLoaded } = useFavorites();
@@ -142,7 +132,7 @@ export function StudentPropertyCard({
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      toast.error('Login required', { description: 'Please login to save properties.' });
+      toast.error(s.loginReq || 'Login required', { description: s.loginDesc || 'Please login to save properties.' });
       return;
     }
     if (isTogglingFavorite) return;
@@ -153,19 +143,19 @@ export function StudentPropertyCard({
       if (prev) {
         await apiClient.removeFromFavorites(id);
         removeFavorite(id);
-        toast.success('Removed from favorites');
+        toast.success(s.removedFav || 'Removed from favorites');
       } else {
         await apiClient.addToFavorites(id);
         addFavorite(id);
-        toast.success('Added to favorites');
+        toast.success(s.addedFav || 'Added to favorites');
       }
     } catch {
       setLocalFavorite(prev);
-      toast.error('Failed to update favorites');
+      toast.error(s.failedFav || 'Failed to update favorites');
     } finally {
       setIsTogglingFavorite(false);
     }
-  }, [isAuthenticated, isTogglingFavorite, localFavorite, id, addFavorite, removeFavorite]);
+  }, [isAuthenticated, isTogglingFavorite, localFavorite, id, addFavorite, removeFavorite, s]);
 
   const handleShare = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -176,12 +166,27 @@ export function StudentPropertyCard({
         await navigator.share({ title: property.title, url });
       } else {
         await navigator.clipboard.writeText(url);
-        toast.success('Link copied to clipboard');
+        toast.success(s.linkCopied || 'Link copied to clipboard');
       }
     } catch { /* cancelled */ }
-  }, [id, property.title]);
+  }, [id, property.title, s]);
 
   // ── Derived values ────────────────────────────────────────────────────────
+
+  const WATER_LABELS: Record<string, string> = {
+    camwater:              s.camwater || 'CAMWATER',
+    borehole:              s.borehole || 'Borehole',
+    camwater_and_borehole: s.dualWater || 'Dual water',
+    well:                  s.well || 'Well',
+    tanker:                s.tanker || 'Tanker',
+  };
+
+  const ELECTRICITY_LABELS: Record<string, string> = {
+    none:                s.eneoOnly || 'ENEO only',
+    solar:               s.solar || 'Solar',
+    generator:           s.generator || 'Generator',
+    solar_and_generator: s.solarGen || 'Solar + Gen',
+  };
 
   const distance  = formatDistance(sd?.campusProximityMeters);
   const perPerson = sd?.pricePerPersonMonthly;
@@ -270,7 +275,7 @@ export function StudentPropertyCard({
                 >
                   <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                   <span className="text-[11px] font-semibold tracking-wide text-emerald-300">
-                    Student Approved
+                    {s.studentApproved || 'Student Approved'}
                   </span>
                 </div>
               )}
@@ -278,7 +283,7 @@ export function StudentPropertyCard({
               {/* Top-left badges */}
               <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
                 <Badge className="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5">
-                  Student Housing
+                  {s.studentHousing || 'Student Housing'}
                 </Badge>
                 {compatibilityScore !== undefined && (
                   <Badge className={cn(
@@ -287,7 +292,7 @@ export function StudentPropertyCard({
                       ? 'bg-emerald-500 text-white'
                       : 'bg-white text-slate-800',
                   )}>
-                    {compatibilityScore}% Match
+                    {compatibilityScore}% {s.match || 'Match'}
                   </Badge>
                 )}
               </div>
@@ -301,13 +306,13 @@ export function StudentPropertyCard({
                   <TooltipTrigger asChild>
                     <button
                       onClick={handleShare}
-                      aria-label="Share"
+                      aria-label={s.share || 'Share'}
                       className="w-8 h-8 bg-card rounded-full flex items-center justify-center transition-transform shadow-md"
                     >
                       <Share2 className="h-3.5 w-3.5 text-foreground" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">Share</TooltipContent>
+                  <TooltipContent side="bottom">{s.share || 'Share'}</TooltipContent>
                 </Tooltip>
 
                 <Tooltip>
@@ -315,7 +320,7 @@ export function StudentPropertyCard({
                     <button
                       onClick={handleToggleFavorite}
                       disabled={isTogglingFavorite}
-                      aria-label={localFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                      aria-label={localFavorite ? (s.unfavorite || 'Remove from favorites') : (s.favorite || 'Add to favorites')}
                       className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md disabled:opacity-50"
                     >
                       <Heart className={cn(
@@ -325,7 +330,7 @@ export function StudentPropertyCard({
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    {localFavorite ? 'Unfavorite' : 'Favorite'}
+                    {localFavorite ? (s.unfavorite || 'Unfavorite') : (s.favorite || 'Favorite')}
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -348,7 +353,7 @@ export function StudentPropertyCard({
                     {formatMoney(perPerson || property.price)}
                   </span>
                   <span className="text-xs font-semibold text-blue-600 bg-blue-50 rounded px-1">
-                    /mo{perPerson ? ' p.p.' : ''}
+                    {s.mo || '/mo'}{perPerson ? (s.pp || ' p.p.') : ''}
                   </span>
                 </div>
                 {property.averageRating ? (
@@ -360,7 +365,7 @@ export function StudentPropertyCard({
                     ) : null}
                   </div>
                 ) : (
-                  <span className="text-xs text-muted-foreground/60 italic">No reviews</span>
+                  <span className="text-xs text-muted-foreground/60 italic">{s.noReviews || 'No reviews'}</span>
                 )}
               </div>
 
@@ -375,16 +380,16 @@ export function StudentPropertyCard({
                 {distance && (
                   <div className="flex items-center gap-1 text-blue-600 font-semibold">
                     <MapPin className="h-3 w-3" />
-                    {distance} to campus
+                    {distance} {s.toCampus || 'to campus'}
                   </div>
                 )}
                 {sd?.walkingMinutes && (
-                  <span className="text-slate-400">{sd.walkingMinutes} min walk</span>
+                  <span className="text-slate-400">{sd.walkingMinutes} {s.minWalk || 'min walk'}</span>
                 )}
                 {sd?.availableBeds !== undefined && sd.availableBeds > 0 && (
                   <div className="flex items-center gap-1 text-teal-600 font-semibold">
                     <Users className="h-3 w-3" />
-                    {sd.availableBeds} bed{sd.availableBeds > 1 ? 's' : ''} free
+                    {sd.availableBeds} {s.bedsLabel || 'bed(s)'} {s.free || 'free'}
                   </div>
                 )}
               </div>
@@ -416,12 +421,12 @@ export function StudentPropertyCard({
                 {sd?.curfewTime && (
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 rounded-full py-1 bg-slate-100 text-slate-500">
                     <Clock className="w-2.5 h-2.5" />
-                    Gate {sd.curfewTime}
+                    {s.gate || 'Gate'} {sd.curfewTime}
                   </span>
                 )}
                 {sd?.genderRestriction && sd.genderRestriction !== 'none' && (
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 rounded-full py-1 bg-slate-100 text-slate-500">
-                    {sd.genderRestriction === 'women_only' ? '♀ Women only' : '♂ Men only'}
+                    {sd.genderRestriction === 'women_only' ? (s.womenOnly || '♀ Women only') : (s.menOnly || '♂ Men only')}
                   </span>
                 )}
               </div>
@@ -430,22 +435,22 @@ export function StudentPropertyCard({
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center gap-3">
                   {sqft !== undefined && sqft > 0 && (
-                    <div className="flex items-center gap-1">
-                      <Ruler className="h-3.5 w-3.5" />
-                      <span>{sqft} m²</span>
-                    </div>
+                     <div className="flex items-center gap-1">
+                       <Ruler className="h-3.5 w-3.5" />
+                       <span>{sqft} m²</span>
+                     </div>
                   )}
                   {beds !== undefined && beds > 0 && (
-                    <div className="flex items-center gap-1">
-                      <Bed className="h-3.5 w-3.5" />
-                      <span>{beds}</span>
-                    </div>
+                     <div className="flex items-center gap-1">
+                       <Bed className="h-3.5 w-3.5" />
+                       <span>{beds}</span>
+                     </div>
                   )}
                   {baths !== undefined && baths > 0 && (
-                    <div className="flex items-center gap-1">
-                      <Bath className="h-3.5 w-3.5" />
-                      <span>{baths}</span>
-                    </div>
+                     <div className="flex items-center gap-1">
+                       <Bath className="h-3.5 w-3.5" />
+                       <span>{baths}</span>
+                     </div>
                   )}
                 </div>
 
@@ -453,13 +458,13 @@ export function StudentPropertyCard({
                   <TooltipTrigger asChild>
                     <button
                       onClick={e => { e.preventDefault(); e.stopPropagation(); setReportOpen(true); }}
-                      aria-label="Report listing"
+                      aria-label={s.reportListing || "Report listing"}
                       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
                     >
-                      <Flag className="h-3.5 w-3.5" /> Report
+                      <Flag className="h-3.5 w-3.5" /> {s.report || 'Report'}
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top">Report listing</TooltipContent>
+                  <TooltipContent side="top">{s.reportListing || 'Report listing'}</TooltipContent>
                 </Tooltip>
               </div>
             </CardContent>

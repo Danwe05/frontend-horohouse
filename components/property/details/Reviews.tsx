@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { usePropertyReviews } from "@/hooks/useReviews";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import ReviewForm from "./ReviewForm";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -33,6 +34,9 @@ export default function Reviews({ propertyId }: ReviewsProps) {
   const [editingReview, setEditingReview] = useState<string | null>(null);
   const [deleteReviewId, setDeleteReviewId] = useState<string | null>(null);
   const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set());
+
+  const { t } = useLanguage();
+  const pd = t.propertyDetails;
 
   const { user } = useAuth();
   const {
@@ -119,13 +123,13 @@ export default function Reviews({ propertyId }: ReviewsProps) {
   return (
     <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 space-y-8 mt-10">
       <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Tenant Reviews</h2>
+        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{pd?.tenantReviews || "Tenant Reviews"}</h2>
         {user && !userHasReviewed && !showReviewForm && (
           <Button
             onClick={() => setShowReviewForm(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-10 px-5 rounded-xl"
           >
-            Write a Review
+            {pd?.writeAReview || "Write a Review"}
           </Button>
         )}
       </div>
@@ -147,7 +151,7 @@ export default function Reviews({ propertyId }: ReviewsProps) {
               <span className="text-6xl font-black text-slate-900 tracking-tight leading-none">
                 {averageRating.toFixed(1)}
               </span>
-              <span className="text-slate-500 font-medium mb-1.5">out of 5</span>
+              <span className="text-slate-500 font-medium mb-1.5">{pd?.outOfFive || "out of 5"}</span>
             </div>
             <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -161,7 +165,7 @@ export default function Reviews({ propertyId }: ReviewsProps) {
               ))}
             </div>
             <p className="text-sm font-medium text-slate-500">
-              Based on {stats.totalReviews} {stats.totalReviews === 1 ? 'review' : 'reviews'}
+              {pd?.basedOnReviews?.replace("{count}", stats.totalReviews.toString()) || `Based on ${stats.totalReviews} ${stats.totalReviews === 1 ? 'review' : 'reviews'}`}
             </p>
           </div>
 
@@ -182,7 +186,7 @@ export default function Reviews({ propertyId }: ReviewsProps) {
         </div>
       ) : (
         <div className="text-center py-10 bg-slate-50 rounded-2xl border border-slate-100">
-          <p className="text-slate-500 font-medium">No reviews yet. Be the first to review this property!</p>
+          <p className="text-slate-500 font-medium">{pd?.noReviewsYet || "No reviews yet. Be the first to review this property!"}</p>
         </div>
       )}
 

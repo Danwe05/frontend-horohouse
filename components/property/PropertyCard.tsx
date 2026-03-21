@@ -71,14 +71,14 @@ interface PropertyCardProps {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getListingTypeConfig(listingType: PropertyCardProps["listingType"]) {
+function getListingTypeConfig(listingType: PropertyCardProps["listingType"], t: any) {
   switch (listingType) {
     case "short_term":
       return {
         accentClass: "bg-violet-600",
         borderClass: "border-violet-200 dark:border-violet-900",
         labelBg: "bg-violet-600",
-        label: "Short Stay",
+        label: t.propertyCardExtras.shortStay,
         dotColor: "bg-violet-500",
       };
     case "rent":
@@ -86,7 +86,7 @@ function getListingTypeConfig(listingType: PropertyCardProps["listingType"]) {
         accentClass: "bg-blue-600",
         borderClass: "border-blue-200 dark:border-blue-900",
         labelBg: "bg-blue-600",
-        label: "For Rent",
+        label: t.propertyCardExtras.forRent,
         dotColor: "bg-blue-500",
       };
     default:
@@ -94,18 +94,18 @@ function getListingTypeConfig(listingType: PropertyCardProps["listingType"]) {
         accentClass: "bg-emerald-600",
         borderClass: "border-emerald-200 dark:border-emerald-900",
         labelBg: "bg-emerald-600",
-        label: "For Sale",
+        label: t.propertyCardExtras.forSale,
         dotColor: "bg-emerald-500",
       };
   }
 }
 
-function getPriceSuffix(listingType: PropertyCardProps["listingType"], pricingUnit?: string) {
-  if (listingType === "rent") return "/mo";
+function getPriceSuffix(listingType: PropertyCardProps["listingType"], pricingUnit: string | undefined, t: any) {
+  if (listingType === "rent") return t.propertyCard?.perMonth;
   if (listingType === "short_term") {
-    if (pricingUnit === "weekly") return "/wk";
-    if (pricingUnit === "monthly") return "/mo";
-    return "/night";
+    if (pricingUnit === "weekly") return t.propertyCardExtras?.perWeek || "/wk";
+    if (pricingUnit === "monthly") return t.propertyCard?.perMonth;
+    return t.propertyCardExtras?.perNight || "/night";
   }
   return null;
 }
@@ -188,6 +188,7 @@ const PropertyCard = ({
 }: PropertyCardProps) => {
   const { isFavorite, addFavorite, removeFavorite, isLoaded } = useFavorites();
   const { formatMoney } = useCurrency();
+  const { t } = useLanguage();
   const favorited = initialIsFavorite !== undefined ? initialIsFavorite : isFavorite(id);
   const [localFavorite, setLocalFavorite] = useState(favorited);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
@@ -217,18 +218,18 @@ const PropertyCard = ({
   const hasMultipleImages = imageArray.length > 1;
 
   const showNewBadge = isNew(timeAgo) && !tag;
-  const displayTag = showNewBadge ? "New" : tag;
+  const displayTag = showNewBadge ? t.propertyCardExtras.new : tag;
   const formattedTime = formatTimeAgo(timeAgo);
   const formattedPrice = typeof price === 'number' ? formatMoney(price) : price;
-  const priceSuffix = getPriceSuffix(listingType, pricingUnit);
-  const typeConfig = getListingTypeConfig(listingType);
+  const priceSuffix = getPriceSuffix(listingType, pricingUnit, t);
+  const typeConfig = getListingTypeConfig(listingType, t);
 
   const handleToggleFavorite = useCallback(
     async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
       if (!isAuthenticated) {
-        toast.error("Login required", { description: "Please login to add properties to your favorites." });
+        toast.error(t.messages.loginRequired, { description: t.messages.loginRequiredDesc });
         return;
       }
       if (isTogglingFavorite) return;
@@ -239,15 +240,15 @@ const PropertyCard = ({
         if (prev) {
           await apiClient.removeFromFavorites(id);
           removeFavorite(id);
-          toast.success("Removed from favorites");
+          toast.success(t.messages.favoriteRemoved);
         } else {
           await apiClient.addToFavorites(id);
           addFavorite(id);
-          toast.success("Added to favorites");
+          toast.success(t.messages.favoriteAdded);
         }
       } catch (error: any) {
         setLocalFavorite(prev);
-        toast.error("Failed to update favorites", {
+        toast.error(t.propertyCardExtras.failedToUpdateFavorites || "Failed to update favorites", {
           description: error?.response?.data?.message || "Please try again later.",
         });
       } finally {
@@ -266,7 +267,7 @@ const PropertyCard = ({
         await navigator.share({ title: address, url });
       } else {
         await navigator.clipboard.writeText(url);
-        toast.success("Link copied to clipboard");
+        toast.success(t.messages.copiedToClipboard);
       }
     } catch { /* cancelled */ }
   }, [id, address]);
@@ -294,7 +295,7 @@ const PropertyCard = ({
         {showCompare && (
           <div className="absolute top-3 left-3 z-20" onClick={(e) => e.preventDefault()}>
             <div className="w-6 h-6 bg-card rounded flex items-center justify-center shadow-md">
-              <Checkbox checked={isCompared} onCheckedChange={handleCompare} aria-label="Compare this property" />
+              <Checkbox checked={isCompared} onCheckedChange={handleCompare} aria-label={t.propertyCardExtras?.compareThisProperty || "Compare this property"} />
             </div>
           </div>
         )}
@@ -369,10 +370,10 @@ const PropertyCard = ({
                       <TooltipTrigger asChild>
                         <div className="flex items-center gap-1 text-white">
                           <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                          <span className="text-[11px] font-semibold tracking-wide text-emerald-300">Verified</span>
+                          <span className="text-[11px] font-semibold tracking-wide text-emerald-300">{t.propertyCardExtras.verified}</span>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side="top">This listing has been verified by our team</TooltipContent>
+                      <TooltipContent side="top">{t.propertyCardExtras.verifiedTooltip}</TooltipContent>
                     </Tooltip>
                   )}
                   {isVerified && isBlockchainVerified && <span className="w-px h-3 bg-white/30 shrink-0" />}
@@ -381,10 +382,10 @@ const PropertyCard = ({
                       <TooltipTrigger asChild>
                         <div className="flex items-center gap-1 text-white">
                           <Cpu className="h-3.5 w-3.5 text-violet-400 shrink-0" />
-                          <span className="text-[11px] font-semibold tracking-wide text-violet-300">Blockchain Verified</span>
+                          <span className="text-[11px] font-semibold tracking-wide text-violet-300">{t.propertyCardExtras.blockchainVerified}</span>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side="top">Ownership record secured on-chain</TooltipContent>
+                      <TooltipContent side="top">{t.propertyCardExtras.blockchainVerifiedTooltip}</TooltipContent>
                     </Tooltip>
                   )}
                   <div className="ml-auto" />
@@ -405,7 +406,7 @@ const PropertyCard = ({
                   <Badge className="bg-primary px-2 py-0.5">{displayTag}</Badge>
                 )}
                 {showNewBadge && (
-                  <Badge className="bg-emerald-500 hover:bg-emerald-600 text-[11px] px-2 py-0">New</Badge>
+                  <Badge className="bg-emerald-500 hover:bg-emerald-600 text-[11px] px-2 py-0">{t.propertyCardExtras.new}</Badge>
                 )}
               </div>
 
@@ -418,13 +419,13 @@ const PropertyCard = ({
                   <TooltipTrigger asChild>
                     <button
                       onClick={handleShare}
-                      aria-label="Share this property"
+                      aria-label={t.propertyCardExtras?.shareThisProperty || "Share this property"}
                       className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md"
                     >
                       <Share2 className="h-3.5 w-3.5 text-foreground" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">Share</TooltipContent>
+                  <TooltipContent side="bottom">{t.propertyCardExtras?.share}</TooltipContent>
                 </Tooltip>
 
                 <Tooltip>
@@ -432,14 +433,14 @@ const PropertyCard = ({
                     <button
                       onClick={handleToggleFavorite}
                       disabled={isTogglingFavorite}
-                      aria-label={localFavorite ? "Remove from favorites" : "Add to favorites"}
+                      aria-label={localFavorite ? t.propertyCardExtras.unfavorite : t.propertyCardExtras.favorite}
                       aria-pressed={localFavorite}
                       className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md disabled:opacity-50"
                     >
                       <Heart className={cn("h-4 w-4 transition-colors", localFavorite ? "fill-destructive text-destructive" : "text-foreground")} />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">{localFavorite ? "Unfavorite" : "Favorite"}</TooltipContent>
+                  <TooltipContent side="bottom">{localFavorite ? t.propertyCardExtras.unfavorite : t.propertyCardExtras.favorite}</TooltipContent>
                 </Tooltip>
               </div>
 
@@ -481,7 +482,7 @@ const PropertyCard = ({
                       )}
                     </div>
                   ) : (
-                    <span className="text-xs text-muted-foreground/60 italic shrink-0">No reviews</span>
+                    <span className="text-xs text-muted-foreground/60 italic shrink-0">{t.propertyCardExtras.noReviews}</span>
                   )}
                 </div>
               </div>
@@ -495,19 +496,19 @@ const PropertyCard = ({
                   {maxGuests && maxGuests > 0 && (
                     <div className="flex items-center gap-1">
                       <Users className="h-3 w-3" />
-                      <span>Up to {maxGuests}</span>
+                      <span>{t.propertyCardExtras.upToGuests.replace("{count}", maxGuests.toString())}</span>
                     </div>
                   )}
                   {minNights && (
                     <div className="flex items-center gap-1">
                       <Moon className="h-3 w-3 text-violet-500" />
-                      <span>{minNights}+ nights</span>
+                      <span>{t.propertyCardExtras.minNights.replace("{count}", minNights.toString())}</span>
                     </div>
                   )}
                   {availableFrom && (
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3 text-violet-500" />
-                      <span>Avail. {availableFrom}</span>
+                      <span>{t.propertyCardExtras.availableFrom.replace("{date}", availableFrom)}</span>
                     </div>
                   )}
                 </div>
@@ -556,13 +557,13 @@ const PropertyCard = ({
                   <TooltipTrigger asChild>
                     <button
                       onClick={handleReport}
-                      aria-label="Report this listing"
+                      aria-label={t.propertyCardExtras?.reportThisListing || "Report this listing"}
                       className="flex items-center hover:cursor-pointer gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
                     >
-                      <Flag className="h-3.5 w-3.5" /> Report
+                      <Flag className="h-3.5 w-3.5" /> {t.propertyCardExtras?.report}
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top">Report listing</TooltipContent>
+                  <TooltipContent side="top">{t.propertyCardExtras?.report}</TooltipContent>
                 </Tooltip>
               </div>
             </CardContent>

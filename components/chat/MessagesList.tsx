@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useMemo, useEffect } from "react";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MessagesListProps {
   onConversationSelect?: () => void;
@@ -22,6 +23,8 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
     isConnected,
     loadConversations,
   } = useChatContext();
+  const { t } = useLanguage();
+  const s = (t as any)?.messages || {};
   
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<'general' | 'archive'>('general');
@@ -85,7 +88,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
     if (diffInHours < 24) {
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } else if (diffInHours < 48) {
-      return 'Yesterday';
+      return s.yesterday || 'Yesterday';
     } else if (diffInHours < 168) {
       return date.toLocaleDateString([], { weekday: 'short' });
     } else {
@@ -101,13 +104,13 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
     <div className="w-full md:w-[320px] bg-white border-r border-border h-screen flex flex-col">
       {/* Header */}
       <div className="p-6 border-b border-border">
-        <h1 className="text-2xl font-bold mb-4">Messages</h1>
+        <h1 className="text-2xl font-bold mb-4">{s.messagesTitle || 'Messages'}</h1>
         
         {/* Connection Status */}
         {!isConnected && (
           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
             <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-yellow-700">Connecting to chat server...</span>
+            <span className="text-sm text-yellow-700">{s.connectingMsg || 'Connecting to chat server...'}</span>
           </div>
         )}
         
@@ -123,7 +126,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
             )}
           >
             <Inbox className="w-4 h-4" />
-            General 
+            {s.general || 'General'} 
             {unreadCount > 0 && (
               <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">
                 {unreadCount}
@@ -140,7 +143,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
             )}
           >
             <Archive className="w-4 h-4" />
-            Archive 
+            {s.archive || 'Archive'} 
             {archivedCount > 0 && (
               <span className="bg-foreground/10 px-2 py-0.5 rounded-full text-xs">
                 {archivedCount}
@@ -153,7 +156,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search conversations..."
+            placeholder={s.searchConversations || 'Search conversations...'}
             className="pl-9 bg-muted border-0 rounded-xl"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -167,7 +170,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
           // Loading State
           <div className="flex flex-col items-center justify-center h-full p-6 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-            <p className="text-sm text-muted-foreground">Loading conversations...</p>
+            <p className="text-sm text-muted-foreground">{s.loadingConversations || 'Loading conversations...'}</p>
           </div>
         ) : filteredConversations.length === 0 ? (
           // Empty State
@@ -183,24 +186,24 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
             </div>
             <h3 className="font-semibold text-lg mb-2">
               {searchQuery 
-                ? "No conversations found" 
+                ? (s.noConversationsFound || "No conversations found") 
                 : filter === 'archive'
-                ? "No archived conversations"
-                : "No conversations yet"}
+                ? (s.noArchivedConversations || "No archived conversations")
+                : (s.noConversationsYet || "No conversations yet")}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               {searchQuery 
-                ? "Try a different search term" 
+                ? (s.tryDifferentSearch || "Try a different search term") 
                 : filter === 'archive'
-                ? "Archived conversations will appear here"
-                : "Start a conversation by contacting a property owner"}
+                ? (s.archivedAppearHere || "Archived conversations will appear here")
+                : (s.startConversationDesc || "Start a conversation by contacting a property owner")}
             </p>
             {!searchQuery && filter === 'general' && (
               <button
                 onClick={() => window.location.href = '/'}
                 className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity"
               >
-                Browse Properties
+                {s.browseProperties || "Browse Properties"}
               </button>
             )}
           </div>
@@ -235,7 +238,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="font-semibold text-sm flex items-center gap-1 truncate">
-                      {otherUser?.name || "Unknown User"}
+                      {otherUser?.name || (s.unknownUser || "Unknown User")}
                       {isOnline && (
                         <span className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></span>
                       )}
@@ -246,7 +249,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm text-muted-foreground truncate flex-1">
-                      {conv.lastMessage?.content || "No messages yet"}
+                      {conv.lastMessage?.content || (s.noMessagesYetStr || "No messages yet")}
                     </p>
                     {conversationUnreadCount > 0 && (
                       <Badge className="ml-2 bg-primary text-white text-xs min-w-5 h-5 flex items-center justify-center rounded-full border-0 shrink-0 px-1.5">

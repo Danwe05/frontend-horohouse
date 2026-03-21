@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type LocationSuggestion = {
   id: string;
@@ -131,6 +132,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [dragActive, setDragActive] = useState(false);
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.propertyForm || {};
 
   const [formData, setFormData] = useState<PropertyFormData>({
     title: '',
@@ -232,14 +236,28 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
   ];
 
   const nearbyAmenitiesOptions = [
-    'Schools', 'Hospitals', 'Shopping Malls', 'Restaurants', 'Parks',
-    'Banks', 'Pharmacies', 'Gas Stations', 'Markets', 'Churches',
-    'Mosques', 'Government Offices'
+    { value: 'Schools', label: s.features?.options?.schools || 'Schools' },
+    { value: 'Hospitals', label: s.features?.options?.hospitals || 'Hospitals' },
+    { value: 'Shopping Malls', label: s.features?.options?.shopping || 'Shopping Malls' },
+    { value: 'Restaurants', label: s.features?.options?.restaurants || 'Restaurants' },
+    { value: 'Parks', label: s.features?.options?.parks || 'Parks' },
+    { value: 'Banks', label: s.features?.options?.banks || 'Banks' },
+    { value: 'Pharmacies', label: s.features?.options?.pharmacies || 'Pharmacies' },
+    { value: 'Gas Stations', label: s.features?.options?.gasStations || 'Gas Stations' },
+    { value: 'Markets', label: s.features?.options?.markets || 'Markets' },
+    { value: 'Churches', label: s.features?.options?.churches || 'Churches' },
+    { value: 'Mosques', label: s.features?.options?.mosques || 'Mosques' },
+    { value: 'Government Offices', label: s.features?.options?.govOffices || 'Government Offices' }
   ];
 
   const transportAccessOptions = [
-    'Bus Stop', 'Taxi Station', 'Train Station', 'Airport',
-    'Highway Access', 'Metro Station', 'Ferry Terminal'
+    { value: 'Bus Stop', label: s.features?.options?.busStop || 'Bus Stop' },
+    { value: 'Taxi Station', label: s.features?.options?.taxiStation || 'Taxi Station' },
+    { value: 'Train Station', label: s.features?.options?.trainStation || 'Train Station' },
+    { value: 'Airport', label: s.features?.options?.airport || 'Airport' },
+    { value: 'Highway Access', label: s.features?.options?.highway || 'Highway Access' },
+    { value: 'Metro Station', label: s.features?.options?.metro || 'Metro Station' },
+    { value: 'Ferry Terminal', label: s.features?.options?.ferry || 'Ferry Terminal' }
   ];
 
   useEffect(() => {
@@ -897,16 +915,16 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
   };
 
   const steps = [
-    { number: 1, label: 'Basic Info', icon: FileText },
-    { number: 2, label: 'Location', icon: MapPin },
-    { number: 3, label: 'Details', icon: Building2 },
-    { number: 4, label: 'Amenities', icon: Home },
-    { number: 5, label: 'Features', icon: Wrench },
-    { number: 6, label: 'Media', icon: ImageIcon },
+    { number: 1, label: s.header?.steps?.basicInfo || 'Basic Info', icon: FileText },
+    { number: 2, label: s.header?.steps?.location || 'Location', icon: MapPin },
+    { number: 3, label: s.header?.steps?.details || 'Details', icon: Building2 },
+    { number: 4, label: s.header?.steps?.amenities || 'Amenities', icon: Home },
+    { number: 5, label: s.header?.steps?.features || 'Features', icon: Wrench },
+    { number: 6, label: s.header?.steps?.media || 'Media', icon: ImageIcon },
     ...(formData.listingType === 'rent'
-      ? [{ number: 7, label: 'Students', icon: GraduationCap }]
+      ? [{ number: 7, label: s.header?.steps?.students || 'Students', icon: GraduationCap }]
       : []),
-    { number: formData.listingType === 'rent' ? 8 : 7, label: 'Review', icon: CheckCircle2 },
+    { number: formData.listingType === 'rent' ? 8 : 7, label: s.header?.steps?.review || 'Review', icon: CheckCircle2 },
   ];
 
   return (
@@ -918,13 +936,13 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <Building2 className="w-6 h-6" />
             </div>
             <CardTitle className="text-2xl font-bold">
-              {isEditMode ? 'Edit Property Listing' : 'Add Property Listing'}
+              {isEditMode ? (s.header?.editTitle || 'Edit Property Listing') : (s.header?.addTitle || 'Add Property Listing')}
             </CardTitle>
           </div>
           <CardDescription className="text-blue-50">
             {isEditMode
-              ? 'Update your property information and publish changes.'
-              : 'Complete all steps to publish your property listing.'}
+              ? (s.header?.editDesc || 'Update your property information and publish changes.')
+              : (s.header?.addDesc || 'Complete all steps to publish your property listing.')}
           </CardDescription>
 
           {/* Step Indicator */}
@@ -969,7 +987,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-sm font-semibold flex items-center gap-2">
                   <FileText className="w-4 h-4 text-blue-600" />
-                  Property Title *
+                  {s.basicInfo?.title || 'Property Title *'}
                 </Label>
                 <Input
                   id="title"
@@ -977,21 +995,21 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   type="text"
                   value={formData.title}
                   onChange={handleChange}
-                  placeholder="e.g., Luxury 3BR Apartment in Downtown"
+                  placeholder={s.basicInfo?.titlePlaceholder || "e.g., Luxury 3BR Apartment in Downtown"}
                   className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-semibold">
-                  Property Description *
+                  {s.basicInfo?.description || 'Property Description *'}
                 </Label>
                 <textarea
                   id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Describe the property, its features, and unique selling points..."
+                  placeholder={s.basicInfo?.descriptionPlaceholder || "Describe the property, its features, and unique selling points..."}
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
                 />
@@ -1000,7 +1018,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="type" className="text-sm font-semibold">
-                    Property Type *
+                    {s.basicInfo?.propertyType || 'Property Type *'}
                   </Label>
                   <select
                     id="type"
@@ -1011,7 +1029,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   >
                     {propertyTypes.map(type => (
                       <option key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                        {s.basicInfo?.types?.[type] || type.charAt(0).toUpperCase() + type.slice(1)}
                       </option>
                     ))}
                   </select>
@@ -1019,7 +1037,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="listingType" className="text-sm font-semibold">
-                    Listing Type *
+                    {s.basicInfo?.listingType || 'Listing Type *'}
                   </Label>
                   <select
                     id="listingType"
@@ -1028,9 +1046,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
                   >
-                    <option value="sale">For Sale</option>
-                    <option value="rent">For Rent (Long-term)</option>
-                    <option value="short_term">Short-term Rental / Boutique / Hotel</option>
+                    <option value="sale">{s.basicInfo?.listingTypes?.sale || 'For Sale'}</option>
+                    <option value="rent">{s.basicInfo?.listingTypes?.rent || 'For Rent (Long-term)'}</option>
+                    <option value="short_term">{s.basicInfo?.listingTypes?.short_term || 'Short-term / Hotel'}</option>
                   </select>
                 </div>
               </div>
@@ -1038,7 +1056,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="price" className="text-sm font-semibold flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-blue-600" />
-                  Price * {formData.listingType === 'rent' ? '(Monthly)' : formData.listingType === 'short_term' ? '(Nightly/Base)' : ''}
+                  {s.basicInfo?.price || 'Price *'} {formData.listingType === 'rent' ? (s.basicInfo?.priceMonthly || '(Monthly)') : formData.listingType === 'short_term' ? (s.basicInfo?.priceNightly || '(Nightly/Base)') : ''}
                 </Label>
                 <Input
                   id="price"
@@ -1048,7 +1066,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   pattern="[0-9]*[.]?[0-9]*"
                   value={formData.price}
                   onChange={handleChange}
-                  placeholder="Enter price"
+                  placeholder={s.basicInfo?.pricePlaceholder || "Enter price"}
                   className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
@@ -1061,7 +1079,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="address" className="text-sm font-semibold flex items-center gap-2">
                   <Home className="w-4 h-4 text-blue-600" />
-                  Street Address *
+                  {s.location?.address || 'Street Address *'}
                 </Label>
                 <div className="relative">
                   <Input
@@ -1081,17 +1099,17 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     onBlur={() => {
                       setTimeout(() => setLocationDropdownOpen(false), 150);
                     }}
-                    placeholder="Search address (pick a suggestion)"
+                    placeholder={s.location?.addressPlaceholder || "Search address (pick a suggestion)"}
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
 
                   {locationDropdownOpen && (
                     <div className="absolute z-20 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg overflow-hidden">
                       {locationLoading && (
-                        <div className="px-3 py-2 text-xs text-gray-500">Searching…</div>
+                        <div className="px-3 py-2 text-xs text-gray-500">{s.location?.searching || "Searching..."}</div>
                       )}
                       {!locationLoading && locationSuggestions.length === 0 && (
-                        <div className="px-3 py-2 text-xs text-gray-500">No results</div>
+                        <div className="px-3 py-2 text-xs text-gray-500">{s.location?.noResults || "No results"}</div>
                       )}
                       {!locationLoading && locationSuggestions.map((s) => (
                         <button
@@ -1123,7 +1141,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     </div>
                   )}
                 </div>
-                <div className="text-xs text-gray-500">Pick a suggestion, click the map, or use your device location to fill coordinates.</div>
+                <div className="text-xs text-gray-500">{s.location?.searchHint || "Pick a suggestion, click the map, or use your device location to fill coordinates."}</div>
               </div>
 
               {/* Interactive map for picking location */}
@@ -1155,7 +1173,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     }}
                     className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded bg-white border border-gray-200 hover:bg-gray-50"
                   >
-                    Use my location
+                    {s.location?.useMyLocation || 'Use my location'}
                   </button>
                 </div>
 
@@ -1181,13 +1199,13 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   }}
                 />
 
-                <div className="p-2 text-xs text-gray-500">Click on the map to pick the location — latitude and longitude will be filled automatically. You can also use your device location.</div>
+                <div className="p-2 text-xs text-gray-500">{s.location?.mapHint || "Click on the map to pick the location — latitude and longitude will be filled automatically. You can also use your device location."}</div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="city" className="text-sm font-semibold">
-                    City *
+                    {s.location?.city || 'City *'}
                   </Label>
                   <Input
                     id="city"
@@ -1198,14 +1216,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       setCityTouched(true);
                       handleChange(e);
                     }}
-                    placeholder="Enter city"
+                    placeholder={s.location?.cityPlaceholder || "Enter city"}
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="neighborhood" className="text-sm font-semibold">
-                    Neighborhood
+                    {s.location?.neighborhood || 'Neighborhood'}
                   </Label>
                   <Input
                     id="neighborhood"
@@ -1213,7 +1231,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     type="text"
                     value={formData.neighborhood}
                     onChange={handleChange}
-                    placeholder="Enter neighborhood"
+                    placeholder={s.location?.neighborhoodPlaceholder || "Enter neighborhood"}
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
@@ -1223,7 +1241,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="latitude" className="text-sm font-semibold flex items-center gap-2">
                     <Globe className="w-4 h-4 text-blue-600" />
-                    Latitude *
+                    {s.location?.latitude || 'Latitude *'}
                   </Label>
                   <Input
                     id="latitude"
@@ -1233,7 +1251,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     onChange={handleChange}
                     readOnly={!manualCoordsEnabled}
                     inputMode="decimal"
-                    placeholder="e.g., 3.8480"
+                    placeholder={s.location?.latitudePlaceholder || "e.g., 3.8480"}
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
@@ -1241,7 +1259,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="longitude" className="text-sm font-semibold flex items-center gap-2">
                     <Globe className="w-4 h-4 text-blue-600" />
-                    Longitude *
+                    {s.location?.longitude || 'Longitude *'}
                   </Label>
                   <Input
                     id="longitude"
@@ -1251,7 +1269,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     onChange={handleChange}
                     readOnly={!manualCoordsEnabled}
                     inputMode="decimal"
-                    placeholder="e.g., 11.5021"
+                    placeholder={s.location?.longitudePlaceholder || "e.g., 11.5021"}
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
@@ -1263,9 +1281,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   onClick={() => setManualCoordsEnabled((v) => !v)}
                   className="text-xs font-medium text-blue-700 hover:text-blue-800"
                 >
-                  {manualCoordsEnabled ? 'Lock coordinates' : 'Edit coordinates manually'}
+                  {manualCoordsEnabled ? (s.location?.lockCoords || 'Lock coordinates') : (s.location?.editCoords || 'Edit coordinates manually')}
                 </button>
-                <div className="text-xs text-gray-500">Latitude must be -90..90, longitude -180..180.</div>
+                <div className="text-xs text-gray-500">{s.location?.coordsHint || "Latitude must be -90..90, longitude -180..180."}</div>
               </div>
             </div>
           )}
@@ -1277,7 +1295,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="area" className="text-sm font-semibold flex items-center gap-2">
                     <Maximize className="w-4 h-4 text-blue-600" />
-                    Area (m²)
+                    {s.details?.area || 'Area (m²)'}
                   </Label>
                   <Input
                     id="area"
@@ -1285,14 +1303,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     type="text"
                     value={formData.area}
                     onChange={handleChange}
-                    placeholder="e.g., 120"
+                    placeholder={s.details?.areaPlaceholder || "e.g., 120"}
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="yearBuilt" className="text-sm font-semibold">
-                    Year Built
+                    {s.details?.yearBuilt || 'Year Built'}
                   </Label>
                   <Input
                     id="yearBuilt"
@@ -1300,7 +1318,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     type="text"
                     value={formData.yearBuilt}
                     onChange={handleChange}
-                    placeholder="e.g., 2020"
+                    placeholder={s.details?.yearBuiltPlaceholder || "e.g., 2020"}
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
@@ -1309,7 +1327,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="floorNumber" className="text-sm font-semibold">
-                    Floor Number
+                    {s.details?.floorNumber || 'Floor Number'}
                   </Label>
                   <Input
                     id="floorNumber"
@@ -1317,14 +1335,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     type="text"
                     value={formData.floorNumber}
                     onChange={handleChange}
-                    placeholder="e.g., 5"
+                    placeholder={s.details?.floorNumberPlaceholder || "e.g., 5"}
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="totalFloors" className="text-sm font-semibold">
-                    Total Floors
+                    {s.details?.totalFloors || 'Total Floors'}
                   </Label>
                   <Input
                     id="totalFloors"
@@ -1332,7 +1350,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     type="text"
                     value={formData.totalFloors}
                     onChange={handleChange}
-                    placeholder="e.g., 10"
+                    placeholder={s.details?.totalFloorsPlaceholder || "e.g., 10"}
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
@@ -1340,7 +1358,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
               <div className="space-y-2">
                 <Label htmlFor="pricePerSqm" className="text-sm font-semibold">
-                  Price per m²
+                  {s.details?.pricePerSqm || 'Price per m²'}
                 </Label>
                 <Input
                   id="pricePerSqm"
@@ -1348,18 +1366,18 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   type="text"
                   value={formData.pricePerSqm}
                   onChange={handleChange}
-                  placeholder="Auto-calculated or enter manually"
+                  placeholder={s.details?.pricePerSqmPlaceholder || "Auto-calculated or enter manually"}
                   className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               {formData.listingType === 'short_term' && (
                 <div className="pt-4 border-t border-blue-100 space-y-6">
-                  <h3 className="text-base font-bold text-blue-700">Short-term Rental Configuration</h3>
+                  <h3 className="text-base font-bold text-blue-700">{s.details?.shortTermConfig || 'Short-term Rental Configuration'}</h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="pricingUnit" className="text-sm font-semibold">Pricing Unit</Label>
+                      <Label htmlFor="pricingUnit" className="text-sm font-semibold">{s.details?.pricingUnit || 'Pricing Unit'}</Label>
                       <select
                         id="pricingUnit"
                         name="pricingUnit"
@@ -1367,8 +1385,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
                       >
-                        <option value="nightly">Nightly</option>
-                        <option value="weekly">Weekly</option>
+                        <option value="nightly">{s.details?.units?.nightly || 'Nightly'}</option>
+                        <option value="weekly">{s.details?.units?.weekly || 'Weekly'}</option>
                       </select>
                     </div>
 
@@ -1382,14 +1400,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
                       <Label htmlFor="isInstantBookable" className="text-sm font-semibold cursor-pointer">
-                        Instant Bookable (No approval needed)
+                        {s.details?.instantBookable || 'Instant Bookable (No approval needed)'}
                       </Label>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="minNights" className="text-sm font-semibold">Min Nights</Label>
+                      <Label htmlFor="minNights" className="text-sm font-semibold">{s.details?.minNights || 'Min Nights'}</Label>
                       <Input
                         id="minNights"
                         name="minNights"
@@ -1401,7 +1419,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="maxNights" className="text-sm font-semibold">Max Nights</Label>
+                      <Label htmlFor="maxNights" className="text-sm font-semibold">{s.details?.maxNights || 'Max Nights'}</Label>
                       <Input
                         id="maxNights"
                         name="maxNights"
@@ -1416,33 +1434,33 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="cleaningFee" className="text-sm font-semibold">Cleaning Fee (One-time)</Label>
+                      <Label htmlFor="cleaningFee" className="text-sm font-semibold">{s.details?.cleaningFee || 'Cleaning Fee (One-time)'}</Label>
                       <Input
                         id="cleaningFee"
                         name="cleaningFee"
                         type="text"
                         value={formData.cleaningFee}
                         onChange={handleChange}
-                        placeholder="e.g., 5000"
+                        placeholder={s.details?.cleaningFeePlaceholder || "e.g., 5000"}
                         className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="serviceFee" className="text-sm font-semibold">Service Fee (Optional)</Label>
+                      <Label htmlFor="serviceFee" className="text-sm font-semibold">{s.details?.serviceFee || 'Service Fee (Optional)'}</Label>
                       <Input
                         id="serviceFee"
                         name="serviceFee"
                         type="text"
                         value={formData.serviceFee}
                         onChange={handleChange}
-                        placeholder="e.g., 2000"
+                        placeholder={s.details?.serviceFeePlaceholder || "e.g., 2000"}
                         className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="cancellationPolicy" className="text-sm font-semibold">Cancellation Policy</Label>
+                    <Label htmlFor="cancellationPolicy" className="text-sm font-semibold">{s.details?.cancellationPolicy || 'Cancellation Policy'}</Label>
                     <select
                       id="cancellationPolicy"
                       name="cancellationPolicy"
@@ -1450,16 +1468,16 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
                     >
-                      <option value="flexible">Flexible (100% refund up to 24h before)</option>
-                      <option value="moderate">Moderate (100% refund up to 5 days before)</option>
-                      <option value="strict">Strict (50% refund up to 7 days before, no refund after)</option>
-                      <option value="no_refund">No Refund</option>
+                      <option value="flexible">{s.details?.policies?.flexible || 'Flexible (100% refund up to 24h before)'}</option>
+                      <option value="moderate">{s.details?.policies?.moderate || 'Moderate (100% refund up to 5 days before)'}</option>
+                      <option value="strict">{s.details?.policies?.strict || 'Strict (50% refund up to 7 days before, no refund after)'}</option>
+                      <option value="no_refund">{s.details?.policies?.no_refund || 'No Refund'}</option>
                     </select>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="advanceNoticeDays" className="text-sm font-semibold">Advance Notice (Days)</Label>
+                      <Label htmlFor="advanceNoticeDays" className="text-sm font-semibold">{s.details?.advanceNotice || 'Advance Notice (Days)'}</Label>
                       <Input
                         id="advanceNoticeDays"
                         name="advanceNoticeDays"
@@ -1471,7 +1489,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="bookingWindowDays" className="text-sm font-semibold">Booking Window (Days ahead)</Label>
+                      <Label htmlFor="bookingWindowDays" className="text-sm font-semibold">{s.details?.bookingWindow || 'Booking Window (Days ahead)'}</Label>
                       <Input
                         id="bookingWindowDays"
                         name="bookingWindowDays"
@@ -1487,7 +1505,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   {/* Long-stay Discounts */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="weeklyDiscountPercent" className="text-sm font-semibold">Weekly Discount (%)</Label>
+                      <Label htmlFor="weeklyDiscountPercent" className="text-sm font-semibold">{s.details?.weeklyDiscount || 'Weekly Discount (%)'}</Label>
                       <Input
                         id="weeklyDiscountPercent"
                         name="weeklyDiscountPercent"
@@ -1499,10 +1517,10 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         placeholder="e.g. 10"
                         className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
-                      <p className="text-xs text-gray-500">Applied when stay ≥ 7 nights</p>
+                      <p className="text-xs text-gray-500">{s.details?.weeklyDiscountHint || 'Applied when stay ≥ 7 nights'}</p>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="monthlyDiscountPercent" className="text-sm font-semibold">Monthly Discount (%)</Label>
+                      <Label htmlFor="monthlyDiscountPercent" className="text-sm font-semibold">{s.details?.monthlyDiscount || 'Monthly Discount (%)'}</Label>
                       <Input
                         id="monthlyDiscountPercent"
                         name="monthlyDiscountPercent"
@@ -1514,7 +1532,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         placeholder="e.g. 20"
                         className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
-                      <p className="text-xs text-gray-500">Applied when stay ≥ 28 nights</p>
+                      <p className="text-xs text-gray-500">{s.details?.monthlyDiscountHint || 'Applied when stay ≥ 28 nights'}</p>
                     </div>
                   </div>
                 </div>
@@ -1524,7 +1542,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="depositAmount" className="text-sm font-semibold">
-                      Deposit Amount
+                      {s.details?.deposit || 'Deposit Amount'}
                     </Label>
                     <Input
                       id="depositAmount"
@@ -1532,14 +1550,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       type="text"
                       value={formData.depositAmount}
                       onChange={handleChange}
-                      placeholder="Enter deposit"
+                      placeholder={s.details?.depositPlaceholder || "Enter deposit"}
                       className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="maintenanceFee" className="text-sm font-semibold">
-                      Maintenance Fee
+                      {s.details?.maintenance || 'Maintenance Fee'}
                     </Label>
                     <Input
                       id="maintenanceFee"
@@ -1547,7 +1565,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       type="text"
                       value={formData.maintenanceFee}
                       onChange={handleChange}
-                      placeholder="Monthly fee"
+                      placeholder={s.details?.maintenancePlaceholder || "Monthly fee"}
                       className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
@@ -1563,7 +1581,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="bedrooms" className="text-sm font-semibold flex items-center gap-2">
                     <Bed className="w-4 h-4 text-blue-600" />
-                    Bedrooms
+                    {s.amenities?.bedrooms || 'Bedrooms'}
                   </Label>
                   <div className="flex items-center gap-2">
                     <Button
@@ -1600,7 +1618,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="bathrooms" className="text-sm font-semibold flex items-center gap-2">
                     <Bath className="w-4 h-4 text-blue-600" />
-                    Bathrooms
+                    {s.amenities?.bathrooms || 'Bathrooms'}
                   </Label>
                   <div className="flex items-center gap-2">
                     <Button
@@ -1636,7 +1654,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="parkingSpaces" className="text-sm font-semibold">
-                    Parking
+                    {s.amenities?.parking || 'Parking'}
                   </Label>
                   <div className="flex items-center gap-2">
                     <Button
@@ -1672,19 +1690,19 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               </div>
 
               <div className="space-y-3">
-                <Label className="text-sm font-semibold">Property Features</Label>
+                <Label className="text-sm font-semibold">{s.amenities?.featuresTitle || 'Property Features'}</Label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {[
-                    { name: 'hasGarden', label: 'Garden' },
-                    { name: 'hasPool', label: 'Swimming Pool' },
-                    { name: 'hasGym', label: 'Gym' },
-                    { name: 'hasSecurity', label: '24/7 Security' },
-                    { name: 'hasElevator', label: 'Elevator' },
-                    { name: 'hasBalcony', label: 'Balcony' },
-                    { name: 'hasAirConditioning', label: 'Air Conditioning' },
-                    { name: 'hasInternet', label: 'Internet/WiFi' },
-                    { name: 'hasGenerator', label: 'Generator' },
-                    { name: 'furnished', label: 'Furnished' },
+                    { name: 'hasGarden', label: s.amenities?.features?.hasGarden || 'Garden' },
+                    { name: 'hasPool', label: s.amenities?.features?.hasPool || 'Swimming Pool' },
+                    { name: 'hasGym', label: s.amenities?.features?.hasGym || 'Gym' },
+                    { name: 'hasSecurity', label: s.amenities?.features?.hasSecurity || '24/7 Security' },
+                    { name: 'hasElevator', label: s.amenities?.features?.hasElevator || 'Elevator' },
+                    { name: 'hasBalcony', label: s.amenities?.features?.hasBalcony || 'Balcony' },
+                    { name: 'hasAirConditioning', label: s.amenities?.features?.hasAirConditioning || 'Air Conditioning' },
+                    { name: 'hasInternet', label: s.amenities?.features?.hasInternet || 'Internet/WiFi' },
+                    { name: 'hasGenerator', label: s.amenities?.features?.hasGenerator || 'Generator' },
+                    { name: 'furnished', label: s.amenities?.features?.furnished || 'Furnished' },
                   ].map(feature => (
                     <label key={feature.name} className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -1702,13 +1720,13 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
               {formData.listingType === 'short_term' && (
                 <div className="pt-6 border-t border-blue-100 space-y-6">
-                  <h3 className="text-base font-bold text-blue-700">Short-term / Hospitality Amenities</h3>
+                  <h3 className="text-base font-bold text-blue-700">{s.amenities?.shortTermTitle || 'Short-term / Hospitality Amenities'}</h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="maxGuests" className="text-sm font-semibold flex items-center gap-2">
                         <Users className="w-4 h-4 text-blue-600" />
-                        Max Guests
+                        {s.amenities?.maxGuests || 'Max Guests'}
                       </Label>
                       <Input
                         id="maxGuests"
@@ -1721,7 +1739,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="checkInTime" className="text-sm font-semibold">Check-in Time</Label>
+                      <Label htmlFor="checkInTime" className="text-sm font-semibold">{s.amenities?.checkInTime || 'Check-in Time'}</Label>
                       <Input
                         id="checkInTime"
                         name="checkInTime"
@@ -1732,7 +1750,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="checkOutTime" className="text-sm font-semibold">Check-out Time</Label>
+                      <Label htmlFor="checkOutTime" className="text-sm font-semibold">{s.amenities?.checkOutTime || 'Check-out Time'}</Label>
                       <Input
                         id="checkOutTime"
                         name="checkOutTime"
@@ -1746,19 +1764,19 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {[
-                      { name: 'hasWifi', label: 'Wifi' },
-                      { name: 'hasBreakfast', label: 'Breakfast' },
-                      { name: 'hasTv', label: 'TV' },
-                      { name: 'hasKitchen', label: 'Kitchen' },
-                      { name: 'hasWasher', label: 'Washer' },
-                      { name: 'hasHeating', label: 'Heating' },
-                      { name: 'petsAllowed', label: 'Pets Allowed' },
-                      { name: 'smokingAllowed', label: 'Smoking Allowed' },
-                      { name: 'partiesAllowed', label: 'Parties Allowed' },
-                      { name: 'wheelchairAccessible', label: 'Wheelchair Acc.' },
-                      { name: 'airportTransfer', label: 'Airport Transfer' },
-                      { name: 'conciergeService', label: 'Concierge' },
-                      { name: 'dailyHousekeeping', label: 'Housekeeping' },
+                      { name: 'hasWifi', label: s.amenities?.shortTermFeatures?.hasWifi || 'Wifi' },
+                      { name: 'hasBreakfast', label: s.amenities?.shortTermFeatures?.hasBreakfast || 'Breakfast' },
+                      { name: 'hasTv', label: s.amenities?.shortTermFeatures?.hasTv || 'TV' },
+                      { name: 'hasKitchen', label: s.amenities?.shortTermFeatures?.hasKitchen || 'Kitchen' },
+                      { name: 'hasWasher', label: s.amenities?.shortTermFeatures?.hasWasher || 'Washer' },
+                      { name: 'hasHeating', label: s.amenities?.shortTermFeatures?.hasHeating || 'Heating' },
+                      { name: 'petsAllowed', label: s.amenities?.shortTermFeatures?.petsAllowed || 'Pets Allowed' },
+                      { name: 'smokingAllowed', label: s.amenities?.shortTermFeatures?.smokingAllowed || 'Smoking Allowed' },
+                      { name: 'partiesAllowed', label: s.amenities?.shortTermFeatures?.partiesAllowed || 'Parties Allowed' },
+                      { name: 'wheelchairAccessible', label: s.amenities?.shortTermFeatures?.wheelchairAccessible || 'Wheelchair Acc.' },
+                      { name: 'airportTransfer', label: s.amenities?.shortTermFeatures?.airportTransfer || 'Airport Transfer' },
+                      { name: 'conciergeService', label: s.amenities?.shortTermFeatures?.conciergeService || 'Concierge' },
+                      { name: 'dailyHousekeeping', label: s.amenities?.shortTermFeatures?.dailyHousekeeping || 'Housekeeping' },
                     ].map(amenity => (
                       <label key={amenity.name} className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -1782,7 +1800,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="keywords" className="text-sm font-semibold">
-                  Keywords (comma-separated)
+                  {s.features?.keywords || 'Keywords (comma-separated)'}
                 </Label>
                 <Input
                   id="keywords"
@@ -1790,44 +1808,44 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   type="text"
                   value={formData.keywords}
                   onChange={handleChange}
-                  placeholder="e.g., luxury, modern, downtown, spacious"
+                  placeholder={s.features?.keywordsPlaceholder || "e.g., luxury, modern, downtown, spacious"}
                   className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="space-y-3">
-                <Label className="text-sm font-semibold">Nearby Amenities</Label>
+                <Label className="text-sm font-semibold">{s.features?.nearbyAmenitiesTitle || 'Nearby Amenities'}</Label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {nearbyAmenitiesOptions.map(amenity => (
                     <button
-                      key={amenity}
+                      key={amenity.value}
                       type="button"
-                      onClick={() => toggleArrayItem('nearbyAmenities', amenity)}
-                      className={`px-3 py-2 text-sm rounded-md border transition-colors ${formData.nearbyAmenities.includes(amenity)
+                      onClick={() => toggleArrayItem('nearbyAmenities', amenity.value)}
+                      className={`px-3 py-2 text-sm rounded-md border transition-colors ${formData.nearbyAmenities.includes(amenity.value)
                         ? 'bg-blue-600 text-white border-blue-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
                         }`}
                     >
-                      {amenity}
+                      {amenity.label}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="space-y-3">
-                <Label className="text-sm font-semibold">Transport Access</Label>
+                <Label className="text-sm font-semibold">{s.features?.transportAccessTitle || 'Transport Access'}</Label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {transportAccessOptions.map(transport => (
                     <button
-                      key={transport}
+                      key={transport.value}
                       type="button"
-                      onClick={() => toggleArrayItem('transportAccess', transport)}
-                      className={`px-3 py-2 text-sm rounded-md border transition-colors ${formData.transportAccess.includes(transport)
+                      onClick={() => toggleArrayItem('transportAccess', transport.value)}
+                      className={`px-3 py-2 text-sm rounded-md border transition-colors ${formData.transportAccess.includes(transport.value)
                         ? 'bg-blue-600 text-white border-blue-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
                         }`}
                     >
-                      {transport}
+                      {transport.label}
                     </button>
                   ))}
                 </div>
@@ -1842,9 +1860,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="space-y-3">
                 <Label className="text-sm font-semibold flex items-center gap-2">
                   <ImageIcon className="w-4 h-4 text-blue-600" />
-                  Property Images
+                  {s.media?.images || 'Property Images'}
                   <span className="text-xs text-gray-500 font-normal ml-2">
-                    ({formData.images.length} uploaded, recommended: at least 5)
+                    ({formData.images.length} {s.media?.imagesUploaded || 'uploaded, recommended: at least 5'})
                   </span>
                 </Label>
 
@@ -1862,8 +1880,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-3">
                       <ImageIcon className="w-8 h-8 text-blue-600" />
                     </div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Upload Property Images</h4>
-                    <p className="text-xs text-gray-500 mb-4">Drag and drop or click to browse</p>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-1">{s.media?.uploadTitle || 'Upload Property Images'}</h4>
+                    <p className="text-xs text-gray-500 mb-4">{s.media?.dragDrop || 'Drag and drop or click to browse'}</p>
                     <input
                       type="file"
                       multiple
@@ -1882,10 +1900,10 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                           document.getElementById('image-upload')?.click();
                         }}
                       >
-                        Select Images
+                        {s.media?.selectBtn || 'Select Images'}
                       </Button>
                     </label>
-                    <p className="text-xs text-gray-400 mt-3">JPG, PNG, WebP (Max 5MB each)</p>
+                    <p className="text-xs text-gray-400 mt-3">{s.media?.formatHint || 'JPG, PNG, WebP (Max 5MB each)'}</p>
                   </div>
                 </div>
 
@@ -1905,7 +1923,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         {index === 0 && (
                           <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
                             <Star className="w-3 h-3 fill-white" />
-                            Featured
+                            {s.media?.featured || 'Featured'}
                           </div>
                         )}
 
@@ -1944,12 +1962,16 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
                 {/* Photo Tips */}
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-700 mb-2">Photo Tips:</p>
+                  <p className="text-xs font-semibold text-gray-700 mb-2">{s.media?.photoTipsTitle || 'Photo Tips:'}</p>
                   <ul className="text-xs text-gray-600 space-y-1 ml-4 list-disc">
-                    <li>Take photos in good natural lighting</li>
-                    <li>Include exterior, living room, kitchen, bedrooms, and bathrooms</li>
-                    <li>Show unique features and recent renovations</li>
-                    <li>Keep photos well-framed and clutter-free</li>
+                    {(s.media?.tips || [
+                      "Take photos in good natural lighting",
+                      "Include exterior, living room, kitchen, bedrooms, and bathrooms",
+                      "Show unique features and recent renovations",
+                      "Keep photos well-framed and clutter-free"
+                    ]).map((tip: string, i: number) => (
+                      <li key={i}>{tip}</li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -1958,7 +1980,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="space-y-3">
                 <Label className="text-sm font-semibold flex items-center gap-2">
                   <FileText className="w-4 h-4 text-blue-600" />
-                  Floor Plan (Optional)
+                  {s.media?.floorPlan || 'Floor Plan (Optional)'}
                 </Label>
 
                 {!formData.floorPlan ? (
@@ -1969,8 +1991,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                           <FileText className="w-6 h-6 text-gray-400" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-700">Upload Floor Plan</p>
-                          <p className="text-xs text-gray-500">PDF, JPG, PNG (Max 10MB)</p>
+                          <p className="text-sm font-medium text-gray-700">{s.media?.uploadFloorPlan || 'Upload Floor Plan'}</p>
+                          <p className="text-xs text-gray-500">{s.media?.floorPlanHint || 'PDF, JPG, PNG (Max 10MB)'}</p>
                         </div>
                       </div>
                       <input
@@ -1991,7 +2013,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                             document.getElementById('floorplan-upload')?.click();
                           }}
                         >
-                          Browse
+                          {s.media?.browseBtn || 'Browse'}
                         </Button>
                       </label>
                     </div>
@@ -2023,7 +2045,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         onClick={removeFloorPlan}
                         className="text-red-500 hover:text-red-600 font-medium text-sm px-3 py-1 rounded hover:bg-red-50"
                       >
-                        Remove
+                        {s.media?.removeBtn || 'Remove'}
                       </button>
                     </div>
                   </div>
@@ -2034,13 +2056,13 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="space-y-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
                 <Label className="text-sm font-semibold flex items-center gap-2">
                   <Globe className="w-4 h-4 text-blue-600" />
-                  Virtual Tour (Optional)
+                  {s.media?.virtualTour || 'Virtual Tour (Optional)'}
                 </Label>
 
                 {/* Tour type — pick first */}
                 <div className="space-y-2">
                   <Label htmlFor="tourType" className="text-sm font-medium text-gray-700">
-                    Tour Type
+                    {s.media?.tourType || 'Tour Type'}
                   </Label>
                   <select
                     id="tourType"
@@ -2049,10 +2071,10 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500 bg-white"
                   >
-                    <option value="none">No virtual tour</option>
-                    <option value="kuula">360° Tour (Kuula)</option>
-                    <option value="youtube">Video Walkthrough (YouTube)</option>
-                    <option value="images">Photo Tour (use uploaded images)</option>
+                    <option value="none">{s.media?.tourTypes?.none || 'No virtual tour'}</option>
+                    <option value="kuula">{s.media?.tourTypes?.kuula || '360° Tour (Kuula)'}</option>
+                    <option value="youtube">{s.media?.tourTypes?.youtube || 'Video Walkthrough (YouTube)'}</option>
+                    <option value="images">{s.media?.tourTypes?.images || 'Photo Tour (use uploaded images)'}</option>
                   </select>
                 </div>
 
@@ -2060,7 +2082,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 {(formData.tourType === 'kuula' || formData.tourType === 'youtube') && (
                   <div className="space-y-2">
                     <Label htmlFor="virtualTourUrl" className="text-sm font-medium text-gray-700">
-                      {formData.tourType === 'kuula' ? 'Kuula Embed URL' : 'YouTube Video ID'}
+                      {formData.tourType === 'kuula' ? (s.media?.kuulaEmbed || 'Kuula Embed URL') : (s.media?.youtubeId || 'YouTube Video ID')}
                     </Label>
                     <Input
                       id="virtualTourUrl"
@@ -2077,8 +2099,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     />
                     <p className="text-xs text-gray-500">
                       {formData.tourType === 'kuula'
-                        ? 'In Kuula, go to Share → Embed → copy the src URL from the iframe code.'
-                        : 'Paste only the video ID from the YouTube URL, not the full link. e.g. from youtube.com/watch?v=dQw4w9WgXcQ use dQw4w9WgXcQ'}
+                        ? (s.media?.kuulaHint || 'In Kuula, go to Share → Embed → copy the src URL from the iframe code.')
+                        : (s.media?.youtubeHint || 'Paste only the video ID from the YouTube URL, not the full link. e.g. from youtube.com/watch?v=dQw4w9WgXcQ use dQw4w9WgXcQ')}
                     </p>
                   </div>
                 )}
@@ -2089,9 +2111,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
                       <Globe className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
                       <p className="text-xs text-blue-700">
-                        Your uploaded photos will be used as the virtual tour automatically.
+                        {s.media?.photoTourActive || 'Your uploaded photos will be used as the virtual tour automatically.'}
                         <span className="font-semibold ml-1">
-                          ({formData.images.length} image{formData.images.length !== 1 ? 's' : ''} ready)
+                          ({formData.images.length} {s.media?.photoTourCount || 'ready'})
                         </span>
                       </p>
                     </div>
@@ -2111,14 +2133,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                             />
                             {i === 0 && (
                               <div className="absolute bottom-0 inset-x-0 bg-blue-600/80 text-white text-[9px] text-center py-0.5 font-bold">
-                                COVER
+                                {s.media?.photoTourCover || 'COVER'}
                               </div>
                             )}
                           </div>
                         ))}
                         {formData.images.length > 6 && (
                           <div className="shrink-0 w-20 h-14 rounded-lg border-2 border-dashed border-blue-200 flex items-center justify-center text-xs text-blue-500 font-bold">
-                            +{formData.images.length - 6} more
+                            +{formData.images.length - 6} {s.media?.photoTourMore || 'more'}
                           </div>
                         )}
                       </div>
@@ -2126,7 +2148,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
                     {formData.images.length === 0 && (
                       <p className="text-xs text-amber-600 font-medium">
-                        ⚠ No images uploaded yet. Upload images above first.
+                        {s.media?.photoTourNoImages || '⚠ No images uploaded yet. Upload images above first.'}
                       </p>
                     )}
                   </div>
@@ -2136,7 +2158,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="videoUrl" className="text-sm font-semibold flex items-center gap-2">
                   <ImageIcon className="w-4 h-4 text-blue-600" />
-                  Video URL (Optional)
+                  {s.media?.videoUrl || 'Video URL (Optional)'}
                 </Label>
                 <Input
                   id="videoUrl"
@@ -2144,11 +2166,11 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   type="text"
                   value={formData.videoUrl}
                   onChange={handleChange}
-                  placeholder="e.g., https://youtube.com/watch?v=..."
+                  placeholder={s.media?.videoUrlPlaceholder || "e.g., https://youtube.com/watch?v=..."}
                   className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Supports: YouTube, Vimeo, Facebook Video
+                  {s.media?.videoUrlHint || 'Supports: YouTube, Vimeo, Facebook Video'}
                 </p>
               </div>
 
@@ -2156,9 +2178,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="space-y-3">
                 <Label className="text-sm font-semibold flex items-center gap-2">
                   <FileText className="w-4 h-4 text-blue-600" />
-                  Property Documents (Optional)
+                  {s.media?.documents || 'Property Documents (Optional)'}
                   <span className="text-xs text-gray-500 font-normal ml-2">
-                    ({formData.documents.length} uploaded)
+                    ({formData.documents.length} {s.media?.documentsUploaded || 'uploaded'})
                   </span>
                 </Label>
 
@@ -2169,8 +2191,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         <FileText className="w-6 h-6 text-gray-400" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-700">Upload Documents</p>
-                        <p className="text-xs text-gray-500">Certificates, brochures, legal docs (PDF, Max 20MB)</p>
+                        <p className="text-sm font-medium text-gray-700">{s.media?.uploadDocs || 'Upload Documents'}</p>
+                        <p className="text-xs text-gray-500">{s.media?.docsHint || 'Certificates, brochures, legal docs (PDF, Max 20MB)'}</p>
                       </div>
                     </div>
                     <input
@@ -2181,7 +2203,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       id="documents-upload"
                       onChange={handleDocumentsUpload}
                     />
-                    <label htmlFor="documents-upload">
+                      <label htmlFor="documents-upload">
                       <Button
                         type="button"
                         size="sm"
@@ -2192,7 +2214,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                           document.getElementById('documents-upload')?.click();
                         }}
                       >
-                        Browse
+                        {s.media?.browseBtn || 'Browse'}
                       </Button>
                     </label>
                   </div>
@@ -2219,7 +2241,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                           onClick={() => removeDocument(index)}
                           className="text-red-500 hover:text-red-600 text-sm font-medium px-3 py-1 rounded hover:bg-red-50"
                         >
-                          Remove
+                          {s.media?.removeBtn || 'Remove'}
                         </button>
                       </div>
                     ))}
@@ -2234,11 +2256,15 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     <ImageIcon className="w-4 h-4 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-blue-900 mb-2">Why quality media matters:</p>
+                    <p className="text-sm font-semibold text-blue-900 mb-2">{s.media?.whyMediaMattersTitle || 'Why quality media matters:'}</p>
                     <ul className="text-xs text-blue-800 space-y-1">
-                      <li>• Properties with 5+ photos get 3x more views</li>
-                      <li>• Virtual tours increase inquiry rates by 40%</li>
-                      <li>• Floor plans help buyers understand the layout faster</li>
+                      {(s.media?.whyMediaMattersTips || [
+                        "• Properties with 5+ photos get 3x more views",
+                        "• Virtual tours increase inquiry rates by 40%",
+                        "• Floor plans help buyers understand the layout faster"
+                      ]).map((tip: string, i: number) => (
+                        <li key={i}>{tip}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -2261,7 +2287,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="space-y-6">
                 <div className="flex items-center gap-2 mb-4">
                   <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                  <h3 className="text-lg font-semibold text-blue-600">Review Your Property Listing</h3>
+                  <h3 className="text-lg font-semibold text-blue-600">{s.review?.title || 'Review Your Property Listing'}</h3>
                 </div>
 
                 <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
@@ -2269,14 +2295,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-blue-600" />
-                      Basic Information
+                      {s.review?.basicInfo || 'Basic Information'}
                     </h4>
                     <div className="space-y-2 text-sm">
-                      <p><span className="font-semibold">Title:</span> {formData.title}</p>
-                      <p><span className="font-semibold">Description:</span> {formData.description}</p>
-                      <p><span className="font-semibold">Type:</span> {formData.type.charAt(0).toUpperCase() + formData.type.slice(1)}</p>
-                      <p><span className="font-semibold">Listing Type:</span> {formData.listingType === 'sale' ? 'For Sale' : formData.listingType === 'short_term' ? 'Short-term Rental' : 'For Rent'}</p>
-                      <p><span className="font-semibold">Price:</span> {formData.price}</p>
+                      <p><span className="font-semibold">{s.basicInfo?.title || 'Property Title'}:</span> {formData.title}</p>
+                      <p><span className="font-semibold">{s.basicInfo?.description || 'Description'}:</span> {formData.description}</p>
+                      <p><span className="font-semibold">{s.basicInfo?.propertyType || 'Property Type'}:</span> {formData.type.charAt(0).toUpperCase() + formData.type.slice(1)}</p>
+                      <p><span className="font-semibold">{s.basicInfo?.listingType || 'Listing Type'}:</span> {formData.listingType === 'sale' ? (s.basicInfo?.listingTypes?.sale || 'For Sale') : formData.listingType === 'short_term' ? (s.basicInfo?.listingTypes?.short_term || 'Short-term Rental') : (s.basicInfo?.listingTypes?.rent || 'For Rent')}</p>
+                      <p><span className="font-semibold">{s.basicInfo?.price || 'Price'}:</span> {formData.price}</p>
                     </div>
                   </div>
 
@@ -2284,14 +2310,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-blue-600" />
-                      Location
+                      {s.review?.location || 'Location'}
                     </h4>
                     <div className="space-y-2 text-sm">
-                      <p><span className="font-semibold">Address:</span> {formData.address}</p>
-                      <p><span className="font-semibold">City:</span> {formData.city}</p>
-                      {formData.neighborhood && <p><span className="font-semibold">Neighborhood:</span> {formData.neighborhood}</p>}
+                      <p><span className="font-semibold">{s.location?.address || 'Street Address'}:</span> {formData.address}</p>
+                      <p><span className="font-semibold">{s.location?.city || 'City'}:</span> {formData.city}</p>
+                      {formData.neighborhood && <p><span className="font-semibold">{s.location?.neighborhood || 'Neighborhood'}:</span> {formData.neighborhood}</p>}
                       {formData.country && <p><span className="font-semibold">Country:</span> {formData.country}</p>}
-                      <p><span className="font-semibold">Coordinates:</span> {formData.latitude}, {formData.longitude}</p>
+                      <p><span className="font-semibold">{s.location?.coordinates || 'Coordinates'}:</span> {formData.latitude}, {formData.longitude}</p>
                     </div>
                   </div>
 
@@ -2299,23 +2325,23 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
                       <Home className="w-4 h-4 text-blue-600" />
-                      Amenities
+                      {s.review?.amenities || 'Amenities'}
                     </h4>
                     <div className="space-y-2 text-sm">
-                      <p><span className="font-semibold">Bedrooms:</span> {formData.bedrooms}</p>
-                      <p><span className="font-semibold">Bathrooms:</span> {formData.bathrooms}</p>
-                      <p><span className="font-semibold">Parking:</span> {formData.parkingSpaces}</p>
+                      <p><span className="font-semibold">{s.amenities?.bedrooms || 'Bedrooms'}:</span> {formData.bedrooms}</p>
+                      <p><span className="font-semibold">{s.amenities?.bathrooms || 'Bathrooms'}:</span> {formData.bathrooms}</p>
+                      <p><span className="font-semibold">{s.amenities?.parking || 'Parking Spaces'}:</span> {formData.parkingSpaces}</p>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        {formData.hasGarden && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Garden</span>}
-                        {formData.hasPool && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Pool</span>}
-                        {formData.hasGym && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Gym</span>}
-                        {formData.hasSecurity && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Security</span>}
-                        {formData.hasElevator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Elevator</span>}
-                        {formData.hasBalcony && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Balcony</span>}
-                        {formData.hasAirConditioning && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">A/C</span>}
-                        {formData.hasInternet && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Internet</span>}
-                        {formData.hasGenerator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Generator</span>}
-                        {formData.furnished && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Furnished</span>}
+                        {formData.hasGarden && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.garden || 'Garden'}</span>}
+                        {formData.hasPool && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.pool || 'Pool'}</span>}
+                        {formData.hasGym && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.gym || 'Gym'}</span>}
+                        {formData.hasSecurity && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.security || 'Security'}</span>}
+                        {formData.hasElevator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.elevator || 'Elevator'}</span>}
+                        {formData.hasBalcony && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.balcony || 'Balcony'}</span>}
+                        {formData.hasAirConditioning && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.ac || 'A/C'}</span>}
+                        {formData.hasInternet && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.internet || 'Internet'}</span>}
+                        {formData.hasGenerator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.generator || 'Generator'}</span>}
+                        {formData.furnished && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.furnished || 'Furnished'}</span>}
                       </div>
                     </div>
                   </div>
@@ -2325,12 +2351,12 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                       <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
                         <ImageIcon className="w-4 h-4 text-blue-600" />
-                        Media
+                        {s.review?.media || 'Media'}
                       </h4>
                       <div className="space-y-2 text-sm">
-                        <p><span className="font-semibold">Images:</span> {formData.images.length} uploaded</p>
-                        {formData.virtualTourUrl && <p><span className="font-semibold">Virtual Tour:</span> {formData.virtualTourUrl}</p>}
-                        {formData.videoUrl && <p><span className="font-semibold">Video:</span> {formData.videoUrl}</p>}
+                        <p><span className="font-semibold">{s.media?.images || 'Images'}:</span> {formData.images.length} {s.media?.imagesUploaded || 'uploaded'}</p>
+                        {formData.virtualTourUrl && <p><span className="font-semibold">{s.media?.virtualTour || 'Virtual Tour'}:</span> {formData.virtualTourUrl}</p>}
+                        {formData.videoUrl && <p><span className="font-semibold">{s.media?.videoUrl || 'Video'}:</span> {formData.videoUrl}</p>}
                       </div>
                     </div>
                   )}
@@ -2340,14 +2366,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                       <h4 className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
                         <GraduationCap className="w-4 h-4" />
-                        Student Programme — Enrolled
+                        {s.review?.studentProgramme || 'Student Programme — Enrolled'}
                       </h4>
                       <div className="grid grid-cols-2 gap-2 text-sm text-blue-900">
-                        {studentEnrollment.nearestCampus && <p><span className="font-semibold">Campus:</span> {studentEnrollment.nearestCampus}</p>}
-                        {studentEnrollment.campusProximityMeters && <p><span className="font-semibold">Distance:</span> {studentEnrollment.campusProximityMeters}m</p>}
-                        {studentEnrollment.waterSource && <p><span className="font-semibold">Water:</span> {studentEnrollment.waterSource}</p>}
-                        {studentEnrollment.electricityBackup && <p><span className="font-semibold">Power backup:</span> {studentEnrollment.electricityBackup}</p>}
-                        {studentEnrollment.pricePerPersonMonthly && <p><span className="font-semibold">Per person:</span> {studentEnrollment.pricePerPersonMonthly.toLocaleString()} XAF</p>}
+                        {studentEnrollment.nearestCampus && <p><span className="font-semibold">{s.review?.campus || 'Campus'}:</span> {studentEnrollment.nearestCampus}</p>}
+                        {studentEnrollment.campusProximityMeters && <p><span className="font-semibold">{s.review?.distance || 'Distance'}:</span> {studentEnrollment.campusProximityMeters}m</p>}
+                        {studentEnrollment.waterSource && <p><span className="font-semibold">{s.review?.water || 'Water'}:</span> {studentEnrollment.waterSource}</p>}
+                        {studentEnrollment.electricityBackup && <p><span className="font-semibold">{s.review?.powerBackup || 'Power backup'}:</span> {studentEnrollment.electricityBackup}</p>}
+                        {studentEnrollment.pricePerPersonMonthly && <p><span className="font-semibold">{s.review?.perPerson || 'Per person'}:</span> {studentEnrollment.pricePerPersonMonthly.toLocaleString()} XAF</p>}
                       </div>
                     </div>
                   )}
@@ -2362,7 +2388,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div className="bg-green-500 h-2" style={{ width: `${uploadProgress}%` }} />
               </div>
-              <p className="text-sm text-gray-600 mt-1">Uploading images: {uploadProgress}%</p>
+              <p className="text-sm text-gray-600 mt-1">{s.actions?.uploadingImages?.replace('{progress}', uploadProgress.toString()) || `Uploading images: ${uploadProgress}%`}</p>
             </div>
           )}
 
@@ -2375,7 +2401,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               className="border-blue-600 text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:border-gray-300 disabled:text-gray-400"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              {s.actions?.back || 'Back'}
             </Button>
 
             {currentStep < (formData.listingType === 'rent' ? 8 : 7) ? (
@@ -2385,7 +2411,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 onClick={handleNext}
                 className="bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
               >
-                Next
+                {s.actions?.next || 'Next'}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
@@ -2398,12 +2424,12 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               >
                 {isSubmitting ? (
                   <span className="inline-flex items-center">
-                    {isEditMode ? 'Updating' : 'Submitting'}
+                    {isEditMode ? (s.actions?.updating || 'Updating') : (s.actions?.submitting || 'Submitting')}
                     {uploadProgress > 0 ? ` (${uploadProgress}%)` : '...'}
                   </span>
                 ) : (
                   <>
-                    {isEditMode ? 'Update Property' : 'Submit Property'}
+                    {isEditMode ? (s.actions?.updateProperty || 'Update Property') : (s.actions?.submitProperty || 'Submit Property')}
                     <CheckCircle2 className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -2417,12 +2443,12 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {isEditMode ? 'Property Updated' : 'Property Created'}
+              {isEditMode ? (s.modals?.success?.updateTitle || 'Property Updated') : (s.modals?.success?.createTitle || 'Property Created')}
             </DialogTitle>
             <DialogDescription>
               {isEditMode
-                ? 'Your property has been updated successfully. Redirecting...'
-                : 'Your property was created successfully. Redirecting to the property page…'}
+                ? (s.modals?.success?.updateDesc || 'Your property has been updated successfully. Redirecting...')
+                : (s.modals?.success?.createDesc || 'Your property was created successfully. Redirecting to the property page…')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -2433,9 +2459,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   if (createdPropertyId) router.push(`/properties/${createdPropertyId}`);
                 }}
               >
-                View Property
+                {s.modals?.success?.viewBtn || 'View Property'}
               </Button>
-              <Button variant="outline" onClick={() => setSuccessModalOpen(false)}>Close</Button>
+              <Button variant="outline" onClick={() => setSuccessModalOpen(false)}>{s.modals?.close || 'Close'}</Button>
             </div>
           </DialogFooter>
         </DialogContent>
@@ -2446,14 +2472,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {isEditMode ? 'Failed to update property' : 'Failed to create property'}
+              {isEditMode ? (s.modals?.error?.updateTitle || 'Failed to update property') : (s.modals?.error?.createTitle || 'Failed to create property')}
             </DialogTitle>
             <DialogDescription>
-              {submitError || `An unknown error occurred while ${isEditMode ? 'updating' : 'creating'} the property.`}
+              {submitError || (isEditMode ? (s.modals?.error?.updateDesc || 'An unknown error occurred while updating the property.') : (s.modals?.error?.createDesc || 'An unknown error occurred while creating the property.'))}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setErrorModalOpen(false)}>Close</Button>
+            <Button onClick={() => setErrorModalOpen(false)}>{s.modals?.close || 'Close'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

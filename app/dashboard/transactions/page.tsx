@@ -8,10 +8,13 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import TransactionList from '@/components/dashboard/transactions';
 import { Loader2 } from 'lucide-react';
 import { Transaction } from '@/types/paiement';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 function TransactionsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useLanguage();
+  const s = (t as any)?.transactions || {};
 
   const selectedTxId = searchParams.get('tx') ?? undefined;
 
@@ -20,7 +23,7 @@ function TransactionsContent() {
       <div className="lg:p-6 space-y-6 p-4">
         {selectedTxId && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-4">
-            <div className="text-sm font-semibold text-slate-900">Selected transaction</div>
+            <div className="text-sm font-semibold text-slate-900">{s?.selectedTransaction || "Selected transaction"}</div>
             <div className="text-sm text-slate-600">{selectedTxId}</div>
           </div>
         )}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, Maximize2, ZoomIn, ZoomOut, Grid, Play, Globe, Video, Image as ImageIcon } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const TourViewer = dynamic(() => import("./TourViewer"), {
   ssr: false,
@@ -27,6 +28,8 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
   const [activeImage, setActiveImage] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [showThumbs, setShowThumbs] = useState(false);
+  const { t } = useLanguage();
+  const pd = t.propertyDetails;
 
   const images = property.images?.length > 0
     ? [...property.images].sort((a, b) => (b.isMain ? 1 : 0) - (a.isMain ? 1 : 0))
@@ -97,7 +100,7 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
           <div className="absolute inset-0 bg-black/0 group-hover:bg-slate-900/10 transition-colors duration-300" />
           <div className="absolute bottom-4 right-4 bg-white/90 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0">
             <Maximize2 className="h-4 w-4" />
-            View Gallery
+            {pd?.viewGallery || "View Gallery"}
           </div>
         </div>
 
@@ -174,8 +177,8 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
                 onClick={(e) => { e.stopPropagation(); openLightbox(3); }}
               >
                 <Grid className="text-white h-8 w-8 mb-2 opacity-80" />
-                <span className="text-white font-bold text-xl tracking-tight">+{imageUrls.length - 4} More</span>
-                <span className="text-white/70 text-xs mt-1">Click to view all</span>
+                <span className="text-white font-bold text-xl tracking-tight">{pd?.morePhotos?.replace("{count}", (imageUrls.length - 4).toString()) || `+${imageUrls.length - 4} More`}</span>
+                <span className="text-white/70 text-xs mt-1">{pd?.clickToViewAll || "Click to view all"}</span>
               </div>
             )}
           </div>

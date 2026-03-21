@@ -5,6 +5,7 @@ import { Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PropertyCard } from "@/components/dashboard/PropertyCard";
 import { BookingSummaryWidget } from "@/components/dashboard/BookingSummaryWidget";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Property = any;
 
@@ -16,6 +17,9 @@ interface Props {
 }
 
 export default function UserRole({ properties, loadingProperties, handlePropertyUpdate, router }: Props) {
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.roles?.user || {};
   return (
     <div className="grid grid-cols-1 gap-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -23,7 +27,7 @@ export default function UserRole({ properties, loadingProperties, handleProperty
           <div className="bg-card rounded-lg border shadow-none p-3 lg:p-6">
             <div className="flex items-center flex-wrap justify-between mb-6">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold">Recommended Properties</h2>
+                <h2 className="text-lg font-semibold">{s.recommendedProperties || "Recommended Properties"}</h2>
               </div>
 
               <div className="flex items-center gap-3">
@@ -34,7 +38,7 @@ export default function UserRole({ properties, loadingProperties, handleProperty
                     onClick={() => router.push('/properties')}
                     className="w-full sm:w-auto"
                   >
-                    View All
+                    {s.viewAll || "View All"}
                   </Button>
                 </div>
               </div>
@@ -49,8 +53,8 @@ export default function UserRole({ properties, loadingProperties, handleProperty
             ) : properties.length === 0 ? (
               <div className="text-center py-12">
                 <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No properties available</h3>
-                <p className="text-muted-foreground mb-4">Check back later for new listings</p>
+                <h3 className="text-lg font-semibold mb-2">{s.noProperties || "No properties available"}</h3>
+                <p className="text-muted-foreground mb-4">{s.checkBack || "Check back later for new listings"}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -62,7 +66,7 @@ export default function UserRole({ properties, loadingProperties, handleProperty
                     : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500";
 
                   const addressParts = [property.address, property.city, property.country].filter(Boolean);
-                  const locationStr = addressParts.length > 0 ? addressParts.join(", ") : "Location not specified";
+                  const locationStr = addressParts.length > 0 ? addressParts.join(", ") : (s.locationNotSpecified || "Location not specified");
 
                   const beds = property.amenities?.bedrooms ?? property.bedrooms ?? property.beds ?? 0;
                   const baths = property.amenities?.bathrooms ?? property.bathrooms ?? property.baths ?? 0;
@@ -72,7 +76,7 @@ export default function UserRole({ properties, loadingProperties, handleProperty
                       key={propertyId}
                       id={propertyId}
                       image={firstImage}
-                      title={property.title || "Untitled Property"}
+                      title={property.title || s.untitledProperty || "Untitled Property"}
                       location={locationStr}
                       price={property.price || 0}
                       beds={beds}
@@ -96,7 +100,7 @@ export default function UserRole({ properties, loadingProperties, handleProperty
 
         {/* Sidebar Widgets */}
         <div className="space-y-6">
-          <BookingSummaryWidget role="guest" title="My Recent Stays" limit={5} />
+          <BookingSummaryWidget role="guest" title={s.myRecentStays || "My Recent Stays"} limit={5} />
         </div>
       </div>
     </div>

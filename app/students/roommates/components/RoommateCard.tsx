@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { apiClient } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -58,27 +59,27 @@ function formatDate(iso: string) {
 }
 
 const SLEEP_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  early_bird: { label: 'Early bird',  icon: <Sun className="w-3 h-3" />,     color: 'bg-amber-50 text-amber-700 border-amber-200' },
-  night_owl:  { label: 'Night owl',   icon: <Moon className="w-3 h-3" />,    color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-  flexible:   { label: 'Flexible',    icon: <Sparkles className="w-3 h-3" />, color: 'bg-slate-100 text-slate-600 border-slate-200' },
+  early_bird: { label: s.earlyBird || 'Early bird',  icon: <Sun className="w-3 h-3" />,     color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  night_owl:  { label: s.nightOwl || 'Night owl',   icon: <Moon className="w-3 h-3" />,    color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+  flexible:   { label: s.flexible || 'Flexible',    icon: <Sparkles className="w-3 h-3" />, color: 'bg-slate-100 text-slate-600 border-slate-200' },
 };
 
 const CLEAN_LABELS: Record<string, { label: string; color: string }> = {
-  very_neat: { label: 'Very neat',  color: 'bg-teal-50 text-teal-700 border-teal-200' },
-  neat:      { label: 'Neat',       color: 'bg-teal-50 text-teal-700 border-teal-200' },
-  relaxed:   { label: 'Relaxed',    color: 'bg-slate-100 text-slate-600 border-slate-200' },
+  very_neat: { label: s.veryNeat || 'Very neat',  color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  neat:      { label: s.neat || 'Neat',       color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  relaxed:   { label: s.relaxed || 'Relaxed',    color: 'bg-slate-100 text-slate-600 border-slate-200' },
 };
 
 const SOCIAL_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
-  introverted: { label: 'Introverted', icon: <UserCheck className="w-3 h-3" /> },
-  balanced:    { label: 'Balanced',    icon: <Users className="w-3 h-3" /> },
-  social:      { label: 'Social',      icon: <Users className="w-3 h-3" /> },
+  introverted: { label: s.introverted || 'Introverted', icon: <UserCheck className="w-3 h-3" /> },
+  balanced:    { label: s.balanced || 'Balanced',    icon: <Users className="w-3 h-3" /> },
+  social:      { label: s.social || 'Social',      icon: <Users className="w-3 h-3" /> },
 };
 
 const STUDY_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
-  home_studier:  { label: 'Studies at home',    icon: <BookOpen className="w-3 h-3" /> },
-  library_goer:  { label: 'Studies at library', icon: <Library className="w-3 h-3" /> },
-  mixed:         { label: 'Mixed study',         icon: <BookOpen className="w-3 h-3" /> },
+  home_studier:  { label: s.studiesHome || 'Studies at home',    icon: <BookOpen className="w-3 h-3" /> },
+  library_goer:  { label: s.studiesLibrary || 'Studies at library', icon: <Library className="w-3 h-3" /> },
+  mixed:         { label: s.mixedStudy || 'Mixed study',         icon: <BookOpen className="w-3 h-3" /> },
 };
 
 function scoreColor(score: number) {
@@ -90,6 +91,9 @@ function scoreColor(score: number) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCardProps) {
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.roommates?.card || {};
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -111,12 +115,12 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
       setSent(true);
       onInterestSent?.(userId);
       if (res.status === 'matched') {
-        toast.success("It's a match! Check your messages to start chatting.");
+        toast.success(s.itsAMatch || "It's a match! Check your messages to start chatting.");
       } else {
-        toast.success(`Interest sent to ${name}!`);
+        toast.success(s.interestSent ? s.interestSent.replace('{name}', name) : `Interest sent to ${name}!`);
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Could not send interest. Try again.');
+      toast.error(err?.response?.data?.message || s.couldNotSend || 'Could not send interest. Try again.');
     } finally {
       setSending(false);
     }
@@ -146,7 +150,7 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
               ? 'bg-emerald-500 text-white'
               : 'bg-blue-600 text-white'
           }`}>
-            {profile.mode === 'have_room' ? 'Owner' : 'Seeker'}
+            {profile.mode === 'have_room' ? (s.owner || 'Owner') : (s.seeker || 'Seeker')}
           </span>
         </div>
 
@@ -164,7 +168,7 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
             {profile.compatibilityScore !== undefined && (
               <div className={`flex flex-col items-center justify-center w-12 h-12 rounded-2xl border ${profile.compatibilityScore >= 80 ? 'border-emerald-100 bg-emerald-50 text-emerald-600' : 'border-blue-100 bg-blue-50 text-blue-600'}`}>
                 <span className="text-[10px] font-black leading-none">{profile.compatibilityScore}%</span>
-                <span className="text-[7px] font-black uppercase tracking-tighter mt-0.5">Match</span>
+                <span className="text-[7px] font-black uppercase tracking-tighter mt-0.5">{s.match || 'Match'}</span>
               </div>
             )}
           </div>
@@ -193,7 +197,7 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
         </span>
         {profile.isSmoker && (
           <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border border-orange-100 bg-orange-50 text-orange-600">
-            <Cigarette className="w-3 h-3" /> Smoker
+            <Cigarette className="w-3 h-3" /> {s.smoker || 'Smoker'}
           </span>
         )}
       </div>
@@ -215,7 +219,7 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
             )}
             <div className="min-w-0">
                <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight truncate">{profile.propertyId.title}</p>
-               <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Featured Residence</p>
+               <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest">{s.featuredResidence || 'Featured Residence'}</p>
             </div>
           </div>
           <ArrowRight className="w-4 h-4 text-blue-300 group-hover/prop:text-blue-600 transition-colors" />
@@ -226,14 +230,14 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
       <div className="mt-auto p-8 pt-4 flex items-center justify-between border-t border-slate-50 group-hover:bg-slate-50/50 transition-colors">
         <div className="space-y-0.5">
           <div className="flex items-baseline gap-1">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Budget</span>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.budget || 'Budget'}</span>
             <p className="text-lg font-black text-slate-900 leading-none">
               {formatXAF(profile.budgetPerPersonMax)}
             </p>
           </div>
           <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-1">
             <Calendar className="w-3 h-3" />
-            In {formatDate(profile.moveInDate).split(' ')[0]}
+            {s.in || 'In'} {formatDate(profile.moveInDate).split(' ')[0]}
           </p>
         </div>
 

@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Star rating display ─────────────────────────────────────────────────────
 
@@ -30,11 +31,14 @@ function StarRating({ value, size = 16 }: { value: number; size?: number }) {
 
 // ─── Review type badge ───────────────────────────────────────────────────────
 
-const TYPE_CONFIG: Record<ReviewType, { label: string; icon: React.ReactNode; color: string }> = {
-    property: { label: 'Property', icon: <Building2 className="h-3 w-3" />, color: 'bg-indigo-100 text-indigo-700' },
-    agent:    { label: 'Agent',    icon: <Users className="h-3 w-3" />,     color: 'bg-purple-100 text-purple-700' },
-    stay:     { label: 'Stay',     icon: <BedDouble className="h-3 w-3" />, color: 'bg-blue-100 text-blue-700' },
-    guest:    { label: 'As Guest', icon: <Users className="h-3 w-3" />,     color: 'bg-emerald-100 text-emerald-700' },
+const getTypeConfig = (type: ReviewType, s: any) => {
+    const config: Record<ReviewType, { label: string; icon: React.ReactNode; color: string }> = {
+        property: { label: s?.property || 'Property', icon: <Building2 className="h-3 w-3" />, color: 'bg-indigo-100 text-indigo-700' },
+        agent:    { label: s?.agent || 'Agent',    icon: <Users className="h-3 w-3" />,     color: 'bg-purple-100 text-purple-700' },
+        stay:     { label: s?.stay || 'Stay',     icon: <BedDouble className="h-3 w-3" />, color: 'bg-blue-100 text-blue-700' },
+        guest:    { label: s?.asGuest || 'As Guest', icon: <Users className="h-3 w-3" />,     color: 'bg-emerald-100 text-emerald-700' },
+    };
+    return config[type] || config.property;
 };
 
 // ─── Sub-rating bar ──────────────────────────────────────────────────────────
@@ -54,13 +58,14 @@ function SubRatingBar({ label, value }: { label: string; value?: number }) {
 
 // ─── Review card ─────────────────────────────────────────────────────────────
 
-function ReviewCard({ review, currentUserId, onDelete, onHelpful }: {
+function ReviewCard({ review, currentUserId, onDelete, onHelpful, s }: {
     review: Review;
     currentUserId?: string;
     onDelete: (id: string) => void;
     onHelpful: (id: string) => void;
+    s: any;
 }) {
-    const cfg = TYPE_CONFIG[review.reviewType] ?? TYPE_CONFIG.property;
+    const cfg = getTypeConfig(review.reviewType, s);
     const isOwn = review.userId?._id === currentUserId;
     const isHelpful = review.helpfulBy?.includes(currentUserId ?? '');
     const sub = review.staySubRatings;
@@ -98,24 +103,24 @@ function ReviewCard({ review, currentUserId, onDelete, onHelpful }: {
 
             {sub && (
                 <div className="space-y-1 rounded-xl bg-slate-50 p-3">
-                    <SubRatingBar label="Cleanliness"   value={sub.cleanliness} />
-                    <SubRatingBar label="Accuracy"      value={sub.accuracy} />
-                    <SubRatingBar label="Check-in"      value={sub.checkIn} />
-                    <SubRatingBar label="Communication" value={sub.communication} />
-                    <SubRatingBar label="Location"      value={sub.location} />
-                    <SubRatingBar label="Value"         value={sub.value} />
+                    <SubRatingBar label={s?.cleanliness || "Cleanliness"}   value={sub.cleanliness} />
+                    <SubRatingBar label={s?.accuracy || "Accuracy"}      value={sub.accuracy} />
+                    <SubRatingBar label={s?.checkIn || "Check-in"}      value={sub.checkIn} />
+                    <SubRatingBar label={s?.communication || "Communication"} value={sub.communication} />
+                    <SubRatingBar label={s?.location || "Location"}      value={sub.location} />
+                    <SubRatingBar label={s?.value || "Value"}         value={sub.value} />
                 </div>
             )}
 
             {review.verified && (
                 <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
-                    <CheckCircle className="h-3.5 w-3.5" /> Verified Stay
+                    <CheckCircle className="h-3.5 w-3.5" /> {s?.verifiedStay || "Verified Stay"}
                 </span>
             )}
 
             {review.response && (
                 <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
-                    <p className="text-[11px] font-semibold text-blue-600 mb-1">Host Response</p>
+                    <p className="text-[11px] font-semibold text-blue-600 mb-1">{s?.hostResponse || "Host Response"}</p>
                     <p className="text-xs text-blue-800 italic">"{review.response}"</p>
                 </div>
             )}
@@ -125,13 +130,13 @@ function ReviewCard({ review, currentUserId, onDelete, onHelpful }: {
                     className={`h-7 gap-1 text-xs ${isHelpful ? 'text-blue-600' : 'text-slate-400'}`}
                     onClick={() => onHelpful(review._id)}>
                     <ThumbsUp className="h-3.5 w-3.5" />
-                    {review.helpfulCount > 0 ? review.helpfulCount : ''} Helpful
+                    {review.helpfulCount > 0 ? review.helpfulCount : ''} {s?.helpful || "Helpful"}
                 </Button>
                 {isOwn && (
                     <Button variant="ghost" size="sm"
                         className="h-7 gap-1 text-xs text-red-400 hover:bg-red-50 hover:text-red-600"
                         onClick={() => onDelete(review._id)}>
-                        <Trash2 className="h-3.5 w-3.5" /> Delete
+                        <Trash2 className="h-3.5 w-3.5" /> {s?.delete || "Delete"}
                     </Button>
                 )}
             </div>
@@ -155,6 +160,8 @@ function EmptyState({ message }: { message: string }) {
 export default function MyReviewsClient() {
     const { data: session } = useSession();
     const currentUserId = (session?.user as any)?._id ?? (session?.user as any)?.id;
+    const { t } = useLanguage();
+    const s = (t as any)?.reviews || {};
 
     const [writtenReviews, setWrittenReviews]   = useState<Review[]>([]);
     const [receivedReviews, setReceivedReviews] = useState<Review[]>([]);
@@ -174,7 +181,7 @@ export default function MyReviewsClient() {
             setWrittenReviews(written.reviews ?? []);
             setReceivedReviews(received.reviews ?? []);
         } catch {
-            toast.error('Failed to load your reviews.');
+            toast.error(s?.failedToLoad || 'Failed to load your reviews.');
         } finally {
             setLoading(false);
         }
@@ -187,11 +194,11 @@ export default function MyReviewsClient() {
         setDeleting(true);
         try {
             await apiClient.deleteReview(deleteDialog.id);
-            toast.success('Review deleted.');
+            toast.success(s?.reviewDeleted || 'Review deleted.');
             setWrittenReviews(rs => rs.filter(r => r._id !== deleteDialog.id));
             setDeleteDialog({ open: false, id: null });
         } catch {
-            toast.error('Could not delete review.');
+            toast.error(s?.couldNotDelete || 'Could not delete review.');
         } finally {
             setDeleting(false);
         }
@@ -206,7 +213,7 @@ export default function MyReviewsClient() {
                     : r
             ));
         } catch {
-            toast.error('Could not mark as helpful.');
+            toast.error(s?.couldNotMarkHelpful || 'Could not mark as helpful.');
         }
     }
 
@@ -214,8 +221,8 @@ export default function MyReviewsClient() {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-amber-50/20 p-6">
             <div className="mx-auto max-w-3xl space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Reviews</h1>
-                    <p className="mt-0.5 text-sm text-slate-500">Reviews you've written and received</p>
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">{s?.myReviews || "My Reviews"}</h1>
+                    <p className="mt-0.5 text-sm text-slate-500">{s?.myReviewsDesc || "Reviews you've written and received"}</p>
                 </div>
 
                 {loading ? (
@@ -226,13 +233,13 @@ export default function MyReviewsClient() {
                     <Tabs defaultValue="written">
                         <TabsList className="bg-white border border-slate-100 shadow-sm">
                             <TabsTrigger value="written" className="gap-1.5">
-                                <Edit3 className="h-3.5 w-3.5" /> Written
+                                <Edit3 className="h-3.5 w-3.5" /> {s?.written || "Written"}
                                 <span className="ml-1 rounded-full bg-slate-100 px-1.5 text-[10px] font-semibold text-slate-500">
                                     {writtenReviews.length}
                                 </span>
                             </TabsTrigger>
                             <TabsTrigger value="received" className="gap-1.5">
-                                <MessageSquare className="h-3.5 w-3.5" /> Received
+                                <MessageSquare className="h-3.5 w-3.5" /> {s?.received || "Received"}
                                 <span className="ml-1 rounded-full bg-slate-100 px-1.5 text-[10px] font-semibold text-slate-500">
                                     {receivedReviews.length}
                                 </span>
@@ -241,21 +248,21 @@ export default function MyReviewsClient() {
 
                         <TabsContent value="written" className="mt-4 space-y-4">
                             {writtenReviews.length === 0
-                                ? <EmptyState message="You haven't written any reviews yet." />
+                                ? <EmptyState message={s?.noWrittenReviews || "You haven't written any reviews yet."} />
                                 : writtenReviews.map(r => (
                                     <ReviewCard key={r._id} review={r} currentUserId={currentUserId}
                                         onDelete={(id) => setDeleteDialog({ open: true, id })}
-                                        onHelpful={handleHelpful} />
+                                        onHelpful={handleHelpful} s={s} />
                                 ))}
                         </TabsContent>
 
                         <TabsContent value="received" className="mt-4 space-y-4">
                             {receivedReviews.length === 0
-                                ? <EmptyState message="You haven't received any guest reviews yet." />
+                                ? <EmptyState message={s?.noReceivedReviews || "You haven't received any guest reviews yet."} />
                                 : receivedReviews.map(r => (
                                     <ReviewCard key={r._id} review={r} currentUserId={currentUserId}
                                         onDelete={(id) => setDeleteDialog({ open: true, id })}
-                                        onHelpful={handleHelpful} />
+                                        onHelpful={handleHelpful} s={s} />
                                 ))}
                         </TabsContent>
                     </Tabs>
@@ -265,13 +272,13 @@ export default function MyReviewsClient() {
             <Dialog open={deleteDialog.open} onOpenChange={(o) => !o && setDeleteDialog({ open: false, id: null })}>
                 <DialogContent className="sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="text-red-600">Delete Review?</DialogTitle>
+                        <DialogTitle className="text-red-600">{s?.deleteReviewQuestion || "Delete Review?"}</DialogTitle>
                     </DialogHeader>
-                    <p className="text-sm text-slate-600">This action is permanent and cannot be undone.</p>
+                    <p className="text-sm text-slate-600">{s?.deleteReviewWarning || "This action is permanent and cannot be undone."}</p>
                     <DialogFooter className="gap-2">
-                        <Button variant="outline" onClick={() => setDeleteDialog({ open: false, id: null })}>Cancel</Button>
+                        <Button variant="outline" onClick={() => setDeleteDialog({ open: false, id: null })}>{s?.cancel || "Cancel"}</Button>
                         <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-                            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Delete'}
+                            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : (s?.delete || 'Delete')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

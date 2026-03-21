@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type Message = {
   id: number;
@@ -86,13 +87,15 @@ const initialMessages: Message[] = [
 
 export default function MessageList({ onSelectConversation }: MessageListProps) {
   const [messages] = useState<Message[]>(initialMessages);
+  const { t } = useLanguage();
+  const s = (t as any)?.messages || {};
 
   return (
     <div className="max-w-sm mx-full">
       {/* Title */}
       <div className="mb-6 mt-10">
         <h1 className="text-2xl md:text-2xl font-bold text-blue-600">
-          Message
+          {s.title || 'Message'}
         </h1>
       </div>
 
@@ -101,7 +104,7 @@ export default function MessageList({ onSelectConversation }: MessageListProps) 
         <div className="relative w-[383px] max-w-sm">
           <input
             type="text"
-            placeholder="Search"
+            placeholder={s.search || 'Search'}
             className="w-full border border-gray-300 rounded-md py-2 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <svg

@@ -2,6 +2,7 @@
 
 import { Dog, Cat, Bird, Fish, Check, X, PawPrint } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,6 +45,9 @@ const ICON_MAP: Record<NonNullable<PetPolicyRule["icon"]>, React.ElementType> = 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const PetPolicy = ({ policy, currency = "XAF" }: PetPolicyProps) => {
+  const { t } = useLanguage();
+  const pd = t.propertyDetails;
+
   const {
     petsAllowed,
     rules = [],
@@ -58,21 +62,21 @@ const PetPolicy = ({ policy, currency = "XAF" }: PetPolicyProps) => {
   // Build the "additional information" bullet list from structured props
   const infoLines: string[] = [
     ...(depositAmount != null
-      ? [`Pet deposit: ${depositAmount.toLocaleString()} ${currency} (refundable)`]
+      ? [pd?.petDeposit?.replace("{amount}", depositAmount.toLocaleString()).replace("{currency}", currency) || `Pet deposit: ${depositAmount.toLocaleString()} ${currency} (refundable)`]
       : []),
     ...(monthlyPetRent != null
-      ? [`Monthly pet rent: ${monthlyPetRent.toLocaleString()} ${currency} per pet`]
+      ? [pd?.monthlyPetRent?.replace("{amount}", monthlyPetRent.toLocaleString()).replace("{currency}", currency) || `Monthly pet rent: ${monthlyPetRent.toLocaleString()} ${currency} per pet`]
       : []),
-    ...(requiresVaccination ? ["Proof of vaccination required"] : []),
-    ...(requiresLicense ? ["Proof of license required"] : []),
-    ...(breedRestrictions ? ["Some breed restrictions apply"] : []),
+    ...(requiresVaccination ? [pd?.proofOfVaccination || "Proof of vaccination required"] : []),
+    ...(requiresLicense ? [pd?.proofOfLicense || "Proof of license required"] : []),
+    ...(breedRestrictions ? [pd?.breedRestrictions || "Some breed restrictions apply"] : []),
     ...additionalNotes,
   ];
 
   return (
     <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 space-y-8 mt-10">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Pet Policy</h2>
+        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{pd?.petPolicy || "Pet Policy"}</h2>
         <Badge
           className={
             petsAllowed
@@ -80,7 +84,7 @@ const PetPolicy = ({ policy, currency = "XAF" }: PetPolicyProps) => {
               : "bg-red-50 text-red-600 px-3.5 py-1.5 font-bold border-none rounded-lg"
           }
         >
-          {petsAllowed ? "Pet Friendly" : "No Pets"}
+          {petsAllowed ? (pd?.petFriendly || "Pet Friendly") : (pd?.noPets || "No Pets")}
         </Badge>
       </div>
 
@@ -91,9 +95,9 @@ const PetPolicy = ({ policy, currency = "XAF" }: PetPolicyProps) => {
             <PawPrint className="h-6 w-6 text-red-400" />
           </div>
           <div className="flex-1">
-            <p className="font-bold text-slate-900">Pets not permitted</p>
+            <p className="font-bold text-slate-900">{pd?.petsNotPermitted || "Pets not permitted"}</p>
             <p className="text-sm font-medium text-slate-500 mt-1">
-              This property does not allow pets. Please contact the owner for exceptions.
+              {pd?.petsNotPermittedDesc || "This property does not allow pets. Please contact the owner for exceptions."}
             </p>
           </div>
         </div>
@@ -143,7 +147,7 @@ const PetPolicy = ({ policy, currency = "XAF" }: PetPolicyProps) => {
           {infoLines.length > 0 && (
             <div className="pt-6 border-t border-slate-100 space-y-4">
               <h3 className="text-sm font-bold text-slate-400 tracking-wider uppercase">
-                Additional Information
+                {pd?.additionalInfo || "Additional Information"}
               </h3>
               <ul className="space-y-3 text-sm font-medium text-slate-600">
                 {infoLines.map((line, idx) => (

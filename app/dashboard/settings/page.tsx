@@ -26,55 +26,31 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/dashboard/Sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
 import { useStudentMode } from '@/contexts/StudentModeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
-
-const BASE_TABS = [
-  {
-    id: 'profile',
-    label: 'Profile',
-    icon: <User className="h-4 w-4" />,
-  },
-  {
-    id: 'security',
-    label: 'Security',
-    icon: <Shield className="h-4 w-4" />,
-  },
-  {
-    id: 'notifications',
-    label: 'Notifications',
-    icon: <Bell className="h-4 w-4" />,
-  },
-  {
-    id: 'privacy',
-    label: 'Privacy',
-    icon: <Eye className="h-4 w-4" />,
-  },
-  {
-    id: 'preferences',
-    label: 'Preferences',
-    icon: <Palette className="h-4 w-4" />,
-  },
-  {
-    id: 'account',
-    label: 'Account',
-    icon: <Database className="h-4 w-4" />,
-  },
-];
-
-const STUDENT_TAB = {
-  id: 'student-id',
-  label: 'Student ID',
-  icon: <GraduationCap className="h-4 w-4" />,
-};
-
-// ─── Inner component that uses useSearchParams ────────────────────────────────
-// Must be isolated so it can be wrapped in <Suspense> by the parent.
 
 function SettingsContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>['user']> }) {
   const { isStudent } = useStudentMode();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
+  const s = (t as any)?.settings || {};
+
+  const BASE_TABS = [
+    { id: 'profile', label: s?.profile || 'Profile', icon: <User className="h-4 w-4" /> },
+    { id: 'security', label: s?.security || 'Security', icon: <Shield className="h-4 w-4" /> },
+    { id: 'notifications', label: s?.notifications || 'Notifications', icon: <Bell className="h-4 w-4" /> },
+    { id: 'privacy', label: s?.privacy || 'Privacy', icon: <Eye className="h-4 w-4" /> },
+    { id: 'preferences', label: s?.preferences || 'Preferences', icon: <Palette className="h-4 w-4" /> },
+    { id: 'account', label: s?.account || 'Account', icon: <Database className="h-4 w-4" /> },
+  ];
+
+  const STUDENT_TAB = {
+    id: 'student-id',
+    label: s?.studentId || 'Student ID',
+    icon: <GraduationCap className="h-4 w-4" />,
+  };
 
   // Read ?tab= from URL, fall back to 'profile'
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -107,10 +83,10 @@ function SettingsContent({ user }: { user: NonNullable<ReturnType<typeof useAuth
           <div className="sticky top-8 space-y-6">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-1">
-                Settings
+                {s?.settings || "Settings"}
               </h1>
               <p className="text-sm text-gray-500">
-                Manage your profile and preferences
+                {s?.settingsDesc || "Manage your profile and preferences"}
               </p>
             </div>
 

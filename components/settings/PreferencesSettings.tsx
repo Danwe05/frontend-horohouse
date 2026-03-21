@@ -25,6 +25,7 @@ import {
   Building2,
 } from 'lucide-react';
 import apiClient from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Constants matching onboarding exactly ───────────────────────────────────
 
@@ -148,6 +149,8 @@ function formatCurrency(amount: number, currencyValue: string) {
 
 export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }) => {
   const isAgent = user.role === 'agent';
+  const { t } = useLanguage();
+  const s = (t as any)?.settings || {};
 
   // ── Regular-user preferences (also partially used by agents) ──────────────
   const [prefs, setPrefs] = useState<UserPreferences>({
@@ -269,7 +272,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
         <CardHeader className="pb-4 border-b border-gray-50/50">
           <CardTitle className="flex items-center gap-2 text-gray-800">
             <MapPin className="h-5 w-5 text-gray-400" />
-            Preferred Locations
+            {s?.preferredLocations || 'Preferred Locations'}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-5 space-y-4">
@@ -278,7 +281,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
               value={newLocation}
               onChange={e => setNewLocation(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addLocation())}
-              placeholder="Enter a city or neighbourhood…"
+              placeholder={s?.enterACity || 'Enter a city or neighbourhood…'}
               className="flex-1 rounded-xl h-11 bg-white/70 border-slate-200 focus-visible:ring-blue-500"
             />
             <Button
@@ -312,7 +315,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           {/* Search Radius */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-2 block">
-              Search Radius: <span className="text-blue-600 font-semibold">{prefs.maxRadius} km</span>
+              {s?.searchRadius || 'Search Radius:'} <span className="text-blue-600 font-semibold">{prefs.maxRadius} km</span>
             </Label>
             <input
               type="range" min="5" max="100" step="5"
@@ -332,7 +335,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
         <CardHeader className="pb-4 border-b border-gray-50/50">
           <CardTitle className="flex items-center gap-2 text-gray-800">
             <Home className="h-5 w-5 text-gray-400" />
-            Property Types
+            {s?.propertyTypes || 'Property Types'}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-5">
@@ -345,7 +348,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                   onClick={() => togglePropertyType(type)}
                   className={`${chipBase} py-2.5 ${on ? chipOn : chipOff}`}
                 >
-                  {type}
+                  {(t as any)?.propertyTypes?.[type.toLowerCase()] || type}
                 </button>
               );
             })}
@@ -358,12 +361,12 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
         <CardHeader className="pb-4 border-b border-gray-50/50">
           <CardTitle className="flex items-center gap-2 text-gray-800">
             <Bed className="h-5 w-5 text-gray-400" />
-            Rooms
+            {s?.rooms || 'Rooms'}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-5 space-y-5">
           <div>
-            <Label className="text-sm font-semibold text-slate-700 mb-3 block">Bedrooms</Label>
+            <Label className="text-sm font-semibold text-slate-700 mb-3 block">{s?.bedrooms || 'Bedrooms'}</Label>
             <div className="flex flex-wrap gap-2">
               {[1, 2, 3, 4, 5].map(n => {
                 const on = prefs.bedrooms?.includes(n);
@@ -381,7 +384,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           </div>
 
           <div>
-            <Label className="text-sm font-semibold text-slate-700 mb-3 block">Bathrooms</Label>
+            <Label className="text-sm font-semibold text-slate-700 mb-3 block">{s?.bathrooms || 'Bathrooms'}</Label>
             <div className="flex flex-wrap gap-2">
               {[1, 2, 3, 4].map(n => {
                 const on = prefs.bathrooms?.includes(n);
@@ -405,7 +408,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
         <CardHeader className="pb-4 border-b border-gray-50/50">
           <CardTitle className="flex items-center gap-2 text-gray-800">
             <Palette className="h-5 w-5 text-gray-400" />
-            Preferred Features
+            {s?.preferredFeatures || 'Preferred Features'}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-5">
@@ -418,7 +421,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                   onClick={() => toggleAmenity(feature)}
                   className={`${chipBase} text-left px-4 py-3 ${on ? chipOn : chipOff}`}
                 >
-                  {feature}
+                  {(t as any)?.features?.[feature.toLowerCase().replace(/ /g, '_')] || feature}
                 </button>
               );
             })}
@@ -432,13 +435,13 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           <CardHeader className="pb-4 border-b border-gray-50/50">
             <CardTitle className="flex items-center gap-2 text-gray-800">
               <DollarSign className="h-5 w-5 text-gray-400" />
-              Budget Range
+              {s?.budgetRange || 'Budget Range'}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-5 space-y-5">
             {/* Currency */}
             <div>
-              <Label className="text-sm font-semibold text-slate-700 mb-2 block">Currency</Label>
+              <Label className="text-sm font-semibold text-slate-700 mb-2 block">{s?.currency || 'Currency'}</Label>
               <Select
                 value={priceCurrency}
                 onValueChange={v => setPrefs(p => ({ ...p, currency: v }))}
@@ -456,7 +459,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
 
             {/* Presets */}
             <div>
-              <Label className="text-sm font-semibold text-slate-700 mb-2 block">Quick Select</Label>
+              <Label className="text-sm font-semibold text-slate-700 mb-2 block">{s?.quickSelect || 'Quick Select'}</Label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {BUDGET_PRESETS_BUYER.map(preset => {
                   const on = prefs.minPrice === preset.min && prefs.maxPrice === preset.max;
@@ -477,7 +480,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
             {/* Slider */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <Label className="text-sm font-semibold text-slate-700">Custom Range</Label>
+                <Label className="text-sm font-semibold text-slate-700">{s?.customRange || 'Custom Range'}</Label>
                 <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
                   {formatCurrency(prefs.minPrice ?? 0, priceCurrency)} – {formatCurrency(prefs.maxPrice ?? 1_000_000, priceCurrency)}
                 </span>
@@ -496,7 +499,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
             {/* Area range */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="minArea" className="text-sm font-semibold text-slate-700">Min Area (m²)</Label>
+                <Label htmlFor="minArea" className="text-sm font-semibold text-slate-700">{s?.minArea || 'Min Area (m²)'}</Label>
                 <Input
                   id="minArea"
                   type="number"
@@ -506,7 +509,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="maxArea" className="text-sm font-semibold text-slate-700">Max Area (m²)</Label>
+                <Label htmlFor="maxArea" className="text-sm font-semibold text-slate-700">{s?.maxArea || 'Max Area (m²)'}</Label>
                 <Input
                   id="maxArea"
                   type="number"
@@ -526,7 +529,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           <CardHeader className="pb-4 border-b border-indigo-50">
             <CardTitle className="flex items-center gap-2 text-indigo-800">
               <Briefcase className="h-5 w-5 text-indigo-500" />
-              Professional Preferences
+              {s?.professionalPreferences || 'Professional Preferences'}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-5 space-y-6">
@@ -535,25 +538,25 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="licenseNumber" className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-                  <Award className="w-4 h-4 text-slate-400" /> License Number
+                  <Award className="w-4 h-4 text-slate-400" /> {s?.licenseNumber || 'License Number'}
                 </Label>
                 <Input
                   id="licenseNumber"
                   value={agentPrefs.licenseNumber}
                   onChange={e => setAgentPrefs(p => ({ ...p, licenseNumber: e.target.value }))}
-                  placeholder="e.g. DRE# 01234567"
+                  placeholder={s?.licenseNumberPlaceholder || 'e.g. DRE# 01234567'}
                   className="rounded-xl border-slate-200 bg-white/50 focus-visible:ring-indigo-500 h-11"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="agency" className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-                  <Building2 className="w-4 h-4 text-slate-400" /> Agency / Brokerage
+                  <Building2 className="w-4 h-4 text-slate-400" /> {s?.agencyBrokerage || 'Agency / Brokerage'}
                 </Label>
                 <Input
                   id="agency"
                   value={agentPrefs.agency}
                   onChange={e => setAgentPrefs(p => ({ ...p, agency: e.target.value }))}
-                  placeholder="Where do you work?"
+                  placeholder={s?.agencyPlaceholder || 'Where do you work?'}
                   className="rounded-xl border-slate-200 bg-white/50 focus-visible:ring-indigo-500 h-11"
                 />
               </div>
@@ -561,13 +564,13 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
 
             {/* Experience */}
             <div className="max-w-xs space-y-2">
-              <Label className="text-sm font-semibold text-slate-700">Years of Experience</Label>
+              <Label className="text-sm font-semibold text-slate-700">{s?.yearsOfExperience || 'Years of Experience'}</Label>
               <Select
                 value={agentPrefs.experience?.toString() ?? '0'}
                 onValueChange={v => setAgentPrefs(p => ({ ...p, experience: parseInt(v) }))}
               >
                 <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-indigo-500 rounded-xl h-11">
-                  <SelectValue placeholder="Select experience…" />
+                  <SelectValue placeholder={s?.selectExperience || 'Select experience…'} />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl border-slate-200 shadow-xl">
                   {EXPERIENCE_RANGES.map(r => (
@@ -581,17 +584,17 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
 
             {/* Specializations */}
             <div className="space-y-3">
-              <Label className="text-sm font-semibold text-slate-700">Specializations</Label>
+              <Label className="text-sm font-semibold text-slate-700">{s?.specializations || 'Specializations'}</Label>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {SPECIALIZATIONS.map(s => {
-                  const on = agentPrefs.specializations?.includes(s);
+                {SPECIALIZATIONS.map(spec => {
+                  const on = agentPrefs.specializations?.includes(spec);
                   return (
                     <button
-                      key={s}
-                      onClick={() => toggleSpecialization(s)}
+                      key={spec}
+                      onClick={() => toggleSpecialization(spec)}
                       className={`${chipBase} text-left px-3 py-2.5 ${on ? agentChipOn : agentChipOff}`}
                     >
-                      {s}
+                      {(t as any)?.specializations?.[spec.toLowerCase().replace(/ /g, '_')] || spec}
                     </button>
                   );
                 })}
@@ -600,7 +603,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
 
             {/* Commission Rate */}
             <div className="space-y-3">
-              <Label className="text-sm font-semibold text-slate-700">Commission Rate</Label>
+              <Label className="text-sm font-semibold text-slate-700">{s?.commissionRate || 'Commission Rate'}</Label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {COMMISSION_RANGES.map(range => {
                   const cr = agentPrefs.commissionRate ?? 3.0;
@@ -618,7 +621,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                 })}
               </div>
               <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 max-w-xs">
-                <Label htmlFor="commissionInput" className="text-sm text-slate-600 whitespace-nowrap">Custom %:</Label>
+                <Label htmlFor="commissionInput" className="text-sm text-slate-600 whitespace-nowrap">{s?.customPercent || 'Custom %:'}</Label>
                 <Input
                   id="commissionInput"
                   type="number"
@@ -632,7 +635,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
 
             {/* Agent Property Price Range */}
             <div className="space-y-4">
-              <Label className="text-sm font-semibold text-slate-700">Property Price Range You Work With</Label>
+              <Label className="text-sm font-semibold text-slate-700">{s?.propertyPriceRangeAgent || 'Property Price Range You Work With'}</Label>
 
               {/* Currency */}
               <Select
@@ -673,7 +676,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
               {/* Slider */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <Label className="text-sm font-semibold text-slate-700">Custom Range</Label>
+                  <Label className="text-sm font-semibold text-slate-700">{s?.customRange || 'Custom Range'}</Label>
                   <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
                     {formatCurrency(agentPrefs.propertyPriceRange?.min ?? 0, agentCurrency)} – {formatCurrency(agentPrefs.propertyPriceRange?.max ?? 2_000_000, agentCurrency)}
                   </span>
@@ -721,7 +724,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
           {isLoading
             ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
             : <Save className="h-4 w-4 mr-2" />}
-          {isLoading ? 'Saving…' : 'Save Preferences'}
+          {isLoading ? (s?.saving || 'Saving…') : (s?.savePreferences || 'Save Preferences')}
         </Button>
       </div>
     </div>

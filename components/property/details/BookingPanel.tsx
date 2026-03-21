@@ -32,6 +32,7 @@ import apiClient from "@/lib/api";
 import ScheduleTourModal from "@/components/property/details/ScheduleTourModal";
 import BookingForm from "@/components/dashboard/BookingForm";
 import { useCurrency } from "@/hooks/useCurrency";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -122,6 +123,9 @@ export const BookingPanelSkeleton = () => (
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const BookingPanel = ({ property }: BookingPanelProps) => {
+  const { t } = useLanguage();
+  const pd = t.propertyDetails;
+
   const { isAuthenticated, user } = useAuth();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const { formatMoney } = useCurrency();
@@ -201,7 +205,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleToggleFavorite = useCallback(async () => {
     if (!isAuthenticated) {
-      toast.error("Login required", { description: "Please login to save properties." });
+      toast.error(pd?.loginRequired || "Login required", { description: pd?.pleaseLoginToSave || "Please login to save properties." });
       return;
     }
     if (isTogglingFavorite) return;
@@ -212,38 +216,38 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
       if (prev) {
         await apiClient.removeFromFavorites(property._id);
         removeFavorite(property._id);
-        toast.success("Removed from favorites");
+        toast.success(pd?.removedFromFavorites || "Removed from favorites");
       } else {
         await apiClient.addToFavorites(property._id);
         addFavorite(property._id);
-        toast.success("Added to favorites");
+        toast.success(pd?.addedToFavorites || "Added to favorites");
       }
     } catch {
-      toast.error("Failed to update favorites");
+      toast.error(pd?.failedToUpdateFavorites || "Failed to update favorites");
     } finally {
       setIsTogglingFavorite(false);
     }
-  }, [isAuthenticated, isTogglingFavorite, saved, property._id, addFavorite, removeFavorite]);
+  }, [isAuthenticated, isTogglingFavorite, saved, property._id, addFavorite, removeFavorite, pd]);
 
   const handleShare = useCallback(async () => {
     const url = window.location.href;
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "Check out this property",
+          title: pd?.checkOutThisProperty || "Check out this property",
           text: `${property.listingType} — ${formatMoney(costs.monthlyRent)}`,
           url,
         });
       } else {
         await navigator.clipboard.writeText(url);
-        toast.success("Link copied to clipboard");
+        toast.success(pd?.linkCopied || "Link copied to clipboard");
       }
     } catch { /* user cancelled */ }
-  }, [property.listingType, costs.monthlyRent]);
+  }, [property.listingType, costs.monthlyRent, pd, formatMoney]);
 
   const handleOpenInquiry = useCallback(() => {
     if (!isAuthenticated) {
-      toast.error("Login required", { description: "Please login to send an inquiry." });
+      toast.error(pd?.loginRequired || "Login required", { description: pd?.pleaseLoginToSave || "Please login to send an inquiry." });
       return;
     }
     if (user) {
@@ -260,19 +264,19 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
   const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      toast.error("Login required");
+      toast.error(pd?.loginRequired || "Login required");
       return;
     }
     setInquiryLoading(true);
     try {
       await apiClient.sendInquiry({ propertyId: property._id, ...inquiryForm });
-      toast.success("Inquiry sent!", {
-        description: "The agent will contact you soon.",
+      toast.success(pd?.inquirySent || "Inquiry sent!", {
+        description: pd?.agentWillContact || "The agent will contact you soon.",
       });
       setInquiryForm({ name: "", email: "", phone: "", message: "" });
       setIsInquiryOpen(false);
     } catch (err: any) {
-      toast.error("Failed to send inquiry", {
+      toast.error(pd?.failedToSendInquiry || "Failed to send inquiry", {
         description: err.response?.data?.message ?? "Please try again later.",
       });
     } finally {
@@ -327,7 +331,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                     <ActionButton
                       onClick={handleToggleFavorite}
                       disabled={isTogglingFavorite}
-                      aria-label={saved ? "Remove from favorites" : "Add to favorites"}
+                      aria-label={saved ? (pd?.removedFromFavorites || "Remove from favorites") : (pd?.addedToFavorites || "Add to favorites")}
                       aria-pressed={saved}
                       className={saved ? "border-destructive/20 text-destructive" : ""}
                     >
@@ -337,16 +341,16 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                       }
                     </ActionButton>
                   </TooltipTrigger>
-                  <TooltipContent>{saved ? "Remove from favorites" : "Add to favorites"}</TooltipContent>
+                  <TooltipContent>{saved ? (pd?.removedFromFavorites || "Remove from favorites") : (pd?.addedToFavorites || "Add to favorites")}</TooltipContent>
                 </Tooltip>
 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <ActionButton onClick={handleShare} aria-label="Share this property">
+                    <ActionButton onClick={handleShare} aria-label={pd?.shareThisProperty || "Share this property"}>
                       <Share2 className="h-4 w-4" />
                     </ActionButton>
                   </TooltipTrigger>
-                  <TooltipContent>Share this property</TooltipContent>
+                  <TooltipContent>{pd?.shareThisProperty || "Share this property"}</TooltipContent>
                 </Tooltip>
               </div>
             </TooltipProvider>
@@ -355,7 +359,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
           {/* Move-in date (rent only) */}
           {property.listingType === "rent" && (
             <div>
-              <label className="text-sm font-medium mb-2 block">Desired Move-in Date</label>
+              <label className="text-sm font-medium mb-2 block">{pd?.desiredMoveIn || "Desired Move-in Date"}</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -366,7 +370,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {moveInDate ? format(moveInDate, "MMMM d, yyyy") : "Select date"}
+                    {moveInDate ? format(moveInDate, "MMMM d, yyyy") : (pd?.selectDate || "Select date")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -397,17 +401,17 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
           <div className="space-y-3 p-5 bg-slate-50 rounded-2xl border border-slate-100">
             <h3 className="font-bold text-sm text-slate-800 flex items-center gap-2">
               <Check className="h-4 w-4 text-emerald-500" />
-              {property.listingType === "rent" ? "Lease Details" : "Property Details"}
+              {property.listingType === "rent" ? (pd?.leaseDetails || "Lease Details") : (pd?.title || "Property Details")}
             </h3>
             <div className="space-y-2.5 text-sm font-medium">
               {property.listingType === "rent" && (
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-slate-500">Lease term</span>
-                  <Badge variant="outline" className="font-bold border-slate-200">12 months</Badge>
+                  <span className="text-slate-500">{pd?.leaseTerm || "Lease term"}</span>
+                  <Badge variant="outline" className="font-bold border-slate-200">{pd?.twelveMonths || "12 months"}</Badge>
                 </div>
               )}
               <div className="flex justify-between items-center py-1">
-                <span className="text-slate-500">Available</span>
+                <span className="text-slate-500">{pd?.available || "Available"}</span>
                 <Badge
                   className={cn(
                     "capitalize font-bold border-none",
@@ -420,9 +424,9 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                 </Badge>
               </div>
               <div className="flex justify-between items-center py-1">
-                <span className="text-slate-500">Type</span>
+                <span className="text-slate-500">{pd?.type || "Type"}</span>
                 <Badge variant="outline" className="capitalize font-bold border-slate-200">
-                  For {property.listingType}
+                  {pd?.forType?.replace("{type}", property.listingType) || `For ${property.listingType}`}
                 </Badge>
               </div>
             </div>
@@ -432,29 +436,29 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
           <div className="space-y-4 pt-2">
             <h3 className="font-bold text-slate-900 flex items-center gap-2">
               <Clock className="h-4 w-4 text-blue-500" />
-              Cost Breakdown
+              {pd?.costBreakdown || "Cost Breakdown"}
             </h3>
             <div className="space-y-3 text-sm font-medium">
               <div className="flex justify-between items-center">
                 <span className="text-slate-500">
-                  {property.listingType === "rent" ? "Monthly rent" : "Price"}
+                  {property.listingType === "rent" ? (pd?.monthlyRent || "Monthly rent") : (pd?.price || "Price")}
                 </span>
                 <span className="text-slate-900">{formatMoney(costs.monthlyRent)}</span>
               </div>
               {property.listingType === "rent" && (
                 <>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-500">Security deposit</span>
+                    <span className="text-slate-500">{pd?.securityDeposit || "Security deposit"}</span>
                     <span className="text-slate-900">{formatMoney(costs.securityDeposit)}</span>
                   </div>
                   {costs.maintenanceFee > 0 && (
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-500">Maintenance fee</span>
+                      <span className="text-slate-500">{pd?.maintenanceFee || "Maintenance fee"}</span>
                       <span className="text-slate-900">{formatMoney(costs.maintenanceFee)}/mo</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-500">Application fee</span>
+                    <span className="text-slate-500">{pd?.applicationFee || "Application fee"}</span>
                     <span className="text-slate-900">{formatMoney(costs.applicationFee)}</span>
                   </div>
                 </>
@@ -469,7 +473,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
             {property.listingType === "rent" ? (
               <>
                 <div className="flex items-end justify-between">
-                  <span className="font-bold text-slate-900">Due at move-in</span>
+                  <span className="font-bold text-slate-900">{pd?.dueAtMoveIn || "Due at move-in"}</span>
                   <span className="text-2xl font-black text-slate-900 tracking-tight">
                     {formatMoney(costs.totalMoveInCost)}
                   </span>
@@ -487,13 +491,13 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                   />
                 </div>
                 <div className="flex justify-between text-xs font-medium text-slate-500">
-                  <span>Total move-in cost</span>
-                  <span>Includes rent, deposit & fees</span>
+                  <span>{pd?.totalMoveInCost || "Total move-in cost"}</span>
+                  <span>{pd?.includesRentDepositFees || "Includes rent, deposit & fees"}</span>
                 </div>
               </>
             ) : (
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900">Total Price</span>
+                <span className="font-bold text-slate-900">{pd?.totalPrice || "Total Price"}</span>
                 <span className="text-2xl font-black text-slate-900">
                   {formatMoney(costs.monthlyRent)}
                 </span>
@@ -507,7 +511,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
               className="w-full h-14 text-base font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
               size="lg"
             >
-              {property.listingType === "rent" ? "Apply Now" : "Make an Offer"}
+              {property.listingType === "rent" ? (pd?.applyNow || "Apply Now") : (pd?.makeOffer || "Make an Offer")}
             </Button>
             <Button
               variant="outline"
@@ -515,14 +519,14 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
               size="lg"
               onClick={() => setIsScheduleOpen(true)}
             >
-              Schedule Tour
+              {pd?.scheduleTour || "Schedule Tour"}
             </Button>
           </div>
 
           <p className="text-xs text-center font-medium text-slate-500">
             {property.listingType === "rent"
-              ? "Subject to application approval • 24h response time"
-              : "Contact us for more information • Flexible viewing times"}
+              ? (pd?.subjectToApproval || "Subject to application approval • 24h response time")
+              : (pd?.contactUsForMore || "Contact us for more information • Flexible viewing times")}
           </p>
         </div>
 
@@ -530,7 +534,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
         {agent && (
           <div className="bg-white rounded-3xl p-6 lg:p-8 space-y-6 border border-slate-100 sticky top-24">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 tracking-tight">Listed by</h3>
+              <h3 className="font-bold text-slate-900 tracking-tight">{pd?.listedBy || "Listed by"}</h3>
               {agent.rating && isAuthenticated && (
                 <div className="flex items-center gap-1.5 text-sm font-bold text-slate-700">
                   <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
@@ -554,7 +558,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                   {agent.name}
                 </p>
                 <p className="text-sm font-medium text-slate-500 capitalize">
-                  {property.agentId ? "Property Agent" : "Property Owner"}
+                  {property.agentId ? (pd?.propertyAgent || "Property Agent") : (pd?.propertyOwner || "Property Owner")}
                 </p>
                 {isAuthenticated && agent.phoneNumber && (
                   <p className="text-sm font-bold text-slate-700 mt-2 flex items-center gap-1.5">
@@ -579,7 +583,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                             </a>
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Call {agent.name}</TooltipContent>
+                        <TooltipContent>{pd?.call || "Call"} {agent.name}</TooltipContent>
                       </Tooltip>
                     )}
                     {agent.email && (
@@ -592,7 +596,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                             </a>
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Email {agent.name}</TooltipContent>
+                        <TooltipContent>{pd?.email || "Email"} {agent.name}</TooltipContent>
                       </Tooltip>
                     )}
                   </div>
@@ -603,7 +607,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                   onClick={handleOpenInquiry}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  Send Message
+                  {pd?.sendMessage || "Send Message"}
                 </Button>
               </>
             ) : (
@@ -613,7 +617,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
               >
                 <a href="/auth/login">
                   <Lock className="h-4 w-4 mr-2" />
-                  Login to See Contact
+                  {pd?.loginToSeeContact || "Login to See Contact"}
                 </a>
               </Button>
             )}
@@ -623,7 +627,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
               <div className="pt-4 border-t border-border/50 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-semibold text-sm">
-                    Other listings by {agent.name.split(" ")[0]}
+                    {pd?.otherListingsBy?.replace("{name}", agent.name.split(" ")[0]) || `Other listings by ${agent.name.split(" ")[0]}`}
                   </h4>
                   <Badge variant="secondary" className="text-xs">
                     {agentListings.length}
@@ -694,7 +698,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                       href={`/properties?${property.agentId ? "agent" : "owner"}=${agent._id}`}
                       className="flex items-center justify-center"
                     >
-                      View all listings
+                      {pd?.viewAllListings || "View all listings"}
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </a>
                   </Button>
@@ -728,7 +732,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                     size="icon"
                     onClick={handleToggleFavorite}
                     disabled={isTogglingFavorite}
-                    aria-label={saved ? "Remove from favorites" : "Add to favorites"}
+                    aria-label={saved ? (pd?.removedFromFavorites || "Remove from favorites") : (pd?.addedToFavorites || "Add to favorites")}
                     aria-pressed={saved}
                     className={cn(
                       "h-12 w-12 transition-all",
@@ -742,7 +746,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  {saved ? "Remove from favorites" : "Add to favorites"}
+                  {saved ? (pd?.removedFromFavorites || "Remove from favorites") : (pd?.addedToFavorites || "Add to favorites")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -754,14 +758,14 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
               >
                 <a href={`tel:${agent.phoneNumber}`} aria-label={`Call ${agent.name}`}>
                   <Phone className="h-4 w-4 mr-2" />
-                  Call
+                  {pd?.call || "Call"}
                 </a>
               </Button>
             ) : (
               <Button className="h-12 px-6 bg-gradient-to-r from-primary to-primary/90" asChild>
                 <a href="/auth/login">
                   <Lock className="h-5 w-5 mr-2" />
-                  Login
+                  {pd?.login || "Login"}
                 </a>
               </Button>
             )}
@@ -783,18 +787,17 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-primary" />
-              Send Inquiry
+              {pd?.sendInquiry || "Send Inquiry"}
             </DialogTitle>
             <DialogDescription>
-              Get in touch with the {property.agentId ? "agent" : "owner"} about this property.
-              They typically respond within 24 hours.
+              {pd?.getInTouch?.replace("{role}", property.agentId ? "agent" : "owner") || `Get in touch with the ${property.agentId ? "agent" : "owner"} about this property. They typically respond within 24 hours.`}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleInquirySubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="inquiry-name">Name *</Label>
+                <Label htmlFor="inquiry-name">{pd?.nameForm || "Name *"}</Label>
                 <Input
                   id="inquiry-name"
                   value={inquiryForm.name}
@@ -817,7 +820,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="inquiry-email">Email *</Label>
+              <Label htmlFor="inquiry-email">{pd?.email || "Email"} *</Label>
               <Input
                 id="inquiry-email"
                 type="email"
@@ -829,13 +832,13 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="inquiry-message">Message *</Label>
+              <Label htmlFor="inquiry-message">{pd?.messageOptional?.replace(" (Optional)", "") || "Message"} *</Label>
               <Textarea
                 id="inquiry-message"
                 rows={5}
                 value={inquiryForm.message}
                 onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
-                placeholder="I'm interested in this property. Please contact me with more information..."
+                placeholder="I'm interested in this property..."
                 required
                 className="resize-none"
               />
@@ -849,7 +852,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                 className="flex-1"
                 disabled={inquiryLoading}
               >
-                Cancel
+                {pd?.cancel || "Cancel"}
               </Button>
               <Button
                 type="submit"
@@ -857,9 +860,9 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
                 disabled={inquiryLoading}
               >
                 {inquiryLoading ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Sending...</>
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{pd?.sending || "Sending..."}</>
                 ) : (
-                  <><MessageCircle className="h-4 w-4 mr-2" />Send Inquiry</>
+                  <><MessageCircle className="h-4 w-4 mr-2" />{pd?.sendInquiry || "Send Inquiry"}</>
                 )}
               </Button>
             </div>

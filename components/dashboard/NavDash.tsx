@@ -19,6 +19,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import apiClient from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { languages } from "@/lib/i18n";
+import LanguageCurrencyModal from "@/components/layout/LanguageCurrencyModal";
 
 export const NavDash = () => {
   const { user, logout, isLoading, refreshAuth } = useAuth();
@@ -28,6 +31,9 @@ export const NavDash = () => {
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showRoleSuccess, setShowRoleSuccess] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // 1. Search State
+  const [isLangCurrencyModalOpen, setIsLangCurrencyModalOpen] = useState(false);
+  const { language, t, dir } = useLanguage();
+  const _t = t as any;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -124,20 +130,20 @@ export const NavDash = () => {
   const avatarUrl = user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ffdfbf`;
 
   return (
-    <header className="h-16 bg-card/95 backdrop-blur-md border-b border-border flex items-center justify-between px-6 z-50 supports-[backdrop-filter]:bg-card/80">
+    <header dir={dir} className="h-16 bg-card/95 backdrop-blur-md border-b border-border flex items-center justify-between px-6 z-50 supports-[backdrop-filter]:bg-card/80">
       <div className="flex items-center gap-4 flex-1 max-w-xl">
         <SidebarTrigger />
 
         {/* 3. FUNCTIONAL SEARCH BAR */}
-        <form onSubmit={handleSearch} className="relative flex-1 group max-w-md hidden md:block">
+        <form onSubmit={handleSearch} className="relative mr-3 flex-1 group max-w-md hidden md:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-blue-500 transition-colors" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search properties or documents..."
-            className="pl-10 pr-12 h-10 bg-background/50 border-border/50 focus:bg-background focus:ring-1 focus:ring-blue-500/20 transition-all duration-200 rounded-xl"
+            placeholder={_t.navdash?.searchPlaceholder || "Search properties or documents..."}
+            className="pl-10 mr-10 h-10 bg-background/50 border-border/50 focus:bg-background focus:ring-1 focus:ring-blue-500/20 transition-all duration-200 rounded-full shadow-none"
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1 px-1.5 py-0.5 rounded border border-border bg-muted/50 text-[10px] font-medium text-muted-foreground">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1 px-1.5 py-0.5 rounded  bg-muted/50 text-[10px] font-medium text-muted-foreground">
             <Command className="w-2.5 h-2.5" />
             <span>K</span>
           </div>
@@ -146,7 +152,7 @@ export const NavDash = () => {
 
       <div className="flex items-center gap-3">
         {/* Mobile Search Toggle (Optional icon for mobile layouts) */}
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="md:hidden shadow-none">
           <Search className="w-5 h-5 text-muted-foreground" />
         </Button>
 
@@ -158,10 +164,10 @@ export const NavDash = () => {
                 variant={userRole === 'agent' ? "outline" : "default"}
                 onClick={handleToggleRoleClick}
                 disabled={isSwappingRole}
-                className={`gap-2 rounded-full transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${userRole === 'agent' ? 'border-border bg-background hover:bg-muted text-foreground' : 'bg-blue-600 hover:bg-blue-700 text-white border-0'}`}
+                className={`gap-1 rounded-full transition-all duration-200 shadow-none hover:-translate-y-0.5 ${userRole === 'agent' ? ' bg-background hover:bg-muted text-foreground' : 'bg-blue-600 hover:bg-blue-700 text-white border-0'}`}
               >
                 <ArrowRightLeft className="w-4 h-4" />
-                <span className="hidden lg:inline">{isSwappingRole ? 'Switching...' : `Switch to ${userRole === 'registered_user' ? 'Agent' : userRole === 'agent' ? 'Landlord' : 'User'}`}</span>
+                <span className="hidden lg:inline">{isSwappingRole ? (_t.navdash?.switching || 'Switching...') : `${_t.navdash?.switchRole || 'Switch to'} ${userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'User')}`}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom" align="center" className="lg:hidden">
@@ -180,7 +186,7 @@ export const NavDash = () => {
                 className="gap-2 bg-blue-600 hover:bg-blue-700 rounded-full border-0 text-white transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden lg:inline">Add Property</span>
+                <span className="hidden lg:inline">{_t.navdash?.addProperty || 'Add Property'}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom" align="center" className="lg:hidden">
@@ -192,6 +198,20 @@ export const NavDash = () => {
         <div className="relative">
           <NotificationDropdown />
         </div>
+
+        {/* Language & Currency Trigger */}
+        <button
+          onClick={() => setIsLangCurrencyModalOpen(true)}
+          className="flex w-9 h-9 items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition-colors"
+          aria-label="Language and Currency Preferences"
+        >
+          <img
+            src={languages[language]?.flag || languages['en'].flag}
+            alt={languages[language]?.name || 'Language'}
+            className="w-6 h-6 rounded-full object-cover shadow-sm"
+            loading="lazy"
+          />
+        </button>
 
         {/* Profile Dropdown */}
         {!isLoading && user && (
@@ -232,12 +252,12 @@ export const NavDash = () => {
                 </div>
 
                 <div className="space-y-1 p-1">
-                  <DropdownItem onClick={handleViewProfile} icon={User} label="Profile" />
+                  <DropdownItem onClick={handleViewProfile} icon={User} label={_t.navdash?.dropdown?.profile || "Profile"} />
                   {(userRole === 'agent' || userRole === 'landlord' || userRole === 'admin') && (
-                    <DropdownItem onClick={handleViewProperties} icon={Building2} label="My Properties" />
+                    <DropdownItem onClick={handleViewProperties} icon={Building2} label={_t.navdash?.dropdown?.myProperties || "My Properties"} />
                   )}
-                  <DropdownItem onClick={handleViewMessages} icon={MessageSquare} label="Messages" />
-                  <DropdownItem onClick={handleViewSettings} icon={Settings} label="Settings" />
+                  <DropdownItem onClick={handleViewMessages} icon={MessageSquare} label={_t.navdash?.dropdown?.messages || "Messages"} />
+                  <DropdownItem onClick={handleViewSettings} icon={Settings} label={_t.navdash?.dropdown?.settings || "Settings"} />
 
                   <div className="border-t border-border/30 my-1" />
 
@@ -248,7 +268,7 @@ export const NavDash = () => {
                     className="w-full justify-start gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 hover:text-red-700 transition-all"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span className="text-sm font-bold">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
+                    <span className="text-sm font-bold">{isLoggingOut ? (_t.navdash?.dropdown?.loggingOut || 'Logging out...') : (_t.navdash?.dropdown?.logout || 'Logout')}</span>
                   </Button>
                 </div>
               </div>
@@ -261,38 +281,38 @@ export const NavDash = () => {
       <Dialog open={showRoleModal} onOpenChange={setShowRoleModal}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Switch your account role</DialogTitle>
+            <DialogTitle>{_t.navdash?.roleModal?.title || "Switch your account role"}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to switch your account from a{' '}
+              {_t.navdash?.roleModal?.desc1 || "Are you sure you want to switch your account from a "}
               <span className="font-semibold text-foreground">
-                {userRole === 'agent' ? 'Real Estate Agent' : userRole === 'landlord' ? 'Landlord' : 'Regular User'}
+                {userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.agent || 'Real Estate Agent') : userRole === 'landlord' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'Regular User')}
               </span>{' '}
-              to a{' '}
+              {_t.navdash?.roleModal?.desc2 || " to a "}
               <span className="font-semibold text-foreground">
-                {userRole === 'registered_user' ? 'Real Estate Agent' : userRole === 'agent' ? 'Landlord' : 'Regular User'}
+                {userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Real Estate Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'Regular User')}
               </span>
-              ?
+              {_t.navdash?.roleModal?.desc3 || "?"}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 text-sm text-muted-foreground">
             {userRole === 'agent'
-              ? 'As a landlord, you will gain access to tenant management, rental income tracking, and portfolio analytics.'
+              ? (_t.navdash?.roleModal?.agentDesc || 'As a landlord, you will gain access to tenant management, rental income tracking, and portfolio analytics.')
               : userRole === 'landlord'
-                ? 'As a regular user, you will no longer have access to property management, tenant tracking, and analytics.'
-                : 'As an agent, you will gain access to tools for managing properties, scheduling tours, and connecting with clients.'}
+                ? (_t.navdash?.roleModal?.landlordDesc || 'As a regular user, you will no longer have access to property management, tenant tracking, and analytics.')
+                : (_t.navdash?.roleModal?.userDesc || 'As an agent, you will gain access to tools for managing properties, scheduling tours, and connecting with clients.')}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowRoleModal(false)} disabled={isSwappingRole}>
-              Cancel
+              {_t.navdash?.roleModal?.cancel || "Cancel"}
             </Button>
             <Button onClick={handleConfirmToggleRole} disabled={isSwappingRole} className="bg-blue-600 hover:bg-blue-700 text-white min-w-[140px]">
               {isSwappingRole ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                  <span>Switching...</span>
+                  <span>{_t.navdash?.switching || 'Switching...'}</span>
                 </div>
               ) : (
-                'Yes, Switch Role'
+                _t.navdash?.roleModal?.yesSwitchRole || 'Yes, Switch Role'
               )}
             </Button>
           </DialogFooter>
@@ -306,15 +326,23 @@ export const NavDash = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-2">
               <Check className="w-8 h-8" />
             </div>
-            <DialogTitle className="text-xl">Role Switched Successfully!</DialogTitle>
+            <DialogTitle className="text-xl">{_t.navdash?.roleModal?.successTitle || 'Role Switched Successfully!'}</DialogTitle>
             <DialogDescription className="text-center">
-              Your account has been updated to <span className="font-semibold text-foreground">{userRole === 'registered_user' ? 'Real Estate Agent' : userRole === 'agent' ? 'Landlord' : 'Regular User'}</span>.
+              {_t.navdash?.roleModal?.successDesc1 || 'Your account has been updated to '} 
+              <span className="font-semibold text-foreground">
+                {userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Real Estate Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord')  : (_t.navdash?.roleModal?.roles?.user || 'Regular User')}
+              </span>
+              {_t.navdash?.roleModal?.successDesc2 || '.'}
               <br />
-              <span className="text-xs text-muted-foreground mt-2 block animate-pulse">Reloading your dashboard...</span>
+              <span className="text-xs text-muted-foreground mt-2 block animate-pulse">{_t.navdash?.roleModal?.reloading || 'Reloading your dashboard...'}</span>
             </DialogDescription>
           </div>
         </DialogContent>
       </Dialog>
+      <LanguageCurrencyModal 
+        isOpen={isLangCurrencyModalOpen} 
+        onClose={() => setIsLangCurrencyModalOpen(false)} 
+      />
     </header>
   );
 };

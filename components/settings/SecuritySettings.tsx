@@ -24,6 +24,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import apiClient from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface User {
   id: string;
@@ -66,6 +67,8 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [sessions, setSessions] = useState<LoginSession[]>([]);
+  const { t } = useLanguage();
+  const s = (t as any)?.settings || {};
 
   // Fetch sessions on component mount
   useEffect(() => {
@@ -249,19 +252,19 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Lock className="h-5 w-5" />
-            <span>Change Password</span>
+            <span>{s?.changePassword || "Change Password"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Current Password</Label>
+            <Label htmlFor="currentPassword">{s?.currentPassword || "Current Password"}</Label>
             <div className="relative">
               <Input
                 id="currentPassword"
                 type={showPasswords.current ? 'text' : 'password'}
                 value={passwordData.currentPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                placeholder="Enter your current password"
+                placeholder={s?.enterCurrentPassword || "Enter your current password"}
                 className="w-full pr-10"
               />
               <button
@@ -275,14 +278,14 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="newPassword">New Password</Label>
+            <Label htmlFor="newPassword">{s?.newPassword || "New Password"}</Label>
             <div className="relative">
               <Input
                 id="newPassword"
                 type={showPasswords.new ? 'text' : 'password'}
                 value={passwordData.newPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                placeholder="Enter your new password"
+                placeholder={s?.enterNewPassword || "Enter your new password"}
                 className="w-full pr-10"
               />
               <button
@@ -314,27 +317,27 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                 </div>
                 
                 <div className="text-xs text-gray-500 space-y-1">
-                  <p>Password requirements:</p>
+                  <p>{s?.passwordRequirements || "Password requirements:"}</p>
                   <ul className="space-y-1 ml-2 sm:ml-4">
                     <li className={`flex items-center space-x-1 ${passwordData.newPassword.length >= 8 ? 'text-green-600' : 'text-gray-400'}`}>
                       {passwordData.newPassword.length >= 8 ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
-                      <span className="break-words">At least 8 characters</span>
+                      <span className="break-words">{s?.atLeast8Characters || "At least 8 characters"}</span>
                     </li>
                     <li className={`flex items-center space-x-1 ${/[A-Z]/.test(passwordData.newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
                       {/[A-Z]/.test(passwordData.newPassword) ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
-                      <span className="break-words">One uppercase letter</span>
+                      <span className="break-words">{s?.oneUppercaseLetter || "One uppercase letter"}</span>
                     </li>
                     <li className={`flex items-center space-x-1 ${/[a-z]/.test(passwordData.newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
                       {/[a-z]/.test(passwordData.newPassword) ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
-                      <span className="break-words">One lowercase letter</span>
+                      <span className="break-words">{s?.oneLowercaseLetter || "One lowercase letter"}</span>
                     </li>
                     <li className={`flex items-center space-x-1 ${/[0-9]/.test(passwordData.newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
                       {/[0-9]/.test(passwordData.newPassword) ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
-                      <span className="break-words">One number</span>
+                      <span className="break-words">{s?.oneNumber || "One number"}</span>
                     </li>
                     <li className={`flex items-center space-x-1 ${/[^A-Za-z0-9]/.test(passwordData.newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
                       {/[^A-Za-z0-9]/.test(passwordData.newPassword) ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0" />}
-                      <span className="break-words">One special character</span>
+                      <span className="break-words">{s?.oneSpecialCharacter || "One special character"}</span>
                     </li>
                   </ul>
                 </div>
@@ -343,14 +346,14 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <Label htmlFor="confirmPassword">{s?.confirmNewPassword || "Confirm New Password"}</Label>
             <div className="relative">
               <Input
                 id="confirmPassword"
                 type={showPasswords.confirm ? 'text' : 'password'}
                 value={passwordData.confirmPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                placeholder="Confirm your new password"
+                placeholder={s?.confirmYourNewPassword || "Confirm your new password"}
                 className="w-full pr-10"
               />
               <button
@@ -365,7 +368,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
             {passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
               <p className="text-xs text-red-600 flex items-center space-x-1">
                 <X className="h-3 w-3 flex-shrink-0" />
-                <span>Passwords do not match</span>
+                <span>{s?.passwordsDoNotMatch || "Passwords do not match"}</span>
               </p>
             )}
           </div>
@@ -381,7 +384,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
             ) : (
               <Save className="h-4 w-4 mr-2" />
             )}
-            {isLoading ? 'Updating...' : 'Update Password'}
+            {isLoading ? (s?.updating || 'Updating...') : (s?.updatePassword || 'Update Password')}
           </Button>
         </CardContent>
       </Card>
@@ -391,26 +394,26 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Smartphone className="h-5 w-5" />
-            <span>Two-Factor Authentication</span>
+            <span>{s?.twoFactorAuthentication || "Two-Factor Authentication"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-gray-900 text-base sm:text-lg">Authenticator App</h3>
+              <h3 className="font-medium text-gray-900 text-base sm:text-lg">{s?.authenticatorApp || "Authenticator App"}</h3>
               <p className="text-sm text-gray-500 mt-1">
-                Add an extra layer of security to your account using an authenticator app.
+                {s?.authenticatorAppDesc || "Add an extra layer of security to your account using an authenticator app."}
               </p>
               <div className="flex items-center space-x-2 mt-2">
                 {twoFactorEnabled ? (
                   <Badge className="bg-green-100 text-green-800">
                     <Check className="h-3 w-3 mr-1" />
-                    Enabled
+                    {s?.enabled || "Enabled"}
                   </Badge>
                 ) : (
                   <Badge className="bg-red-100 text-red-800">
                     <X className="h-3 w-3 mr-1" />
-                    Disabled
+                    {s?.disabled || "Disabled"}
                   </Badge>
                 )}
               </div>
@@ -425,7 +428,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
               {isLoading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
               ) : null}
-              {twoFactorEnabled ? 'Disable' : 'Enable'}
+              {twoFactorEnabled ? (s?.disable || 'Disable') : (s?.enable || 'Enable')}
             </Button>
           </div>
         </CardContent>
@@ -436,7 +439,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Shield className="h-5 w-5" />
-            <span>Account Verification</span>
+            <span>{s?.accountVerification || "Account Verification"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -448,7 +451,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                   <Key className={`h-4 w-4 ${user.emailVerified ? 'text-green-600' : 'text-yellow-600'}`} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Email Verification</h3>
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.emailVerification || "Email Verification"}</h3>
                   <p className="text-sm text-gray-500 truncate">{user.email}</p>
                 </div>
               </div>
@@ -457,13 +460,13 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                 {user.emailVerified ? (
                   <Badge className="bg-green-100 text-green-800 whitespace-nowrap">
                     <Check className="h-3 w-3 mr-1" />
-                    Verified
+                    {s?.verified || "Verified"}
                   </Badge>
                 ) : (
                   <>
                     <Badge className="bg-yellow-100 text-yellow-800 whitespace-nowrap">
                       <AlertTriangle className="h-3 w-3 mr-1" />
-                      Pending
+                      {s?.pending || "Pending"}
                     </Badge>
                     <Button 
                       size="sm" 
@@ -472,7 +475,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                       disabled={isLoading}
                       className="whitespace-nowrap"
                     >
-                      Resend Email
+                      {s?.resendEmail || "Resend Email"}
                     </Button>
                   </>
                 )}
@@ -486,7 +489,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                   <Smartphone className={`h-4 w-4 ${user.phoneVerified ? 'text-green-600' : 'text-yellow-600'}`} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Phone Verification</h3>
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.phoneVerification || "Phone Verification"}</h3>
                   <p className="text-sm text-gray-500 truncate">{user.phoneNumber}</p>
                 </div>
               </div>
@@ -495,13 +498,13 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                 {user.phoneVerified ? (
                   <Badge className="bg-green-100 text-green-800 whitespace-nowrap">
                     <Check className="h-3 w-3 mr-1" />
-                    Verified
+                    {s?.verified || "Verified"}
                   </Badge>
                 ) : (
                   <>
                     <Badge className="bg-yellow-100 text-yellow-800 whitespace-nowrap">
                       <AlertTriangle className="h-3 w-3 mr-1" />
-                      Pending
+                      {s?.pending || "Pending"}
                     </Badge>
                     <Button 
                       size="sm" 
@@ -510,7 +513,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                       disabled={isLoading}
                       className="whitespace-nowrap"
                     >
-                      Verify Phone
+                      {s?.verifyPhone || "Verify Phone"}
                     </Button>
                   </>
                 )}
@@ -526,7 +529,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <CardTitle className="flex items-center space-x-2">
               <Monitor className="h-5 w-5" />
-              <span>Active Sessions</span>
+              <span>{s?.activeSessions || "Active Sessions"}</span>
             </CardTitle>
             <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
               <Button
@@ -537,7 +540,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                 className="w-full sm:w-auto"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${sessionsLoading ? 'animate-spin' : ''}`} />
-                Refresh
+                {s?.refresh || "Refresh"}
               </Button>
               <Button
                 variant="outline"
@@ -547,7 +550,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                 className="w-full sm:w-auto"
               >
                 <X className="h-4 w-4 mr-2" />
-                Terminate All Others
+                {s?.terminateAllOthers || "Terminate All Others"}
               </Button>
             </div>
           </div>
@@ -556,12 +559,12 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
           {sessionsLoading ? (
             <div className="flex items-center justify-center p-6 sm:p-8">
               <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-gray-900"></div>
-              <span className="ml-2 text-gray-600 text-sm sm:text-base">Loading sessions...</span>
+              <span className="ml-2 text-gray-600 text-sm sm:text-base">{s?.loadingSessions || "Loading sessions..."}</span>
             </div>
           ) : sessions.length === 0 ? (
             <div className="text-center p-6 sm:p-8 text-gray-500">
               <Monitor className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
-              <p className="text-sm sm:text-base">No active sessions found</p>
+              <p className="text-sm sm:text-base">{s?.noActiveSessionsFound || "No active sessions found"}</p>
             </div>
           ) : (
             <div className="space-y-3 sm:space-y-4">
@@ -576,7 +579,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                         <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate">{session.device}</h3>
                         {session.current && (
                           <Badge className="bg-green-100 text-green-800 text-xs w-fit">
-                            Current
+                            {s?.current || "Current"}
                           </Badge>
                         )}
                       </div>
@@ -585,7 +588,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                       </p>
                       <p className="text-xs text-gray-400 flex items-center space-x-1">
                         <Clock className="h-3 w-3 flex-shrink-0" />
-                        <span>Last active {formatLastActive(session.lastActive)}</span>
+                        <span>{s?.lastActive ? s.lastActive.replace('{time}', formatLastActive(session.lastActive)) : `Last active ${formatLastActive(session.lastActive)}`}</span>
                       </p>
                     </div>
                   </div>
@@ -598,7 +601,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({ user }) => {
                       className="w-full sm:w-auto mt-2 sm:mt-0 sm:ml-4"
                     >
                       <X className="h-4 w-4 mr-2" />
-                      Terminate
+                      {s?.terminate || "Terminate"}
                     </Button>
                   )}
                 </div>

@@ -3,6 +3,7 @@
 import { TbRulerMeasure } from "react-icons/tb";
 import { FaBed, FaMapMarkerAlt } from "react-icons/fa";
 import { ChevronDown, Heart } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const recentProperties = [
   {
@@ -45,23 +46,25 @@ const recentProperties = [
 
 export default function PeopertyListCards() {
   const listing = 120;
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.propertyOverview?.listCards || {};
 
   return (
     <section className="py-3 pr-4 pl-2">
       <div className=" overflow-auto px-3 py-3">
         {/* Header */}
         <h2 className="text-2xl font-bold text-black">
-          Apartment For Rent In Lagos
+          {s.title || "Apartment For Rent In Lagos"}
         </h2>
         <p className="font-bold text-gray-500 text-md mb-5">
-          <span className="text-[#0089F7] font-bold">{listing}</span> listing
-          found
+          <span className="text-[#0089F7] font-bold">{listing}</span> {s.listingFound || "listing found"}
         </p>
 
         <div className="flex flex-row justify-end items-center gap-2 pb-5 pt-2">
-          <p className="text-gray-500 text-sm">Sort by</p>
+          <p className="text-gray-500 text-sm">{s.sortBy || "Sort by"}</p>
           <button className="flex gap-2 font-bold border border-[#0089F7] text-[#0089F7] px-4 py-3 rounded-lg text-xs transition cursor-pointer">
-            Newest
+            {s.newest || "Newest"}
             <ChevronDown className="w-4 h-4 text-[#808080]" />
           </button>
           <button className="p-2 border rounded-lg bg-[#0089F7]">
@@ -98,7 +101,7 @@ export default function PeopertyListCards() {
                 />
                 {/* Badge */}
                 <span className="absolute top-3 left-3 bg-white text-gray-600 text-xs font-bold px-3 py-1 rounded-md">
-                  Recent viewed
+                  {s.recentViewedMsg || "Recent viewed"}
                 </span>
                 {/* Favorite button */}
                 <button className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:scale-110 transition">

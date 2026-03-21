@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import apiClient from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface User {
   id: string;
@@ -55,6 +56,8 @@ interface ProfileSettingsProps {
 export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
   const { refreshAuth } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
+  const s = (t as any)?.settings || {};
 
   const [formData, setFormData] = useState({
     name: user.name || '',
@@ -142,11 +145,11 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
   const formatRole = (role: string) => {
     switch (role) {
       case 'registered_user':
-        return 'Regular User';
+        return s?.regularUser || 'Regular User';
       case 'agent':
-        return 'Real Estate Agent';
+        return s?.realEstateAgent || 'Real Estate Agent';
       case 'admin':
-        return 'Administrator';
+        return s?.administrator || 'Administrator';
       default:
         return role;
     }
@@ -173,7 +176,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
             <CardTitle className="flex items-center space-x-2 text-gray-800">
               <Camera className="h-5 w-5 text-gray-400" />
-              <span>Profile Picture</span>
+              <span>{s?.profilePicture || "Profile Picture"}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -198,7 +201,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                   {formatRole(user.role)}
                 </Badge>
                 <p className="text-sm text-gray-500 mt-2">
-                  Upload a new profile picture. Recommended size: 400x400px
+                  {s?.uploadNewProfilePicture || "Upload a new profile picture. Recommended size: 400x400px"}
                 </p>
 
                 <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 mt-4">
@@ -210,7 +213,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                     className="w-full sm:w-auto"
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    {uploadingImage ? 'Uploading...' : 'Upload New'}
+                    {uploadingImage ? (s?.uploading || 'Uploading...') : (s?.uploadNew || 'Upload New')}
                   </Button>
 
                   <input
@@ -233,13 +236,13 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
             <CardTitle className="flex items-center space-x-2 text-gray-800">
               <User className="h-5 w-5 text-gray-400" />
-              <span>Basic Information</span>
+              <span>{s?.basicInformation || "Basic Information"}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">{s?.fullName || "Full Name"}</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -250,7 +253,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">{s?.emailAddress || "Email Address"}</Label>
                 <div className="relative">
                   <Input
                     id="email"
@@ -269,12 +272,12 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                   </div>
                 </div>
                 {!user.emailVerified && (
-                  <p className="text-xs text-yellow-600">Email not verified</p>
+                  <p className="text-xs text-yellow-600">{s?.emailNotVerified || "Email not verified"}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">{s?.phoneNumber || "Phone Number"}</Label>
                 <div className="relative">
                   <Input
                     id="phone"
@@ -292,12 +295,12 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                   </div>
                 </div>
                 {!user.phoneVerified && (
-                  <p className="text-xs text-yellow-600">Phone not verified</p>
+                  <p className="text-xs text-yellow-600">{s?.phoneNotVerified || "Phone not verified"}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
+                <Label htmlFor="website">{s?.website || "Website"}</Label>
                 <Input
                   id="website"
                   value={formData.website}
@@ -309,18 +312,18 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
+              <Label htmlFor="bio">{s?.bio || "Bio"}</Label>
               <textarea
                 id="bio"
                 value={formData.bio}
                 onChange={(e) => handleInputChange('bio', e.target.value)}
-                placeholder="Tell us about yourself..."
+                placeholder={s?.tellUsAboutYourself || "Tell us about yourself..."}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
                 rows={3}
                 maxLength={500}
               />
               <p className="text-xs text-gray-500">
-                {formData.bio.length}/500 characters
+                {formData.bio.length}/500 {s?.characters || "characters"}
               </p>
             </div>
           </CardContent>
@@ -333,13 +336,13 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
             <CardTitle className="flex items-center space-x-2 text-gray-800">
               <MapPin className="h-5 w-5 text-gray-400" />
-              <span>Location</span>
+              <span>{s?.location || "Location"}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address">{s?.address || "Address"}</Label>
                 <Input
                   id="address"
                   value={formData.address}
@@ -350,7 +353,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
+                <Label htmlFor="city">{s?.city || "City"}</Label>
                 <Input
                   id="city"
                   value={formData.city}
@@ -361,7 +364,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
               </div>
 
               <div className="space-y-2 sm:col-span-2 lg:col-span-1">
-                <Label htmlFor="country">Country</Label>
+                <Label htmlFor="country">{s?.country || "Country"}</Label>
                 <Input
                   id="country"
                   value={formData.country}
@@ -382,13 +385,13 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
             <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
               <CardTitle className="flex items-center space-x-2 text-gray-800">
                 <Briefcase className="h-5 w-5 text-gray-400" />
-                <span>Professional Information</span>
+                <span>{s?.professionalInformation || "Professional Information"}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="agency">Agency</Label>
+                  <Label htmlFor="agency">{s?.agency || "Agency"}</Label>
                   <Input
                     id="agency"
                     value={formData.agency}
@@ -399,7 +402,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="license">License Number</Label>
+                  <Label htmlFor="license">{s?.licenseNumber || "License Number"}</Label>
                   <Input
                     id="license"
                     value={formData.licenseNumber}
@@ -420,25 +423,25 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center space-x-2 text-gray-800">
               <Calendar className="h-5 w-5 text-gray-400" />
-              <span>Account Information</span>
+              <span>{s?.accountInformation || "Account Information"}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <Label className="text-sm font-medium text-gray-700">Account ID</Label>
+                <Label className="text-sm font-medium text-gray-700">{s?.accountId || "Account ID"}</Label>
                 <p className="text-sm text-gray-900 font-mono mt-1 break-all">{user.id}</p>
               </div>
 
               <div>
-                <Label className="text-sm font-medium text-gray-700">Member Since</Label>
+                <Label className="text-sm font-medium text-gray-700">{s?.memberSince || "Member Since"}</Label>
                 <p className="text-sm text-gray-900 mt-1">
                   {user.dateJoined ? new Date(user.dateJoined).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
 
               <div>
-                <Label className="text-sm font-medium text-gray-700">Account Type</Label>
+                <Label className="text-sm font-medium text-gray-700">{s?.accountType || "Account Type"}</Label>
                 <div className="flex items-center gap-3 mt-1">
                   <Badge className={getRoleBadgeColor(user.role)}>
                     {formatRole(user.role)}
@@ -451,14 +454,14 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                       disabled={isLoading}
                     >
                       <ArrowRightLeft className="w-4 h-4" />
-                      {isLoading ? 'Switching...' : `Switch to ${user.role === 'agent' ? 'Regular User' : 'Agent Mode'}`}
+                      {isLoading ? (s?.switching || 'Switching...') : (s?.switchRole ? s.switchRole.replace('{role}', user.role === 'agent' ? (s?.regularUser || 'Regular User') : (s?.agentMode || 'Agent Mode')) : `Switch to ${user.role === 'agent' ? 'Regular User' : 'Agent Mode'}`)}
                     </Button>
                   )}
                 </div>
               </div>
 
               <div>
-                <Label className="text-sm font-medium text-gray-700">Verification Status</Label>
+                <Label className="text-sm font-medium text-gray-700">{s?.verificationStatus || "Verification Status"}</Label>
                 <div className="flex items-center space-x-4 mt-1">
                   <div className="flex items-center space-x-1">
                     {user.emailVerified ? (
@@ -466,7 +469,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                     ) : (
                       <X className="h-3 w-3 text-red-500" />
                     )}
-                    <span className="text-xs">Email</span>
+                    <span className="text-xs">{s?.email || "Email"}</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     {user.phoneVerified ? (
@@ -474,7 +477,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                     ) : (
                       <X className="h-3 w-3 text-red-500" />
                     )}
-                    <span className="text-xs">Phone</span>
+                    <span className="text-xs">{s?.phone || "Phone"}</span>
                   </div>
                 </div>
               </div>
@@ -524,7 +527,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           ) : (
             <Save className="h-4 w-4 mr-2" />
           )}
-          {isLoading ? 'Saving...' : 'Save Changes'}
+          {isLoading ? (s?.saving || 'Saving...') : (s?.saveChanges || 'Save Changes')}
         </Button>
       </motion.div>
     </div >

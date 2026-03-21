@@ -16,6 +16,7 @@ import {
 import { apiClient } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Types matching Transaction schema ────────────────────────────────────────
 type TxStatus = "pending" | "success" | "failed" | "cancelled" | "refunded";
@@ -63,16 +64,19 @@ const statusConfig: Record<TxStatus, { color: string; icon: React.ElementType }>
 };
 
 // ─── Type display labels ──────────────────────────────────────────────────────
-const typeLabel: Record<TxType, string> = {
-  subscription:      "Subscription",
-  listing_fee:       "Listing Fee",
-  boost_listing:     "Listing Boost",
-  commission:        "Commission",
-  digital_service:   "Digital Service",
-  refund:            "Refund",
-  wallet_topup:      "Wallet Top-up",
-  wallet_withdrawal: "Withdrawal",
-  booking:           "Booking Payment",
+const getTypeLabel = (type: TxType, s: any): string => {
+  const typeLabel: Record<TxType, string> = {
+    subscription:      s?.subscription || "Subscription",
+    listing_fee:       s?.listingFee || "Listing Fee",
+    boost_listing:     s?.listingBoost || "Listing Boost",
+    commission:        s?.commission || "Commission",
+    digital_service:   s?.digitalService || "Digital Service",
+    refund:            s?.refund || "Refund",
+    wallet_topup:      s?.walletTopUp || "Wallet Top-up",
+    wallet_withdrawal: s?.withdrawal || "Withdrawal",
+    booking:           s?.bookingPayment || "Booking Payment",
+  };
+  return typeLabel[type] || type;
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -90,11 +94,11 @@ function formatDate(iso: string) {
   });
 }
 
-function getPropertyTitle(tx: RealTransaction): string {
+function getPropertyTitle(tx: RealTransaction, s: any): string {
   if (tx.propertyId?.title) return tx.propertyId.title;
   if (tx.metadata?.propertyTitle) return tx.metadata.propertyTitle;
   if (tx.description) return tx.description;
-  return typeLabel[tx.type] ?? tx.type;
+  return getTypeLabel(tx.type, s) ?? tx.type;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -103,6 +107,8 @@ const PAGE_SIZE = 10;
 export default function TransactionList() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { t } = useLanguage();
+  const s = (t as any)?.transactions || {};
 
   const [transactions, setTransactions] = useState<RealTransaction[]>([]);
   const [total, setTotal] = useState(0);
@@ -128,7 +134,7 @@ export default function TransactionList() {
       setPage(p);
     } catch (err: any) {
       console.error("TransactionList fetch error:", err);
-      setError(err?.response?.data?.message || err?.message || "Failed to load transactions");
+      setError(err?.response?.data?.message || err?.message || s?.failedToLoadTransactions || "Failed to load transactions");
     } finally {
       setLoading(false);
     }
@@ -151,8 +157,8 @@ export default function TransactionList() {
       header.join(","),
       ...transactions.map((tx) => [
         escape(tx._id),
-        escape(getPropertyTitle(tx)),
-        escape(typeLabel[tx.type] ?? tx.type),
+        escape(getPropertyTitle(tx, s)),
+        escape(getTypeLabel(tx.type, s) ?? tx.type),
         escape(tx.amount),
         escape(tx.currency),
         escape(tx.status),
@@ -212,17 +218,17 @@ export default function TransactionList() {
     return (
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100">
-          <h3 className="text-lg font-semibold text-slate-900">Recent Transactions</h3>
+          <h3 className="text-lg font-semibold text-slate-900">{s?.recentTransactions || "Recent Transactions"}</h3>
         </div>
         <div className="flex flex-col items-center justify-center py-16 text-center px-4">
           <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mb-3">
             <AlertCircle className="w-6 h-6 text-red-500" />
           </div>
-          <p className="text-sm font-medium text-gray-700 mb-1">Failed to load transactions</p>
+          <p className="text-sm font-medium text-gray-700 mb-1">{s?.failedToLoadTransactions || "Failed to load transactions"}</p>
           <p className="text-xs text-gray-400 mb-4">{error}</p>
           <Button size="sm" onClick={() => fetchTransactions(page, statusFilter)}
             className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-            <RefreshCw className="w-3.5 h-3.5" /> Retry
+            <RefreshCw className="w-3.5 h-3.5" /> {s?.retry || "Retry"}
           </Button>
         </div>
       </div>
@@ -235,11 +241,11 @@ export default function TransactionList() {
       {/* Header */}
       <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Recent Transactions</h3>
+          <h3 className="text-lg font-semibold text-slate-900">{s?.recentTransactions || "Recent Transactions"}</h3>
           <p className="text-sm text-slate-500">
             {total > 0
-              ? `${total.toLocaleString()} transaction${total !== 1 ? "s" : ""} total`
-              : "Your payment history"}
+              ? `${total.toLocaleString()} ${s?.transactionTotal || "transaction(s) total"}`
+              : (s?.yourPaymentHistory || "Your payment history")}
           </p>
         </div>
         <div className="flex gap-2">
@@ -247,13 +253,13 @@ export default function TransactionList() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2 text-slate-600 border-slate-200">
                 <Filter className="w-4 h-4" />
-                {statusFilter === "all" ? "Filter" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                {statusFilter === "all" ? (s?.filter || "Filter") : s?.[statusFilter] || (statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1))}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {(["all", "success", "pending", "failed", "cancelled", "refunded"] as const).map((s) => (
-                <DropdownMenuItem key={s} onClick={() => setStatusFilter(s)}>
-                  {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+              {(["all", "success", "pending", "failed", "cancelled", "refunded"] as const).map((st) => (
+                <DropdownMenuItem key={st} onClick={() => setStatusFilter(st)}>
+                  {s?.[st] || (st === "all" ? "All" : st.charAt(0).toUpperCase() + st.slice(1))}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -262,7 +268,7 @@ export default function TransactionList() {
           <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white gap-2" onClick={handleExport}
             disabled={transactions.length === 0}>
             <DownloadCloud className="w-4 h-4" />
-            Export
+            {s?.export || "Export"}
           </Button>
         </div>
       </div>
@@ -273,11 +279,11 @@ export default function TransactionList() {
           <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
             <Clock className="w-6 h-6 text-slate-400" />
           </div>
-          <p className="text-sm font-medium text-gray-600">No transactions found</p>
+          <p className="text-sm font-medium text-gray-600">{s?.noTransactionsFound || "No transactions found"}</p>
           <p className="text-xs text-gray-400 mt-1">
             {statusFilter !== "all"
-              ? `No ${statusFilter} transactions in this period`
-              : "Your payment history will appear here"}
+              ? (s?.noTransactionsInThisPeriod ? s.noTransactionsInThisPeriod.replace('{status}', s?.[statusFilter] || statusFilter) : `No ${statusFilter} transactions in this period`)
+              : (s?.yourPaymentHistoryWillAppearHere || "Your payment history will appear here")}
           </p>
         </div>
       ) : (
@@ -285,11 +291,11 @@ export default function TransactionList() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 text-slate-400 text-[11px] uppercase tracking-wider font-bold">
-                <th className="px-6 py-3 border-b border-slate-100">Property / Type</th>
-                <th className="px-6 py-3 border-b border-slate-100 hidden md:table-cell">Status</th>
-                <th className="px-6 py-3 border-b border-slate-100 hidden sm:table-cell">Method</th>
-                <th className="px-6 py-3 border-b border-slate-100">Date</th>
-                <th className="px-6 py-3 border-b border-slate-100 text-right">Amount</th>
+                <th className="px-6 py-3 border-b border-slate-100">{s?.propertyType || "Property / Type"}</th>
+                <th className="px-6 py-3 border-b border-slate-100 hidden md:table-cell">{s?.status_th || "Status"}</th>
+                <th className="px-6 py-3 border-b border-slate-100 hidden sm:table-cell">{s?.method || "Method"}</th>
+                <th className="px-6 py-3 border-b border-slate-100">{s?.date || "Date"}</th>
+                <th className="px-6 py-3 border-b border-slate-100 text-right">{s?.amount || "Amount"}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -317,9 +323,9 @@ export default function TransactionList() {
                         </div>
                         <div className="min-w-0">
                           <div className="text-sm font-medium text-slate-900 truncate max-w-[180px]">
-                            {getPropertyTitle(tx)}
+                            {getPropertyTitle(tx, s)}
                           </div>
-                          <div className="text-xs text-slate-500">{typeLabel[tx.type] ?? tx.type}</div>
+                          <div className="text-xs text-slate-500">{getTypeLabel(tx.type, s)}</div>
                         </div>
                       </div>
                     </td>
@@ -331,7 +337,7 @@ export default function TransactionList() {
                         cfg.color
                       )}>
                         <StatusIcon className="w-3 h-3" />
-                        {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
+                        {s?.[tx.status] || (tx.status.charAt(0).toUpperCase() + tx.status.slice(1))}
                       </span>
                     </td>
 
@@ -373,8 +379,8 @@ export default function TransactionList() {
       <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/30 flex items-center justify-between">
         <span className="text-xs text-slate-500">
           {total > 0
-            ? `Showing ${shownFrom}–${shownTo} of ${total.toLocaleString()}`
-            : "No transactions"}
+            ? (s?.showing ? s.showing.replace('{from}', shownFrom).replace('{to}', shownTo).replace('{total}', total.toLocaleString()) : `Showing ${shownFrom}–${shownTo} of ${total.toLocaleString()}`)
+            : (s?.noTransactions || "No transactions")}
         </span>
         <div className="flex gap-1">
           <Button
@@ -382,14 +388,14 @@ export default function TransactionList() {
             disabled={page <= 1 || loading}
             onClick={() => fetchTransactions(page - 1, statusFilter)}
           >
-            Previous
+            {s?.previous || "Previous"}
           </Button>
           <Button
             variant="ghost" size="sm" className="text-blue-500 font-bold"
             disabled={page >= totalPages || loading}
             onClick={() => fetchTransactions(page + 1, statusFilter)}
           >
-            Next
+            {s?.next || "Next"}
           </Button>
         </div>
       </div>

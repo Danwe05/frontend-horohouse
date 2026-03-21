@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Check, X, MessageSquare, Clock, Users, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Match {
   _id: string;
@@ -40,6 +41,10 @@ function MatchRow({
   currentUserId: string;
   onRefresh: () => void;
 }) {
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.roommates?.inbox || {};
+
   const [acting, setActing] = useState<'accept' | 'reject' | null>(null);
 
   const isInitiator = match.initiatorId._id === currentUserId;
@@ -52,15 +57,14 @@ function MatchRow({
   const avatar =
     otherUser?.profilePicture ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(otherUser?.name || 'u')}&backgroundColor=b6e3f4`;
-
   const handleAccept = async () => {
     setActing('accept');
     try {
       const res = await apiClient.acceptRoommateMatch(match._id);
-      toast.success("It's a match! You can now chat.");
+      toast.success(s.matchSuccess || "It's a match! You can now chat.");
       onRefresh();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Could not accept match.');
+      toast.error(err?.response?.data?.message || s.acceptError || 'Could not accept match.');
     } finally {
       setActing(null);
     }
@@ -70,10 +74,10 @@ function MatchRow({
     setActing('reject');
     try {
       await apiClient.rejectRoommateMatch(match._id);
-      toast.success('Match declined.');
+      toast.success(s.matchDeclined || 'Match declined.');
       onRefresh();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Could not decline match.');
+      toast.error(err?.response?.data?.message || s.declineError || 'Could not decline match.');
     } finally {
       setActing(null);
     }
@@ -148,7 +152,7 @@ function MatchRow({
               {acting === 'accept' ? (
                 <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
               ) : (
-                <><Check className="w-3.5 h-3.5 mr-1" />Accept</>
+                <><Check className="w-3.5 h-3.5 mr-1" />{s.accept || 'Accept'}</>
               )}
             </Button>
           </>
@@ -164,13 +168,16 @@ function MatchRow({
 }
 
 export function MatchInbox({ matches, currentUserId, onRefresh }: MatchInboxProps) {
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.roommates?.inbox || {};
   const total = matches.pending.length + matches.matched.length;
 
   if (total === 0) {
     return (
       <div className="text-center py-8 text-slate-400">
         <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
-        <p className="text-sm">No matches yet — express interest in profiles to get started.</p>
+        <p className="text-sm">{s.noMatches || 'No matches yet — express interest in profiles to get started.'}</p>
       </div>
     );
   }
@@ -180,7 +187,7 @@ export function MatchInbox({ matches, currentUserId, onRefresh }: MatchInboxProp
       {matches.matched.length > 0 && (
         <div>
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-            Confirmed matches ({matches.matched.length})
+            {s.confirmedMatches || 'Confirmed matches'} ({matches.matched.length})
           </p>
           <div className="space-y-2">
             <AnimatePresence>
@@ -194,7 +201,7 @@ export function MatchInbox({ matches, currentUserId, onRefresh }: MatchInboxProp
       {matches.pending.length > 0 && (
         <div>
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-            Pending ({matches.pending.length})
+            {s.pendingMatches || 'Pending'} ({matches.pending.length})
           </p>
           <div className="space-y-2">
             <AnimatePresence>

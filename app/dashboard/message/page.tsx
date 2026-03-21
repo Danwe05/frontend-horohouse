@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ChatProvider } from '@/contexts/ChatContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function MessagesPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -23,6 +24,8 @@ export default function MessagesPage() {
   const [token, setToken] = useState<string | null>(null);
   const [showMobileThread, setShowMobileThread] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const { t } = useLanguage();
+  const s = (t as any)?.messages || {};
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
 
@@ -74,7 +77,7 @@ export default function MessagesPage() {
       <div className="flex items-center justify-center h-screen bg-background">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-sm text-muted-foreground">Loading messages...</p>
+          <p className="text-sm text-muted-foreground">{s.loadingMessages || 'Loading messages...'}</p>
         </div>
       </div>
     );
@@ -87,14 +90,14 @@ export default function MessagesPage() {
         <div className="text-center space-y-4">
           <MessageCircle className="h-16 w-16 text-muted-foreground mx-auto" />
           <div>
-            <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
-            <p className="text-muted-foreground mb-4">Please log in to view your messages</p>
+            <h2 className="text-xl font-semibold mb-2">{s.authRequired || 'Authentication Required'}</h2>
+            <p className="text-muted-foreground mb-4">{s.pleaseLogin || 'Please log in to view your messages'}</p>
           </div>
           <button
             onClick={() => router.push('/auth/login?redirect=/dashboard/message')}
             className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity"
           >
-            Go to Login
+            {s.goToLogin || 'Go to Login'}
           </button>
         </div>
       </div>
@@ -109,14 +112,14 @@ export default function MessagesPage() {
         <div className="text-center space-y-4">
           <MessageCircle className="h-16 w-16 text-muted-foreground mx-auto" />
           <div>
-            <h2 className="text-xl font-semibold mb-2">Authentication Error</h2>
-            <p className="text-muted-foreground mb-4">Your session has expired. Please log in again.</p>
+            <h2 className="text-xl font-semibold mb-2">{s.authError || 'Authentication Error'}</h2>
+            <p className="text-muted-foreground mb-4">{s.sessionExpired || 'Your session has expired. Please log in again.'}</p>
           </div>
           <button
             onClick={() => router.push('/auth/login?redirect=/dashboard/message')}
             className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity"
           >
-            Go to Login
+            {s.goToLogin || 'Go to Login'}
           </button>
         </div>
       </div>

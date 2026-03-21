@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowUpIcon, ArrowDownIcon, RefreshCwIcon } from 'lucide-react';
 import { WalletTransaction, WalletTransactionType, Currency } from '@/types/paiement';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface WalletTransactionsProps {
   transactions: WalletTransaction[];
@@ -19,6 +20,9 @@ export const WalletTransactions: React.FC<WalletTransactionsProps> = ({
   onRefresh,
   loading = false,
 }) => {
+  const { t } = useLanguage();
+  const s = (t as any)?.wallet || {};
+
   const getTransactionIcon = (type: WalletTransactionType) => {
     switch (type) {
       case WalletTransactionType.CREDIT:
@@ -48,13 +52,13 @@ export const WalletTransactions: React.FC<WalletTransactionsProps> = ({
   const getTransactionBadge = (type: WalletTransactionType) => {
     switch (type) {
       case WalletTransactionType.CREDIT:
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Credit</Badge>;
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">{s?.credit || "Credit"}</Badge>;
       case WalletTransactionType.DEBIT:
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Debit</Badge>;
+        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">{s?.debit || "Debit"}</Badge>;
       case WalletTransactionType.WITHDRAWAL:
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Withdrawal</Badge>;
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">{s?.withdrawal || "Withdrawal"}</Badge>;
       case WalletTransactionType.REFUND:
-        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Refund</Badge>;
+        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">{s?.refund || "Refund"}</Badge>;
       default:
         return null;
     }
@@ -72,13 +76,13 @@ export const WalletTransactions: React.FC<WalletTransactionsProps> = ({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Recent Transactions</CardTitle>
-          <CardDescription>Your wallet activity</CardDescription>
+          <CardTitle>{s?.recentTransactions || "Recent Transactions"}</CardTitle>
+          <CardDescription>{s?.yourWalletActivity || "Your wallet activity"}</CardDescription>
         </div>
         {onRefresh && (
           <Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
             <RefreshCwIcon className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
+            {s?.refresh || "Refresh"}
           </Button>
         )}
       </CardHeader>
@@ -86,7 +90,7 @@ export const WalletTransactions: React.FC<WalletTransactionsProps> = ({
         <div className="space-y-4">
           {transactions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No transactions yet
+              {s?.noTransactionsYet || "No transactions yet"}
             </div>
           ) : (
             transactions.slice(0, 10).map((transaction) => (

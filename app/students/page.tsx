@@ -34,10 +34,15 @@ import Link from 'next/link';
 
 // --- Components & Styles ---
 
+import { useLanguage } from '@/contexts/LanguageContext';
+
 export default function StudentsPage() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
   const { isStudentMode, isStudent } = useStudentMode();
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.page || {};
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<StudentFilters>({ sortBy: 'campusProximityMeters', sortOrder: 'asc' });
@@ -130,18 +135,18 @@ export default function StudentsPage() {
               ))}
             </div>
             <span className="text-white font-medium text-sm sm:text-base ml-2">
-              4.8/5 <span className="text-gray-300 font-normal">Rated by Students</span>
+              {s.rating || '4.8/5'} <span className="text-gray-300 font-normal">{s.ratedBy || 'Rated by Students'}</span>
             </span>
           </div>
 
           {/* Headline */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-5">
-            Home away from home
+            {s.headline || 'Home away from home'}
           </h1>
 
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-gray-200 mb-10 max-w-3xl font-normal">
-            Book your perfect student accommodation near your campus with verified power and water sources.
+            {s.subheadline || 'Book your perfect student accommodation near your campus with verified power and water sources.'}
           </p>
 
           {/* Chunky Search Bar (Amber style) */}
@@ -152,7 +157,7 @@ export default function StudentsPage() {
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by city, university or property..."
+                  placeholder={s.searchPlaceholder || "Search by city, university or property..."}
                   className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-gray-900 w-full text-base sm:text-lg p-0 placeholder:text-gray-500 font-medium"
                 />
               </div>
@@ -161,7 +166,7 @@ export default function StudentsPage() {
                 className="bg-blue-500 hover:bg-blue-600 text-white rounded-md sm:rounded-full px-10 h-14 sm:h-16 sm:ml-2 font-bold text-lg w-full sm:w-auto transition-colors"
               >
                 <Search className="w-5 h-5 mr-2" />
-                Search
+                {s.searchBtn || 'Search'}
               </Button>
             </div>
           </form>
@@ -170,17 +175,17 @@ export default function StudentsPage() {
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-10 text-white text-sm sm:text-base font-medium">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-green-400" />
-              <span>100% Verified Properties</span>
+              <span>{s.usp1 || '100% Verified Properties'}</span>
             </div>
             <div className="hidden sm:block w-1 h-1 rounded-full bg-gray-400"></div>
             <div className="flex items-center gap-2">
               <Tag className="w-5 h-5 text-blue-400" />
-              <span>Price Match Guarantee</span>
+              <span>{s.usp2 || 'Price Match Guarantee'}</span>
             </div>
             <div className="hidden md:block w-1 h-1 rounded-full bg-gray-400"></div>
             <div className="flex items-center gap-2">
               <HeadphonesIcon className="w-5 h-5 text-yellow-400" />
-              <span>24x7 Personal Assistance</span>
+              <span>{s.usp3 || '24x7 Personal Assistance'}</span>
             </div>
           </div>
 
@@ -191,8 +196,8 @@ export default function StudentsPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Available Housing</h2>
-            <p className="text-slate-400 font-medium">Showing {properties.length} verified listings</p>
+            <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2">{s.availableHousing || 'Available Housing'}</h2>
+            <p className="text-slate-400 font-medium">{(s.showingVerifications || 'Showing {count} verified listings').replace('{count}', properties.length.toString())}</p>
           </motion.div>
           <div className="flex items-center gap-3">
             <StudentVerificationBanner />
@@ -213,7 +218,7 @@ export default function StudentsPage() {
             ))}
           </div>
         ) : properties.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
             {properties.map((p, idx) => (
               <StudentPropertyCard
                 key={p._id || p.id}
@@ -228,14 +233,14 @@ export default function StudentsPage() {
              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-slate-200">
                 <Search className="w-10 h-10 text-slate-300" />
              </div>
-             <h3 className="text-2xl font-black text-slate-900 mb-2">No listings found</h3>
-             <p className="text-slate-400 font-medium max-w-sm mx-auto">Try adjusting your filters or searching in a different area.</p>
+             <h3 className="text-2xl font-black text-slate-900 mb-2">{s.noListings || 'No listings found'}</h3>
+             <p className="text-slate-400 font-medium max-w-sm mx-auto">{s.noListingsDesc || 'Try adjusting your filters or searching in a different area.'}</p>
              <Button 
                variant="outline" 
                onClick={resetFilters} 
                className="mt-8 rounded-full px-8 font-black uppercase tracking-widest text-[10px]"
              >
-               Reset Filters
+               {s.resetFilters || 'Reset Filters'}
              </Button>
           </div>
         )}
@@ -249,14 +254,14 @@ export default function StudentsPage() {
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] rounded-full bg-blue-500/20 blur-[100px]" />
           <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12 text-center lg:text-left">
             <div className="flex-1">
-              <h2 className="text-5xl sm:text-7xl font-black tracking-[-0.04em] leading-[0.95] mb-8">Don't Live Alone.</h2>
+              <h2 className="text-5xl sm:text-7xl font-black tracking-[-0.04em] leading-[0.95] mb-8">{s.dontLiveAlone || "Don't Live Alone."}</h2>
               <p className="text-blue-100/90 text-lg sm:text-2xl font-medium tracking-tight max-w-xl mx-auto lg:mx-0 mb-10 leading-tight">
-                Join the roommate pool. Match with <br className="hidden sm:block" /> verified students from your campus.
+                {s.joinPool1 || "Join the roommate pool. Match with"} <br className="hidden sm:block" /> {s.joinPool2 || "verified students from your campus."}
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start">
                 <Link href="/students/roommates">
                   <Button className="bg-white hover:bg-slate-50 text-blue-600 rounded-full px-12 h-16 font-black text-sm uppercase tracking-widest shadow-2xl shadow-blue-900/40">
-                    Browse Matches
+                    {s.browseMatches || 'Browse Matches'}
                   </Button>
                 </Link>
                 <div className="flex -space-x-4">
@@ -273,12 +278,12 @@ export default function StudentsPage() {
             </div>
             <div className="w-full lg:w-80 space-y-4">
               <div className="p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/10">
-                <p className="font-black uppercase tracking-widest text-[10px] text-blue-200 mb-2">Benefit 01</p>
-                <p className="font-bold text-lg">Verified Only</p>
+                <p className="font-black uppercase tracking-widest text-[10px] text-blue-200 mb-2">{s.benefit1 || 'Benefit 01'}</p>
+                <p className="font-bold text-lg">{s.verifiedOnly || 'Verified Only'}</p>
               </div>
               <div className="p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/10">
-                <p className="font-black uppercase tracking-widest text-[10px] text-blue-200 mb-2">Benefit 02</p>
-                <p className="font-bold text-lg">Secure Match</p>
+                <p className="font-black uppercase tracking-widest text-[10px] text-blue-200 mb-2">{s.benefit2 || 'Benefit 02'}</p>
+                <p className="font-bold text-lg">{s.secureMatch || 'Secure Match'}</p>
               </div>
             </div>
           </div>

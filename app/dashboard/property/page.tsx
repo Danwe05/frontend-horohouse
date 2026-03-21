@@ -32,6 +32,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useLanguage } from '@/contexts/LanguageContext';
 interface Property {
   _id?: string;
   id?: string;
@@ -72,6 +73,9 @@ const PropertyPage = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.propertyPage || {};
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
@@ -87,8 +91,8 @@ const PropertyPage = () => {
   const isRegularUser = user?.role === 'registered_user';
 
   const pageConfig = {
-    title: 'My Properties',
-    description: 'Manage your listings and performance',
+    title: s.header?.title || 'My Properties',
+    description: s.header?.description || 'Manage your listings and performance',
     icon: Home,
     color: 'text-blue-600 bg-blue-50'
   };
@@ -174,28 +178,28 @@ const PropertyPage = () => {
                 <div className="flex items-center gap-3">
                   <div className="hidden sm:flex items-center bg-white border rounded-lg px-3 py-1 shadow-sm">
                     <div className="px-3 border-r">
-                      <p className="text-[10px] uppercase font-bold text-slate-400">Total</p>
+                      <p className="text-[10px] uppercase font-bold text-slate-400">{s.header?.total || 'Total'}</p>
                       <p className="text-sm font-semibold">{stats.total}</p>
                     </div>
                     <div className="px-3">
-                      <p className="text-[10px] uppercase font-bold text-green-500">Active</p>
+                      <p className="text-[10px] uppercase font-bold text-green-500">{s.header?.active || 'Active'}</p>
                       <p className="text-sm font-semibold">{stats.active}</p>
                     </div>
                   </div>
                   <Button onClick={() => router.push('/dashboard/propertyForm')} className="shadow-md bg-blue-600 hover:bg-blue-700 transition-all">
-                    <Plus className="w-4 h-4 mr-2" /> Add Property
+                    <Plus className="w-4 h-4 mr-2" /> {s.header?.addProperty || 'Add Property'}
                   </Button>
                 </div>
               </div>
 
               {/* MODERN FILTER BAR */}
-              <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 sticky top-0 z-10 z-50 ">
+              <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 sticky top-0 z-10">
                 <div className="flex flex-col lg:flex-row gap-3">
                   {/* Search - Grows to fill space */}
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
-                      placeholder="Search location, title, or ID..."
+                      placeholder={s.filterBar?.searchPlaceholder || "Search location, title, or ID..."}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10 border-none bg-slate-50 focus-visible:ring-1 focus-visible:ring-blue-500 h-11"
@@ -208,23 +212,23 @@ const PropertyPage = () => {
                     {/* Listing Type Tabs */}
                     <Tabs value={filterListingType} onValueChange={setFilterListingType} className="w-fit">
                       <TabsList className="bg-slate-100/80 p-1 h-11">
-                        <TabsTrigger value="all" className="px-4 h-9">All</TabsTrigger>
-                        <TabsTrigger value="sale" className="px-4 h-9">For Sale</TabsTrigger>
-                        <TabsTrigger value="rent" className="px-4 h-9">For Rent</TabsTrigger>
-                        <TabsTrigger value="short_term" className="px-4 h-9">Short Term</TabsTrigger>
+                        <TabsTrigger value="all" className="px-4 h-9">{s.filterBar?.tabs?.all || "All"}</TabsTrigger>
+                        <TabsTrigger value="sale" className="px-4 h-9">{s.filterBar?.tabs?.forSale || "For Sale"}</TabsTrigger>
+                        <TabsTrigger value="rent" className="px-4 h-9">{s.filterBar?.tabs?.forRent || "For Rent"}</TabsTrigger>
+                        <TabsTrigger value="short_term" className="px-4 h-9">{s.filterBar?.tabs?.shortTerm || "Short Term"}</TabsTrigger>
                       </TabsList>
                     </Tabs>
 
                     {/* Status Quick Filter */}
                     <Select value={filterStatus} onValueChange={setFilterStatus}>
                       <SelectTrigger className="w-[130px] h-11 bg-slate-50 border-none font-medium">
-                        <SelectValue placeholder="Status" />
+                        <SelectValue placeholder={s.filterBar?.status?.placeholder || "Status"} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="sold">Sold</SelectItem>
+                        <SelectItem value="all">{s.filterBar?.status?.all || "All Status"}</SelectItem>
+                        <SelectItem value="active">{s.filterBar?.status?.active || "Active"}</SelectItem>
+                        <SelectItem value="pending">{s.filterBar?.status?.pending || "Pending"}</SelectItem>
+                        <SelectItem value="sold">{s.filterBar?.status?.sold || "Sold"}</SelectItem>
                       </SelectContent>
                     </Select>
 
@@ -233,54 +237,58 @@ const PropertyPage = () => {
                       <SheetTrigger asChild>
                         <Button variant="outline" className="h-11 gap-2 border-dashed border-slate-300 hover:bg-slate-50">
                           <SlidersHorizontal className="w-4 h-4" />
-                          <span className="hidden sm:inline">Filters</span>
+                          <span className="hidden sm:inline">{s.filterBar?.btnFilters || "Filters"}</span>
                         </Button>
                       </SheetTrigger>
                       <SheetContent className="w-[400px] sm:w-[540px]">
                         <SheetHeader className="pb-6 border-b">
                           <SheetTitle className="flex items-center gap-2 text-2xl">
-                            <ListFilter className="w-5 h-5" /> Advanced Filters
+                            <ListFilter className="w-5 h-5" /> {s.advancedFilters?.title || "Advanced Filters"}
                           </SheetTitle>
-                          <SheetDescription>Refine your property search results</SheetDescription>
+                          <SheetDescription>{s.advancedFilters?.subtitle || "Refine your property search results"}</SheetDescription>
                         </SheetHeader>
 
                         <div className="py-6 space-y-8">
                           {/* Property Type */}
                           <div className="space-y-3">
-                            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500">Property Type</h4>
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500">{s.advancedFilters?.propertyType || "Property Type"}</h4>
                             <div className="grid grid-cols-2 gap-2">
-                              {['House', 'Apartment', 'Condo', 'Villa', 'Land', 'Hotel', 'Guest House', 'Vacation Rental'].map((type) => (
-                                <Button
-                                  key={type}
-                                  variant={filterPropertyType === type.toLowerCase().replace(' ', '_') ? 'default' : 'outline'}
-                                  onClick={() => setFilterPropertyType(type.toLowerCase().replace(' ', '_'))}
-                                  className="justify-start h-10"
-                                >
-                                  {type}
-                                </Button>
-                              ))}
+                              {['House', 'Apartment', 'Condo', 'Villa', 'Land', 'Hotel', 'Guest House', 'Vacation Rental'].map((type) => {
+                                const typeKey = type.toLowerCase().replace(' ', '');
+                                const translatedType = (s.advancedFilters?.types as any)?.[typeKey] || type;
+                                return (
+                                  <Button
+                                    key={type}
+                                    variant={filterPropertyType === type.toLowerCase().replace(' ', '_') ? 'default' : 'outline'}
+                                    onClick={() => setFilterPropertyType(type.toLowerCase().replace(' ', '_'))}
+                                    className="justify-start h-10"
+                                  >
+                                    {translatedType}
+                                  </Button>
+                                );
+                              })}
                             </div>
                           </div>
 
                           {/* Rooms */}
                           <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-3">
-                              <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Bedrooms</h4>
+                              <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">{s.advancedFilters?.bedrooms || "Bedrooms"}</h4>
                               <Select value={filterBedrooms} onValueChange={setFilterBedrooms}>
-                                <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
+                                <SelectTrigger><SelectValue placeholder={s.advancedFilters?.any || "Any"} /></SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="all">Any</SelectItem>
-                                  {[1, 2, 3, 4, 5].map(n => <SelectItem key={n} value={n.toString()}>{n}+ Beds</SelectItem>)}
+                                  <SelectItem value="all">{s.advancedFilters?.any || "Any"}</SelectItem>
+                                  {[1, 2, 3, 4, 5].map(n => <SelectItem key={n} value={n.toString()}>{n}{s.advancedFilters?.bedsSuffix || "+ Beds"}</SelectItem>)}
                                 </SelectContent>
                               </Select>
                             </div>
                             <div className="space-y-3">
-                              <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Bathrooms</h4>
+                              <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">{s.advancedFilters?.bathrooms || "Bathrooms"}</h4>
                               <Select value={filterBathrooms} onValueChange={setFilterBathrooms}>
-                                <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
+                                <SelectTrigger><SelectValue placeholder={s.advancedFilters?.any || "Any"} /></SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="all">Any</SelectItem>
-                                  {[1, 2, 3, 4].map(n => <SelectItem key={n} value={n.toString()}>{n}+ Baths</SelectItem>)}
+                                  <SelectItem value="all">{s.advancedFilters?.any || "Any"}</SelectItem>
+                                  {[1, 2, 3, 4].map(n => <SelectItem key={n} value={n.toString()}>{n}{s.advancedFilters?.bathsSuffix || "+ Baths"}</SelectItem>)}
                                 </SelectContent>
                               </Select>
                             </div>
@@ -288,18 +296,18 @@ const PropertyPage = () => {
 
                           {/* Price Range */}
                           <div className="space-y-3">
-                            <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Price Range (XAF)</h4>
+                            <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">{s.advancedFilters?.priceRange || "Price Range (XAF)"}</h4>
                             <div className="flex items-center gap-3">
-                              <Input type="number" placeholder="Min" value={priceRange.min} onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })} />
+                              <Input type="number" placeholder={s.advancedFilters?.min || "Min"} value={priceRange.min} onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })} />
                               <span className="text-slate-400">-</span>
-                              <Input type="number" placeholder="Max" value={priceRange.max} onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })} />
+                              <Input type="number" placeholder={s.advancedFilters?.max || "Max"} value={priceRange.max} onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })} />
                             </div>
                           </div>
                         </div>
 
                         <SheetFooter className="absolute bottom-0 left-0 w-full p-6 bg-slate-50 border-t flex flex-row gap-3">
-                          <Button variant="ghost" onClick={clearAllFilters} className="flex-1">Reset All</Button>
-                          <Button onClick={() => { }} className="flex-1 bg-blue-600 hover:bg-blue-700">Apply Filters</Button>
+                          <Button variant="ghost" onClick={clearAllFilters} className="flex-1">{s.advancedFilters?.resetAll || "Reset All"}</Button>
+                          <Button onClick={() => { }} className="flex-1 bg-blue-600 hover:bg-blue-700">{s.advancedFilters?.applyFilters || "Apply Filters"}</Button>
                         </SheetFooter>
                       </SheetContent>
                     </Sheet>
@@ -309,13 +317,13 @@ const PropertyPage = () => {
                     <Select value={sortBy} onValueChange={setSortBy}>
                       <SelectTrigger className="w-[160px] h-11 border-none bg-slate-50">
                         <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
-                        <SelectValue placeholder="Sort" />
+                        <SelectValue placeholder={s.filterBar?.sort?.placeholder || "Sort"} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="recent">Newest First</SelectItem>
-                        <SelectItem value="price-low">Price: Low to High</SelectItem>
-                        <SelectItem value="price-high">Price: High to Low</SelectItem>
-                        <SelectItem value="popular">Popularity</SelectItem>
+                        <SelectItem value="recent">{s.filterBar?.sort?.newest || "Newest First"}</SelectItem>
+                        <SelectItem value="price-low">{s.filterBar?.sort?.priceLowToHigh || "Price: Low to High"}</SelectItem>
+                        <SelectItem value="price-high">{s.filterBar?.sort?.priceHighToLow || "Price: High to Low"}</SelectItem>
+                        <SelectItem value="popular">{s.filterBar?.sort?.popular || "Popularity"}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -325,7 +333,7 @@ const PropertyPage = () => {
               {/* ACTIVE FILTER BADGES */}
               {(searchTerm || filterStatus !== 'all' || filterListingType !== 'all') && (
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mr-2">Active Filters:</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mr-2">{s.activeFilters?.label || "Active Filters:"}</span>
                   {searchTerm && (
                     <Badge variant="secondary" className="bg-white border text-slate-600 px-3 py-1 rounded-full gap-2">
                       "{searchTerm}" <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchTerm('')} />
@@ -333,11 +341,11 @@ const PropertyPage = () => {
                   )}
                   {filterStatus !== 'all' && (
                     <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100 px-3 py-1 rounded-full gap-2">
-                      Status: {filterStatus} <X className="w-3 h-3 cursor-pointer" onClick={() => setFilterStatus('all')} />
+                      {s.activeFilters?.statusPrefix || "Status:"} {filterStatus} <X className="w-3 h-3 cursor-pointer" onClick={() => setFilterStatus('all')} />
                     </Badge>
                   )}
                   <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs text-slate-400 hover:text-red-500">
-                    Clear all
+                    {s.activeFilters?.clearAll || "Clear all"}
                   </Button>
                 </div>
               )}
@@ -347,19 +355,19 @@ const PropertyPage = () => {
                 {loading ? (
                   <div className="flex flex-col items-center justify-center py-32 space-y-4">
                     <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
-                    <p className="text-slate-500 font-medium">Loading your properties...</p>
+                    <p className="text-slate-500 font-medium">{s.emptyStates?.loading || "Loading your properties..."}</p>
                   </div>
                 ) : properties.length === 0 ? (
                   <div className="bg-white rounded-3xl border-2 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
                     <div className={`p-6 rounded-full mb-6 ${pageConfig.color}`}>
                       <PageIcon className="w-12 h-12" />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">No properties found</h3>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">{s.emptyStates?.noPropertiesFound || "No properties found"}</h3>
                     <p className="text-slate-500 max-w-xs mb-8">
-                      We couldn't find any properties matching your current criteria. Try adjusting your filters.
+                      {s.emptyStates?.noPropertiesDesc || "We couldn't find any properties matching your current criteria. Try adjusting your filters."}
                     </p>
                     <Button onClick={clearAllFilters} variant="outline" className="rounded-full px-8">
-                      Reset all filters
+                      {s.emptyStates?.resetAllFilters || "Reset all filters"}
                     </Button>
                   </div>
                 ) : (

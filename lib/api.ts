@@ -379,6 +379,10 @@ class ApiClient {
   async getWallet() { return (await this.client.get('/wallet')).data; }
   async getWalletTransactions(limit?: number) { return (await this.client.get('/wallet/transactions', { params: { limit } })).data; }
   async getWalletStats() { return (await this.client.get('/wallet/stats')).data; }
+  async withdrawFunds(data: { amount: number; withdrawalMethod: 'mtn_momo' | 'orange_money' | 'bank_transfer'; accountNumber: string; accountName?: string; bankCode?: string }) { return (await this.client.post('/wallet/withdraw', data)).data; }
+  async updateWalletBankAccount(data: { accountName: string; accountNumber: string; bankName: string; bankCode: string }) { return (await this.client.post('/wallet/bank', data)).data; }
+  async updateWalletMobileMoney(data: { phoneNumber: string; provider: 'MTN' | 'ORANGE' }) { return (await this.client.post('/wallet/mobile', data)).data; }
+  async enableAutoWithdrawal(threshold: number) { return (await this.client.post('/wallet/auto-withdraw', { threshold })).data; }
 
   // ─── Inquiries ────────────────────────────────────────────────────────────
   async getInquiryStats() { return (await this.client.get('/inquiries/stats')).data; }

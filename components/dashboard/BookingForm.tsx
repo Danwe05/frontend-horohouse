@@ -22,6 +22,7 @@ import BookingPaymentModal from './Bookingpaymentmodal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Room, ROOM_TYPE_LABELS } from '@/types/room';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Types (mirror what BookingPanel passes) ──────────────────────────────────
 
@@ -86,6 +87,8 @@ export default function BookingForm({ property }: Props) {
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
   const { formatMoney } = useCurrency();
+  const { t } = useLanguage();
+  const s = (t as any)?.bookings?.bookingForm || {};
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [guestCount, setGuestCount] = useState({ adults: 1, children: 0, infants: 0 });
@@ -160,10 +163,10 @@ export default function BookingForm({ property }: Props) {
 
   if (nights >= 28 && property.monthlyDiscountPercent) {
     discountAmount = subtotalBeforeDiscount * (property.monthlyDiscountPercent / 100);
-    discountLabel = `${property.monthlyDiscountPercent}% Monthly Discount`;
+    discountLabel = `${property.monthlyDiscountPercent}% ${s.monthlyDiscount || 'Monthly Discount'}`;
   } else if (nights >= 7 && property.weeklyDiscountPercent) {
     discountAmount = subtotalBeforeDiscount * (property.weeklyDiscountPercent / 100);
-    discountLabel = `${property.weeklyDiscountPercent}% Weekly Discount`;
+    discountLabel = `${property.weeklyDiscountPercent}% ${s.weeklyDiscount || 'Weekly Discount'}`;
   }
 
   const subtotal = subtotalBeforeDiscount - discountAmount;
@@ -259,11 +262,11 @@ export default function BookingForm({ property }: Props) {
             <span className="text-3xl font-black text-slate-900 tracking-tight">
               {formatMoney(pricePerNight)}
             </span>
-            <span className="text-slate-400 ml-1 font-medium">/ night</span>
+            <span className="text-slate-400 ml-1 font-medium">/ {s.night || 'night'}</span>
           </div>
           {property.isInstantBookable && (
             <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-              <Zap className="h-3 w-3" /> Instant Book
+              <Zap className="h-3 w-3" /> {s.instantBook || 'Instant Book'}
             </span>
           )}
         </div>
@@ -272,10 +275,10 @@ export default function BookingForm({ property }: Props) {
         {isMultiRoom && rooms.length > 0 && (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Select Room</label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">{s.selectRoom || 'Select Room'}</label>
               <Select value={selectedRoomId} onValueChange={setSelectedRoomId}>
                 <SelectTrigger className="w-full h-12 rounded-xl border-slate-200">
-                  <SelectValue placeholder="Choose a room" />
+                  <SelectValue placeholder={s.chooseRoom || 'Choose a room'} />
                 </SelectTrigger>
                 <SelectContent>
                   {rooms.map(room => (
@@ -284,7 +287,7 @@ export default function BookingForm({ property }: Props) {
                         <BedDouble className="h-4 w-4 text-slate-400" />
                         <div className="flex flex-col text-left">
                           <span className="font-semibold text-slate-900">{room.name} {room.roomNumber && `(#${room.roomNumber})`}</span>
-                           <span className="text-xs text-slate-500">{ROOM_TYPE_LABELS[room.roomType]} • Max {room.maxGuests} guests {room.price ? `• ${formatMoney(room.price)}/night` : ''}</span>
+                           <span className="text-xs text-slate-500">{ROOM_TYPE_LABELS[room.roomType]} • Max {room.maxGuests} {s.guests || 'guests'} {room.price ? `• ${formatMoney(room.price)}/${s.night || 'night'}` : ''}</span>
                         </div>
                       </div>
                     </SelectItem>
@@ -296,7 +299,7 @@ export default function BookingForm({ property }: Props) {
             {/* Selected Room Details (Images/Amenities Preview) */}
             {selectedRoom && selectedRoom.images && selectedRoom.images.length > 0 && (
               <div className="space-y-2 pt-1 border-t border-slate-100">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Room Photos</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{s.roomPhotos || 'Room Photos'}</p>
                 <div className="flex gap-2 overflow-x-auto pb-2 snap-x hide-scrollbar scroll-smooth">
                   {selectedRoom.images.map((img, i) => (
                     <div key={img.publicId || i} className="relative aspect-[4/3] w-32 flex-shrink-0 snap-start overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
@@ -318,21 +321,21 @@ export default function BookingForm({ property }: Props) {
           <PopoverTrigger asChild>
             <button className="w-full rounded-xl border border-slate-200 p-3 text-left hover:border-blue-400 transition-colors">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">
-                Check-in → Check-out
+                {s.checkInCheckOut || 'Check-in → Check-out'}
               </p>
               {dateRange?.from ? (
                 <p className="text-sm font-semibold text-slate-900">
                   {format(dateRange.from, 'MMM d')}
-                  {dateRange.to ? ` → ${format(dateRange.to, 'MMM d, yyyy')}` : ' → Select checkout'}
+                  {dateRange.to ? ` → ${format(dateRange.to, 'MMM d, yyyy')}` : ` → ${s.selectCheckout || 'Select checkout'}`}
                   {nights > 0 && (
                     <span className="ml-2 text-xs font-normal text-slate-400">
-                      {nights} night{nights !== 1 ? 's' : ''}
+                      {nights} {nights !== 1 ? (s.nights || 'nights') : (s.night || 'night')}
                     </span>
                   )}
                 </p>
               ) : (
                 <p className="text-sm text-slate-400 flex items-center gap-2">
-                  <Calendar className="h-4 w-4" /> Select dates
+                  <Calendar className="h-4 w-4" /> {s.selectDates || 'Select dates'}
                 </p>
               )}
             </button>
@@ -348,7 +351,7 @@ export default function BookingForm({ property }: Props) {
             />
             {minNights > 1 && (
               <p className="px-4 pb-3 text-xs text-slate-400 flex items-center gap-1">
-                <Info className="h-3 w-3" /> Minimum {minNights} nights
+                <Info className="h-3 w-3" /> {s.minimumNights?.replace('{minNights}', minNights.toString()) || `Minimum ${minNights} nights`}
               </p>
             )}
           </PopoverContent>
@@ -358,20 +361,20 @@ export default function BookingForm({ property }: Props) {
         <Popover open={guestOpen} onOpenChange={setGuestOpen}>
           <PopoverTrigger asChild>
             <button className="w-full rounded-xl border border-slate-200 p-3 text-left hover:border-blue-400 transition-colors">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Guests</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">{s.guests || 'Guests'}</p>
               <p className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                 <Users className="h-4 w-4 text-slate-400" />
-                {guestCount.adults} adult{guestCount.adults > 1 ? 's' : ''}
-                {guestCount.children > 0 && `, ${guestCount.children} child${guestCount.children > 1 ? 'ren' : ''}`}
-                {guestCount.infants > 0 && `, ${guestCount.infants} infant${guestCount.infants > 1 ? 's' : ''}`}
+                {guestCount.adults} {guestCount.adults > 1 ? (s.adults || 'adults') : (s.adult || 'adult')}
+                {guestCount.children > 0 && `, ${guestCount.children} ${guestCount.children > 1 ? (s.children || 'children') : (s.child || 'child')}`}
+                {guestCount.infants > 0 && `, ${guestCount.infants} ${guestCount.infants > 1 ? (s.infants || 'infants') : (s.infant || 'infant')}`}
               </p>
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-72 p-4 space-y-4" align="start">
             {([
-              { key: 'adults', label: 'Adults', sub: 'Age 13+', min: 1 },
-              { key: 'children', label: 'Children', sub: 'Ages 2–12', min: 0 },
-              { key: 'infants', label: 'Infants', sub: 'Under 2', min: 0 },
+              { key: 'adults', label: s.lblAdults || 'Adults', sub: s.lblAge13 || 'Age 13+', min: 1 },
+              { key: 'children', label: s.lblChildren || 'Children', sub: s.lblAge2_12 || 'Ages 2–12', min: 0 },
+              { key: 'infants', label: s.lblInfants || 'Infants', sub: s.lblUnder2 || 'Under 2', min: 0 },
             ] as const).map(({ key, label, sub, min }) => (
               <div key={key} className="flex items-center justify-between">
                 <div>
@@ -389,7 +392,7 @@ export default function BookingForm({ property }: Props) {
               </div>
             ))}
             {maxGuests < 99 && (
-              <p className="text-xs text-slate-400 pt-1">Max {maxGuests} guests allowed.</p>
+              <p className="text-xs text-slate-400 pt-1">{s.maxGuestsAllowed?.replace('{maxGuests}', maxGuests.toString()) || `Max ${maxGuests} guests allowed.`}</p>
             )}
           </PopoverContent>
         </Popover>
@@ -408,13 +411,13 @@ export default function BookingForm({ property }: Props) {
               className="w-full flex items-center justify-between text-slate-700 font-medium"
               onClick={() => setShowBreakdown(b => !b)}
             >
-              <span>Price breakdown</span>
+              <span>{s.priceBreakdown || 'Price breakdown'}</span>
               {showBreakdown ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </button>
             {showBreakdown && (
               <div className="space-y-1.5 pt-2">
                 <div className="flex justify-between text-slate-600">
-                  <span>{formatMoney(pricePerNight)} × {nights} nights</span>
+                  <span>{formatMoney(pricePerNight)} × {nights} {s.nights || 'nights'}</span>
                   <span>{formatMoney(subtotalBeforeDiscount)}</span>
                 </div>
                 {discountAmount > 0 && (
@@ -425,19 +428,19 @@ export default function BookingForm({ property }: Props) {
                 )}
                 {cleaningFee > 0 && (
                   <div className="flex justify-between text-slate-600">
-                    <span>Cleaning fee</span><span>{formatMoney(cleaningFee)}</span>
+                    <span>{s.cleaningFee || 'Cleaning fee'}</span><span>{formatMoney(cleaningFee)}</span>
                   </div>
                 )}
                 {serviceFee > 0 && (
                   <div className="flex justify-between text-slate-600">
-                    <span>Service fee</span><span>{formatMoney(serviceFee)}</span>
+                    <span>{s.serviceFee || 'Service fee'}</span><span>{formatMoney(serviceFee)}</span>
                   </div>
                 )}
               </div>
             )}
             <Separator />
             <div className="flex items-center justify-between font-bold text-slate-900">
-              <span>Total</span><span>{formatMoney(total)}</span>
+              <span>{s.total || 'Total'}</span><span>{formatMoney(total)}</span>
             </div>
           </div>
         )}
@@ -445,8 +448,8 @@ export default function BookingForm({ property }: Props) {
         {/* Check-in/out times */}
         {(property.shortTermAmenities?.checkInTime || property.shortTermAmenities?.checkOutTime) && (
           <div className="flex gap-4 text-xs text-slate-400">
-            {property.shortTermAmenities.checkInTime && <span>Check-in after {property.shortTermAmenities.checkInTime}</span>}
-            {property.shortTermAmenities.checkOutTime && <span>Check-out before {property.shortTermAmenities.checkOutTime}</span>}
+            {property.shortTermAmenities.checkInTime && <span>{s.checkInAfter || 'Check-in after'} {property.shortTermAmenities.checkInTime}</span>}
+            {property.shortTermAmenities.checkOutTime && <span>{s.checkOutBefore || 'Check-out before'} {property.shortTermAmenities.checkOutTime}</span>}
           </div>
         )}
 
@@ -458,10 +461,10 @@ export default function BookingForm({ property }: Props) {
             onClick={handleBook}
           >
             {submitting
-              ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Creating booking…</>
+              ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> {s.creatingBooking || 'Creating booking…'}</>
               : nights > 0
-                ? `Book · ${formatMoney(total)}`
-                : 'Select dates to book'
+                ? `${s.book || 'Book'} · ${formatMoney(total)}`
+                : (s.selectDatesToBook || 'Select dates to book')
             }
           </Button>
         ) : (
@@ -469,7 +472,7 @@ export default function BookingForm({ property }: Props) {
             className="w-full h-12 font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
             onClick={() => router.push('/auth/login')}
           >
-            <Lock className="h-4 w-4 mr-2" /> Log in to Book
+            <Lock className="h-4 w-4 mr-2" /> {s.loggedInToBook || 'Log in to Book'}
           </Button>
         )}
 
@@ -477,7 +480,7 @@ export default function BookingForm({ property }: Props) {
         {property.cancellationPolicy && (
           <p className="text-xs text-center text-slate-400 flex items-center justify-center gap-1">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-            <span className="capitalize">{property.cancellationPolicy.replace(/_/g, ' ')}</span> cancellation policy
+            <span className="capitalize">{property.cancellationPolicy.replace(/_/g, ' ')}</span> {s.cancellationPolicy || 'cancellation policy'}
           </p>
         )}
       </div>

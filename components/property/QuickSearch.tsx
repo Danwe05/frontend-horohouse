@@ -16,6 +16,7 @@ import SaveSearchModal from "@/components/saved-searches/SaveSearchModal";
 import { toast } from "sonner";
 import apiClient from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function normalizeDiacritics(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -117,9 +118,11 @@ const TYPE_TABS = [
 function ListingTypeTabs({
   value,
   onChange,
+  t,
 }: {
   value: string;
   onChange: (v: string) => void;
+  t: any;
 }) {
   return (
     <div className="inline-flex bg-muted rounded-full p-2.5 gap-0.5">
@@ -145,7 +148,7 @@ function ListingTypeTabs({
             `}
           >
             <Icon className="h-3.5 w-3.5" />
-            {tab.label}
+            {tab.value === "rent" ? t.quickSearchExtras.rent : tab.value === "sale" ? t.quickSearchExtras.buy : t.quickSearchExtras.stay}
           </button>
         );
       })}
@@ -159,6 +162,7 @@ function ListingTypeTabs({
 
 const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSearchProps) => {
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
 
   // Resolve initial listing type — default to "rent"
   const initListingType = initialFilters?.listingType ?? "rent";
@@ -209,7 +213,12 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
     setMaxBudget("any");
   }, [listingType]);
 
-  const priceOptions = getPriceOptions(listingType);
+  const rawPriceOptions = getPriceOptions(listingType);
+  const priceOptions = rawPriceOptions.map(opt => ({
+    ...opt,
+    label: opt.value === "any" ? t.quickSearchExtras.noLimit : opt.label,
+    shortLabel: opt.value === "any" ? t.quickSearchExtras.any : opt.shortLabel
+  }));
 
   const getCurrentFilters = useCallback((): QuickSearchFilters => {
     const f: QuickSearchFilters = {
@@ -233,7 +242,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
     const filters: Array<{ key: string; label: string; onRemove: () => void }> = [];
     if (city) filters.push({ key: "city", label: city, onRemove: () => setCity("") });
     if (listingType !== "rent") {
-      const labels: Record<string, string> = { sale: "Buy", rent: "Rent", short_term: "Stay" };
+      const labels: Record<string, string> = { sale: t.quickSearchExtras.buy, rent: t.quickSearchExtras.rent, short_term: t.quickSearchExtras.stay };
       filters.push({ key: "listingType", label: labels[listingType] ?? listingType, onRemove: () => setListingType("rent") });
     }
     if (minBudget !== "any") {
@@ -263,17 +272,17 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
   const handleSaveSearch = async (data: any) => {
     try {
       await apiClient.createSavedSearch(data);
-      toast.success("Search saved successfully!", { description: "You will be notified when new properties match your criteria." });
+      toast.success(t.quickSearchExtras.searchSaved, { description: t.quickSearchExtras.searchSavedDesc });
       setShowSaveModal(false);
     } catch (error: any) {
-      toast.error("Failed to save search", { description: error?.response?.data?.message || "Please try again later." });
+      toast.error(t.quickSearchExtras.failedToSaveSearch, { description: error?.response?.data?.message || "Please try again later." });
       throw error;
     }
   };
 
   const handleSaveButtonClick = () => {
-    if (!isAuthenticated) { toast.error("Login required", { description: "Please login to save your searches." }); return; }
-    if (!hasSearched) { toast.error("No search to save", { description: "Please perform a search first." }); return; }
+    if (!isAuthenticated) { toast.error(t.messages.loginRequired, { description: t.messages.loginRequiredDesc || "Please login to save your searches." }); return; }
+    if (!hasSearched) { toast.error(t.quickSearchExtras.noSearchToSave, { description: t.quickSearchExtras.noSearchToSaveDesc }); return; }
     setShowSaveModal(true);
   };
 
@@ -444,7 +453,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
       <div className="hidden lg:block">
         {/* Row 1: Type tabs */}
         <div className="flex justify-center items-center mb-6">
-          <ListingTypeTabs value={listingType} onChange={setListingType} />
+          <ListingTypeTabs value={listingType} onChange={setListingType} t={t} />
         </div>
 
         {/* Row 2: Premium Full-Width Search Pill */}
@@ -453,14 +462,14 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
 
             {/* Location */}
             <div className="flex flex-col relative flex-[1.5] pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors" ref={suggestionsRef} onClick={() => cityInputRef.current?.focus()}>
-              <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Where</label>
+              <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.where}</label>
               <Input
                 ref={cityInputRef}
                 value={city}
                 onChange={(e) => handleCityChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onFocus={() => setShowSuggestions(true)}
-                placeholder="Search destinations"
+                placeholder={t.quickSearchExtras.searchDestinations}
                 className="border-none bg-transparent shadow-none focus-visible:ring-0 p-0 h-auto text-[15px] font-medium placeholder:text-slate-400 placeholder:font-normal truncate"
                 autoComplete="off"
               />
@@ -470,7 +479,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                   {recentSearches.length > 0 && (
                     <div className="px-2 pb-2 mb-2 border-b border-slate-50">
                       <div className="flex items-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                        Recent Searches
+                        {t.quickSearchExtras.recentSearches}
                       </div>
                       {recentSearches.map((s, i) => (
                         <button key={i} onClick={(e) => { e.stopPropagation(); handleRecentSearchClick(s); }} className={`w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 rounded-xl transition-colors group ${selectedIndex === i ? "bg-slate-50" : ""}`}>
@@ -483,7 +492,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                   {suggestions.length > 0 && (
                     <div className="px-2">
                       <div className="flex items-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                        Suggested
+                        {t.quickSearchExtras.suggested}
                       </div>
                       {suggestions.map((s, i) => {
                         const ai = i + recentSearches.length;
@@ -511,9 +520,9 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 <Popover>
                   <PopoverTrigger asChild>
                     <div className="flex flex-col flex-1 px-6 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
-                      <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Check in</label>
+                      <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.checkIn}</label>
                       <div className={`text-[15px] font-medium truncate ${checkIn ? "text-slate-800" : "text-slate-400"}`}>
-                        {checkIn ? format(checkIn, "MMM d, yyyy") : "Add dates"}
+                        {checkIn ? format(checkIn, "MMM d, yyyy") : t.quickSearchExtras.addDates}
                       </div>
                     </div>
                   </PopoverTrigger>
@@ -525,9 +534,9 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 <Popover>
                   <PopoverTrigger asChild>
                     <div className="flex flex-col flex-1 px-6 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
-                      <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Check out</label>
+                      <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.checkOut}</label>
                       <div className={`text-[15px] font-medium truncate ${checkOut ? "text-slate-800" : "text-slate-400"}`}>
-                        {checkOut ? format(checkOut, "MMM d, yyyy") : "Add dates"}
+                        {checkOut ? format(checkOut, "MMM d, yyyy") : t.quickSearchExtras.addDates}
                       </div>
                     </div>
                   </PopoverTrigger>
@@ -537,14 +546,14 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 </Popover>
 
                 <div className="flex flex-col flex-1 pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
-                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Who</label>
+                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.who}</label>
                   <Select value={guests} onValueChange={setGuests}>
                     <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
-                      <SelectValue placeholder="Add guests" />
+                      <SelectValue placeholder={t.quickSearchExtras.addGuests} />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[150px]">
-                      <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">Any</SelectItem>
-                      {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => <SelectItem key={n} value={String(n)} className="font-medium rounded-xl cursor-pointer">{n}+ guests</SelectItem>)}
+                      <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">{t.quickSearchExtras.any}</SelectItem>
+                      {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => <SelectItem key={n} value={String(n)} className="font-medium rounded-xl cursor-pointer">{n}+ {t.quickSearchExtras.guests}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -553,26 +562,26 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
               // Non Short-term inputs
               <>
                 <div className="flex flex-col flex-1 px-6 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
-                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Beds</label>
+                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.beds}</label>
                   <Select value={bedrooms} onValueChange={setBedrooms}>
                     <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
-                      <SelectValue placeholder="Add beds" />
+                      <SelectValue placeholder={t.quickSearchExtras.addBeds} />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[150px]">
-                      <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">Any</SelectItem>
-                      {["1", "2", "3", "4"].map((n) => <SelectItem key={n} value={n} className="font-medium rounded-xl cursor-pointer">{n}+ beds</SelectItem>)}
+                      <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">{t.quickSearchExtras.anyBeds}</SelectItem>
+                      {["1", "2", "3", "4"].map((n) => <SelectItem key={n} value={n} className="font-medium rounded-xl cursor-pointer">{n} {t.quickSearchExtras.beds}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex flex-col flex-1 pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
-                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Baths</label>
+                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.baths}</label>
                   <Select value={bathrooms} onValueChange={setBathrooms}>
                     <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
-                      <SelectValue placeholder="Add baths" />
+                      <SelectValue placeholder={t.quickSearchExtras.addBaths} />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[150px]">
-                      <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">Any</SelectItem>
-                      {["1", "2", "3"].map((n) => <SelectItem key={n} value={n} className="font-medium rounded-xl cursor-pointer">{n}+ baths</SelectItem>)}
+                      <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">{t.quickSearchExtras.anyBaths}</SelectItem>
+                      {["1", "2", "3"].map((n) => <SelectItem key={n} value={n} className="font-medium rounded-xl cursor-pointer">{n} {t.quickSearchExtras.baths}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -580,10 +589,10 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
             )}
 
             <div className="flex flex-col flex-1 pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
-              <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">Max Price</label>
+              <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.maxPrice}</label>
               <Select value={maxBudget} onValueChange={setMaxBudget}>
                 <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
-                  <SelectValue placeholder="Add max price" />
+                  <SelectValue placeholder={t.quickSearchExtras.addMaxPrice} />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[160px]">
                   {priceOptions.map((o) => <SelectItem key={o.value} value={o.value} className="font-medium rounded-xl cursor-pointer">{o.value === "any" ? "No max" : o.shortLabel}</SelectItem>)}
@@ -600,7 +609,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
               )}
               <Button className="rounded-full h-[52px] px-6 bg-blue-600 hover:bg-blue-700 hover:shadow-[0_8px_20px_-8px_rgba(37,99,235,0.6)] active:scale-95 transition-all duration-300 text-white border-0" onClick={handleSearch} disabled={isSearching}>
                 {isSearching ? <Loader2 className="h-5 w-5 animate-spin transition-transform" /> : <Search className="h-5 w-5 mr-1.5 transition-transform stroke-[2.5px]" />}
-                <span className="font-bold text-[16px]">Search</span>
+                <span className="font-bold text-[16px]">{t.quickSearchExtras.search}</span>
               </Button>
             </div>
           </div>
@@ -610,7 +619,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
         {hasActiveFilters && (
           <div className="flex justify-center mt-5 opacity-80 hover:opacity-100 transition-opacity">
             <Button variant="outline" className="rounded-full gap-2 h-9 px-4 text-xs font-semibold border-slate-200 text-slate-600 hover:text-slate-900  transition-all hover:border-slate-300 bg-white" onClick={handleSaveButtonClick}>
-              <Bookmark className="h-3.5 w-3.5" /> Save this search
+              <Bookmark className="h-3.5 w-3.5" /> {t.quickSearchExtras.saveThisSearch}
             </Button>
           </div>
         )}
@@ -626,9 +635,9 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
           >
             <Search className="h-5 w-5 text-slate-800 shrink-0" strokeWidth={2.5} />
             <div className="flex flex-col truncate">
-              <span className="text-[14px] font-bold text-slate-800 leading-tight">Where to?</span>
+              <span className="text-[14px] font-bold text-slate-800 leading-tight">{t.quickSearchExtras.whereTo}</span>
               <span className="text-[12px] text-slate-500 font-medium leading-tight mt-0.5 truncate">
-                {city ? city : "Anywhere"} • {isShortTerm ? (checkIn ? "Dates selected" : "Any week") : "Any time"} • {guests !== "any" ? `${guests} guests` : "Add guests"}
+                {city ? city : t.quickSearchExtras.anywhere} • {isShortTerm ? (checkIn ? t.quickSearchExtras.datesSelected : t.quickSearchExtras.anyWeek) : t.quickSearchExtras.anyTime} • {guests !== "any" ? `${guests} ${t.quickSearchExtras.guests}` : t.quickSearchExtras.addGuests}
               </span>
             </div>
           </div>
@@ -641,7 +650,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 <X className="h-5 w-5" />
               </Button>
               <div className="flex -mx-2">
-                <ListingTypeTabs value={listingType} onChange={setListingType} />
+                <ListingTypeTabs value={listingType} onChange={setListingType} t={t} />
               </div>
             </div>
 
@@ -660,7 +669,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                       onChange={(e) => handleCityChange(e.target.value)}
                       onKeyDown={handleKeyDown}
                       onFocus={() => setShowSuggestions(true)}
-                      placeholder="Where to?"
+                      placeholder={t.quickSearchExtras.whereTo}
                       className="w-full pl-12 pr-4 h-14 text-[16px] font-semibold bg-slate-50 border-transparent focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:bg-white rounded-2xl transition-all shadow-none"
                       autoComplete="off"
                     />
@@ -725,27 +734,27 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                     </Popover>
 
                     <div className="bg-slate-50 rounded-2xl p-3 col-span-2 hover:bg-slate-100/50 transition-colors">
-                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Guests</label>
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">{t.quickSearchExtras.guests}</label>
                       <select value={guests} onChange={(e) => setGuests(e.target.value)} className="w-full bg-transparent text-[15px] font-bold text-slate-800 focus:outline-none appearance-none">
-                        <option value="any">Any number of guests</option>
-                        {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => <option key={n} value={String(n)}>{n}+ guests</option>)}
+                        <option value="any">{t.quickSearchExtras.anyNumberOfGuests}</option>
+                        {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => <option key={n} value={String(n)}>{n}+ {t.quickSearchExtras.guests}</option>)}
                       </select>
                     </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-slate-50 rounded-2xl p-3 hover:bg-slate-100/50 transition-colors">
-                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Beds</label>
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">{t.quickSearchExtras.beds}</label>
                       <select value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="w-full bg-transparent text-[15px] font-bold text-slate-800 focus:outline-none appearance-none">
-                        <option value="any">Any beds</option>
-                        {["1", "2", "3", "4"].map((n) => <option key={n} value={n}>{n}+ beds</option>)}
+                        <option value="any">{t.quickSearchExtras.anyBeds}</option>
+                        {["1", "2", "3", "4"].map((n) => <option key={n} value={n}>{n}+ {t.quickSearchExtras.beds}</option>)}
                       </select>
                     </div>
                     <div className="bg-slate-50 rounded-2xl p-3 hover:bg-slate-100/50 transition-colors">
-                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Baths</label>
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">{t.quickSearchExtras.baths}</label>
                       <select value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} className="w-full bg-transparent text-[15px] font-bold text-slate-800 focus:outline-none appearance-none">
-                        <option value="any">Any baths</option>
-                        {["1", "2", "3"].map((n) => <option key={n} value={n}>{n}+ baths</option>)}
+                        <option value="any">{t.quickSearchExtras.anyBaths}</option>
+                        {["1", "2", "3"].map((n) => <option key={n} value={n}>{n}+ {t.quickSearchExtras.baths}</option>)}
                       </select>
                     </div>
                   </div>
@@ -754,9 +763,9 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 {/* Mobile Pricing */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-slate-50 rounded-2xl p-3 hover:bg-slate-100/50 transition-colors">
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">Max Price</label>
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-1">{t.quickSearchExtras.maxPrice}</label>
                     <select value={maxBudget} onChange={(e) => setMaxBudget(e.target.value)} className="w-full bg-transparent text-[15px] font-bold text-slate-800 focus:outline-none appearance-none">
-                      {priceOptions.map((o) => <option key={o.value} value={o.value}>{o.value === "any" ? "No max limit" : o.shortLabel}</option>)}
+                      {priceOptions.map((o) => <option key={o.value} value={o.value}>{o.value === "any" ? t.quickSearchExtras.noMaxLimit : o.shortLabel}</option>)}
                     </select>
                   </div>
                 </div>
@@ -764,7 +773,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 {hasActiveFilters && (
                   <div className="mt-8 flex justify-center">
                     <Button variant="outline" className="rounded-full gap-2 h-10 px-5 text-sm font-semibold border-slate-200 text-slate-600 hover:text-slate-900 transition-all bg-white w-full max-w-[200px]" onClick={handleSaveButtonClick}>
-                      <Bookmark className="h-4 w-4" /> Save this search
+                      <Bookmark className="h-4 w-4" /> {t.quickSearchExtras.saveThisSearch}
                     </Button>
                   </div>
                 )}
@@ -777,7 +786,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 onClick={(e) => { e.preventDefault(); clearAllFilters(); }}
                 className="text-[15px] font-bold text-slate-800 underline underline-offset-4 decoration-2 decoration-slate-300 hover:decoration-slate-800 transition-colors ml-2"
               >
-                Clear all
+                {t.propertiesPage.clear}
               </button>
               <Button
                 className="h-[52px] rounded-full px-10 bg-blue-600 hover:bg-blue-700 text-white border-0 flex items-center gap-2 active:scale-95 transition-all text-[16px]"
@@ -785,7 +794,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 disabled={isSearching}
               >
                 {isSearching ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5 stroke-[2.5px]" />}
-                <span className="font-bold">Search</span>
+                <span className="font-bold">{t.quickSearchExtras.search}</span>
               </Button>
             </div>
           </div>

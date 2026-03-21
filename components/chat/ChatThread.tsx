@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useVideoCall } from "@/hooks/useVideoCall";
 import { VideoCallOverlay } from './VideoCallOverlay';
 import { IncomingCallDialog } from './IncomingCallDialog';
+import { useLanguage } from '@/contexts/LanguageContext';
 import Image from "next/image";
 
 interface ChatThreadProps {
@@ -31,6 +32,8 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     onlineUsers,
     isConnected,
   } = useChatContext();
+  const { t } = useLanguage();
+  const s = (t as any)?.messages || {};
 
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -273,12 +276,12 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
           <div className="w-98 h-98 flex items-center justify-center mx-auto">
             <Image src="/messagePage/Texting.gif" alt="Chat Intro" width={100} height={100} style={{ height: "200px", width: "200px" }} />
           </div>
-          <h2 className="text-2xl font-bold mb-3">Your Messages</h2>
+          <h2 className="text-2xl font-bold mb-3">{s.yourMessages || 'Your Messages'}</h2>
           <p className="text-muted-foreground mb-6">
-            Select a conversation from the list to start messaging, or browse properties to connect with owners and agents.
+            {s.selectConversationDesc || 'Select a conversation from the list to start messaging, or browse properties to connect with owners and agents.'}
           </p>
           <Button onClick={() => router.push('/')} className="bg-primary">
-            Browse Properties
+            {s.browseProperties || 'Browse Properties'}
           </Button>
         </div>
       </div>
@@ -293,8 +296,8 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     return (
       <div className="flex-1 flex items-center justify-center bg-muted/20">
         <div className="text-center max-w-md p-8">
-          <h2 className="text-2xl font-bold mb-3">Authentication Required</h2>
-          <p className="text-muted-foreground mb-6">Please log in to access your messages.</p>
+          <h2 className="text-2xl font-bold mb-3">{s.authRequired || 'Authentication Required'}</h2>
+          <p className="text-muted-foreground mb-6">{s.pleaseLoginAccess || 'Please log in to access your messages.'}</p>
         </div>
       </div>
     );
@@ -353,11 +356,11 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="font-semibold">{otherUser?.name || "Unknown User"}</h2>
+              <h2 className="font-semibold">{otherUser?.name || (s.unknownUser || "Unknown User")}</h2>
               {isOtherUserOnline && (
                 <span className="flex items-center gap-1 text-xs text-green-600">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                  Online
+                  {s.online || 'Online'}
                 </span>
               )}
             </div>
@@ -392,7 +395,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
       {!isConnected && (
         <div className="px-4 py-2 bg-yellow-50 border-b border-yellow-200 flex items-center justify-center gap-2">
           <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-          <span className="text-sm text-yellow-700">Reconnecting to chat server...</span>
+          <span className="text-sm text-yellow-700">{s.reconnectingMsg || 'Reconnecting to chat server...'}</span>
         </div>
       )}
 
@@ -402,9 +405,9 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
           <div className="flex items-center justify-center h-full">
             <div className="text-center max-w-md">
               <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold text-lg mb-2">No messages yet</h3>
+              <h3 className="font-semibold text-lg mb-2">{s.noMessagesYetStr || 'No messages yet'}</h3>
               <p className="text-sm text-muted-foreground">
-                Start the conversation by sending a message to {otherUser?.name}
+                {s.startConversationWith?.replace('{name}', otherUser?.name) || `Start the conversation by sending a message to ${otherUser?.name}`}
               </p>
             </div>
           </div>
@@ -516,7 +519,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
             value={inputValue}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
+            placeholder={s.typeYourMessage || 'Type your message...'}
             className="flex-1 bg-muted border-0 rounded-full px-4"
             disabled={!isConnected}
           />

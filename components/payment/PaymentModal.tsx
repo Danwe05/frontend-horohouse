@@ -44,6 +44,9 @@ interface PaymentModalProps {
   onPaymentSubmit: (paymentMethod: PaymentMethod, email?: string, phone?: string) => void;
   loading?: boolean;
   error?: string;
+  /** Pre-filled from wallet's saved MoMo details */
+  savedPhone?: string;
+  savedProvider?: 'MTN' | 'ORANGE';
 }
 
 export function PaymentModal({
@@ -56,10 +59,21 @@ export function PaymentModal({
   onPaymentSubmit,
   loading = false,
   error,
+  savedPhone,
+  savedProvider,
 }: PaymentModalProps) {
-  const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>(PaymentMethod.CARD);
+  const savedPaymentMethod: PaymentMethod | null = savedProvider === 'MTN'
+    ? PaymentMethod.MTN_MOMO
+    : savedProvider === 'ORANGE'
+      ? PaymentMethod.ORANGE_MONEY
+      : null;
+
+  const [usingSaved, setUsingSaved] = React.useState(!!savedPaymentMethod);
+  const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>(
+    savedPaymentMethod ?? PaymentMethod.CARD
+  );
   const [email, setEmail] = React.useState('');
-  const [phone, setPhone] = React.useState('');
+  const [phone, setPhone] = React.useState(savedPhone ?? '');
   const [promoCode, setPromoCode] = React.useState('');
   const [savePaymentMethod, setSavePaymentMethod] = React.useState(false);
   const [acceptTerms, setAcceptTerms] = React.useState(false);
@@ -109,8 +123,8 @@ export function PaymentModal({
     if (!handleValidation()) {
       return;
     }
-
-    onPaymentSubmit(paymentMethod, email, phone || undefined);
+    const effectivePhone = usingSaved ? (savedPhone ?? phone) : phone;
+    onPaymentSubmit(paymentMethod, email, effectivePhone || undefined);
   };
 
   const paymentMethods = [
@@ -190,6 +204,38 @@ export function PaymentModal({
             </Alert>
           )}
 
+          {/* Saved payment method quick-pay */}
+          {savedPaymentMethod && (
+            <div className={`rounded-xl border-2 p-4 cursor-pointer transition-all ${
+              usingSaved
+                ? 'border-emerald-500 bg-emerald-50'
+                : 'border-slate-200 bg-white hover:border-slate-300'
+            }`} onClick={() => {
+              setUsingSaved(true);
+              setPaymentMethod(savedPaymentMethod);
+              setPhone(savedPhone ?? '');
+            }}>
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${ usingSaved ? 'bg-emerald-100' : 'bg-slate-100' }`}>
+                  <Smartphone className={`h-5 w-5 ${usingSaved ? 'text-emerald-700' : 'text-slate-500'}`} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-900">
+                      {savedProvider === 'MTN' ? 'MTN Mobile Money' : 'Orange Money'}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${ savedProvider === 'MTN' ? 'bg-yellow-400 text-yellow-900' : 'bg-orange-500 text-white' }`}>
+                      {savedProvider}
+                    </span>
+                    <span className="ml-auto text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Saved</span>
+                  </div>
+                  <p className="text-sm text-slate-500 mt-0.5">{savedPhone}</p>
+                </div>
+                {usingSaved && <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0" />}
+              </div>
+            </div>
+          )}
+
           {/* Amount Display */}
           <div className="bg-indigo-600 p-6 rounded-xl border-2 border-indigo-700 text-white">
             <div className="text-center">
@@ -266,8 +312,12 @@ export function PaymentModal({
 
           {/* Payment Method Selection */}
           <div className="space-y-4">
-            <Label className="text-gray-900 font-semibold">Select Payment Method</Label>
-            <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}>
+            <Label className="text-gray-900 font-semibold">{savedPaymentMethod ? 'Use another method' : 'Select Payment Method'}</Label>
+            <RadioGroup value={paymentMethod} onValueChange={(value) => {
+              setPaymentMethod(value as PaymentMethod);
+              setUsingSaved(false);
+              if (value !== PaymentMethod.MTN_MOMO && value !== PaymentMethod.ORANGE_MONEY) setPhone('');
+            }}>
               {paymentMethods.map((method) => (
                 <div 
                   key={method.value} 

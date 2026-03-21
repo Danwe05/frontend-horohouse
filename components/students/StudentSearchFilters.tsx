@@ -30,6 +30,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+import { useLanguage } from '@/contexts/LanguageContext';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface StudentFilters {
@@ -62,42 +64,6 @@ interface StudentSearchFiltersProps {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const CITIES = ['Buea', 'Dschang', 'Yaoundé', 'Douala', 'Ngaoundéré', 'Bamenda', 'Bafoussam'];
-
-const WATER_OPTIONS = [
-  { value: '', label: 'Any water source' },
-  { value: 'camwater', label: 'CAMWATER' },
-  { value: 'borehole', label: 'Borehole' },
-  { value: 'camwater_and_borehole', label: 'Dual (CAMWATER + borehole)' },
-  { value: 'tanker', label: 'Tanker delivery' },
-];
-
-const ELECTRICITY_OPTIONS = [
-  { value: '', label: 'Any backup' },
-  { value: 'solar', label: 'Solar panels' },
-  { value: 'generator', label: 'Generator' },
-  { value: 'solar_and_generator', label: 'Solar + Generator' },
-  { value: 'none', label: 'ENEO only (no backup)' },
-];
-
-const FURNISHING_OPTIONS = [
-  { value: '', label: 'Any furnishing' },
-  { value: 'furnished', label: 'Fully furnished' },
-  { value: 'semi_furnished', label: 'Semi-furnished' },
-  { value: 'unfurnished', label: 'Unfurnished' },
-];
-
-const GENDER_OPTIONS = [
-  { value: '', label: 'No restriction' },
-  { value: 'women_only', label: 'Women only' },
-  { value: 'men_only', label: 'Men only' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'campusProximityMeters-asc',   label: 'Closest to campus' },
-  { value: 'pricePerPersonMonthly-asc',   label: 'Price per person ↑' },
-  { value: 'pricePerPersonMonthly-desc',  label: 'Price per person ↓' },
-  { value: 'createdAt-desc',              label: 'Newest listings' },
-];
 
 // ─── Toggle chip ──────────────────────────────────────────────────────────────
 
@@ -136,6 +102,32 @@ export function StudentSearchFilters({
   activeCount,
 }: StudentSearchFiltersProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.filters || {};
+
+  const WATER_OPTIONS = [
+    { value: '', label: s.anyWater || 'Any water source' },
+    { value: 'camwater', label: s.camwater || 'CAMWATER' },
+    { value: 'borehole', label: s.borehole || 'Borehole' },
+    { value: 'camwater_and_borehole', label: s.dualWater || 'Dual (CAMWATER + borehole)' },
+    { value: 'tanker', label: s.tanker || 'Tanker delivery' },
+  ];
+
+  const ELECTRICITY_OPTIONS = [
+    { value: '', label: s.anyBackup || 'Any backup' },
+    { value: 'solar', label: s.solar || 'Solar panels' },
+    { value: 'generator', label: s.generator || 'Generator' },
+    { value: 'solar_and_generator', label: s.solarGen || 'Solar + Generator' },
+    { value: 'none', label: s.eneoOnly || 'ENEO only (no backup)' },
+  ];
+
+  const SORT_OPTIONS = [
+    { value: 'campusProximityMeters-asc',   label: s.sortClosest || 'Closest to campus' },
+    { value: 'pricePerPersonMonthly-asc',   label: s.sortPriceUp || 'Price per person ↑' },
+    { value: 'pricePerPersonMonthly-desc',  label: s.sortPriceDown || 'Price per person ↓' },
+    { value: 'createdAt-desc',              label: s.sortNewest || 'Newest listings' },
+  ];
 
   const set = (key: keyof StudentFilters, value: any) =>
     onChange({ ...filters, [key]: value || undefined });
@@ -158,13 +150,13 @@ export function StudentSearchFilters({
         {/* Desktop Quick Filters + Active Indicators */}
         <div className="hidden lg:flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
           <FilterChip
-            label="Verified"
+            label={s.verified || "Verified"}
             active={!!filters.studentApprovedOnly}
             icon={<CheckCircle2 className="w-3.5 h-3.5" />}
             onClick={() => toggleBool('studentApprovedOnly')}
           />
           <FilterChip
-            label="Beds available"
+            label={s.bedsAvailable || "Beds available"}
             active={!!filters.hasAvailableBeds}
             icon={<Bed className="w-3.5 h-3.5" />}
             onClick={() => toggleBool('hasAvailableBeds')}
@@ -207,7 +199,7 @@ export function StudentSearchFilters({
           className="lg:hidden flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-slate-900/30 shrink-0"
         >
           <SlidersHorizontal className="w-4 h-4" />
-          More Filters
+          {s.moreFilters || 'More Filters'}
           {activeCount > 0 && (
             <span className="bg-blue-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
               {activeCount}
@@ -222,7 +214,7 @@ export function StudentSearchFilters({
               onClick={onReset}
               className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 px-3 transition-colors"
             >
-              Reset
+              {s.reset || 'Reset'}
             </button>
           )}
 
@@ -246,7 +238,7 @@ export function StudentSearchFilters({
             className="hidden lg:flex items-center gap-3 bg-slate-900 hover:bg-slate-800 text-white h-11 px-6 rounded-full text-[11px] font-black uppercase tracking-widest transition-all active:scale-95"
           >
             <SlidersHorizontal className="w-4 h-4" />
-            More
+            {s.more || 'More'}
           </button>
         </div>
       </div>
@@ -254,12 +246,12 @@ export function StudentSearchFilters({
       <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DialogContent className="max-w-md w-full h-[85vh] flex flex-col p-0 border-slate-100 rounded-[32px] overflow-hidden gap-0 bg-white">
           <DialogHeader className="p-6 border-b border-slate-100 sticky top-0 bg-white z-10">
-            <DialogTitle className="text-xl font-black text-slate-900 tracking-tighter uppercase">Advanced Filters</DialogTitle>
+            <DialogTitle className="text-xl font-black text-slate-900 tracking-tighter uppercase">{s.advancedFilters || 'Advanced Filters'}</DialogTitle>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-10 no-scrollbar">
             <section>
-              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Preferred Location</Label>
+              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.prefLoc || 'Preferred Location'}</Label>
               <div className="flex flex-wrap gap-2">
                 {['', ...CITIES].map(c => (
                   <button
@@ -269,7 +261,7 @@ export function StudentSearchFilters({
                       ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20' 
                       : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'}`}
                   >
-                    {c || 'Any City'}
+                    {c || s.anyCity || 'Any City'}
                   </button>
                 ))}
               </div>
@@ -277,9 +269,9 @@ export function StudentSearchFilters({
 
             <section>
               <div className="flex justify-between items-center mb-6">
-                <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Campus Proximity</Label>
+                <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{s.campusProx || 'Campus Proximity'}</Label>
                 <span className="text-xs font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter">
-                  {filters.maxCampusProximityMeters ? `Max ${(filters.maxCampusProximityMeters/1000).toFixed(1)}km` : 'Any Distance'}
+                  {filters.maxCampusProximityMeters ? `${s.max || 'Max'} ${(filters.maxCampusProximityMeters/1000).toFixed(1)}km` : s.anyDist || 'Any Distance'}
                 </span>
               </div>
               <Slider
@@ -296,10 +288,10 @@ export function StudentSearchFilters({
             </section>
 
             <section>
-               <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Water & Power</Label>
+               <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.waterPower || 'Water & Power'}</Label>
                <div className="grid grid-cols-1 gap-3">
                   <div className="space-y-3">
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Water Source</p>
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{s.waterSrc || 'Water Source'}</p>
                     <div className="flex flex-wrap gap-2">
                       {WATER_OPTIONS.map(opt => (
                         <button
@@ -316,7 +308,7 @@ export function StudentSearchFilters({
                   </div>
 
                   <div className="space-y-3 mt-4">
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Electricity Backup</p>
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{s.elecBackup || 'Electricity Backup'}</p>
                     <div className="flex flex-wrap gap-2">
                       {ELECTRICITY_OPTIONS.map(opt => (
                         <button
@@ -335,18 +327,18 @@ export function StudentSearchFilters({
             </section>
 
             <section>
-               <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Living Rules</Label>
+               <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.livingRules || 'Living Rules'}</Label>
                <div className="flex flex-wrap gap-2">
-                 <FilterChip label="No Curfew" active={!!filters.noCurfew} onClick={() => toggleBool('noCurfew')} />
-                 <FilterChip label="Visitors Allowed" active={!!filters.visitorsAllowed} onClick={() => toggleBool('visitorsAllowed')} />
+                 <FilterChip label={s.noCurfew || "No Curfew"} active={!!filters.noCurfew} onClick={() => toggleBool('noCurfew')} />
+                 <FilterChip label={s.visAllowed || "Visitors Allowed"} active={!!filters.visitorsAllowed} onClick={() => toggleBool('visitorsAllowed')} />
                </div>
             </section>
 
             <section>
-               <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Property Security</Label>
+               <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.propSecurity || 'Property Security'}</Label>
                <div className="flex flex-wrap gap-2">
-                 <FilterChip label="Gated Compound" active={!!filters.hasGatedCompound} onClick={() => toggleBool('hasGatedCompound')} />
-                 <FilterChip label="Night Watchman" active={!!filters.hasNightWatchman} onClick={() => toggleBool('hasNightWatchman')} />
+                 <FilterChip label={s.gated || "Gated Compound"} active={!!filters.hasGatedCompound} onClick={() => toggleBool('hasGatedCompound')} />
+                 <FilterChip label={s.nightMan || "Night Watchman"} active={!!filters.hasNightWatchman} onClick={() => toggleBool('hasNightWatchman')} />
                </div>
             </section>
           </div>
@@ -356,7 +348,7 @@ export function StudentSearchFilters({
               onClick={() => setIsDrawerOpen(false)}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 text-sm font-black uppercase tracking-widest"
             >
-              Show Results
+              {s.showResults || 'Show Results'}
             </Button>
           </div>
         </DialogContent>

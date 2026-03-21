@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LifeBuoy, Mail, MessageSquare, Phone, Search } from "lucide-react";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const HelpSupport = () => {
+  const { t } = useLanguage();
+  const s = (t as any)?.helpSupport || {};
   const percentage = 89; // pourcentage dynamique
 
   const [query, setQuery] = useState("");
@@ -16,22 +19,22 @@ const HelpSupport = () => {
   const quickLinks = useMemo(
     () => [
       {
-        title: "Chat with support",
-        description: "Get help in minutes from our team",
+        title: s?.chatWithSupport || "Chat with support",
+        description: s?.getHelpInMinutes || "Get help in minutes from our team",
         icon: MessageSquare,
       },
       {
-        title: "Email us",
+        title: s?.emailUs || "Email us",
         description: "support@horohouse.com",
         icon: Mail,
       },
       {
-        title: "Call us",
+        title: s?.callUs || "Call us",
         description: "+1 (000) 000-0000",
         icon: Phone,
       },
     ],
-    []
+    [s]
   );
 
   return (
@@ -46,10 +49,10 @@ const HelpSupport = () => {
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
                 <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
-                  Help & Support
+                  {s?.helpAndSupport || "Help & Support"}
                 </h1>
                 <p className="mt-1 text-sm md:text-base text-slate-600">
-                  Find answers fast, or reach our team when you need it.
+                  {s?.findAnswersFast || "Find answers fast, or reach our team when you need it."}
                 </p>
               </div>
 
@@ -59,7 +62,7 @@ const HelpSupport = () => {
                   <Input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search help articles, topics, and keywords..."
+                    placeholder={s?.searchHelpArticles || "Search help articles, topics, and keywords..."}
                     className="pl-9 bg-white/80"
                   />
                 </div>
@@ -68,16 +71,16 @@ const HelpSupport = () => {
 
             <div className="mt-5 flex flex-wrap gap-2">
               <Button type="button" size="sm" variant="outline" className="bg-white/80 hover:bg-white">
-                Getting Started
+                {s?.gettingStarted || "Getting Started"}
               </Button>
               <Button type="button" size="sm" variant="outline" className="bg-white/80 hover:bg-white">
-                Payments
+                {s?.payments || "Payments"}
               </Button>
               <Button type="button" size="sm" variant="outline" className="bg-white/80 hover:bg-white">
-                Account
+                {s?.account || "Account"}
               </Button>
               <Button type="button" size="sm" variant="outline" className="bg-white/80 hover:bg-white">
-                Security
+                {s?.security || "Security"}
               </Button>
             </div>
           </div>
@@ -87,11 +90,11 @@ const HelpSupport = () => {
           <TabsList className="w-full md:w-fit bg-white border border-slate-200 shadow-sm">
             <TabsTrigger value="center" className="gap-2">
               <LifeBuoy className="h-4 w-4" />
-              Help Center
+              {s?.helpCenter || "Help Center"}
             </TabsTrigger>
             <TabsTrigger value="support" className="gap-2">
               <MessageSquare className="h-4 w-4" />
-              Customer Support
+              {s?.customerSupport || "Customer Support"}
             </TabsTrigger>
           </TabsList>
 
@@ -104,20 +107,20 @@ const HelpSupport = () => {
 
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Popular topics</CardTitle>
+                      <CardTitle className="text-base">{s?.popularTopics || "Popular topics"}</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Button type="button" variant="outline" className="justify-start bg-white hover:bg-slate-50">
-                        Account & Profile
+                        {s?.accountAndProfile || "Account & Profile"}
                       </Button>
                       <Button type="button" variant="outline" className="justify-start bg-white hover:bg-slate-50">
-                        Listings & Properties
+                        {s?.listingsAndProperties || "Listings & Properties"}
                       </Button>
                       <Button type="button" variant="outline" className="justify-start bg-white hover:bg-slate-50">
-                        Payments & Billing
+                        {s?.paymentsAndBilling || "Payments & Billing"}
                       </Button>
                       <Button type="button" variant="outline" className="justify-start bg-white hover:bg-slate-50">
-                        Security
+                        {s?.security || "Security"}
                       </Button>
                     </CardContent>
                   </Card>
@@ -129,7 +132,7 @@ const HelpSupport = () => {
 
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Need help now?</CardTitle>
+                      <CardTitle className="text-base">{s?.needHelpNow || "Need help now?"}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {quickLinks.map((item) => {
@@ -164,20 +167,20 @@ const HelpSupport = () => {
               <div className="lg:col-span-2">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Contact support</CardTitle>
+                    <CardTitle className="text-base">{s?.contactSupport || "Contact support"}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-sm text-slate-600">
-                    Search query: {query || "—"}
+                    {s?.searchQuery || "Search query:"} {query || "—"}
                   </CardContent>
                 </Card>
               </div>
               <div>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Support hours</CardTitle>
+                    <CardTitle className="text-base">{s?.supportHours || "Support hours"}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-sm text-slate-600">
-                    Mon–Fri, 9:00am – 6:00pm
+                    {s?.supportHoursDesc || "Mon–Fri, 9:00am – 6:00pm"}
                   </CardContent>
                 </Card>
               </div>

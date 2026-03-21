@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Property {
   id: string;
@@ -98,6 +99,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   isLoading = false 
 }) => {
   const { formatMoney } = useCurrency();
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.propertyOverview || {};
+
   if (isLoading) {
     return <PropertyCardSkeleton />;
   }
@@ -137,7 +142,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         />
         <div className="absolute top-2 left-2">
           <Badge className={getStatusColor(property.status)}>
-            {property.status ? property.status.charAt(0).toUpperCase() + property.status.slice(1) : 'Unknown'}
+            {property.status ? (s[property.status + 'Count'] || property.status.charAt(0).toUpperCase() + property.status.slice(1)) : (s.unknown || 'Unknown')}
           </Badge>
         </div>
         {isOwner && (
@@ -194,7 +199,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               {property.area && (
                 <div className="flex items-center space-x-1">
                   <Square className="h-3 w-3" />
-                  <span>{property.area} sqft</span>
+                  <span>{property.area} {s.sqft || "sqft"}</span>
                 </div>
               )}
             </div>
@@ -225,7 +230,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           </div>
           
           <div className="text-xs text-gray-500">
-            Listed: {property.listedDate ? formatDate(property.listedDate) : 'Unknown'}
+            {s.listed || "Listed"}: {property.listedDate ? formatDate(property.listedDate) : (s.unknown || 'Unknown')}
           </div>
           
           {showActions && (
@@ -236,7 +241,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
                 onClick={() => onAction('view', property.id)}
                 className="flex-1"
               >
-                View Details
+                {s.viewDetails || "View Details"}
               </Button>
               {isOwner ? (
                 <Button
@@ -244,7 +249,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
                   onClick={() => onAction('manage', property.id)}
                   className="flex-1"
                 >
-                  Manage
+                  {s.manage || "Manage"}
                 </Button>
               ) : (
                 <Button
@@ -252,7 +257,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
                   onClick={() => onAction('contact', property.id)}
                   className="flex-1"
                 >
-                  Contact Agent
+                  {s.contactAgent || "Contact Agent"}
                 </Button>
               )}
             </div>
@@ -275,6 +280,9 @@ export const FavoriteProperties: React.FC<FavoritePropertiesProps> = ({
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.propertyOverview || {};
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -302,11 +310,11 @@ export const FavoriteProperties: React.FC<FavoritePropertiesProps> = ({
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Heart className="h-5 w-5" />
-            <span>Favorite Properties</span>
+            <span>{s.favoriteProperties || "Favorite Properties"}</span>
           </div>
           {!loading && properties.length > maxItems && (
             <Button variant="outline" size="sm" onClick={() => onAction('view-all-favorites', '')}>
-              View All ({properties.length})
+              {s.viewAll || "View All"} ({properties.length})
             </Button>
           )}
         </CardTitle>
@@ -328,14 +336,14 @@ export const FavoriteProperties: React.FC<FavoritePropertiesProps> = ({
         ) : displayProperties.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Heart className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No favorite properties yet</p>
+            <p>{s.noFavoritesYet || "No favorite properties yet"}</p>
             <Button 
               variant="outline" 
               size="sm" 
               className="mt-2"
               onClick={() => onAction('search', '')}
             >
-              Start Browsing
+              {s.startBrowsing || "Start Browsing"}
             </Button>
           </div>
         ) : (
@@ -369,6 +377,9 @@ export const AgentListings: React.FC<AgentListingsProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [activeProperties, setActiveProperties] = useState(0);
   const [soldProperties, setSoldProperties] = useState(0);
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.propertyOverview || {};
 
   useEffect(() => {
     const fetchMyProperties = async () => {
@@ -402,16 +413,16 @@ const displayProperties = Array.isArray(properties) ? properties.slice(0, maxIte
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Home className="h-5 w-5" />
-            <span>My Listings</span>
+            <span>{s.myListings || "My Listings"}</span>
           </div>
           <div className="flex items-center space-x-2">
             {!loading && (
               <>
-                <Badge variant="outline">{activeProperties} Active</Badge>
-                <Badge variant="secondary">{soldProperties} Sold</Badge>
+                <Badge variant="outline">{activeProperties} {s.activeCount || "Active"}</Badge>
+                <Badge variant="secondary">{soldProperties} {s.soldCount || "Sold"}</Badge>
                 {properties.length > maxItems && (
                   <Button variant="outline" size="sm" onClick={() => onAction('view-all-listings', '')}>
-                    View All ({properties.length})
+                    {s.viewAll || "View All"} ({properties.length})
                   </Button>
                 )}
               </>
@@ -436,14 +447,14 @@ const displayProperties = Array.isArray(properties) ? properties.slice(0, maxIte
         ) : displayProperties.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Home className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No properties listed yet</p>
+            <p>{s.noPropertiesListed || "No properties listed yet"}</p>
             <Button 
               variant="default" 
               size="sm" 
               className="mt-2"
               onClick={() => onAction('add-listing', '')}
             >
-              Add Your First Listing
+              {s.addFirstListing || "Add Your First Listing"}
             </Button>
           </div>
         ) : (
@@ -476,6 +487,9 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.propertyOverview || {};
 
   useEffect(() => {
     const fetchRecentlyViewed = async () => {
@@ -504,11 +518,11 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Eye className="h-5 w-5" />
-            <span>Recently Viewed</span>
+            <span>{s.recentlyViewed || "Recently Viewed"}</span>
           </div>
           {!loading && properties.length > maxItems && (
             <Button variant="outline" size="sm" onClick={() => onAction('view-all-recent', '')}>
-              View All ({properties.length})
+              {s.viewAll || "View All"} ({properties.length})
             </Button>
           )}
         </CardTitle>
@@ -530,7 +544,7 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
         ) : displayProperties.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No recently viewed properties</p>
+            <p>{s.noRecentlyViewed || "No recently viewed properties"}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

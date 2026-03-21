@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Send, Paperclip, Smile, Phone, Video, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ConversationProps {
   participantName: string;
@@ -16,6 +17,8 @@ interface Message {
 }
 
 const Conversation = ({ participantName, participantAvatar }: ConversationProps) => {
+  const { t } = useLanguage();
+  const s = (t as any)?.messages || {};
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -71,7 +74,7 @@ const Conversation = ({ participantName, participantAvatar }: ConversationProps)
           />
           <div>
             <h3 className="font-semibold text-gray-900">{participantName}</h3>
-            <p className="text-xs text-gray-500">Online</p>
+            <p className="text-xs text-gray-500">{s.online || 'Online'}</p>
           </div>
         </div>
         
@@ -127,7 +130,7 @@ const Conversation = ({ participantName, participantAvatar }: ConversationProps)
           
           <Input
             type="text"
-            placeholder="Type a message..."
+            placeholder={s.typeMessage || 'Type a message...'}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}

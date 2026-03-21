@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PropertyCard } from "@/components/dashboard/PropertyCard";
 import { BookingSummaryWidget } from "@/components/dashboard/BookingSummaryWidget";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Property = any;
 
@@ -19,6 +20,9 @@ interface Props {
 }
 
 export default function AdminRole({ properties, loadingProperties, sortBy, setSortBy, handlePropertyUpdate, router }: Props) {
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.roles?.admin || {};
   return (
     <div className="grid grid-cols-1 gap-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -26,10 +30,10 @@ export default function AdminRole({ properties, loadingProperties, sortBy, setSo
           <div className="bg-card rounded-lg border-0 shadow-none p-3 lg:p-6">
             <div className="flex items-center flex-wrap justify-between mb-6">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold">All Properties</h2>
+                <h2 className="text-lg font-semibold">{s.allProperties || "All Properties"}</h2>
                 {properties.length > 0 && (
                   <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                    {properties.length} Total
+                    {properties.length} {s.total || "Total"}
                   </span>
                 )}
               </div>
@@ -41,10 +45,10 @@ export default function AdminRole({ properties, loadingProperties, sortBy, setSo
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="recent">Recent Listed</SelectItem>
-                      <SelectItem value="-price">Price: High to Low</SelectItem>
-                      <SelectItem value="price">Price: Low to High</SelectItem>
-                      <SelectItem value="-viewCount">Most Viewed</SelectItem>
+                      <SelectItem value="recent">{_t.roles?.agent?.recentListed || "Recent Listed"}</SelectItem>
+                      <SelectItem value="-price">{_t.roles?.agent?.priceHighToLow || "Price: High to Low"}</SelectItem>
+                      <SelectItem value="price">{_t.roles?.agent?.priceLowToHigh || "Price: Low to High"}</SelectItem>
+                      <SelectItem value="-viewCount">{_t.roles?.agent?.mostViewed || "Most Viewed"}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -56,7 +60,7 @@ export default function AdminRole({ properties, loadingProperties, sortBy, setSo
                     onClick={() => router.push('/dashboard/property')}
                     className="w-full sm:w-auto"
                   >
-                    View All
+                    {_t.roles?.user?.viewAll || "View All"}
                   </Button>
                 </div>
 
@@ -66,7 +70,7 @@ export default function AdminRole({ properties, loadingProperties, sortBy, setSo
                     onClick={() => router.push('/dashboard/admin/properties')}
                     className="gap-2 w-full sm:w-auto"
                   >
-                    Manage
+                    {s.manage || "Manage"}
                   </Button>
                 </div>
               </div>
@@ -81,8 +85,8 @@ export default function AdminRole({ properties, loadingProperties, sortBy, setSo
             ) : properties.length === 0 ? (
               <div className="text-center py-12">
                 <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No properties found</h3>
-                <p className="text-muted-foreground mb-4">No data to show — check other filters or import listings</p>
+                <h3 className="text-lg font-semibold mb-2">{s.noPropertiesFound || "No properties found"}</h3>
+                <p className="text-muted-foreground mb-4">{s.noDataToShow || "No data to show — check other filters or import listings"}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -94,7 +98,7 @@ export default function AdminRole({ properties, loadingProperties, sortBy, setSo
                     : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500";
 
                   const addressParts = [property.address, property.city, property.country].filter(Boolean);
-                  const locationStr = addressParts.length > 0 ? addressParts.join(", ") : "Location not specified";
+                  const locationStr = addressParts.length > 0 ? addressParts.join(", ") : (_t.roles?.user?.locationNotSpecified || "Location not specified");
 
                   const beds = property.amenities?.bedrooms ?? property.bedrooms ?? property.beds ?? 0;
                   const baths = property.amenities?.bathrooms ?? property.bathrooms ?? property.baths ?? 0;
@@ -104,7 +108,7 @@ export default function AdminRole({ properties, loadingProperties, sortBy, setSo
                       key={propertyId}
                       id={propertyId}
                       image={firstImage}
-                      title={property.title || "Untitled Property"}
+                      title={property.title || _t.roles?.user?.untitledProperty || "Untitled Property"}
                       location={locationStr}
                       price={property.price || 0}
                       beds={beds}
@@ -128,7 +132,7 @@ export default function AdminRole({ properties, loadingProperties, sortBy, setSo
 
         {/* Sidebar Widgets */}
         <div className="space-y-6">
-          <BookingSummaryWidget role="admin" title="Global Bookings" limit={5} />
+          <BookingSummaryWidget role="admin" title={s.globalBookings || "Global Bookings"} limit={5} />
         </div>
       </div>
     </div>

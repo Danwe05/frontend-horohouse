@@ -16,13 +16,13 @@ import {
   DollarSign,
   Users,
   Home,
-  Calendar,
   MapPin,
   Filter,
   Download,
   RefreshCw
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ChartData {
   labels: string[];
@@ -170,6 +170,8 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ userRole, user
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState('30d');
   const [refreshing, setRefreshing] = useState(false);
+  const { t } = useLanguage();
+  const s = (t as any)?.analytics || {};
 
   useEffect(() => {
     loadAnalyticsData();
@@ -310,7 +312,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ userRole, user
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+          <h2 className="text-2xl font-bold">{s?.analyticsDashboard || "Analytics Dashboard"}</h2>
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -340,7 +342,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ userRole, user
           <p className="text-red-600 mb-4">{error}</p>
           <Button onClick={handleRefresh} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
-            Try Again
+            {s?.tryAgain || "Try Again"}
           </Button>
         </CardContent>
       </Card>
@@ -354,8 +356,8 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ userRole, user
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
-          <p className="text-gray-600">Track your property performance and insights</p>
+          <h2 className="text-2xl font-bold text-gray-900">{s?.analyticsDashboard || "Analytics Dashboard"}</h2>
+          <p className="text-gray-600">{s?.trackPropertyDesc || "Track your property performance and insights"}</p>
         </div>
         <div className="flex items-center gap-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -363,18 +365,18 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ userRole, user
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
+              <SelectItem value="7d">{s?.last7days || "Last 7 days"}</SelectItem>
+              <SelectItem value="30d">{s?.last30days || "Last 30 days"}</SelectItem>
+              <SelectItem value="90d">{s?.last90days || "Last 90 days"}</SelectItem>
             </SelectContent>
           </Select>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            {s?.refresh || "Refresh"}
           </Button>
           <Button variant="outline" size="sm" onClick={exportData}>
             <Download className="h-4 w-4 mr-2" />
-            Export
+            {s?.exportData || "Export"}
           </Button>
         </div>
       </div>
@@ -382,26 +384,26 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ userRole, user
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          title="Total Views"
+          title={s?.totalViews || "Total Views"}
           value={analyticsData.monthlyStats.views}
           change={12}
           icon={<Eye className="h-6 w-6 text-blue-600" />}
         />
         <MetricCard
-          title="Inquiries"
+          title={s?.inquiries || "Inquiries"}
           value={analyticsData.monthlyStats.inquiries}
           change={8}
           icon={<MessageSquare className="h-6 w-6 text-green-600" />}
         />
         <MetricCard
-          title="Revenue"
+          title={s?.revenue || "Revenue"}
           value={analyticsData.monthlyStats.revenue}
           change={15}
           icon={<DollarSign className="h-6 w-6 text-yellow-600" />}
           format="currency"
         />
         <MetricCard
-          title="New Listings"
+          title={s?.newListings || "New Listings"}
           value={analyticsData.monthlyStats.newListings}
           change={-3}
           icon={<Home className="h-6 w-6 text-purple-600" />}
@@ -411,17 +413,17 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ userRole, user
       {/* Charts Tabs */}
       <Tabs defaultValue="performance" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="locations">Locations</TabsTrigger>
-          <TabsTrigger value="properties">Top Properties</TabsTrigger>
+          <TabsTrigger value="performance">{s?.performance || "Performance"}</TabsTrigger>
+          <TabsTrigger value="revenue">{s?.revenue || "Revenue"}</TabsTrigger>
+          <TabsTrigger value="locations">{s?.locations || "Locations"}</TabsTrigger>
+          <TabsTrigger value="properties">{s?.topProperties || "Top Properties"}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="performance" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Property Views Over Time</CardTitle>
+                <CardTitle>{s?.propertyViewsOverTime || "Property Views Over Time"}</CardTitle>
               </CardHeader>
               <CardContent>
                 <SimpleChart data={analyticsData.propertyViews} title="" type="bar" />
@@ -429,7 +431,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ userRole, user
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Inquiries Over Time</CardTitle>
+                <CardTitle>{s?.inquiriesOverTime || "Inquiries Over Time"}</CardTitle>
               </CardHeader>
               <CardContent>
                 <SimpleChart data={analyticsData.propertyInquiries} title="" type="line" />

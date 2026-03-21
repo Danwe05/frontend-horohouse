@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PropertyCard } from "@/components/dashboard/PropertyCard";
 import { BookingSummaryWidget } from "@/components/dashboard/BookingSummaryWidget";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Property = any;
 
@@ -19,6 +20,9 @@ interface Props {
 }
 
 export default function AgentRole({ properties, loadingProperties, sortBy, setSortBy, handlePropertyUpdate, router }: Props) {
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.roles?.agent || {};
   return (
     <div className="grid grid-cols-1 gap-6">
       {/* Main Content Grid */}
@@ -27,10 +31,10 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
           <div className="bg-card rounded-lg border-0 shadow-lg p-3 lg:p-6">
             <div className="flex items-center flex-wrap justify-between mb-6">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold">My Properties</h2>
+                <h2 className="text-lg font-semibold">{s.myProperties || "My Properties"}</h2>
                 {properties.length > 0 && (
                   <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                    {properties.length} Listed
+                    {properties.length} {s.listed || "Listed"}
                   </span>
                 )}
               </div>
@@ -42,10 +46,10 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="recent">Recent Listed</SelectItem>
-                      <SelectItem value="-price">Price: High to Low</SelectItem>
-                      <SelectItem value="price">Price: Low to High</SelectItem>
-                      <SelectItem value="-viewCount">Most Viewed</SelectItem>
+                      <SelectItem value="recent">{s.recentListed || "Recent Listed"}</SelectItem>
+                      <SelectItem value="-price">{s.priceHighToLow || "Price: High to Low"}</SelectItem>
+                      <SelectItem value="price">{s.priceLowToHigh || "Price: Low to High"}</SelectItem>
+                      <SelectItem value="-viewCount">{s.mostViewed || "Most Viewed"}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -57,7 +61,7 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
                     onClick={() => router.push('/dashboard/property')}
                     className="w-full sm:w-auto"
                   >
-                    View All
+                    {s.viewAll || "View All"}
                   </Button>
                 </div>
 
@@ -68,7 +72,7 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
                     className="gap-2 w-full sm:w-auto"
                   >
                     <Plus className="w-4 h-4" />
-                    Add New
+                    {s.addNew || "Add New"}
                   </Button>
                 </div>
               </div>
@@ -83,11 +87,11 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
             ) : properties.length === 0 ? (
               <div className="text-center py-12">
                 <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No properties listed yet</h3>
-                <p className="text-muted-foreground mb-4">Start by adding your first property listing</p>
+                <h3 className="text-lg font-semibold mb-2">{s.noPropertiesListedYet || "No properties listed yet"}</h3>
+                <p className="text-muted-foreground mb-4">{s.startByAdding || "Start by adding your first property listing"}</p>
                 <Button onClick={() => router.push('/dashboard/propertyForm')}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Your First Property
+                  {s.addYourFirstProperty || "Add Your First Property"}
                 </Button>
               </div>
             ) : (
@@ -100,7 +104,7 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
                     : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500";
 
                   const addressParts = [property.address, property.city, property.country].filter(Boolean);
-                  const locationStr = addressParts.length > 0 ? addressParts.join(", ") : "Location not specified";
+                  const locationStr = addressParts.length > 0 ? addressParts.join(", ") : (_t.roles?.user?.locationNotSpecified || "Location not specified");
 
                   const beds = property.amenities?.bedrooms ?? property.bedrooms ?? property.beds ?? 0;
                   const baths = property.amenities?.bathrooms ?? property.bathrooms ?? property.baths ?? 0;
@@ -110,7 +114,7 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
                       key={propertyId}
                       id={propertyId}
                       image={firstImage}
-                      title={property.title || "Untitled Property"}
+                      title={property.title || _t.roles?.user?.untitledProperty || "Untitled Property"}
                       location={locationStr}
                       price={property.price || 0}
                       beds={beds}
@@ -134,7 +138,7 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
 
         {/* Sidebar Widgets */}
         <div className="space-y-6">
-          <BookingSummaryWidget role="host" title="Recent Booking Requests" limit={4} />
+          <BookingSummaryWidget role="host" title={s.recentBookingRequests || "Recent Booking Requests"} limit={4} />
           {/* Add more widgets as needed */}
         </div>
       </div>

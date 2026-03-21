@@ -138,9 +138,9 @@ export default function TopListing() {
   );
 
   const CityFilterSkeleton = () => (
-    <div className="flex gap-3 flex-wrap">
+    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x w-full">
       {Array.from({ length: 6 }).map((_, index) => (
-        <Skeleton key={index} className="h-10 w-20 rounded-xl" />
+        <Skeleton key={index} className="h-10 w-20 rounded-xl shrink-0 snap-start" />
       ))}
     </div>
   );
@@ -181,13 +181,13 @@ export default function TopListing() {
             {loading ? (
               <CityFilterSkeleton />
             ) : (
-              <div className="flex gap-3 flex-wrap">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x w-full">
                 {cities.map((city) => (
                   <motion.button
                     key={city}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleCityChange(city)}
-                    className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${activeCity === city
+                    className={`shrink-0 snap-start px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${activeCity === city
                         ? 'bg-blue-600 text-white'
                         : 'bg-white border border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
                       }`}

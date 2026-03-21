@@ -10,6 +10,7 @@ import {
   Clock, ShieldCheck, Wallet, BedDouble, ChevronDown,
   CheckCircle2, Info, X,
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Types (mirrors MarkStudentFriendlyDto) ───────────────────────────────────
 
@@ -41,34 +42,7 @@ interface Props {
   onChange: (data: StudentEnrollmentData) => void;
 }
 
-// ─── Option sets ──────────────────────────────────────────────────────────────
-
-const WATER_OPTIONS = [
-  { value: 'camwater',              label: 'CAMWATER (municipal)' },
-  { value: 'borehole',              label: 'Private borehole' },
-  { value: 'camwater_and_borehole', label: 'CAMWATER + Borehole' },
-  { value: 'well',                  label: 'Open well' },
-  { value: 'tanker',                label: 'Tanker delivery' },
-];
-
-const ELECTRICITY_OPTIONS = [
-  { value: 'none',                label: 'ENEO grid only (no backup)' },
-  { value: 'solar',               label: 'Solar panels' },
-  { value: 'generator',           label: 'Generator' },
-  { value: 'solar_and_generator', label: 'Solar + Generator' },
-];
-
-const FURNISHING_OPTIONS = [
-  { value: 'unfurnished',    label: 'Unfurnished' },
-  { value: 'semi_furnished', label: 'Semi-furnished (bed + wardrobe)' },
-  { value: 'furnished',      label: 'Fully furnished' },
-];
-
-const GENDER_OPTIONS = [
-  { value: 'none',       label: 'No restriction' },
-  { value: 'women_only', label: 'Women only' },
-  { value: 'men_only',   label: 'Men only' },
-];
+// Options are now moved inside the component to use translations
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -161,8 +135,39 @@ function ToggleRow({ label, desc, value, onChange }: {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function StudentEnrollmentStep({ data, onChange }: Props) {
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.propertyForm?.student || {};
+
   const set = <K extends keyof StudentEnrollmentData>(key: K, value: StudentEnrollmentData[K]) =>
     onChange({ ...data, [key]: value });
+
+  const WATER_OPTIONS = [
+    { value: 'camwater',              label: s.waterOptions?.camwater || 'CAMWATER (municipal)' },
+    { value: 'borehole',              label: s.waterOptions?.borehole || 'Private borehole' },
+    { value: 'camwater_and_borehole', label: s.waterOptions?.camwaterAndBorehole || 'CAMWATER + Borehole' },
+    { value: 'well',                  label: s.waterOptions?.well || 'Open well' },
+    { value: 'tanker',                label: s.waterOptions?.tanker || 'Tanker delivery' },
+  ];
+
+  const ELECTRICITY_OPTIONS = [
+    { value: 'none',                label: s.electricityOptions?.none || 'ENEO grid only (no backup)' },
+    { value: 'solar',               label: s.electricityOptions?.solar || 'Solar panels' },
+    { value: 'generator',           label: s.electricityOptions?.generator || 'Generator' },
+    { value: 'solar_and_generator', label: s.electricityOptions?.solarAndGenerator || 'Solar + Generator' },
+  ];
+
+  const FURNISHING_OPTIONS = [
+    { value: 'unfurnished',    label: s.furnishingOptions?.unfurnished || 'Unfurnished' },
+    { value: 'semi_furnished', label: s.furnishingOptions?.semiFurnished || 'Semi-furnished (bed + wardrobe)' },
+    { value: 'furnished',      label: s.furnishingOptions?.furnished || 'Fully furnished' },
+  ];
+
+  const GENDER_OPTIONS = [
+    { value: 'none',       label: s.genderOptions?.none || 'No restriction' },
+    { value: 'women_only', label: s.genderOptions?.womenOnly || 'Women only' },
+    { value: 'men_only',   label: s.genderOptions?.menOnly || 'Men only' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -185,7 +190,7 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <p className={`font-bold text-base ${data.enabled ? 'text-blue-900' : 'text-slate-700'}`}>
-                Enroll in Student Housing Programme
+                {s.enrollTitle || 'Enroll in Student Housing Programme'}
               </p>
               <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
                 data.enabled ? 'border-blue-500 bg-blue-500' : 'border-slate-300'
@@ -194,11 +199,11 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
               </div>
             </div>
             <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-              Make this property visible in the student housing search. Students can filter by campus distance, water source, electricity backup, and more.
+              {s.enrollDesc || 'Make this property visible in the student housing search. Students can filter by campus distance, water source, electricity backup, and more.'}
             </p>
             {data.enabled && (
               <div className="flex flex-wrap gap-1.5 mt-3">
-                {['Student search', 'Campus filters', 'Student-Approved eligible'].map(tag => (
+                {[(s.tagSearch || 'Student search'), (s.tagFilters || 'Campus filters'), (s.tagApproved || 'Student-Approved eligible')].map(tag => (
                   <span key={tag} className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wide">
                     {tag}
                   </span>
@@ -214,7 +219,7 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
         <div className="flex items-start gap-2.5 p-3.5 bg-amber-50 border border-amber-200 rounded-xl">
           <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-xs text-amber-700 leading-relaxed">
-            This step is optional. You can enroll your property later from your property management dashboard.
+            {s.optionalTip || 'This step is optional. You can enroll your property later from your property management dashboard.'}
           </p>
         </div>
       )}
@@ -233,36 +238,36 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
 
               {/* ── 1. Campus distance ── */}
               <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                <SectionHeader icon={MapPin} title="Campus Distance" color="text-blue-600" bg="bg-blue-50" />
+                <SectionHeader icon={MapPin} title={s.campusDistanceTitle || "Campus Distance"} color="text-blue-600" bg="bg-blue-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nearest Campus</Label>
+                    <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{s.nearestCampusLabel || 'Nearest Campus'}</Label>
                     <Input
                       value={data.nearestCampus ?? ''}
                       onChange={e => set('nearestCampus', e.target.value)}
-                      placeholder="e.g. University of Buea"
+                      placeholder={s.nearestCampusPlaceholder || "e.g. University of Buea"}
                       className="border-slate-200 bg-slate-50 rounded-xl focus:ring-2 focus:ring-blue-300"
                     />
                   </div>
                   <NumberField
-                    label="Campus Proximity"
+                    label={s.campusProximityLabel || "Campus Proximity"}
                     value={data.campusProximityMeters}
                     onChange={v => set('campusProximityMeters', v)}
-                    placeholder="e.g. 500"
+                    placeholder={s.campusProximityPlaceholder || "e.g. 500"}
                     suffix="m"
                   />
                   <NumberField
-                    label="Walking Time"
+                    label={s.walkingTimeLabel || "Walking Time"}
                     value={data.walkingMinutes}
                     onChange={v => set('walkingMinutes', v)}
-                    placeholder="e.g. 7"
+                    placeholder={s.walkingTimePlaceholder || "e.g. 7"}
                     suffix="min"
                   />
                   <NumberField
-                    label="Taxi / Moto Time"
+                    label={s.taxiTimeLabel || "Taxi / Moto Time"}
                     value={data.taxiMinutes}
                     onChange={v => set('taxiMinutes', v)}
-                    placeholder="e.g. 3"
+                    placeholder={s.taxiTimePlaceholder || "e.g. 3"}
                     suffix="min"
                   />
                 </div>
@@ -270,60 +275,64 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
 
               {/* ── 2. Infrastructure ── */}
               <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                <SectionHeader icon={Droplets} title="Infrastructure" color="text-teal-600" bg="bg-teal-50" />
+                <SectionHeader icon={Droplets} title={s.infrastructureTitle || "Infrastructure"} color="text-teal-600" bg="bg-teal-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <SelectField
-                    label="Water Source"
+                    label={s.waterSourceLabel || "Water Source"}
                     value={data.waterSource ?? ''}
                     options={WATER_OPTIONS}
                     onChange={v => set('waterSource', v)}
+                    placeholder={s.selectPlaceholder || "Select…"}
                   />
                   <SelectField
-                    label="Electricity Backup"
+                    label={s.electricityBackupLabel || "Electricity Backup"}
                     value={data.electricityBackup ?? ''}
                     options={ELECTRICITY_OPTIONS}
                     onChange={v => set('electricityBackup', v)}
+                    placeholder={s.selectPlaceholder || "Select…"}
                   />
                   <SelectField
-                    label="Furnishing"
+                    label={s.furnishingLabel || "Furnishing"}
                     value={data.furnishingStatus ?? ''}
                     options={FURNISHING_OPTIONS}
                     onChange={v => set('furnishingStatus', v)}
+                    placeholder={s.selectPlaceholder || "Select…"}
                   />
                 </div>
               </section>
 
               {/* ── 3. House rules ── */}
               <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                <SectionHeader icon={Clock} title="House Rules" color="text-amber-600" bg="bg-amber-50" />
+                <SectionHeader icon={Clock} title={s.houseRulesTitle || "House Rules"} color="text-amber-600" bg="bg-amber-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <SelectField
-                    label="Gender Restriction"
+                    label={s.genderRestrictionLabel || "Gender Restriction"}
                     value={data.genderRestriction ?? ''}
                     options={GENDER_OPTIONS}
                     onChange={v => set('genderRestriction', v)}
+                    placeholder={s.selectPlaceholder || "Select…"}
                   />
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Curfew Time</Label>
+                    <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{s.curfewTimeLabel || "Curfew Time"}</Label>
                     <Input
                       type="time"
                       value={data.curfewTime ?? ''}
                       onChange={e => set('curfewTime', e.target.value)}
                       className="border-slate-200 bg-slate-50 rounded-xl focus:ring-2 focus:ring-blue-300"
                     />
-                    <p className="text-[10px] text-slate-400">Leave empty if no curfew.</p>
+                    <p className="text-[10px] text-slate-400">{s.curfewTimeHelp || "Leave empty if no curfew."}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <ToggleRow
-                    label="Visitors allowed"
-                    desc="Guests can enter the compound"
+                    label={s.visitorsAllowedLabel || "Visitors allowed"}
+                    desc={s.visitorsAllowedDesc || "Guests can enter the compound"}
                     value={data.visitorsAllowed ?? false}
                     onChange={v => set('visitorsAllowed', v)}
                   />
                   <ToggleRow
-                    label="Cooking allowed"
-                    desc="Students can cook in their room"
+                    label={s.cookingAllowedLabel || "Cooking allowed"}
+                    desc={s.cookingAllowedDesc || "Students can cook in their room"}
                     value={data.cookingAllowed ?? false}
                     onChange={v => set('cookingAllowed', v)}
                   />
@@ -332,20 +341,20 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
 
               {/* ── 4. Security ── */}
               <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                <SectionHeader icon={ShieldCheck} title="Security" color="text-emerald-600" bg="bg-emerald-50" />
+                <SectionHeader icon={ShieldCheck} title={s.securityTitle || "Security"} color="text-emerald-600" bg="bg-emerald-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <ToggleRow
-                    label="Gated compound"
+                    label={s.gatedCompoundLabel || "Gated compound"}
                     value={data.hasGatedCompound ?? false}
                     onChange={v => set('hasGatedCompound', v)}
                   />
                   <ToggleRow
-                    label="Night watchman"
+                    label={s.nightWatchmanLabel || "Night watchman"}
                     value={data.hasNightWatchman ?? false}
                     onChange={v => set('hasNightWatchman', v)}
                   />
                   <ToggleRow
-                    label="Secure fence"
+                    label={s.secureFenceLabel || "Secure fence"}
                     value={data.hasFence ?? false}
                     onChange={v => set('hasFence', v)}
                   />
@@ -354,27 +363,27 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
 
               {/* ── 5. Rent terms ── */}
               <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                <SectionHeader icon={Wallet} title="Rent Terms" color="text-purple-600" bg="bg-purple-50" />
+                <SectionHeader icon={Wallet} title={s.rentTermsTitle || "Rent Terms"} color="text-purple-600" bg="bg-purple-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <NumberField
-                    label="Max Advance Months"
+                    label={s.maxAdvanceMonthsLabel || "Max Advance Months"}
                     value={data.maxAdvanceMonths}
                     onChange={v => set('maxAdvanceMonths', v)}
                     min={1}
-                    placeholder="e.g. 3"
+                    placeholder={s.maxAdvanceMonthsPlaceholder || "e.g. 3"}
                     suffix="mo"
                   />
                   <NumberField
-                    label="Price Per Person / Mo"
+                    label={s.pricePerPersonLabel || "Price Per Person / Mo"}
                     value={data.pricePerPersonMonthly}
                     onChange={v => set('pricePerPersonMonthly', v)}
-                    placeholder="e.g. 25000"
+                    placeholder={s.pricePerPersonPlaceholder || "e.g. 25000"}
                     suffix="XAF"
                   />
                 </div>
                 <ToggleRow
-                  label="Accept HoroHouse rent-advance scheme"
-                  desc="Allow students to pay rent in installments via HoroHouse microfinance"
+                  label={s.acceptsRentAdvanceLabel || "Accept HoroHouse rent-advance scheme"}
+                  desc={s.acceptsRentAdvanceDesc || "Allow students to pay rent in installments via HoroHouse microfinance"}
                   value={data.acceptsRentAdvanceScheme ?? false}
                   onChange={v => set('acceptsRentAdvanceScheme', v)}
                 />
@@ -382,26 +391,26 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
 
               {/* ── 6. Colocation ── */}
               <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                <SectionHeader icon={BedDouble} title="Colocation (Shared Housing)" color="text-pink-600" bg="bg-pink-50" />
+                <SectionHeader icon={BedDouble} title={s.colocationTitle || "Colocation (Shared Housing)"} color="text-pink-600" bg="bg-pink-50" />
                 <p className="text-xs text-slate-400 mb-4 -mt-2">
-                  Fill this section if multiple students share the same unit.
+                  {s.colocationDesc || "Fill this section if multiple students share the same unit."}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <NumberField
-                    label="Total Beds in Unit"
+                    label={s.totalBedsLabel || "Total Beds in Unit"}
                     value={data.totalBeds}
                     onChange={v => set('totalBeds', v)}
                     min={1}
-                    placeholder="e.g. 2"
-                    suffix="beds"
+                    placeholder={s.totalBedsPlaceholder || "e.g. 2"}
+                    suffix={s.bedsSuffix || "beds"}
                   />
                   <NumberField
-                    label="Available Beds"
+                    label={s.availableBedsLabel || "Available Beds"}
                     value={data.availableBeds}
                     onChange={v => set('availableBeds', v)}
                     min={0}
-                    placeholder="e.g. 1"
-                    suffix="free"
+                    placeholder={s.availableBedsPlaceholder || "e.g. 1"}
+                    suffix={s.freeSuffix || "free"}
                   />
                 </div>
               </section>

@@ -26,6 +26,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStudentMode } from "@/contexts/StudentModeContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { apiClient } from "@/lib/api";
 import NotificationDropdown from "../notifications/NotificationDropdown";
 
@@ -49,144 +50,156 @@ type SidebarGroupConfig = {
 };
 
 // Configuration of all sidebar groups
-const SIDEBAR_GROUPS: SidebarGroupConfig[] = [
-  {
-    label: "Overview",
-    icon: Home,
-    items: [
-      { label: "Main Dashboard",    path: "/dashboard",              badge: null, activeKey: "dashboard",   icon: undefined },
-      { label: "Market Discovery",  path: "/dashboard/saved-searches", badge: null, activeKey: "search",   icon: undefined },
-      { label: "Personal Favorites",path: "/dashboard/favorite",     badge: null, activeKey: "saved",       icon: undefined },
-    ],
-  },
-  {
-    label: "Client Relations",
-    icon: Users,
-    roles: ["agent"],
-    items: [
-      { label: "Client Leads",  path: "/dashboard/leads",        badge: "New", activeKey: "leads",        icon: undefined },
-      { label: "Appointments",  path: "/dashboard/appointments", badge: null,  activeKey: "appointments", icon: undefined },
-      { label: "Promotions",    path: "/dashboard/promotions",   badge: null,  activeKey: "promotions",   icon: undefined },
-    ],
-  },
-  {
-    label: "Communications",
-    icon: MessageSquare,
-    items: [
-      { label: "Direct Messages",  path: "/dashboard/inquiry",       badge: null, activeKey: "inquiry",       icon: undefined },
-      { label: "Referral Network", path: "/dashboard/referrals",     badge: null, activeKey: "referrals",     icon: undefined },
-      { label: "Notifications",    path: "/dashboard/notifications", badge: null, activeKey: "notifications", icon: undefined },
-    ],
-  },
-  {
-    label: "Inventory",
-    icon: Building2,
-    roles: ["agent", "landlord", "admin"],
-    items: [
-      { label: "My Properties",   path: "/dashboard/property",     badge: null, activeKey: "property",     icon: undefined },
-      { label: "Add New Listing", path: "/dashboard/propertyForm", badge: null, activeKey: "propertyForm", icon: undefined },
-    ],
-  },
-  {
-    label: "Host",
-    icon: Calendar,
-    roles: ["agent", "landlord", "admin"],
-    items: [
-      { label: "Bookings",      path: "/dashboard/host/bookings",       badge: null, activeKey: "host-bookings",       icon: undefined },
-      { label: "Blocked Dates", path: "/dashboard/host/blocked-dates",  badge: null, activeKey: "host-blocked-dates",  icon: undefined },
-    ],
-  },
-  {
-    label: "Financials",
-    icon: DollarSign,
-    roles: ["agent", "landlord", "admin"],
-    items: [
-      { label: "Earnings & Payouts", path: "/dashboard/earnings",      badge: null, activeKey: "earnings",      icon: undefined },
-      { label: "Market Analytics",   path: "/dashboard/analytics",     badge: null, activeKey: "analytics",     icon: undefined },
-      { label: "Subscriptions",      path: "/dashboard/subscriptions", badge: null, activeKey: "subscriptions", icon: undefined },
-      { label: "AI Pricing Tool",    path: "/dashboard/pricing",       badge: "AI", activeKey: "pricing",       icon: undefined },
-    ],
-  },
- {
-    label: "Tenant Management",
-    icon: KeyRound,
-    roles: ["landlord", "admin"],
-    items: [
-      { label: "All Tenants",    path: "/dashboard/tenants",        badge: null, activeKey: "tenants",        icon: undefined },
-      { label: "Add Tenant",     path: "/dashboard/tenants/new",    badge: null, activeKey: "tenants-new",    icon: undefined },
-      { label: "Leases",         path: "/dashboard/leases",         badge: null, activeKey: "leases",         icon: undefined },
-      { label: "Rent Splits",    path: "/dashboard/split-rent",     badge: null, activeKey: "split-rent",     icon: undefined },
-    ],
-  },
-  // ── Student Campus Hub ────────────────────────────────────────────────────
-  {
-    label: "Campus Hub",
-    icon: GraduationCap,
-    roles: ["student"],
-    studentStyle: true,
-    items: [
-      { label: "Student Housing",  path: "/students",                              badge: null, activeKey: "students",           icon: undefined },
-      { label: "Roommate Pool",    path: "/students/roommates",                    badge: null, activeKey: "students-roommates", icon: undefined },
-      { label: "My Leases",        path: "/dashboard/leases",                      badge: null, activeKey: "leases",             icon: undefined },
-      { label: "Rent Split",       path: "/dashboard/split-rent",                  badge: null, activeKey: "split-rent",         icon: undefined },
-      { label: "Student ID",       path: "/dashboard/settings?tab=student-id",     badge: null, activeKey: "student-id",         icon: undefined },
-    ],
-  },
-  // ── Admin: Student Programme ──────────────────────────────────────────────
-  {
-    label: "Student Programme",
-    icon: ShieldCheck,
-    roles: ["admin"],
-    adminStyle: true,
-    items: [
-      { label: "ID Verification Queue", path: "/dashboard/admin/students",  badge: "Admin", activeKey: "admin-students",  icon: undefined },
-    ],
-  },
-  // ── Administration ────────────────────────────────────────────────────────
-  {
-    label: "Administration",
-    icon: Shield,
-    roles: ["admin"],
-    adminStyle: true,
-    items: [
-      { label: "User Control",       path: "/dashboard/admin/users",           badge: "Admin", activeKey: "admin-users",       icon: undefined },
-      { label: "Property Approvals", path: "/dashboard/admin/properties",      badge: "Admin", activeKey: "admin-properties",  icon: undefined },
-      { label: "Review Reports",     path: "/dashboard/admin/reports",         badge: "Admin", activeKey: "admin-reports",     icon: undefined },
-      { label: "System Health",      path: "/dashboard/admin/health",          badge: null,    activeKey: "admin-health",      icon: undefined },
-      { label: "Platform Settings",  path: "/dashboard/admin/system-settings", badge: null,    activeKey: "admin-settings",    icon: undefined },
-    ],
-  },
-];
+// Moved inside AppSidebar to access translation hook
+
 
 // Shared bottom items
-const sharedBottomItems: SidebarItem[] = [
-  { icon: Newspaper,  label: "News & Updates", path: "/dashboard/news",     badge: null, activeKey: "news"     },
-  { icon: HelpCircle, label: "Help & Support",  path: "/dashboard/support", badge: null, activeKey: "support"  },
-  { icon: Settings,   label: "Settings",        path: "/dashboard/settings",badge: null, activeKey: "settings" },
-];
-
+// Moved inside AppSidebar to access translation hook
 export const AppSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { state } = useSidebar();
   const { user, logout, isLoading } = useAuth();
   const { isStudent, verificationStatus } = useStudentMode();
+  const { language, t, dir } = useLanguage();
+  const _t = t as any;
+
+  // Translation helpers
+  const g = _t.sidebar?.groups || {};
+  const it = _t.sidebar?.items || {};
+  const b = _t.sidebar?.badges || {};
+  const bt = _t.sidebar?.bottom || {};
+  const qa = _t.sidebar?.quickActions || {};
+
+  const SIDEBAR_GROUPS: SidebarGroupConfig[] = useMemo(() => [
+    {
+      label: g.overview || "Overview",
+      icon: Home,
+      items: [
+        { label: it.mainDashboard || "Main Dashboard", path: "/dashboard", badge: null, activeKey: "dashboard", icon: undefined },
+        { label: it.marketDiscovery || "Market Discovery", path: "/dashboard/saved-searches", badge: null, activeKey: "search", icon: undefined },
+        { label: it.personalFavorites || "Personal Favorites", path: "/dashboard/favorite", badge: null, activeKey: "saved", icon: undefined },
+      ],
+    },
+    {
+      label: g.clientRelations || "Client Relations",
+      icon: Users,
+      roles: ["agent"],
+      items: [
+        { label: it.clientLeads || "Client Leads", path: "/dashboard/leads", badge: (b.new || "New") as any, activeKey: "leads", icon: undefined },
+        { label: it.appointments || "Appointments", path: "/dashboard/appointments", badge: null, activeKey: "appointments", icon: undefined },
+        { label: it.promotions || "Promotions", path: "/dashboard/promotions", badge: null, activeKey: "promotions", icon: undefined },
+      ],
+    },
+    {
+      label: g.communications || "Communications",
+      icon: MessageSquare,
+      items: [
+        { label: it.directMessages || "Direct Messages", path: "/dashboard/inquiry", badge: null, activeKey: "inquiry", icon: undefined },
+        { label: it.referralNetwork || "Referral Network", path: "/dashboard/referrals", badge: null, activeKey: "referrals", icon: undefined },
+        { label: it.notifications || "Notifications", path: "/dashboard/notifications", badge: null, activeKey: "notifications", icon: undefined },
+      ],
+    },
+    {
+      label: g.inventory || "Inventory",
+      icon: Building2,
+      roles: ["agent", "landlord", "admin"],
+      items: [
+        { label: it.myProperties || "My Properties", path: "/dashboard/property", badge: null, activeKey: "property", icon: undefined },
+        { label: it.addNewListing || "Add New Listing", path: "/dashboard/propertyForm", badge: null, activeKey: "propertyForm", icon: undefined },
+      ],
+    },
+    {
+      label: g.host || "Host",
+      icon: Calendar,
+      roles: ["agent", "landlord", "admin"],
+      items: [
+        { label: it.bookings || "Bookings", path: "/dashboard/host/bookings", badge: null, activeKey: "host-bookings", icon: undefined },
+        { label: it.blockedDates || "Blocked Dates", path: "/dashboard/host/blocked-dates", badge: null, activeKey: "host-blocked-dates", icon: undefined },
+      ],
+    },
+    {
+      label: g.financials || "Financials",
+      icon: DollarSign,
+      roles: ["agent", "landlord", "admin"],
+      items: [
+        { label: it.earningsPayouts || "Earnings & Payouts", path: "/dashboard/earnings", badge: null, activeKey: "earnings", icon: undefined },
+        { label: it.billing || "Billing & Payments", path: "/dashboard/billing", badge: null, activeKey: "billing", icon: undefined },
+        { label: it.marketAnalytics || "Market Analytics", path: "/dashboard/analytics", badge: null, activeKey: "analytics", icon: undefined },
+        { label: it.subscriptions || "Subscriptions", path: "/dashboard/subscriptions", badge: null, activeKey: "subscriptions", icon: undefined },
+        { label: it.aiPricingTool || "AI Pricing Tool", path: "/dashboard/pricing", badge: (b.ai || "AI") as any, activeKey: "pricing", icon: undefined },
+      ],
+    },
+    {
+      label: g.tenantManagement || "Tenant Management",
+      icon: KeyRound,
+      roles: ["landlord", "admin"],
+      items: [
+        { label: it.allTenants || "All Tenants", path: "/dashboard/tenants", badge: null, activeKey: "tenants", icon: undefined },
+        { label: it.addTenant || "Add Tenant", path: "/dashboard/tenants/new", badge: null, activeKey: "tenants-new", icon: undefined },
+        { label: it.leases || "Leases", path: "/dashboard/leases", badge: null, activeKey: "leases", icon: undefined },
+        { label: it.rentSplits || "Rent Splits", path: "/dashboard/split-rent", badge: null, activeKey: "split-rent", icon: undefined },
+      ],
+    },
+    {
+      label: g.campusHub || "Campus Hub",
+      icon: GraduationCap,
+      roles: ["student"],
+      studentStyle: true,
+      items: [
+        { label: it.studentHousing || "Student Housing", path: "/students", badge: null, activeKey: "students", icon: undefined },
+        { label: it.roommatePool || "Roommate Pool", path: "/students/roommates", badge: null, activeKey: "students-roommates", icon: undefined },
+        { label: it.myLeases || "My Leases", path: "/dashboard/leases", badge: null, activeKey: "leases", icon: undefined },
+        { label: it.rentSplit || "Rent Split", path: "/dashboard/split-rent", badge: null, activeKey: "split-rent", icon: undefined },
+        { label: it.studentId || "Student ID", path: "/dashboard/settings?tab=student-id", badge: null, activeKey: "student-id", icon: undefined },
+      ],
+    },
+    {
+      label: g.studentProgramme || "Student Programme",
+      icon: ShieldCheck,
+      roles: ["admin"],
+      adminStyle: true,
+      items: [
+        { label: it.idVerificationQueue || "ID Verification Queue", path: "/dashboard/admin/students", badge: (b.admin || "Admin") as any, activeKey: "admin-students", icon: undefined },
+      ],
+    },
+    {
+      label: g.administration || "Administration",
+      icon: Shield,
+      roles: ["admin"],
+      adminStyle: true,
+      items: [
+        { label: it.userControl || "User Control", path: "/dashboard/admin/users", badge: (b.admin || "Admin") as any, activeKey: "admin-users", icon: undefined },
+        { label: it.propertyApprovals || "Property Approvals", path: "/dashboard/admin/properties", badge: (b.admin || "Admin") as any, activeKey: "admin-properties", icon: undefined },
+        { label: it.reviewReports || "Review Reports", path: "/dashboard/admin/reports", badge: (b.admin || "Admin") as any, activeKey: "admin-reports", icon: undefined },
+        { label: it.systemHealth || "System Health", path: "/dashboard/admin/health", badge: null, activeKey: "admin-health", icon: undefined },
+        { label: it.platformSettings || "Platform Settings", path: "/dashboard/admin/system-settings", badge: null, activeKey: "admin-settings", icon: undefined },
+      ],
+    },
+  ], [g, it, b]);
+
+  const sharedBottomItems: SidebarItem[] = useMemo(() => [
+    { icon: Newspaper, label: bt.newsUpdates || "News & Updates", path: "/dashboard/news", badge: null, activeKey: "news" },
+    { icon: HelpCircle, label: bt.helpSupport || "Help & Support", path: "/dashboard/support", badge: null, activeKey: "support" },
+    { icon: Settings, label: bt.settings || "Settings", path: "/dashboard/settings", badge: null, activeKey: "settings" },
+  ], [bt]);
+
   const isCollapsed = state === "collapsed";
 
-  const [showLogout, setShowLogout]           = useState(false);
-  const [activeHover, setActiveHover]         = useState<string | null>(null);
-  const [darkMode, setDarkMode]               = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
+  const [activeHover, setActiveHover] = useState<string | null>(null);
+  const [darkMode, setDarkMode] = useState(false);
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut]       = useState(false);
-  const [openGroups, setOpenGroups]           = useState<Record<string, boolean>>({});
-  const [hasLease, setHasLease]               = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [hasLease, setHasLease] = useState(false);
 
-  const logoutRef       = useRef<HTMLDivElement>(null);
+  const logoutRef = useRef<HTMLDivElement>(null);
   const quickActionsRef = useRef<HTMLDivElement>(null);
 
-  const isAgent    = user?.role === 'agent';
+  const isAgent = user?.role === 'agent';
   const isLandlord = user?.role === 'landlord';
-  const isAdmin    = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin';
 
   const shouldShowGroup = (group: SidebarGroupConfig) => {
     if (group.label === "My Lease") return hasLease;
@@ -195,9 +208,9 @@ export const AppSidebar = () => {
     // Student group — only show for students
     if (group.roles.includes("student") && isStudent) return true;
 
-    if (group.roles.includes("agent")    && (isAgent || isLandlord || isAdmin)) return true;
-    if (group.roles.includes("landlord") && (isLandlord || isAdmin))            return true;
-    if (group.roles.includes("admin")    && isAdmin)                            return true;
+    if (group.roles.includes("agent") && (isAgent || isLandlord || isAdmin)) return true;
+    if (group.roles.includes("landlord") && (isLandlord || isAdmin)) return true;
+    if (group.roles.includes("admin") && isAdmin) return true;
 
     return false;
   };
@@ -227,10 +240,10 @@ export const AppSidebar = () => {
     let groups = [...SIDEBAR_GROUPS];
 
     const bookingLabel = isAdmin
-      ? "Global Bookings"
+      ? it.globalBookings || "Global Bookings"
       : (isAgent || isLandlord)
-        ? "Manage Bookings"
-        : "My Bookings";
+        ? it.manageBookings || "Manage Bookings"
+        : it.myBookings || "My Bookings";
 
     const bookingsGroup: SidebarGroupConfig = {
       label: bookingLabel,
@@ -241,9 +254,9 @@ export const AppSidebar = () => {
 
     if (hasLease && !isStudent) {
       const tenantGroup: SidebarGroupConfig = {
-        label: "My Lease",
+        label: it.myLease || "My Lease",
         icon: FileText,
-        items: [{ label: "Lease Details", path: "/dashboard/lease", badge: null, activeKey: "lease", icon: undefined }],
+        items: [{ label: it.leaseDetails || "Lease Details", path: "/dashboard/lease", badge: null, activeKey: "lease", icon: undefined }],
       };
       groups.splice(2, 0, tenantGroup);
     }
@@ -268,7 +281,7 @@ export const AppSidebar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (logoutRef.current && !logoutRef.current.contains(event.target as Node))           setShowLogout(false);
+      if (logoutRef.current && !logoutRef.current.contains(event.target as Node)) setShowLogout(false);
       if (quickActionsRef.current && !quickActionsRef.current.contains(event.target as Node)) setQuickActionsOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -282,46 +295,46 @@ export const AppSidebar = () => {
     }
   };
 
-  const handleViewProfile    = () => { setShowLogout(false); router.push('/dashboard/profile'); };
+  const handleViewProfile = () => { setShowLogout(false); router.push('/dashboard/profile'); };
   const handleAccountSettings = () => { setShowLogout(false); router.push('/dashboard/settings?tab=account'); };
 
   // Quick actions — student gets campus-specific actions
   const quickActions = isAdmin ? [
-    { icon: Shield,       label: "Admin Panel",     action: () => router.push('/dashboard/admin') },
-    { icon: UserCog,      label: "Manage Users",    action: () => router.push('/dashboard/admin/users') },
-    { icon: Activity,     label: "View Logs",       action: () => router.push('/dashboard/admin/logs') },
-    { icon: AlertTriangle,label: "Review Reports",  action: () => router.push('/dashboard/admin/reports') },
+    { icon: Shield, label: qa.adminPanel || "Admin Panel", action: () => router.push('/dashboard/admin') },
+    { icon: UserCog, label: qa.manageUsers || "Manage Users", action: () => router.push('/dashboard/admin/users') },
+    { icon: Activity, label: qa.viewLogs || "View Logs", action: () => router.push('/dashboard/admin/logs') },
+    { icon: AlertTriangle, label: qa.reviewReports || "Review Reports", action: () => router.push('/dashboard/admin/reports') },
   ] : isAgent ? [
-    { icon: Plus,         label: "Add Property",    action: () => router.push('/dashboard/property/new') },
-    { icon: Users,        label: "View Leads",      action: () => router.push('/dashboard/leads') },
-    { icon: MessageSquare,label: "New Message",     action: () => router.push('/dashboard/messages?compose=true') },
-    { icon: BarChart3,    label: "View Analytics",  action: () => router.push('/dashboard/analytics') },
+    { icon: Plus, label: qa.addProperty || "Add Property", action: () => router.push('/dashboard/property/new') },
+    { icon: Users, label: qa.viewLeads || "View Leads", action: () => router.push('/dashboard/leads') },
+    { icon: MessageSquare, label: qa.newMessage || "New Message", action: () => router.push('/dashboard/messages?compose=true') },
+    { icon: BarChart3, label: qa.viewAnalytics || "View Analytics", action: () => router.push('/dashboard/analytics') },
   ] : isLandlord ? [
-    { icon: Plus,         label: "Add Property",    action: () => router.push('/dashboard/propertyForm') },
-    { icon: KeyRound,     label: "Manage Tenants",  action: () => router.push('/dashboard/tenants') },
-    { icon: MessageSquare,label: "Messages",        action: () => router.push('/dashboard/inquiry') },
-    { icon: BarChart3,    label: "View Analytics",  action: () => router.push('/dashboard/analytics') },
+    { icon: Plus, label: qa.addProperty || "Add Property", action: () => router.push('/dashboard/propertyForm') },
+    { icon: KeyRound, label: qa.manageTenants || "Manage Tenants", action: () => router.push('/dashboard/tenants') },
+    { icon: MessageSquare, label: qa.messages || "Messages", action: () => router.push('/dashboard/inquiry') },
+    { icon: BarChart3, label: qa.viewAnalytics || "View Analytics", action: () => router.push('/dashboard/analytics') },
   ] : isStudent ? [
-    { icon: Search,        label: "Find Housing",    action: () => router.push('/students') },
-    { icon: BedDouble,     label: "Find Roommate",   action: () => router.push('/students/roommates') },
-    { icon: MessageSquare, label: "Messages",        action: () => router.push('/dashboard/inquiry') },
-    { icon: ShieldCheck,   label: "Student ID",      action: () => router.push('/dashboard/settings?tab=student-id') },
+    { icon: Search, label: qa.findHousing || "Find Housing", action: () => router.push('/students') },
+    { icon: BedDouble, label: qa.findRoommate || "Find Roommate", action: () => router.push('/students/roommates') },
+    { icon: MessageSquare, label: qa.messages || "Messages", action: () => router.push('/dashboard/inquiry') },
+    { icon: ShieldCheck, label: qa.studentId || "Student ID", action: () => router.push('/dashboard/settings?tab=student-id') },
   ] : [
-    { icon: Search,       label: "Search Properties",action: () => router.push('/dashboard/search') },
-    { icon: Heart,        label: "Saved Properties", action: () => router.push('/dashboard/saved') },
-    { icon: MessageSquare,label: "Messages",         action: () => router.push('/dashboard/messages') },
-    { icon: Building2,    label: "Find Agents",      action: () => router.push('/dashboard/agents') },
+    { icon: Search, label: qa.searchProperties || "Search Properties", action: () => router.push('/dashboard/search') },
+    { icon: Heart, label: qa.savedProperties || "Saved Properties", action: () => router.push('/dashboard/saved') },
+    { icon: MessageSquare, label: qa.messages || "Messages", action: () => router.push('/dashboard/messages') },
+    { icon: Building2, label: qa.findAgents || "Find Agents", action: () => router.push('/dashboard/agents') },
   ];
 
-  const displayName  = user?.name || 'User';
+  const displayName = user?.name || 'User';
   const displayEmail = user?.email || user?.phoneNumber || '';
-  const avatarUrl    = user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ffdfbf`;
+  const avatarUrl = user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ffdfbf`;
 
   const getRoleBadge = () => {
-    if (isAdmin)   return { icon: Shield,       text: "Admin",     bgColor: "bg-red-50",     textColor: "text-red-700",     iconColor: "text-red-500"     };
-    if (isLandlord)return { icon: KeyRound,     text: "Landlord",  bgColor: "bg-emerald-50", textColor: "text-emerald-700", iconColor: "text-emerald-500" };
-    if (isAgent)   return { icon: BadgeCheck,   text: "Pro Agent", bgColor: "bg-blue-50",    textColor: "text-blue-700",    iconColor: "text-blue-500"    };
-    if (isStudent) return { icon: GraduationCap,text: verificationStatus === 'verified' ? 'Verified Student' : 'Student', bgColor: "bg-purple-50", textColor: "text-purple-700", iconColor: "text-purple-500" };
+    if (isAdmin) return { icon: Shield, text: b.admin || "Admin", bgColor: "bg-red-50", textColor: "text-red-700", iconColor: "text-red-500" };
+    if (isLandlord) return { icon: KeyRound, text: "Landlord", bgColor: "bg-emerald-50", textColor: "text-emerald-700", iconColor: "text-emerald-500" };
+    if (isAgent) return { icon: BadgeCheck, text: "Pro Agent", bgColor: "bg-blue-50", textColor: "text-blue-700", iconColor: "text-blue-500" };
+    if (isStudent) return { icon: GraduationCap, text: verificationStatus === 'verified' ? (b.verifiedStudent || 'Verified Student') : (b.student || 'Student'), bgColor: "bg-purple-50", textColor: "text-purple-700", iconColor: "text-purple-500" };
     return null;
   };
   const roleBadge = getRoleBadge();
@@ -359,9 +372,9 @@ export const AppSidebar = () => {
                           className={cn(
                             "relative transition-all duration-300",
                             isItemActive(item) && (
-                              group.adminStyle   ? "bg-red-50 text-red-700"     :
-                              group.studentStyle ? "bg-purple-50 text-purple-700" :
-                              "bg-blue-50 text-blue-700"
+                              group.adminStyle ? "bg-red-50 text-red-700" :
+                                group.studentStyle ? "bg-purple-50 text-purple-700" :
+                                  "bg-blue-50 text-blue-700"
                             )
                           )}
                         >
@@ -424,35 +437,35 @@ export const AppSidebar = () => {
             onClick={() => setQuickActionsOpen(!quickActionsOpen)}
             className={cn(
               "w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl cursor-pointer",
-              isAdmin    ? "bg-red-50"    :
-              isStudent  ? "bg-purple-50" :
-              "bg-blue-50",
+              isAdmin ? "bg-red-50" :
+                isStudent ? "bg-purple-50" :
+                  "bg-blue-50",
               "transition-all duration-200 group/quick"
             )}
           >
             <div className="flex items-center gap-2">
               <div className={cn(
                 "p-1.5 rounded-lg text-white transition-colors",
-                isAdmin    ? "bg-red-500 group-hover/quick:bg-red-600"       :
-                isStudent  ? "bg-purple-500 group-hover/quick:bg-purple-600" :
-                "bg-blue-500 group-hover/quick:bg-blue-600"
+                isAdmin ? "bg-red-500 group-hover/quick:bg-red-600" :
+                  isStudent ? "bg-purple-500 group-hover/quick:bg-purple-600" :
+                    "bg-blue-500 group-hover/quick:bg-blue-600"
               )}>
                 <Zap className="w-3.5 h-3.5" />
               </div>
               <span className={cn(
                 "text-sm font-semibold",
-                isAdmin   ? "text-red-700"    :
-                isStudent ? "text-purple-700" :
-                "text-blue-700"
+                isAdmin ? "text-red-700" :
+                  isStudent ? "text-purple-700" :
+                    "text-blue-700"
               )}>
-                Quick Actions
+                {qa.title || "Quick Actions"}
               </span>
             </div>
             <ChevronDown className={cn(
               "w-4 h-4 transition-transform duration-200",
-              isAdmin   ? "text-red-600"    :
-              isStudent ? "text-purple-600" :
-              "text-blue-600",
+              isAdmin ? "text-red-600" :
+                isStudent ? "text-purple-600" :
+                  "text-blue-600",
               quickActionsOpen && "rotate-180"
             )} />
           </button>
@@ -465,23 +478,23 @@ export const AppSidebar = () => {
                   onClick={action.action}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 text-foreground rounded-lg transition-all duration-200 group/action hover:translate-x-1 cursor-pointer",
-                    isAdmin   ? "hover:bg-red-50 hover:text-red-700"       :
-                    isStudent ? "hover:bg-purple-50 hover:text-purple-700" :
-                    "hover:bg-blue-50 hover:text-blue-700"
+                    isAdmin ? "hover:bg-red-50 hover:text-red-700" :
+                      isStudent ? "hover:bg-purple-50 hover:text-purple-700" :
+                        "hover:bg-blue-50 hover:text-blue-700"
                   )}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                    isAdmin   ? "bg-red-50 group-hover/action:bg-red-100"         :
-                    isStudent ? "bg-purple-50 group-hover/action:bg-purple-100"   :
-                    "bg-blue-50 group-hover/action:bg-blue-100"
+                    isAdmin ? "bg-red-50 group-hover/action:bg-red-100" :
+                      isStudent ? "bg-purple-50 group-hover/action:bg-purple-100" :
+                        "bg-blue-50 group-hover/action:bg-blue-100"
                   )}>
                     <action.icon className={cn(
                       "w-3.5 h-3.5",
-                      isAdmin   ? "text-red-600"    :
-                      isStudent ? "text-purple-600" :
-                      "text-blue-600"
+                      isAdmin ? "text-red-600" :
+                        isStudent ? "text-purple-600" :
+                          "text-blue-600"
                     )} />
                   </div>
                   <span className="text-sm font-medium">{action.label}</span>
@@ -498,19 +511,19 @@ export const AppSidebar = () => {
           {sidebarGroupsWithExtras.map((group) => {
             if (!shouldShowGroup(group)) return null;
 
-            const isAdminGroup   = group.adminStyle   || (group.roles?.includes("admin")   && group.roles.length === 1);
+            const isAdminGroup = group.adminStyle || (group.roles?.includes("admin") && group.roles.length === 1);
             const isStudentGroup = group.studentStyle || (group.roles?.includes("student") && group.roles.length === 1);
-            const isOpen         = openGroups[group.label] || false;
-            const GroupIcon      = group.icon;
+            const isOpen = openGroups[group.label] || false;
+            const GroupIcon = group.icon;
             const hasActiveChild = group.items.some(item => isItemActive(item));
 
             // Accent colours per group type
-            const accentActive  = isAdminGroup   ? "text-red-700"    : isStudentGroup ? "text-purple-700" : "text-blue-700";
-            const accentIconBg  = isAdminGroup   ? "bg-red-100 text-red-600"    : isStudentGroup ? "bg-purple-100 text-purple-600" : "bg-blue-500 text-white";
-            const accentDot     = isAdminGroup   ? "bg-red-500"      : isStudentGroup ? "bg-purple-500"   : "bg-blue-500";
-            const accentItemBg  = isAdminGroup   ? "bg-red-50 text-red-700"     : isStudentGroup ? "bg-purple-50 text-purple-700"  : "bg-blue-50 text-blue-700";
-            const accentTreeLine= isAdminGroup   ? "border-red-100"  : isStudentGroup ? "border-purple-100": "border-border/50";
-            const accentBadge   = isAdminGroup   ? "bg-red-100 text-red-700"    : isStudentGroup ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700";
+            const accentActive = isAdminGroup ? "text-red-700" : isStudentGroup ? "text-purple-700" : "text-blue-700";
+            const accentIconBg = isAdminGroup ? "bg-red-100 text-red-600" : isStudentGroup ? "bg-purple-100 text-purple-600" : "bg-blue-500 text-white";
+            const accentDot = isAdminGroup ? "bg-red-500" : isStudentGroup ? "bg-purple-500" : "bg-blue-500";
+            const accentItemBg = isAdminGroup ? "bg-red-50 text-red-700" : isStudentGroup ? "bg-purple-50 text-purple-700" : "bg-blue-50 text-blue-700";
+            const accentTreeLine = isAdminGroup ? "border-red-100" : isStudentGroup ? "border-purple-100" : "border-border/50";
+            const accentBadge = isAdminGroup ? "bg-red-100 text-red-700" : isStudentGroup ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700";
 
             return (
               <Collapsible
@@ -547,9 +560,9 @@ export const AppSidebar = () => {
                     <ChevronRight className={cn(
                       "w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200",
                       isOpen && "rotate-90",
-                      isAdminGroup   ? "text-red-400"    :
-                      isStudentGroup ? "text-purple-400" :
-                      "text-muted-foreground/60"
+                      isAdminGroup ? "text-red-400" :
+                        isStudentGroup ? "text-purple-400" :
+                          "text-muted-foreground/60"
                     )} />
                   </button>
                 </CollapsibleTrigger>
@@ -581,10 +594,10 @@ export const AppSidebar = () => {
                           {item.badge && (
                             <span className={cn(
                               "px-1.5 py-0.5 text-[10px] font-semibold rounded-full flex-shrink-0 leading-none",
-                              item.badge === "Admin"   ? "bg-red-100 text-red-700"       :
-                              item.badge === "Student" ? "bg-purple-100 text-purple-700" :
-                              item.badge === "New" || item.badge === "AI" ? "bg-emerald-100 text-emerald-700" :
-                              "bg-blue-100 text-blue-700"
+                              item.badge === "Admin" ? "bg-red-100 text-red-700" :
+                                item.badge === "Student" ? "bg-purple-100 text-purple-700" :
+                                  item.badge === "New" || item.badge === "AI" ? "bg-emerald-100 text-emerald-700" :
+                                    "bg-blue-100 text-blue-700"
                             )}>
                               {item.badge}
                             </span>

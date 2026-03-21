@@ -53,7 +53,7 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+        className="fixed inset-0 bg-black/40 z-[100]"
         onClick={onClose}
       />
       
@@ -63,7 +63,7 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="fixed top-24 left-1/2 -translate-x-1/2 w-[90%] sm:w-full max-w-3xl z-[101] px-4"
+        className="fixed top-24 left-1/2 -translate-x-1/2 w-[90%] sm:w-full max-w-3xl z-[101] px-4 pointer-events-auto"
       >
         <div className="bg-white rounded-2xl shadow-2xl shadow-blue-100/60 border border-blue-100 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
           

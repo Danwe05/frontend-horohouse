@@ -6,6 +6,8 @@ import { useStudentMode } from '@/contexts/StudentModeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, Clock, AlertCircle, Upload, ArrowRight, X } from 'lucide-react';
 
+import { useLanguage } from '@/contexts/LanguageContext';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Variant = 'info' | 'warning' | 'success' | 'destructive';
@@ -24,6 +26,9 @@ interface BannerConfig {
 
 function useBannerConfig(): BannerConfig {
   const ctx = useStudentMode();
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.banner || {};
 
   // Support both old stub context (no verificationStatus) and new full context
   const status: string | null =
@@ -41,16 +46,16 @@ function useBannerConfig(): BannerConfig {
     unverified: {
       show: true,
       variant: 'info',
-      title: 'Upload your student ID to unlock all features',
-      description: 'Verify your university ID to access the roommate pool and student-verified listings.',
-      ctaLabel: 'Upload ID',
+      title: s.unverifiedTitle || 'Upload your student ID to unlock all features',
+      description: s.unverifiedDesc || 'Verify your university ID to access the roommate pool and student-verified listings.',
+      ctaLabel: s.uploadBtn || 'Upload ID',
       ctaHref: '/dashboard/settings?tab=student-id',
     },
     pending: {
       show: true,
       variant: 'warning',
-      title: 'Your student ID is under review',
-      description: "Verification usually takes less than 24 hours. We'll notify you once approved.",
+      title: s.pendingTitle || 'Your student ID is under review',
+      description: s.pendingDesc || "Verification usually takes less than 24 hours. We'll notify you once approved.",
       dismissible: true,
     },
     verified: {
@@ -62,9 +67,9 @@ function useBannerConfig(): BannerConfig {
     rejected: {
       show: true,
       variant: 'destructive',
-      title: 'Student ID not approved',
-      description: 'Your ID could not be verified. Please upload a clearer photo and resubmit.',
-      ctaLabel: 'Re-upload ID',
+      title: s.rejectedTitle || 'Student ID not approved',
+      description: s.rejectedDesc || 'Your ID could not be verified. Please upload a clearer photo and resubmit.',
+      ctaLabel: s.reuploadBtn || 'Re-upload ID',
       ctaHref: '/dashboard/settings?tab=student-id',
     },
   };
@@ -93,6 +98,9 @@ const ICONS: Record<Variant, React.ReactNode> = {
 export function StudentVerificationBanner() {
   const config = useBannerConfig();
   const [dismissed, setDismissed] = useState(false);
+  const { t } = useLanguage();
+  const _t = t as any;
+  const s = _t.students?.banner || {};
 
   if (!config.show || dismissed) return null;
 
@@ -109,7 +117,7 @@ export function StudentVerificationBanner() {
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="font-black uppercase tracking-widest text-[11px] opacity-60 mb-1">{config.variant} notification</p>
+          <p className="font-black uppercase tracking-widest text-[11px] opacity-60 mb-1">{config.variant} {s.notificationLbl || 'notification'}</p>
           <p className="font-bold text-sm tracking-tight">{config.title}</p>
           <p className="text-xs opacity-80 mt-0.5 line-clamp-1">{config.description}</p>
         </div>

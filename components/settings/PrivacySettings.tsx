@@ -21,6 +21,7 @@ import {
   Info
 } from 'lucide-react';
 import apiClient from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface User {
   id: string;
@@ -49,13 +50,15 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showDataExportModal, setShowDataExportModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const { t } = useLanguage();
+  const s = (t as any)?.settings || {};
   
   const [privacySettings, setPrivacySettings] = useState<PrivacySetting[]>([
     // Profile Privacy
     {
       id: 'profile_visibility',
-      title: 'Profile Visibility',
-      description: 'Who can see your profile information',
+      title: s?.profileVisibility || 'Profile Visibility',
+      description: s?.profileVisibilityDesc || 'Who can see your profile information',
       icon: <Users className="h-4 w-4" />,
       enabled: true,
       category: 'profile',
@@ -63,8 +66,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     },
     {
       id: 'contact_info_visibility',
-      title: 'Contact Information',
-      description: 'Who can see your email and phone number',
+      title: s?.contactInformation || 'Contact Information',
+      description: s?.contactInfoVisibilityDesc || 'Who can see your email and phone number',
       icon: <Eye className="h-4 w-4" />,
       enabled: false,
       category: 'profile',
@@ -72,8 +75,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     },
     {
       id: 'location_visibility',
-      title: 'Location Information',
-      description: 'Who can see your location details',
+      title: s?.locationInformation || 'Location Information',
+      description: s?.locationVisibilityDesc || 'Who can see your location details',
       icon: <Globe className="h-4 w-4" />,
       enabled: true,
       category: 'profile',
@@ -83,8 +86,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     // Activity Privacy
     {
       id: 'activity_tracking',
-      title: 'Activity Tracking',
-      description: 'Allow tracking of your browsing activity for personalization',
+      title: s?.activityTracking || 'Activity Tracking',
+      description: s?.activityTrackingDesc || 'Allow tracking of your browsing activity for personalization',
       icon: <Eye className="h-4 w-4" />,
       enabled: true,
       category: 'activity',
@@ -92,8 +95,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     },
     {
       id: 'search_history',
-      title: 'Search History',
-      description: 'Save your search history for better recommendations',
+      title: s?.searchHistory || 'Search History',
+      description: s?.searchHistoryDesc || 'Save your search history for better recommendations',
       icon: <Database className="h-4 w-4" />,
       enabled: true,
       category: 'activity',
@@ -101,8 +104,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     },
     {
       id: 'favorite_properties_public',
-      title: 'Public Favorites',
-      description: 'Allow others to see your favorite properties',
+      title: s?.publicFavorites || 'Public Favorites',
+      description: s?.publicFavoritesDesc || 'Allow others to see your favorite properties',
       icon: <Users className="h-4 w-4" />,
       enabled: false,
       category: 'activity',
@@ -112,8 +115,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     // Data Privacy
     {
       id: 'analytics_participation',
-      title: 'Analytics Participation',
-      description: 'Help improve our service by sharing anonymous usage data',
+      title: s?.analyticsParticipation || 'Analytics Participation',
+      description: s?.analyticsParticipationDesc || 'Help improve our service by sharing anonymous usage data',
       icon: <Database className="h-4 w-4" />,
       enabled: true,
       category: 'data',
@@ -121,8 +124,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     },
     {
       id: 'marketing_data_usage',
-      title: 'Marketing Data Usage',
-      description: 'Allow use of your data for personalized marketing',
+      title: s?.marketingDataUsage || 'Marketing Data Usage',
+      description: s?.marketingDataUsageDesc || 'Allow use of your data for personalized marketing',
       icon: <Shield className="h-4 w-4" />,
       enabled: false,
       category: 'data',
@@ -132,8 +135,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     // Communication Privacy
     {
       id: 'direct_messages',
-      title: 'Direct Messages',
-      description: 'Who can send you direct messages',
+      title: s?.directMessages || 'Direct Messages',
+      description: s?.directMessagesDesc || 'Who can send you direct messages',
       icon: <Users className="h-4 w-4" />,
       enabled: true,
       category: 'communication',
@@ -141,8 +144,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     },
     {
       id: 'agent_contact',
-      title: 'Agent Contact',
-      description: 'Allow agents to contact you about properties',
+      title: s?.agentContact || 'Agent Contact',
+      description: s?.agentContactDesc || 'Allow agents to contact you about properties',
       icon: <Users className="h-4 w-4" />,
       enabled: true,
       category: 'communication',
@@ -241,13 +244,13 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   const getCategoryTitle = (category: string) => {
     switch (category) {
       case 'profile':
-        return 'Profile Privacy';
+        return s?.profilePrivacy || 'Profile Privacy';
       case 'activity':
-        return 'Activity Privacy';
+        return s?.activityPrivacy || 'Activity Privacy';
       case 'data':
-        return 'Data Privacy';
+        return s?.dataPrivacy || 'Data Privacy';
       case 'communication':
-        return 'Communication Privacy';
+        return s?.communicationPrivacy || 'Communication Privacy';
       default:
         return 'Other';
     }
@@ -256,13 +259,13 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   const getLevelBadge = (level: PrivacySetting['level']) => {
     switch (level) {
       case 'public':
-        return <Badge className="bg-red-100 text-red-800 text-xs">Public</Badge>;
+        return <Badge className="bg-red-100 text-red-800 text-xs">{s?.public || "Public"}</Badge>;
       case 'registered':
-        return <Badge className="bg-yellow-100 text-yellow-800 text-xs">Registered Users</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800 text-xs">{s?.registeredUsers || "Registered Users"}</Badge>;
       case 'agents':
-        return <Badge className="bg-blue-100 text-blue-800 text-xs">Agents Only</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 text-xs">{s?.agentsOnly || "Agents Only"}</Badge>;
       case 'private':
-        return <Badge className="bg-green-100 text-green-800 text-xs">Private</Badge>;
+        return <Badge className="bg-green-100 text-green-800 text-xs">{s?.private || "Private"}</Badge>;
       default:
         return <Badge className="bg-gray-100 text-gray-800 text-xs">Unknown</Badge>;
     }
@@ -283,7 +286,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Shield className="h-5 w-5" />
-            <span>Privacy Overview</span>
+            <span>{s?.privacyOverview || "Privacy Overview"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -291,10 +294,9 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
             <div className="flex items-start space-x-3">
               <Info className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
-                <h3 className="font-medium text-blue-900 text-sm sm:text-base">Your Privacy Matters</h3>
+                <h3 className="font-medium text-blue-900 text-sm sm:text-base">{s?.yourPrivacyMatters || "Your Privacy Matters"}</h3>
                 <p className="text-xs sm:text-sm text-blue-700 mt-1">
-                  Control who can see your information and how your data is used. 
-                  You can change these settings at any time.
+                  {s?.yourPrivacyMattersDesc || "Control who can see your information and how your data is used. You can change these settings at any time."}
                 </p>
               </div>
             </div>
@@ -326,17 +328,17 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                         
                         {(setting.category === 'profile' || setting.category === 'communication') && (
                           <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                            <Label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Visibility:</Label>
+                            <Label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{s?.visibility || "Visibility:"}</Label>
                             <select
                               value={setting.level}
                               onChange={(e) => handleLevelChange(setting.id, e.target.value as PrivacySetting['level'])}
                               className="px-2 sm:px-3 py-1 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
                               disabled={!setting.enabled}
                             >
-                              <option value="private">Private</option>
-                              <option value="agents">Agents Only</option>
-                              <option value="registered">Registered Users</option>
-                              <option value="public">Public</option>
+                              <option value="private">{s?.private || "Private"}</option>
+                              <option value="agents">{s?.agentsOnly || "Agents Only"}</option>
+                              <option value="registered">{s?.registeredUsers || "Registered Users"}</option>
+                              <option value="public">{s?.public || "Public"}</option>
                             </select>
                           </div>
                         )}
@@ -365,7 +367,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Database className="h-5 w-5" />
-            <span>Data Management</span>
+            <span>{s?.dataManagement || "Data Management"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -377,8 +379,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                   <Download className="h-4 w-4 text-blue-600" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Export Your Data</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">Download a copy of all your data</p>
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.exportYourData || "Export Your Data"}</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">{s?.exportYourDataDesc || "Download a copy of all your data"}</p>
                 </div>
               </div>
               <Button
@@ -388,7 +390,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                 size="sm"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Export Data
+                {s?.exportData || "Export Data"}
               </Button>
             </div>
 
@@ -399,8 +401,8 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                   <Trash2 className="h-4 w-4 text-red-600" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">Delete Account</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">Permanently delete your account and all data</p>
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.deleteAccount || "Delete Account"}</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">{s?.deleteAccountDesc || "Permanently delete your account and all data"}</p>
                 </div>
               </div>
               <Button
@@ -410,7 +412,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                 size="sm"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete Account
+                {s?.deleteAccount || "Delete Account"}
               </Button>
             </div>
           </div>
@@ -421,10 +423,9 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
       {showDataExportModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Export Your Data</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3 sm:mb-4">{s?.exportDataModalTitle || "Export Your Data"}</h3>
             <p className="text-sm text-gray-600 mb-4 sm:mb-6">
-              This will create a downloadable file containing all your personal data, 
-              including profile information, search history, favorites, and messages.
+              {s?.exportDataModalDesc || "This will create a downloadable file containing all your personal data, including profile information, search history, favorites, and messages."}
             </p>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <Button
@@ -438,7 +439,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                 ) : (
                   <Download className="h-4 w-4 mr-2" />
                 )}
-                {isLoading ? 'Exporting...' : 'Export Data'}
+                {isLoading ? (s?.exporting || 'Exporting...') : (s?.exportData || 'Export Data')}
               </Button>
               <Button
                 variant="outline"
@@ -446,7 +447,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                 disabled={isLoading}
                 size="lg"
               >
-                Cancel
+                {s?.cancel || "Cancel"}
               </Button>
             </div>
           </div>
@@ -461,21 +462,21 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
               <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
                 <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Delete Account</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{s?.deleteAccountModalTitle || "Delete Account"}</h3>
             </div>
             
             <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
               <p className="text-sm text-gray-600">
-                This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
+                {s?.deleteAccountModalDesc || "This action cannot be undone. This will permanently delete your account and remove all your data from our servers."}
               </p>
               
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-800 font-medium">What will be deleted:</p>
+                <p className="text-sm text-red-800 font-medium">{s?.whatWillBeDeleted || "What will be deleted:"}</p>
                 <ul className="text-xs sm:text-sm text-red-700 mt-2 space-y-1">
-                  <li className="break-words">• Your profile and personal information</li>
-                  <li className="break-words">• All saved properties and search history</li>
-                  <li className="break-words">• Messages and communication history</li>
-                  <li className="break-words">• Account preferences and settings</li>
+                  <li className="break-words">• {s?.deletedItem1 || "Your profile and personal information"}</li>
+                  <li className="break-words">• {s?.deletedItem2 || "All saved properties and search history"}</li>
+                  <li className="break-words">• {s?.deletedItem3 || "Messages and communication history"}</li>
+                  <li className="break-words">• {s?.deletedItem4 || "Account preferences and settings"}</li>
                 </ul>
               </div>
             </div>
@@ -492,7 +493,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                 ) : (
                   <Trash2 className="h-4 w-4 mr-2" />
                 )}
-                {isLoading ? 'Deleting...' : 'Delete Account'}
+                {isLoading ? (s?.deleting || 'Deleting...') : (s?.deleteAccount || 'Delete Account')}
               </Button>
               <Button
                 variant="outline"
@@ -500,7 +501,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                 disabled={isLoading}
                 size="lg"
               >
-                Cancel
+                {s?.cancel || "Cancel"}
               </Button>
             </div>
           </div>
@@ -538,7 +539,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
           ) : (
             <Save className="h-4 w-4 mr-2" />
           )}
-          {isLoading ? 'Saving...' : 'Save Settings'}
+          {isLoading ? (s?.saving || 'Saving...') : (s?.saveSettings || 'Save Settings')}
         </Button>
       </div>
     </div>

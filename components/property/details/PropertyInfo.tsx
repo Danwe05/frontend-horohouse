@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -76,13 +77,13 @@ interface PropertyInfoProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getContactInfo(property: PropertyInfoProps["property"]) {
+function getContactInfo(property: PropertyInfoProps["property"], pd: any = null) {
   if (property.agentId && typeof property.agentId === "object") {
     const a = property.agentId as any;
     if (a._id || a.id) {
       return {
         _id: a._id ?? a.id,
-        name: a.name ?? "Property Agent",
+        name: a.name ?? (pd?.propertyAgent || "Property Agent"),
         email: a.email,
         phoneNumber: a.phoneNumber,
         profilePicture: a.profilePicture,
@@ -95,7 +96,7 @@ function getContactInfo(property: PropertyInfoProps["property"]) {
     if (o._id || o.id) {
       return {
         _id: o._id ?? o.id,
-        name: o.name ?? "Property Owner",
+        name: o.name ?? (pd?.propertyOwner || "Property Owner"),
         email: o.email,
         phoneNumber: o.phoneNumber,
         profilePicture: o.profilePicture,
@@ -106,10 +107,10 @@ function getContactInfo(property: PropertyInfoProps["property"]) {
   return null;
 }
 
-const MESSAGE_TEMPLATES = (title: string) => [
-  { label: "Ask Availability", text: `Hi! I'm interested in ${title}. Is it still available?` },
-  { label: "Schedule Viewing", text: `Hi! I'd like to schedule a viewing for ${title}.` },
-  { label: "Request Details", text: `Hi! Can you provide more details about ${title}?` },
+const MESSAGE_TEMPLATES = (title: string, pd: any) => [
+  { label: pd?.askAvailability || "Ask Availability", text: pd?.askAvailabilityText?.replace("{title}", title) || `Hi! I'm interested in ${title}. Is it still available?` },
+  { label: pd?.scheduleViewing || "Schedule Viewing", text: pd?.scheduleViewingText?.replace("{title}", title) || `Hi! I'd like to schedule a viewing for ${title}.` },
+  { label: pd?.requestDetails || "Request Details", text: pd?.requestDetailsText?.replace("{title}", title) || `Hi! Can you provide more details about ${title}?` },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -117,6 +118,9 @@ const MESSAGE_TEMPLATES = (title: string) => [
 const PropertyInfo = ({ property }: PropertyInfoProps) => {
   const amenities = property.amenities ?? {};
   const stAmenities = property.shortTermAmenities ?? {};
+
+  const { t } = useLanguage();
+  const pd = t.propertyDetails;
 
   const { user, isAuthenticated } = useAuth();
   const { createConversation } = useChatContext();
@@ -126,9 +130,9 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const contact = useMemo(() => getContactInfo(property), [property]);
-  const contactName = contact?.name ?? "Property Contact";
-  const contactRole = contact?.role === "agent" ? "Property Agent" : "Property Owner";
+  const contact = useMemo(() => getContactInfo(property, pd), [property, pd]);
+  const contactName = contact?.name ?? (pd?.propertyContact || "Property Contact");
+  const contactRole = contact?.role === "agent" ? (pd?.propertyAgent || "Property Agent") : (pd?.propertyOwner || "Property Owner");
 
   const fullAddress = `${property.address}${property.neighborhood ? `, ${property.neighborhood}` : ""}, ${property.city}${property.country ? `, ${property.country}` : ""}`;
 
@@ -147,43 +151,43 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
   // Amenity groups
   const amenityGroups = useMemo(() => [
     {
-      title: "Essentials",
+      title: pd?.essentials || "Essentials",
       items: [
-        { icon: BedDouble, label: `${amenities.bedrooms ?? 0} Bedrooms`, value: amenities.bedrooms },
-        { icon: Bath, label: `${amenities.bathrooms ?? 0} Bathrooms`, value: amenities.bathrooms },
-        { icon: Maximize2, label: `${property.area ?? 0} sqm`, value: property.area },
-        { icon: Utensils, label: "Furnished", value: amenities.furnished },
+        { icon: BedDouble, label: pd?.bedrooms?.replace("{count}", (amenities.bedrooms ?? 0).toString()) || `${amenities.bedrooms ?? 0} Bedrooms`, value: amenities.bedrooms },
+        { icon: Bath, label: pd?.bathrooms?.replace("{count}", (amenities.bathrooms ?? 0).toString()) || `${amenities.bathrooms ?? 0} Bathrooms`, value: amenities.bathrooms },
+        { icon: Maximize2, label: pd?.sqm?.replace("{area}", (property.area ?? 0).toString()) || `${property.area ?? 0} sqm`, value: property.area },
+        { icon: Utensils, label: pd?.furnished || "Furnished", value: amenities.furnished },
       ].filter((i) => i.value),
     },
     ...(property.listingType === "short_term"
       ? [{
-        title: "Hospitality & Rules",
+        title: pd?.hospitalityRules || "Hospitality & Rules",
         items: [
-          { icon: Home, label: `${stAmenities.maxGuests ?? 0} Max Guests`, value: stAmenities.maxGuests },
-          { icon: Clock, label: `Check-in: ${stAmenities.checkInTime ?? "14:00"}`, value: true },
-          { icon: Clock, label: `Check-out: ${stAmenities.checkOutTime ?? "11:00"}`, value: true },
-          { icon: Coffee, label: "Breakfast Included", value: stAmenities.hasBreakfast },
-          { icon: Snowflake, label: "Heating", value: stAmenities.hasHeating },
-          { icon: Shield, label: "Concierge", value: stAmenities.conciergeService },
-          { icon: Car, label: "Airport Transfer", value: stAmenities.airportTransfer },
-          { icon: AlertCircle, label: "Pets Allowed", value: stAmenities.petsAllowed },
+          { icon: Home, label: pd?.maxGuests?.replace("{count}", (stAmenities.maxGuests ?? 0).toString()) || `${stAmenities.maxGuests ?? 0} Max Guests`, value: stAmenities.maxGuests },
+          { icon: Clock, label: pd?.checkIn?.replace("{time}", stAmenities.checkInTime ?? "14:00") || `Check-in: ${stAmenities.checkInTime ?? "14:00"}`, value: true },
+          { icon: Clock, label: pd?.checkOut?.replace("{time}", stAmenities.checkOutTime ?? "11:00") || `Check-out: ${stAmenities.checkOutTime ?? "11:00"}`, value: true },
+          { icon: Coffee, label: pd?.breakfastIncluded || "Breakfast Included", value: stAmenities.hasBreakfast },
+          { icon: Snowflake, label: pd?.heating || "Heating", value: stAmenities.hasHeating },
+          { icon: Shield, label: pd?.concierge || "Concierge", value: stAmenities.conciergeService },
+          { icon: Car, label: pd?.airportTransfer || "Airport Transfer", value: stAmenities.airportTransfer },
+          { icon: AlertCircle, label: pd?.petsAllowed || "Pets Allowed", value: stAmenities.petsAllowed },
         ].filter((i) => i.value),
       }]
       : []),
     {
-      title: "Comfort & Facilities",
+      title: pd?.comfortFacilities || "Comfort & Facilities",
       items: [
-        { icon: Wifi, label: "WiFi", value: amenities.hasInternet || stAmenities.hasWifi },
-        { icon: Snowflake, label: "Air Conditioning", value: amenities.airConditioning },
-        { icon: Coffee, label: "Balcony", value: amenities.balcony },
-        { icon: TreePine, label: "Garden", value: amenities.garden },
-        { icon: Car, label: "Parking", value: amenities.parking },
-        { icon: Dumbbell, label: "Gym", value: amenities.gym },
-        { icon: Waves, label: "Swimming Pool", value: amenities.pool },
-        { icon: Shield, label: "Security", value: amenities.security },
+        { icon: Wifi, label: pd?.wifi || "WiFi", value: amenities.hasInternet || stAmenities.hasWifi },
+        { icon: Snowflake, label: pd?.airConditioning || "Air Conditioning", value: amenities.airConditioning },
+        { icon: Coffee, label: pd?.balcony || "Balcony", value: amenities.balcony },
+        { icon: TreePine, label: pd?.garden || "Garden", value: amenities.garden },
+        { icon: Car, label: pd?.parking || "Parking", value: amenities.parking },
+        { icon: Dumbbell, label: pd?.gym || "Gym", value: amenities.gym },
+        { icon: Waves, label: pd?.swimmingPool || "Swimming Pool", value: amenities.pool },
+        { icon: Shield, label: pd?.security || "Security", value: amenities.security },
       ].filter((i) => i.value),
     },
-  ].filter((group) => group.items.length > 0), [amenities, stAmenities, property.area, property.listingType]);
+  ].filter((group) => group.items.length > 0), [amenities, stAmenities, property.area, property.listingType, pd]);
 
   // ── Auth guard helper ────────────────────────────────────────────────────
   const requireAuth = useCallback(() => {
@@ -196,14 +200,14 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
   const requireContact = useCallback(() => {
     if (!contact || !contact._id) {
-      toast.error("Contact unavailable", {
-        description: "The property owner hasn't completed their profile yet.",
+      toast.error(pd?.contactUnavailableError || "Contact unavailable", {
+        description: pd?.contactUnavailableDesc || "The property owner hasn't completed their profile yet.",
       });
       return false;
     }
     const currentUserId = user?.id ?? user?._id;
     if (contact._id.toString() === currentUserId?.toString()) {
-      toast.error("You can't message yourself");
+      toast.error(pd?.cantMessageYourself || "You can't message yourself");
       return false;
     }
     return true;
@@ -217,7 +221,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
   const handleSendMessage = useCallback(async () => {
     if (!message.trim()) {
-      toast.error("Please enter a message");
+      toast.error(pd?.enterMessage || "Please enter a message");
       return;
     }
     if (!contact?._id) return;
@@ -233,8 +237,8 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
       setMessage("");
       router.push("/dashboard/message");
     } catch (error: any) {
-      toast.error("Failed to send message", {
-        description: error?.message ?? "Please try again.",
+      toast.error(pd?.failedSendMessage || "Failed to send message", {
+        description: error?.message ?? (pd?.pleaseTryAgain || "Please try again."),
       });
     } finally {
       setIsLoading(false);
@@ -250,12 +254,12 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
       await createConversation(
         contact._id.toString(),
         property._id.toString(),
-        `Hi! I'm interested in ${property.title}. Is it still available?`
+        pd?.askAvailabilityText?.replace("{title}", property.title) || `Hi! I'm interested in ${property.title}. Is it still available?`
       );
       router.push("/dashboard/message");
     } catch (error: any) {
-      toast.error("Failed to send message", {
-        description: error?.message ?? "Please try again.",
+      toast.error(pd?.failedSendMessage || "Failed to send message", {
+        description: error?.message ?? (pd?.pleaseTryAgain || "Please try again."),
       });
     } finally {
       setIsLoading(false);
@@ -272,7 +276,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
             {property.type}
           </Badge>
           <Badge className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3.5 py-1.5 capitalize text-sm font-bold border-none rounded-lg">
-            {property.listingType === "short_term" ? "Short Term" : `For ${property.listingType}`}
+            {property.listingType === "short_term" ? (pd?.shortTerm || "Short Term") : (pd?.forType?.replace("{type}", property.listingType) || `For ${property.listingType}`)}
           </Badge>
           {property.cancellationPolicy && (
             <Badge className="bg-amber-50 text-amber-600 hover:bg-amber-100 px-3.5 py-1.5 text-sm font-bold border-none rounded-lg">
@@ -281,18 +285,18 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
           )}
           {amenities.furnished && (
             <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3.5 py-1.5 text-sm font-bold border-none rounded-lg">
-              Fully Furnished
+              {pd?.fullyFurnished || "Fully Furnished"}
             </Badge>
           )}
 
           <div className="flex items-center gap-5 ml-auto text-sm font-medium text-slate-500">
             <div className="flex items-center gap-2">
               <Eye className="h-4 w-4 text-slate-400" aria-hidden />
-              <span>{property.viewsCount.toLocaleString()} views</span>
+              <span>{property.viewsCount.toLocaleString()} {pd?.views?.toLowerCase() || "views"}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-slate-400" aria-hidden />
-              <span>{daysOnMarket}d on market</span>
+              <span>{pd?.daysOnMarket?.replace("{days}", daysOnMarket.toString()) || `${daysOnMarket}d on market`}</span>
             </div>
           </div>
         </div>
@@ -306,7 +310,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
             <div>
               <p className="text-slate-700 font-semibold text-lg">{fullAddress}</p>
               <p className="text-sm font-medium text-slate-500 mt-0.5">
-                Listed on {listedDate}
+                {pd?.listedOn?.replace("{date}", listedDate) || `Listed on ${listedDate}`}
               </p>
             </div>
           </div>
@@ -318,7 +322,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
       {/* Description & Features */}
       <div className="space-y-10">
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">About this property</h2>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{pd?.aboutProperty || "About this property"}</h2>
           <p className="text-slate-600 leading-relaxed whitespace-pre-line text-lg">
             {property.description}
           </p>
@@ -326,7 +330,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
         {amenityGroups.length > 0 && (
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Property Features</h3>
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{pd?.propertyFeatures || "Property Features"}</h3>
             <div className="grid gap-8">
               {amenityGroups.map((group, index) => (
                 <div key={index} className="space-y-4">
@@ -366,7 +370,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 rounded-xl shfadow-sm"
         >
           <MessageCircle className="w-5 h-5 mr-2" />
-          {isLoading ? "Sending…" : "Quick Message"}
+          {isLoading ? (pd?.sending || "Sending…") : (pd?.quickMessage || "Quick Message")}
         </Button>
 
         <Button
@@ -376,7 +380,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
           className="flex-1 border-slate-200 text-slate-700 font-bold h-12 rounded-xl hover:bg-slate-50"
         >
           <Mail className="w-5 h-5 mr-2" />
-          Write Message
+          {pd?.writeMessage || "Write Message"}
         </Button>
 
         {contact?.phoneNumber && (
@@ -395,8 +399,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
         <div className="p-4 bg-amber-50 border-2 border-amber-100 rounded-2xl flex gap-3">
           <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" aria-hidden />
           <p className="text-sm font-medium text-amber-800 leading-relaxed">
-            Contact information is not available for this property.
-            The owner may need to complete their profile setup.
+            {pd?.contactUnavailable || "Contact information is not available for this property. The owner may need to complete their profile setup."}
           </p>
         </div>
       )}
@@ -405,9 +408,9 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Send Message to {contactName}</DialogTitle>
+            <DialogTitle>{pd?.sendMessageTo?.replace("{name}", contactName) || `Send Message to ${contactName}`}</DialogTitle>
             <DialogDescription>
-              Write a message about {property.title}
+              {pd?.writeMessageAbout?.replace("{title}", property.title) || `Write a message about ${property.title}`}
             </DialogDescription>
           </DialogHeader>
 
@@ -421,7 +424,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
             <div className="space-y-2">
               <label htmlFor="custom-message" className="text-sm font-medium block">
-                Your Message
+                {pd?.yourMessage || "Your Message"}
               </label>
               <Textarea
                 id="custom-message"
@@ -435,9 +438,9 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
             {/* Quick templates */}
             <div className="space-y-2">
-              <p className="text-sm font-medium">Quick Templates:</p>
+              <p className="text-sm font-medium">{pd?.quickTemplates || "Quick Templates:"}</p>
               <div className="flex flex-wrap gap-2">
-                {MESSAGE_TEMPLATES(property.title).map(({ label, text }) => (
+                {MESSAGE_TEMPLATES(property.title, pd).map(({ label, text }) => (
                   <Button
                     key={label}
                     variant="outline"
@@ -456,7 +459,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
                 onClick={() => setIsOpen(false)}
                 className="flex-1"
               >
-                Cancel
+                {pd?.cancel || "Cancel"}
               </Button>
               <Button
                 onClick={handleSendMessage}
@@ -464,7 +467,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
                 aria-busy={isLoading}
                 className="flex-1 bg-primary"
               >
-                {isLoading ? "Sending…" : "Send Message"}
+                {isLoading ? (pd?.sending || "Sending…") : (pd?.sendMessage || "Send Message")}
               </Button>
             </div>
           </div>

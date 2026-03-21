@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import MapView from "../MapView";
 import { Progress } from "@/components/ui/progress";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ScoreInfo {
   value: number;
@@ -92,6 +93,9 @@ function getScoreDescription(score: number, type: "walk" | "transit" | "bike"): 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const Neighborhood = ({ property }: NeighborhoodProps) => {
+  const { t } = useLanguage();
+  const pd = t.propertyDetails;
+
   // Use prop-supplied scores when available; fall back to demo values clearly
   // marked as estimated so the UI can communicate uncertainty.
   const walkScore = property.walkScore ?? 75;
@@ -100,23 +104,23 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
   const scoresAreEstimated = !property.walkScore && !property.transitScore && !property.bikeScore;
 
   const scores: Array<{ type: "walk" | "transit" | "bike"; label: string; value: number; color: string }> = [
-    { type: "walk", label: "Walk Score", value: walkScore, color: "bg-emerald-500" },
-    { type: "transit", label: "Transit Score", value: transitScore, color: "bg-blue-500" },
-    { type: "bike", label: "Bike Score", value: bikeScore, color: "bg-amber-500" },
+    { type: "walk", label: pd?.walkScore || "Walk Score", value: walkScore, color: "bg-emerald-500" },
+    { type: "transit", label: pd?.transitScore || "Transit Score", value: transitScore, color: "bg-blue-500" },
+    { type: "bike", label: pd?.bikeScore || "Bike Score", value: bikeScore, color: "bg-amber-500" },
   ];
 
   return (
     <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 space-y-8 mt-10">
-      <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Neighborhood</h2>
+      <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{pd?.neighborhood || "Neighborhood"}</h2>
 
       {/* Walk / Transit / Bike Scores */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-400 tracking-wider uppercase">
-            Livability Scores
+            {pd?.livabilityScores || "Livability Scores"}
           </h3>
           {scoresAreEstimated && (
-            <span className="text-xs text-slate-400 italic">Estimated</span>
+            <span className="text-xs text-slate-400 italic">{pd?.estimated || "Estimated"}</span>
           )}
         </div>
         <div className="grid md:grid-cols-3 gap-6">
@@ -151,7 +155,7 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
       <div className="space-y-4 pt-6 border-t border-slate-100">
         <div className="flex items-center gap-2.5">
           <MapPin className="h-6 w-6 text-blue-500" />
-          <h3 className="text-xl font-bold text-slate-900 tracking-tight">Location</h3>
+          <h3 className="text-xl font-bold text-slate-900 tracking-tight">{pd?.location || "Location"}</h3>
         </div>
 
         {property.neighborhood && (
@@ -167,7 +171,7 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
         ) : (
           <div className="mt-3 p-5 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-1">
             <MapPin className="h-6 w-6 text-slate-300 mx-auto" />
-            <p className="text-sm font-medium text-slate-400">Map unavailable for this listing</p>
+            <p className="text-sm font-medium text-slate-400">{pd?.mapUnavailable || "Map unavailable for this listing"}</p>
           </div>
         )}
       </div>
@@ -175,7 +179,7 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
       {/* Nearby Amenities */}
       {property.nearbyAmenities.length > 0 && (
         <div className="pt-6 border-t border-slate-100 space-y-5">
-          <h3 className="text-xl font-bold text-slate-900 tracking-tight">Nearby Amenities</h3>
+          <h3 className="text-xl font-bold text-slate-900 tracking-tight">{pd?.nearbyAmenities || "Nearby Amenities"}</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {property.nearbyAmenities.map((amenity, index) => {
               const Icon = getAmenityIcon(amenity);
@@ -200,7 +204,7 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
         <div className="pt-6 border-t border-slate-100 space-y-5">
           <div className="flex items-center gap-2.5">
             <Train className="h-6 w-6 text-blue-500" />
-            <h3 className="text-xl font-bold text-slate-900 tracking-tight">Transport Access</h3>
+            <h3 className="text-xl font-bold text-slate-900 tracking-tight">{pd?.transportAccess || "Transport Access"}</h3>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             {property.transportAccess.map((transport, index) => {

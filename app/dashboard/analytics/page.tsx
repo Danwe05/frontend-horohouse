@@ -23,12 +23,13 @@ import { analyticsService } from '@/lib/services/analyticService';
 import { authService } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
 // --- Sub-Components ---
 
-const DashboardHeader = ({ title, description, dateRange, setDateRange, onExport, icon: HeaderIcon }: any) => (
+const DashboardHeader = ({ title, description, dateRange, setDateRange, onExport, icon: HeaderIcon, s }: any) => (
   <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
     <div className="space-y-1">
       <div className="flex items-center gap-3">
@@ -51,15 +52,15 @@ const DashboardHeader = ({ title, description, dateRange, setDateRange, onExport
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="rounded-xl shadow-lg border-slate-100">
-          <SelectItem value="7days" className="rounded-lg">Last 7 days</SelectItem>
-          <SelectItem value="30days" className="rounded-lg">Last 30 days</SelectItem>
-          <SelectItem value="90days" className="rounded-lg">Last 90 days</SelectItem>
+          <SelectItem value="7days" className="rounded-lg">{s?.last7days || 'Last 7 days'}</SelectItem>
+          <SelectItem value="30days" className="rounded-lg">{s?.last30days || 'Last 30 days'}</SelectItem>
+          <SelectItem value="90days" className="rounded-lg">{s?.last90days || 'Last 90 days'}</SelectItem>
         </SelectContent>
       </Select>
       <div className="h-8 w-px bg-slate-200 mx-1"></div>
       <Button onClick={() => onExport('json')} variant="ghost" className="h-11 rounded-xl px-4 text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-colors font-semibold">
         <Download className="w-4 h-4 mr-2" />
-        Export Data
+        {s?.exportData || 'Export Data'}
       </Button>
     </div>
   </div>
@@ -100,18 +101,19 @@ const ModernKPICard = ({ title, value, change, trend, icon: Icon, colorClass = "
 
 // --- Role Specific Dashboards ---
 
-const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport }: any) => {
+const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport, s }: any) => {
   if (loading) return <LoadingSkeleton />;
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
       <DashboardHeader
-        title="Your Dashboard"
-        description="Insights into your property search, favorites, and activity"
+        title={s?.yourDashboard || "Your Dashboard"}
+        description={s?.yourDashboardDesc || "Insights into your property search, favorites, and activity"}
         dateRange={dateRange}
         setDateRange={setDateRange}
         onExport={onExport}
         icon={BarChart3}
+        s={s}
       />
 
       {/* Insights Section */}
@@ -132,10 +134,10 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <ModernKPICard title="Saved Items" value={data?.kpis?.savedProperties || '0'} icon={Heart} colorClass="pink" />
-        <ModernKPICard title="Properties Viewed" value={data?.kpis?.recentlyViewed || '0'} icon={Eye} colorClass="blue" />
-        <ModernKPICard title="Inquiries Sent" value={data?.kpis?.contactedAgents || '0'} icon={MessageSquare} colorClass="emerald" />
-        <ModernKPICard title="Transactions" value={data?.kpis?.completedTransactions || '0'} icon={Home} colorClass="purple" />
+        <ModernKPICard title={s?.savedItems || "Saved Items"} value={data?.kpis?.savedProperties || '0'} icon={Heart} colorClass="pink" />
+        <ModernKPICard title={s?.propertiesViewed || "Properties Viewed"} value={data?.kpis?.recentlyViewed || '0'} icon={Eye} colorClass="blue" />
+        <ModernKPICard title={s?.inquiriesSent || "Inquiries Sent"} value={data?.kpis?.contactedAgents || '0'} icon={MessageSquare} colorClass="emerald" />
+        <ModernKPICard title={s?.transactions || "Transactions"} value={data?.kpis?.completedTransactions || '0'} icon={Home} colorClass="purple" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -144,7 +146,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
           <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6">
             <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
               <Activity className="w-5 h-5 text-blue-500" />
-              Activity Trends
+              {s?.activityTrends || "Activity Trends"}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 h-[400px]">
@@ -176,7 +178,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-slate-400">
                 <BarChart3 className="w-12 h-12 mb-3 opacity-20" />
-                <p className="font-medium">No activity data available for this period.</p>
+                <p className="font-medium">{s?.noActivityData || "No activity data available for this period."}</p>
               </div>
             )}
           </CardContent>
@@ -185,7 +187,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
         {/* Recent Activity List */}
         <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px] lg:h-auto">
           <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6">
-            <CardTitle className="text-lg font-bold text-slate-800">Recent History</CardTitle>
+            <CardTitle className="text-lg font-bold text-slate-800">{s?.recentHistory || "Recent History"}</CardTitle>
           </CardHeader>
           <CardContent className="p-0 flex-1 overflow-y-auto custom-scrollbar">
             {data?.recentActivity?.length > 0 ? (
@@ -211,7 +213,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-slate-400 p-6 text-center">
                 <Search className="w-10 h-10 mb-3 opacity-20" />
-                <p className="font-medium text-sm">No recent activity found.</p>
+                <p className="font-medium text-sm">{s?.noRecentActivity || "No recent activity found."}</p>
               </div>
             )}
           </CardContent>
@@ -221,27 +223,28 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
   );
 };
 
-const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: any) => {
+const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport, s }: any) => {
   if (loading) return <LoadingSkeleton />;
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
       <DashboardHeader
-        title="Agent Performance"
-        description="Comprehensive overview of your listings, conversions, and revenue"
+        title={s?.agentPerformance || "Agent Performance"}
+        description={s?.agentPerformanceDesc || "Comprehensive overview of your listings, conversions, and revenue"}
         dateRange={dateRange}
         setDateRange={setDateRange}
         onExport={onExport}
         icon={PieChartIcon}
+        s={s}
       />
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <ModernKPICard title="Total Views" value={analyticsService.formatNumber(data?.kpis?.totalViews || 0)} icon={Eye} colorClass="blue" />
-        <ModernKPICard title="Inquiries" value={data?.kpis?.inquiriesReceived || '0'} icon={MessageSquare} colorClass="emerald" />
-        <ModernKPICard title="Saved" value={data?.kpis?.savedProperties || '0'} icon={Heart} colorClass="pink" />
-        <ModernKPICard title="Active Listings" value={data?.kpis?.activeListings || '0'} icon={Home} colorClass="purple" />
-        <ModernKPICard title="Est. Revenue" value={analyticsService.formatCurrency(data?.kpis?.estimatedRevenue || 0)} icon={DollarSign} colorClass="orange" />
+        <ModernKPICard title={s?.totalViews || "Total Views"} value={analyticsService.formatNumber(data?.kpis?.totalViews || 0)} icon={Eye} colorClass="blue" />
+        <ModernKPICard title={s?.inquiries || "Inquiries"} value={data?.kpis?.inquiriesReceived || '0'} icon={MessageSquare} colorClass="emerald" />
+        <ModernKPICard title={s?.saved || "Saved"} value={data?.kpis?.savedProperties || '0'} icon={Heart} colorClass="pink" />
+        <ModernKPICard title={s?.activeListings || "Active Listings"} value={data?.kpis?.activeListings || '0'} icon={Home} colorClass="purple" />
+        <ModernKPICard title={s?.estRevenue || "Est. Revenue"} value={analyticsService.formatCurrency(data?.kpis?.estimatedRevenue || 0)} icon={DollarSign} colorClass="orange" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -250,7 +253,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: an
           <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6 flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
               <Activity className="w-5 h-5 text-indigo-500" />
-              Listing Engagement
+              {s?.listingEngagement || "Listing Engagement"}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 h-[400px]">
@@ -281,7 +284,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: an
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-slate-400">
                 <BarChart3 className="w-12 h-12 mb-3 opacity-20" />
-                <p className="font-medium">No engagement data available.</p>
+                <p className="font-medium">{s?.noEngagementData || "No engagement data available."}</p>
               </div>
             )}
           </CardContent>
@@ -290,8 +293,8 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: an
         {/* Funnel */}
         <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden flex flex-col">
           <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6">
-            <CardTitle className="text-lg font-bold text-slate-800">Conversion Funnel</CardTitle>
-            <CardDescription className="text-slate-500 font-medium mt-1">From inquiry to closed deal</CardDescription>
+            <CardTitle className="text-lg font-bold text-slate-800">{s?.conversionFunnel || "Conversion Funnel"}</CardTitle>
+            <CardDescription className="text-slate-500 font-medium mt-1">{s?.conversionFunnelDesc || "From inquiry to closed deal"}</CardDescription>
           </CardHeader>
           <CardContent className="p-6 flex-1 flex flex-col justify-center">
             <div className="space-y-8">
@@ -299,7 +302,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: an
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors"><MessageSquare className="w-4 h-4" /></div>
-                    <p className="font-bold text-slate-700">Total Inquiries</p>
+                    <p className="font-bold text-slate-700">{s?.totalInquiries || "Total Inquiries"}</p>
                   </div>
                   <h4 className="text-2xl font-black text-slate-900">{data?.conversionRate?.totalInquiries || '0'}</h4>
                 </div>
@@ -312,7 +315,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: an
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors"><CheckCircle2 className="w-4 h-4" /></div>
-                    <p className="font-bold text-slate-700">Closed Deals</p>
+                    <p className="font-bold text-slate-700">{s?.closedDeals || "Closed Deals"}</p>
                   </div>
                   <h4 className="text-2xl font-black text-slate-900">{data?.conversionRate?.closed || '0'}</h4>
                 </div>
@@ -332,7 +335,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: an
                 <div className="w-16 h-16 mx-auto rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
                   <span className="text-xl font-black text-purple-600">{data?.conversionRate?.conversionPercentage || '0'}%</span>
                 </div>
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Success Rate</p>
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{s?.successRate || "Success Rate"}</p>
               </div>
             </div>
           </CardContent>
@@ -344,7 +347,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: an
         <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6">
           <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <Home className="w-5 h-5 text-orange-500" />
-            Top Performing Listings
+            {s?.topPerformingListings || "Top Performing Listings"}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -363,15 +366,15 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: an
                   </div>
                   <div className="grid grid-cols-3 gap-6 sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-slate-100">
                     <div className="text-center sm:text-right">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Views</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{s?.views || "Views"}</p>
                       <p className="text-sm font-black text-slate-800">{listing.views}</p>
                     </div>
                     <div className="text-center sm:text-right">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Inquiries</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{s?.inquiries || "Inquiries"}</p>
                       <p className="text-sm font-black text-slate-800">{listing.inquiries}</p>
                     </div>
                     <div className="text-center sm:text-right">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Saves</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{s?.saved || "Saves"}</p>
                       <p className="text-sm font-black text-slate-800">{listing.saves}</p>
                     </div>
                   </div>
@@ -381,7 +384,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: an
           ) : (
             <div className="flex flex-col items-center justify-center text-slate-400 p-12 text-center">
               <Home className="w-12 h-12 mb-3 opacity-20" />
-              <p className="font-medium text-sm">No listing data available.</p>
+              <p className="font-medium text-sm">{s?.noListingData || "No listing data available."}</p>
             </div>
           )}
         </CardContent>
@@ -416,6 +419,8 @@ const AnalyticsPage = () => {
   const [dateRange, setDateRange] = useState<'7days' | '30days' | '90days' | 'custom'>('30days');
   const [userRole, setUserRole] = useState<string | null>(null);
   const router = useRouter();
+  const { t } = useLanguage();
+  const s = (t as any)?.analytics || {};
 
   useEffect(() => {
     const fetchUserAndAnalytics = async () => {
@@ -475,7 +480,7 @@ const AnalyticsPage = () => {
               <LoadingSkeleton />
             ) : userRole === 'agent' || userRole === 'admin' ? (
               <>
-                <AgentDashboard data={analyticsData} dateRange={dateRange} setDateRange={setDateRange} loading={loading} onExport={handleExport} />
+                <AgentDashboard data={analyticsData} dateRange={dateRange} setDateRange={setDateRange} loading={loading} onExport={handleExport} s={s} />
 
                 {userRole === 'admin' && (
                   <div className="mt-16 pt-16 border-t border-slate-200">
@@ -484,7 +489,7 @@ const AnalyticsPage = () => {
                 )}
               </>
             ) : (
-              <RegularUserDashboard data={analyticsData} dateRange={dateRange} setDateRange={setDateRange} loading={loading} onExport={handleExport} />
+              <RegularUserDashboard data={analyticsData} dateRange={dateRange} setDateRange={setDateRange} loading={loading} onExport={handleExport} s={s} />
             )}
           </div>
         </SidebarInset>

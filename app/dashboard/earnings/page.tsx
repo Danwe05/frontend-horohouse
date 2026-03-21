@@ -10,9 +10,10 @@ import {
      Wallet, DollarSign, ArrowUpRight, ArrowDownRight, Activity,
      Download, Clock, CheckCircle2, Building2, Smartphone,
      ArrowRight, Landmark, CreditCard, HeartHandshake, FileText, TrendingUp
- } from 'lucide-react';
- import { Badge } from '@/components/ui/badge';
+   } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Mock Data
 const revenueData = [
@@ -34,28 +35,32 @@ const transactions = [
 
 // --- Sub-Components ---
 
-const DashboardHeader = () => (
-    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-        <div className="space-y-1">
-            <div className="flex items-center gap-3">
-                <div className="relative p-2 rounded-xl bg-slate-900 text-white shadow-sm">
-                    <Wallet className="w-6 h-6" />
+const DashboardHeader = () => {
+    const { t } = useLanguage();
+    const s = (t as any)?.earnings || {};
+    return (
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                    <div className="relative p-2 rounded-xl bg-slate-900 text-white shadow-sm">
+                        <Wallet className="w-6 h-6" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">{s?.earningsAndPayouts || "Earnings & Payouts"}</h1>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Earnings & Payouts</h1>
-                </div>
+                <p className="text-slate-500 pl-11">{s?.earningsAndPayoutsDesc || "Track your revenue, commissions, and upcoming transfer payments."}</p>
             </div>
-            <p className="text-slate-500 pl-11">Track your revenue, commissions, and upcoming transfer payments.</p>
-        </div>
 
-        <div className="flex items-center gap-3">
-            <Button variant="outline" className="rounded-xl border-slate-200 text-slate-600 bg-white hover:bg-slate-50 font-bold h-11 px-4">
-                <Download className="w-4 h-4 mr-2" />
-                Export Statement
-            </Button>
+            <div className="flex items-center gap-3">
+                <Button variant="outline" className="rounded-xl border-slate-200 text-slate-600 bg-white hover:bg-slate-50 font-bold h-11 px-4">
+                    <Download className="w-4 h-4 mr-2" />
+                    {s?.exportStatement || "Export Statement"}
+                </Button>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 // Sub components
 const KPICard = ({ title, amount, subtext, icon: Icon, colorClass, isCurrency = true }: any) => {
@@ -92,6 +97,8 @@ const KPICard = ({ title, amount, subtext, icon: Icon, colorClass, isCurrency = 
 
 // Main Page
 const EarningsPage = () => {
+    const { t } = useLanguage();
+    const s = (t as any)?.earnings || {};
     return (
         <SidebarProvider>
             <div className="flex min-h-screen w-full bg-[#f8fafc]">
@@ -104,30 +111,30 @@ const EarningsPage = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                                 <KPICard
-                                    title="Available Balance"
+                                    title={s?.availableBalance || "Available Balance"}
                                     amount={1250000}
-                                    subtext={<><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Ready to withdraw</>}
+                                    subtext={<><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> {s?.readyToWithdraw || "Ready to withdraw"}</>}
                                     icon={Wallet}
                                     colorClass="emerald"
                                 />
                                 <KPICard
-                                    title="Total Earnings"
+                                    title={s?.totalEarnings || "Total Earnings"}
                                     amount={8450000}
-                                    subtext={<><ArrowUpRight className="w-3.5 h-3.5 text-emerald-500" /> +14% from last month</>}
+                                    subtext={<><ArrowUpRight className="w-3.5 h-3.5 text-emerald-500" /> +14% {s?.fromLastMonth || "from last month"}</>}
                                     icon={Landmark}
                                     colorClass="blue"
                                 />
                                 <KPICard
-                                    title="Pending Payouts"
+                                    title={s?.pendingPayouts || "Pending Payouts"}
                                     amount={450000}
-                                    subtext={<><Clock className="w-3.5 h-3.5 text-amber-500" /> Clearing in 2-3 days</>}
+                                    subtext={<><Clock className="w-3.5 h-3.5 text-amber-500" /> {s?.clearingIn || "Clearing in 2-3 days"}</>}
                                     icon={Activity}
                                     colorClass="amber"
                                 />
                                 <KPICard
-                                    title="Avg. Commission"
+                                    title={s?.avgCommission || "Avg. Commission"}
                                     amount={2.8}
-                                    subtext={<><TrendingUp className="w-3.5 h-3.5 text-indigo-500" /> Across 12 properties</>}
+                                    subtext={<><TrendingUp className="w-3.5 h-3.5 text-indigo-500" /> {s?.acrossProperties || "Across 12 properties"}</>}
                                     icon={HeartHandshake}
                                     colorClass="indigo"
                                     isCurrency={false}
@@ -139,12 +146,12 @@ const EarningsPage = () => {
                                 <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden lg:col-span-2">
                                     <CardHeader className="border-b border-slate-50 pb-4 pt-6 px-6 bg-slate-50/50 flex flex-row items-center justify-between">
                                         <div>
-                                            <CardTitle className="text-lg font-bold text-slate-800">Revenue Overview</CardTitle>
-                                            <CardDescription>Last 6 months performance</CardDescription>
+                                            <CardTitle className="text-lg font-bold text-slate-800">{s?.revenueOverview || "Revenue Overview"}</CardTitle>
+                                            <CardDescription>{s?.last6MonthsPerformance || "Last 6 months performance"}</CardDescription>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer">6 Months</Badge>
-                                            <Badge variant="outline" className="text-slate-500 hover:bg-slate-50 cursor-pointer">1 Year</Badge>
+                                            <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer">{s?.sixMonths || "6 Months"}</Badge>
+                                            <Badge variant="outline" className="text-slate-500 hover:bg-slate-50 cursor-pointer">{s?.oneYear || "1 Year"}</Badge>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="p-6">
@@ -180,9 +187,9 @@ const EarningsPage = () => {
                                             <div className="w-12 h-12 rounded-xl bg-blue-500 text-white flex items-center justify-center mb-6 shadow-lg">
                                                 <ArrowUpRight className="w-6 h-6" />
                                             </div>
-                                            <h3 className="text-2xl font-bold mb-2">Request Payout</h3>
+                                            <h3 className="text-2xl font-bold mb-2">{s?.requestPayout || "Request Payout"}</h3>
                                             <p className="text-slate-400 text-sm leading-relaxed mb-8">
-                                                Withdraw your available balance securely to your linked bank account or mobile money wallet.
+                                                {s?.requestPayoutDesc || "Withdraw your available balance securely to your linked bank account or mobile money wallet."}
                                             </p>
                                         </div>
 
@@ -210,7 +217,7 @@ const EarningsPage = () => {
                                             </div>
 
                                             <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold mt-4 shadow-md transition-all">
-                                                Withdraw 1,250,000 FCFA
+                                                {s?.withdrawAmount || "Withdraw 1,250,000 FCFA"}
                                             </Button>
                                         </div>
                                     </CardContent>
@@ -220,9 +227,11 @@ const EarningsPage = () => {
                             {/* Recent Transactions */}
                             <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden">
                                 <CardHeader className="border-b border-slate-50 pb-4 pt-6 px-6 bg-slate-50/50 flex flex-row items-center justify-between">
-                                    <CardTitle className="text-lg font-bold text-slate-800">Recent Transactions</CardTitle>
+                                    <div className="space-y-1">
+                                        <CardTitle className="text-lg font-bold text-slate-800">{s?.recentTransactions || "Recent Transactions"}</CardTitle>
+                                    </div>
                                     <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-semibold h-9 px-3">
-                                        View All
+                                        {s?.viewAll || "View All"}
                                         <ArrowRight className="w-4 h-4 ml-2" />
                                     </Button>
                                 </CardHeader>
@@ -230,11 +239,11 @@ const EarningsPage = () => {
                                     <table className="w-full text-left border-collapse">
                                         <thead>
                                             <tr className="border-b border-slate-100 bg-slate-50/50">
-                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Transaction ID</th>
-                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Date</th>
-                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Description</th>
-                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
-                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Amount</th>
+                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">{s?.transactionId || "Transaction ID"}</th>
+                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">{s?.date || "Date"}</th>
+                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">{s?.description || "Description"}</th>
+                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">{s?.status || "Status"}</th>
+                                                <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">{s?.amount || "Amount"}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
@@ -250,9 +259,9 @@ const EarningsPage = () => {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         {t.status === 'completed' ? (
-                                                            <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-none px-2.5 py-1">Completed</Badge>
+                                                            <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-none px-2.5 py-1">{s?.completed || "Completed"}</Badge>
                                                         ) : (
-                                                            <Badge className="bg-amber-50 text-amber-600 hover:bg-amber-100 border-none px-2.5 py-1">Pending</Badge>
+                                                            <Badge className="bg-amber-50 text-amber-600 hover:bg-amber-100 border-none px-2.5 py-1">{s?.pending || "Pending"}</Badge>
                                                         )}
                                                     </td>
                                                     <td className="py-4 px-6 text-right">

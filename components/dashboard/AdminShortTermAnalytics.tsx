@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
 
@@ -29,6 +30,9 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
         cities: [],
         hosts: []
     });
+
+    const { t } = useLanguage();
+    const s = (t as any)?.analytics || {};
 
     useEffect(() => {
         const fetchAdminSTData = async () => {
@@ -79,40 +83,40 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                 <div>
                     <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                         <Hotel className="h-5 w-5 text-blue-500" />
-                        Short-Term Rental Oversight
+                        {s?.adminStOversight || "Short-Term Rental Oversight"}
                     </h2>
-                    <p className="text-sm text-slate-500">Performance metrics for bookings, occupancy, and hosts</p>
+                    <p className="text-sm text-slate-500">{s?.adminStOversightDesc || "Performance metrics for bookings, occupancy, and hosts"}</p>
                 </div>
                 <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wider">
-                    <Activity className="h-3 w-3" /> Live Data
+                    <Activity className="h-3 w-3" /> {s?.liveData || "Live Data"}
                 </div>
             </div>
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <KPICard
-                    title="Gross Revenue"
+                    title={s?.grossRevenue || "Gross Revenue"}
                     value={analyticsService.formatCurrency(kpis?.totalRevenue || 0)}
                     change={kpis?.revenueChange}
                     icon={DollarSign}
                     color="blue"
                 />
                 <KPICard
-                    title="Total Bookings"
+                    title={s?.totalBookings || "Total Bookings"}
                     value={kpis?.totalBookings || 0}
                     change={kpis?.bookingsChange}
                     icon={Calendar}
                     color="purple"
                 />
                 <KPICard
-                    title="Avg. Occupancy"
+                    title={s?.avgOccupancy || "Avg. Occupancy"}
                     value={`${kpis?.avgOccupancy || 0}%`}
                     change={kpis?.occupancyChange}
                     icon={Activity}
                     color="emerald"
                 />
                 <KPICard
-                    title="Active Hosts"
+                    title={s?.activeHosts || "Active Hosts"}
                     value={kpis?.activeHosts || 0}
                     icon={Users}
                     color="orange"
@@ -123,7 +127,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                 {/* Revenue Trends */}
                 <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
                     <CardHeader className="bg-white border-b border-slate-50">
-                        <CardTitle className="text-lg font-bold">Revenue Growth</CardTitle>
+                        <CardTitle className="text-lg font-bold">{s?.revenueGrowth || "Revenue Growth"}</CardTitle>
                     </CardHeader>
                     <CardContent className="p-6 h-[350px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -139,7 +143,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                    formatter={(val: number) => [analyticsService.formatCurrency(val), 'Revenue']}
+                                    formatter={(val: number) => [analyticsService.formatCurrency(val), s?.revenue || 'Revenue']}
                                 />
                                 <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
                             </AreaChart>
@@ -150,7 +154,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                 {/* Occupancy Chart */}
                 <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
                     <CardHeader className="bg-white border-b border-slate-50">
-                        <CardTitle className="text-lg font-bold">Occupancy Rate (%)</CardTitle>
+                        <CardTitle className="text-lg font-bold">{s?.occupancyRate || "Occupancy Rate (%)"}</CardTitle>
                     </CardHeader>
                     <CardContent className="p-6 h-[350px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -170,7 +174,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                 {/* City Performance */}
                 <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
                     <CardHeader className="bg-white border-b border-slate-50">
-                        <CardTitle className="text-lg font-bold">City Performance</CardTitle>
+                        <CardTitle className="text-lg font-bold">{s?.cityPerformance || "City Performance"}</CardTitle>
                     </CardHeader>
                     <CardContent className="p-6 h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -199,7 +203,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                 {/* Top Properties */}
                 <Card className="lg:col-span-2 rounded-3xl border-slate-200 shadow-sm overflow-hidden">
                     <CardHeader className="bg-white border-b border-slate-50">
-                        <CardTitle className="text-lg font-bold">Top Short-Term Properties</CardTitle>
+                        <CardTitle className="text-lg font-bold">{s?.topStProperties || "Top Short-Term Properties"}</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="divide-y divide-slate-100">
@@ -219,7 +223,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-black text-slate-800">{analyticsService.formatCurrency(prop.revenue)}</p>
-                                        <p className="text-[10px] text-slate-400">{prop.bookings} bookings · {prop.occupancy}% occ.</p>
+                                        <p className="text-[10px] text-slate-400">{prop.bookings} {s?.bookingsNum || "bookings"} · {prop.occupancy}% {s?.occNum || "occ."}</p>
                                     </div>
                                 </div>
                             ))}
@@ -231,7 +235,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
             {/* Top Hosts */}
             <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
                 <CardHeader className="bg-white border-b border-slate-50">
-                    <CardTitle className="text-lg font-bold">Top Performing Hosts</CardTitle>
+                    <CardTitle className="text-lg font-bold">{s?.topPerformingHosts || "Top Performing Hosts"}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 divide-x divide-slate-100">
@@ -248,7 +252,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                                 </div>
                                 <div className="pt-2 border-t border-slate-100 space-y-1">
                                     <p className="text-xs font-black text-blue-600">{analyticsService.formatCurrency(host.revenue)}</p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Total Revenue</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{s?.totalRevenue || "Total Revenue"}</p>
                                 </div>
                             </div>
                         ))}

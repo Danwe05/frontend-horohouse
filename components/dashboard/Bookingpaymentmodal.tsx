@@ -25,6 +25,7 @@ import {
   DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,6 +71,8 @@ const POLL_MS = 2500;
 function FlwPayButton({ config, onPaid, onCancelled }: {
   config: FlwConfig; onPaid: () => void; onCancelled: () => void;
 }) {
+  const { t } = useLanguage();
+  const s = (t as any)?.bookings?.paymentModal || {};
   const handleFlutterPayment = useFlutterwave(config);
   return (
     <Button
@@ -85,7 +88,7 @@ function FlwPayButton({ config, onPaid, onCancelled }: {
         })
       }
     >
-      <CreditCard className="h-4 w-4" /> Pay Now
+      <CreditCard className="h-4 w-4" /> {s.payNow || 'Pay Now'}
     </Button>
   );
 }
@@ -93,6 +96,8 @@ function FlwPayButton({ config, onPaid, onCancelled }: {
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
 export default function BookingPaymentModal({ booking, open, onClose, onSuccess }: Props) {
+  const { t } = useLanguage();
+  const s = (t as any)?.bookings?.paymentModal || {};
   const [step, setStep] = useState<Step>('confirm');
   const [flwConfig, setFlwConfig] = useState<FlwConfig | null>(null);
   const [error, setError] = useState('');
@@ -182,10 +187,10 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-slate-900">
-            <CreditCard className="h-5 w-5 text-amber-500" /> Complete Your Booking
+            <CreditCard className="h-5 w-5 text-amber-500" /> {s.completeBooking || 'Complete Your Booking'}
           </DialogTitle>
           <DialogDescription className="text-slate-500">
-            {propTitle} · {booking.nights} night{booking.nights !== 1 ? 's' : ''}
+            {propTitle} · {booking.nights} {(booking.nights !== 1 ? s.nights : s.night) || (booking.nights !== 1 ? 'nights' : 'night')}
           </DialogDescription>
         </DialogHeader>
 
@@ -193,8 +198,8 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
         {step === 'success' && (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
             <CheckCircle2 className="h-14 w-14 text-emerald-500" />
-            <p className="text-lg font-bold text-slate-900">Payment confirmed!</p>
-            <p className="text-sm text-slate-500">Redirecting to your booking…</p>
+            <p className="text-lg font-bold text-slate-900">{s.paymentConfirmed || 'Payment confirmed!'}</p>
+            <p className="text-sm text-slate-500">{s.redirecting || 'Redirecting to your booking…'}</p>
           </div>
         )}
 
@@ -202,10 +207,10 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
         {step === 'failed' && (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
             <XCircle className="h-14 w-14 text-red-400" />
-            <p className="text-lg font-bold text-slate-900">Payment failed</p>
-            <p className="text-sm text-slate-500">Your booking is saved. Retry from your bookings page.</p>
+            <p className="text-lg font-bold text-slate-900">{s.paymentFailed || 'Payment failed'}</p>
+            <p className="text-sm text-slate-500">{s.paymentFailedDesc || 'Your booking is saved. Retry from your bookings page.'}</p>
             <Button className="mt-2" onClick={() => setStep('confirm')}>
-              <RefreshCw className="h-4 w-4 mr-2" /> Try Again
+              <RefreshCw className="h-4 w-4 mr-2" /> {s.tryAgain || 'Try Again'}
             </Button>
           </div>
         )}
@@ -216,39 +221,39 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
             {/* Price breakdown */}
             <div className="rounded-xl bg-slate-50 p-4 space-y-2 text-sm">
               <div className="flex justify-between text-slate-600">
-                <span>{formatMoney(pb.pricePerNight)} × {booking.nights} nights</span>
+                <span>{formatMoney(pb.pricePerNight)} × {booking.nights} {s.nights || 'nights'}</span>
                 <span>{formatMoney(pb.subtotal)}</span>
               </div>
               {pb.cleaningFee > 0 && (
                 <div className="flex justify-between text-slate-600">
-                  <span>Cleaning fee</span><span>{formatMoney(pb.cleaningFee)}</span>
+                  <span>{s.cleaningFee || 'Cleaning fee'}</span><span>{formatMoney(pb.cleaningFee)}</span>
                 </div>
               )}
               {pb.serviceFee > 0 && (
                 <div className="flex justify-between text-slate-600">
-                  <span>Service fee</span><span>{formatMoney(pb.serviceFee)}</span>
+                  <span>{s.serviceFee || 'Service fee'}</span><span>{formatMoney(pb.serviceFee)}</span>
                 </div>
               )}
               {pb.taxAmount > 0 && (
                 <div className="flex justify-between text-slate-600">
-                  <span>Taxes</span><span>{formatMoney(pb.taxAmount)}</span>
+                  <span>{s.taxes || 'Taxes'}</span><span>{formatMoney(pb.taxAmount)}</span>
                 </div>
               )}
               {pb.discountAmount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Discount</span><span>−{formatMoney(pb.discountAmount)}</span>
+                  <span>{s.discount || 'Discount'}</span><span>−{formatMoney(pb.discountAmount)}</span>
                 </div>
               )}
               <Separator className="my-1" />
               <div className="flex justify-between font-bold text-slate-900">
-                <span>Total</span><span>{formatMoney(pb.totalAmount)}</span>
+                <span>{s.total || 'Total'}</span><span>{formatMoney(pb.totalAmount)}</span>
               </div>
             </div>
 
             {/* Trust badge */}
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-              Secured by Flutterwave · Card, Mobile Money &amp; Bank Transfer accepted
+              {s.securedBy || 'Secured by Flutterwave · Card, Mobile Money & Bank Transfer accepted'}
             </div>
 
             {/* Error */}
@@ -261,7 +266,7 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
             {/* Verifying progress bar */}
             {step === 'verifying' && (
               <div className="space-y-2">
-                <p className="text-sm text-center text-slate-500">Confirming your payment…</p>
+                <p className="text-sm text-center text-slate-500">{s.confirming || 'Confirming your payment…'}</p>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                   <div
                     className="h-full rounded-full bg-amber-500 transition-all duration-500"
@@ -278,12 +283,12 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
                   className="w-full h-12 gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold"
                   onClick={handleInitiate}
                 >
-                  <CreditCard className="h-4 w-4" /> Proceed to Payment
+                  <CreditCard className="h-4 w-4" /> {s.proceedToPayment || 'Proceed to Payment'}
                 </Button>
               )}
               {step === 'loading' && (
                 <Button className="w-full h-12" disabled>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" /> Preparing payment…
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" /> {s.preparingPayment || 'Preparing payment…'}
                 </Button>
               )}
               {step === 'ready' && flwConfig && (
@@ -291,19 +296,19 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
               )}
               {step === 'verifying' && (
                 <Button className="w-full h-12" disabled>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" /> Confirming payment…
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" /> {s.confirmingPayment || 'Confirming payment…'}
                 </Button>
               )}
               {step !== 'loading' && step !== 'verifying' && (
                 <Button variant="outline" className="w-full" onClick={handleDialogClose}>
-                  {step === 'ready' ? 'Cancel' : 'Pay Later'}
+                  {step === 'ready' ? (s.cancel || 'Cancel') : (s.payLater || 'Pay Later')}
                 </Button>
               )}
             </div>
 
             {step === 'confirm' && (
               <p className="text-xs text-center text-slate-400">
-                Your booking is saved. You can also pay later from your bookings page.
+                {s.payLaterDesc || 'Your booking is saved. You can also pay later from your bookings page.'}
               </p>
             )}
           </>

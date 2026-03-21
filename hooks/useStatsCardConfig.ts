@@ -15,6 +15,7 @@ import {
   KeyRound,
   Percent,
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { DashboardStats, StatsTrend } from "./useDashboardStats";
 
 export interface StatsCardData {
@@ -52,6 +53,13 @@ export const useStatsCardConfig = (
   stats: DashboardStats,
   statsTrend: StatsTrend,
 ): StatsCardData[] => {
+  const { t } = useLanguage();
+  const _t = t as any;
+  const sAdmin = _t.stats?.admin || {};
+  const sAgent = _t.stats?.agent || {};
+  const sLandlord = _t.stats?.landlord || {};
+  const sUser = _t.stats?.user || {};
+
   // Students have their own stats inside StudentRole — return nothing here.
   // Index.tsx already skips the stats section for students, but this is a
   // safe fallback in case the hook is called before the guard fires.
@@ -83,14 +91,14 @@ export const useStatsCardConfig = (
 
     return [
       {
-        title: "Total Listings",
+        title: sAdmin.totalListings || "Total Listings",
         value: totalListings.toString(),
         icon: Building2,
-        subtitle: "All properties on platform",
+        subtitle: sAdmin.allProperties || "All properties on platform",
         trend: formatTrend(statsTrend.totalProperties ?? 0),
         breakdown: [
-          { label: "For Rent", value: forRent, percentage: totalListings > 0 ? Math.round((forRent / totalListings) * 100) : 0, color: "bg-blue-500" },
-          { label: "For Sale", value: forSale, percentage: totalListings > 0 ? Math.round((forSale / totalListings) * 100) : 0, color: "bg-emerald-500" },
+          { label: sAdmin.forRent || "For Rent", value: forRent, percentage: totalListings > 0 ? Math.round((forRent / totalListings) * 100) : 0, color: "bg-blue-500" },
+          { label: sAdmin.forSale || "For Sale", value: forSale, percentage: totalListings > 0 ? Math.round((forSale / totalListings) * 100) : 0, color: "bg-emerald-500" },
         ],
         variant: 'highlighted',
         animateValue: true,
@@ -98,37 +106,37 @@ export const useStatsCardConfig = (
         expandable: true,
       },
       {
-        title: "New Users Registered",
+        title: sAdmin.newUsers || "New Users Registered",
         value: (stats.newUsersRegistered || 0).toString(),
         icon: UserPlus,
-        subtitle: "Last 30 days",
+        subtitle: sAdmin.last30Days || "Last 30 days",
         trend: formatTrend(statsTrend.activeListings ?? 0),
-        action: { label: "View Users", href: "/dashboard/users" },
+        action: { label: sAdmin.viewUsers || "View Users", href: "/dashboard/users" },
         variant: 'success',
         animateValue: true,
         sparklineData: generateSparkline(statsTrend.activeListings ?? 0),
       },
       {
-        title: "Pending Approvals",
+        title: sAdmin.pendingApprovals || "Pending Approvals",
         value: (stats.pendingApprovals || 0).toString(),
         icon: ClipboardCheck,
-        subtitle: `${stats.pendingProperties || 0} properties, ${stats.pendingAgents || 0} agents`,
-        action: { label: "Review Now", href: "/dashboard/approvals" },
+        subtitle: `${stats.pendingProperties || 0} ${sAdmin.properties || 'properties'}, ${stats.pendingAgents || 0} ${sAdmin.agents || 'agents'}`,
+        action: { label: sAdmin.reviewNow || "Review Now", href: "/dashboard/approvals" },
         variant: stats.pendingApprovals && stats.pendingApprovals > 0 ? 'warning' : 'subtle',
         animateValue: true,
         breakdown: stats.pendingApprovals && stats.pendingApprovals > 0
-          ? [{ label: "Properties", value: stats.pendingProperties || 0 }, { label: "Agents", value: stats.pendingAgents || 0 }]
+          ? [{ label: sAdmin.properties || "Properties", value: stats.pendingProperties || 0 }, { label: sAdmin.agents || "Agents", value: stats.pendingAgents || 0 }]
           : undefined,
       },
       {
-        title: "Revenue Overview",
+        title: sAdmin.revenueOverview || "Revenue Overview",
         value: `XAF ${(stats.monthlyRevenue || 0).toLocaleString()}`,
         icon: DollarSign,
-        subtitle: "This month",
+        subtitle: sAdmin.thisMonth || "This month",
         trend: formatTrend(statsTrend.totalInquiries ?? 0),
         breakdown: [
-          { label: "Commission", value: `XAF ${(stats.commissionRevenue || 0).toLocaleString()}`, percentage: stats.monthlyRevenue ? Math.round(((stats.commissionRevenue || 0) / stats.monthlyRevenue) * 100) : 0, color: "bg-green-500" },
-          { label: "Featured Listings", value: `XAF ${(stats.featuredRevenue || 0).toLocaleString()}`, percentage: stats.monthlyRevenue ? Math.round(((stats.featuredRevenue || 0) / stats.monthlyRevenue) * 100) : 0, color: "bg-blue-500" },
+          { label: sAdmin.commission || "Commission", value: `XAF ${(stats.commissionRevenue || 0).toLocaleString()}`, percentage: stats.monthlyRevenue ? Math.round(((stats.commissionRevenue || 0) / stats.monthlyRevenue) * 100) : 0, color: "bg-green-500" },
+          { label: sAdmin.featuredListings || "Featured Listings", value: `XAF ${(stats.featuredRevenue || 0).toLocaleString()}`, percentage: stats.monthlyRevenue ? Math.round(((stats.featuredRevenue || 0) / stats.monthlyRevenue) * 100) : 0, color: "bg-blue-500" },
         ],
         variant: 'glass',
         sparklineData: generateSparkline(statsTrend.totalInquiries ?? 0),
@@ -141,42 +149,42 @@ export const useStatsCardConfig = (
   if (userRole === 'agent') {
     return [
       {
-        title: "Active Listings",
+        title: sAgent.activeListings || "Active Listings",
         value: (stats.activeListings || 0).toString(),
         icon: Home,
-        subtitle: "Properties published",
+        subtitle: sAgent.propertiesPublished || "Properties published",
         trend: formatTrend(statsTrend.activeListings ?? 0),
-        action: { label: "Manage Listings", href: "/dashboard/properties" },
+        action: { label: sAgent.manageListings || "Manage Listings", href: "/dashboard/properties" },
         variant: 'highlighted',
         animateValue: true,
         sparklineData: generateSparkline(statsTrend.activeListings ?? 0),
       },
       {
-        title: "Listing Performance",
+        title: sAgent.listingPerformance || "Listing Performance",
         value: (stats.listingViews || 0).toString(),
         icon: TrendingUp,
-        subtitle: "Total property views",
+        subtitle: sAgent.totalPropertyViews || "Total property views",
         trend: formatTrend(statsTrend.totalViews ?? 0),
         variant: 'success',
         animateValue: true,
         sparklineData: stats.viewsHistory?.length ? stats.viewsHistory : undefined,
       },
       {
-        title: "New Leads",
+        title: sAgent.newLeads || "New Leads",
         value: (stats.newLeads || 0).toString(),
         icon: Users,
-        subtitle: "Last 30 days",
+        subtitle: sAgent.last30Days || "Last 30 days",
         trend: formatTrend(statsTrend.totalInquiries ?? 0),
-        action: { label: "View Leads", href: "/dashboard/inquiries" },
+        action: { label: sAgent.viewLeads || "View Leads", href: "/dashboard/inquiries" },
         animateValue: true,
         sparklineData: generateSparkline(statsTrend.totalInquiries ?? 0),
       },
       {
-        title: "Earnings Overview",
+        title: sAgent.earningsOverview || "Earnings Overview",
         value: `XAF ${(stats.monthlyEarnings || 0).toLocaleString()}`,
         icon: DollarSign,
-        subtitle: "This month",
-        breakdown: [{ label: "Total Earned", value: `XAF ${(stats.totalEarnings || 0).toLocaleString()}`, percentage: stats.totalEarnings && stats.monthlyEarnings ? Math.round((stats.monthlyEarnings / stats.totalEarnings) * 100) : 100, color: "bg-green-500" }],
+        subtitle: sAgent.thisMonth || "This month",
+        breakdown: [{ label: sAgent.totalEarned || "Total Earned", value: `XAF ${(stats.totalEarnings || 0).toLocaleString()}`, percentage: stats.totalEarnings && stats.monthlyEarnings ? Math.round((stats.monthlyEarnings / stats.totalEarnings) * 100) : 100, color: "bg-green-500" }],
         variant: 'glass',
         sparklineData: generateSparkline(5),
       },
@@ -187,26 +195,26 @@ export const useStatsCardConfig = (
   if (userRole === 'landlord') {
     return [
       {
-        title: "Properties Owned",
+        title: sLandlord.propertiesOwned || "Properties Owned",
         value: (stats.totalProperties || 0).toString(),
         icon: Building2,
-        subtitle: `${stats.vacantProperties || 0} vacant`,
+        subtitle: `${stats.vacantProperties || 0} ${sLandlord.vacant || 'vacant'}`,
         trend: formatTrend(statsTrend.totalProperties ?? 0),
-        action: { label: "Manage Properties", href: "/dashboard/properties" },
+        action: { label: sLandlord.manageProperties || "Manage Properties", href: "/dashboard/properties" },
         variant: 'highlighted' as const,
         animateValue: true,
         sparklineData: generateSparkline(statsTrend.totalProperties ?? 0),
         breakdown: [
-          { label: "Active", value: stats.activeListings || 0, color: "bg-emerald-500" },
-          { label: "Vacant", value: stats.vacantProperties || 0, color: "bg-amber-500" },
+          { label: sLandlord.active || "Active", value: stats.activeListings || 0, color: "bg-emerald-500" },
+          { label: sLandlord.vacant || "Vacant", value: stats.vacantProperties || 0, color: "bg-amber-500" },
         ],
         expandable: true,
       },
       {
-        title: "Occupancy Rate",
+        title: sLandlord.occupancyRate || "Occupancy Rate",
         value: `${stats.occupancyRate || 0}%`,
         icon: Percent,
-        subtitle: "Portfolio occupancy",
+        subtitle: sLandlord.portfolioOccupancy || "Portfolio occupancy",
         trend: formatTrend(statsTrend.activeListings ?? 0),
         variant: (stats.occupancyRate || 0) >= 75 ? 'success' as const : 'warning' as const,
         animateValue: true,
@@ -214,20 +222,20 @@ export const useStatsCardConfig = (
         sparklineData: generateSparkline(statsTrend.activeListings ?? 0),
       },
       {
-        title: "Active Tenants",
+        title: sLandlord.activeTenants || "Active Tenants",
         value: (stats.activeTenants || 0).toString(),
         icon: KeyRound,
-        subtitle: "Currently leasing",
+        subtitle: sLandlord.currentlyLeasing || "Currently leasing",
         trend: formatTrend(statsTrend.totalViews ?? 0),
-        action: { label: "Manage Tenants", href: "/dashboard/tenants" },
+        action: { label: sLandlord.manageTenants || "Manage Tenants", href: "/dashboard/tenants" },
         animateValue: true,
         sparklineData: generateSparkline(statsTrend.totalViews ?? 0),
       },
       {
-        title: "Monthly Revenue",
+        title: sLandlord.monthlyRevenue || "Monthly Revenue",
         value: `XAF ${(stats.totalRentalIncome || 0).toLocaleString()}`,
         icon: DollarSign,
-        subtitle: "Rental income",
+        subtitle: sLandlord.rentalIncome || "Rental income",
         trend: formatTrend(statsTrend.totalInquiries ?? 0),
         variant: 'glass' as const,
         animateValue: true,
@@ -239,45 +247,45 @@ export const useStatsCardConfig = (
   // USER (default — buyers / renters)
   return [
     {
-      title: "Saved Properties",
+      title: sUser.savedProperties || "Saved Properties",
       value: (stats.savedProperties || 0).toString(),
       icon: Heart,
-      subtitle: "Properties bookmarked",
+      subtitle: sUser.propertiesBookmarked || "Properties bookmarked",
       trend: formatTrend(statsTrend.totalProperties ?? 0),
-      action: { label: "View Favorites", href: "/dashboard/favorites" },
+      action: { label: sUser.viewFavorites || "View Favorites", href: "/dashboard/favorites" },
       variant: 'highlighted',
       animateValue: true,
       sparklineData: generateSparkline(statsTrend.totalProperties ?? 0),
     },
     {
-      title: "Recommended For You",
+      title: sUser.recommendedForYou || "Recommended For You",
       value: (stats.recommendedCount || 0).toString(),
       icon: Sparkles,
-      subtitle: "AI-powered suggestions",
-      action: { label: "View All", href: "/dashboard/recommendations" },
+      subtitle: sUser.aiSuggestions || "AI-powered suggestions",
+      action: { label: sUser.viewAll || "View All", href: "/dashboard/recommendations" },
       variant: 'glass',
       animateValue: true,
     },
     {
-      title: "Recent Searches",
+      title: sUser.recentSearches || "Recent Searches",
       value: (stats.recentSearches || 0).toString(),
       icon: Search,
-      subtitle: "Search history",
+      subtitle: sUser.searchHistory || "Search history",
       trend: formatTrend(statsTrend.totalViews ?? 0),
-      action: { label: "View History", href: "/dashboard/search-history" },
+      action: { label: sUser.viewHistory || "View History", href: "/dashboard/search-history" },
       animateValue: true,
       sparklineData: generateSparkline(statsTrend.totalViews ?? 0),
     },
     {
-      title: "Messages & Notifications",
+      title: sUser.messagesAndNotifications || "Messages & Notifications",
       value: (stats.unreadMessages || 0).toString(),
       icon: Bell,
-      subtitle: "Unread notifications",
-      action: { label: "View All", href: "/dashboard/notifications" },
+      subtitle: sUser.unreadNotifications || "Unread notifications",
+      action: { label: sUser.viewAll || "View All", href: "/dashboard/notifications" },
       variant: stats.unreadMessages && stats.unreadMessages > 0 ? 'warning' : 'subtle',
       animateValue: true,
       breakdown: stats.unreadMessages && stats.unreadMessages > 0
-        ? [{ label: "Unread Messages", value: stats.unreadMessages }]
+        ? [{ label: sUser.unreadMessages || "Unread Messages", value: stats.unreadMessages }]
         : undefined,
     },
   ];

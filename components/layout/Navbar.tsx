@@ -492,7 +492,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
       {isMobileMenuOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-30 transition-all duration-500 ease-out"
+            className="fixed inset-0 bg-black/60 z-30 transition-all duration-500 ease-out"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <div className="fixed inset-y-0 left-0 w-[85%] max-w-sm md:hidden bg-white z-40 overflow-y-auto shadow-2xl animate-in slide-in-from-left duration-500 ease-out">

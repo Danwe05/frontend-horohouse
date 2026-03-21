@@ -949,7 +949,7 @@ export default function LeasesPage() {
         <SidebarInset className="bg-transparent">
           <NavDash />
 
-          <div className="max-w-4xl mx-auto w-full p-4 md:p-6 lg:p-8 space-y-6">
+          <div className="mx-auto w-full p-4 md:p-6 lg:p-8 space-y-6">
 
             {/* Header */}
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}

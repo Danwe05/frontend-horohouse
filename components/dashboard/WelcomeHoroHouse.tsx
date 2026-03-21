@@ -3,6 +3,7 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Sunrise, Sun, Sunset, Moon } from 'lucide-react';
 
 // Adjust this to 'h-4 w-4', 'h-5 w-5', 'h-6 w-6', 'h-8 w-8', etc. to change icon size
@@ -37,6 +38,8 @@ const WelcomeHorohouse = () => {
   const [greeting, setGreeting] = useState('');
   const [greetingIcon, setGreetingIcon] = useState<ReactNode | null>(null);
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const _t = t as any;
   const displayName = user?.name ;
   const role = user?.role ?? 'user';
 
@@ -45,16 +48,16 @@ const WelcomeHorohouse = () => {
       const hour = new Date().getHours();
       
       if (hour >= 5 && hour < 12) {
-        setGreeting('Good Morning');
+        setGreeting(_t.welcome?.morning || 'Good Morning');
         setGreetingIcon(<Sunrise className="ml-2 h-6 w-6 text-yellow-400" />);
       } else if (hour >= 12 && hour < 17) {
-        setGreeting('Good Afternoon');
+        setGreeting(_t.welcome?.afternoon || 'Good Afternoon');
         setGreetingIcon(<Sun className="ml-2 h-6 w-6 text-yellow-400" />);
       } else if (hour >= 17 && hour < 21) {
-        setGreeting('Good Evening');
+        setGreeting(_t.welcome?.evening || 'Good Evening');
         setGreetingIcon(<Sunset className="ml-2 h-6 w-6 text-orange-400" />);
       } else {
-        setGreeting('Good Night');
+        setGreeting(_t.welcome?.night || 'Good Night');
         setGreetingIcon(<Moon className="ml-2 h-6 w-6 text-slate-400" />);
       }
     };
@@ -72,21 +75,19 @@ const WelcomeHorohouse = () => {
       {/* Welcome Text */}
       <div className="">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-700 flex items-center gap-2">
-         
             {greeting}    
             {greetingIcon}                       
-            , {displayName}!
-          
+            {_t.welcome?.greetingSep || ", "}{displayName}!
         </h1>
         <p className="text-gray-500 text-lg md:text-sm mt-3 ">
           {role === 'admin' && (
-            <>Admin control center — review listings, users and analytics.</>
+            <>{_t.welcome?.adminDesc || 'Admin control center — review listings, users and analytics.'}</>
           )}
           {role === 'agent' && (
-            <>Manage your listings, view leads, and grow your business.</>
+            <>{_t.welcome?.agentDesc || 'Manage your listings, view leads, and grow your business.'}</>
           )}      
           {role === 'user' && (
-            <>Your all-in-one hub to explore properties, save favorites, and contact agents.</>
+            <>{_t.welcome?.userDesc || 'Your all-in-one hub to explore properties, save favorites, and contact agents.'}</>
           )}
         </p>
       </div>
