@@ -46,7 +46,7 @@ const PropertyCard: React.FC<PropertyItem & { index: number }> = ({
   const [isFavorite, setIsFavorite] = useState(false);
 
   return (
-    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-0">
+    <Card className="group overflow-hidden hover:-xl transition-all duration-300 hover:-translate-y-2 border-0">
       {/* Image Container */}
       <div className="relative overflow-hidden h-48 bg-gradient-to-br from-gray-200 to-gray-300">
         <img
@@ -56,7 +56,7 @@ const PropertyCard: React.FC<PropertyItem & { index: number }> = ({
         />
 
         {/* Status Badge */}
-        <Badge className="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
+        <Badge className="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white -lg">
           {status}
         </Badge>
 
@@ -65,15 +65,14 @@ const PropertyCard: React.FC<PropertyItem & { index: number }> = ({
           onClick={() => setIsFavorite(!isFavorite)}
           variant="outline"
           size="icon"
-          className="absolute top-4 right-4 bg-white/90 backdrop-blur-md hover:bg-white border-0 rounded-full shadow-lg hover:scale-110 transition-all"
+          className="absolute top-4 right-4 bg-white/90 backdrop-blur-md hover:bg-white border-0 rounded-full -lg hover:scale-110 transition-all"
         >
           <Heart
             size={20}
-            className={`transition-colors ${
-              isFavorite
+            className={`transition-colors ${isFavorite
                 ? "fill-red-500 text-red-500"
                 : "text-gray-600 hover:text-red-500"
-            }`}
+              }`}
           />
         </Button>
       </div>
@@ -228,7 +227,7 @@ const Properties: React.FC<PropertiesProps> = ({ properties }) => {
               placeholder="Search properties..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10 h-11 border-gray-200 rounded-lg shadow-sm"
+              className="pl-10 pr-10 h-11 border-gray-200 rounded-lg -sm"
             />
             {searchQuery && (
               <button
@@ -242,7 +241,7 @@ const Properties: React.FC<PropertiesProps> = ({ properties }) => {
         </div>
 
         {/* Filter Bar */}
-        <Card className="mb-8 border-gray-200 shadow-sm">
+        <Card className="mb-8 border-gray-200 -sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-semibold text-gray-700">Filters</span>
@@ -268,11 +267,10 @@ const Properties: React.FC<PropertiesProps> = ({ properties }) => {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant={isSelected ? "default" : "outline"}
-                        className={`font-medium ${
-                          isSelected
+                        className={`font-medium ${isSelected
                             ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
                             : "border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50"
-                        }`}
+                          }`}
                       >
                         {btn.label}
                         {selectedCount > 0 && (
@@ -287,19 +285,17 @@ const Properties: React.FC<PropertiesProps> = ({ properties }) => {
                         <DropdownMenuItem
                           key={i}
                           onClick={() => handleOptionToggle(index, option)}
-                          className={`cursor-pointer font-medium ${
-                            selectedOptions[index]?.includes(option)
+                          className={`cursor-pointer font-medium ${selectedOptions[index]?.includes(option)
                               ? "bg-blue-600 text-white focus:bg-blue-700"
                               : "focus:bg-gray-100"
-                          }`}
+                            }`}
                         >
                           <span className="flex items-center gap-2">
                             <div
-                              className={`w-4 h-4 rounded border ${
-                                selectedOptions[index]?.includes(option)
+                              className={`w-4 h-4 rounded border ${selectedOptions[index]?.includes(option)
                                   ? "bg-blue-600 border-blue-600"
                                   : "border-gray-300"
-                              }`}
+                                }`}
                             />
                             {option}
                           </span>

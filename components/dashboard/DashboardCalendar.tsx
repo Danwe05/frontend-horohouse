@@ -77,14 +77,14 @@ const DashboardCalendar = () => {
     const day = selectedDate.getDate();
     const dateKey = `${year}-${month}-${day}`;
     const taskId = `${dateKey}-${Date.now()}`;
-    
-    const newTask: Task = { 
-      date: dateKey, 
-      title: taskTitle, 
+
+    const newTask: Task = {
+      date: dateKey,
+      title: taskTitle,
       time: taskTime,
       id: taskId
     };
-    
+
     setTasks([...tasks, newTask]);
     setIsTaskModalOpen(false);
     setTaskTitle('');
@@ -142,7 +142,7 @@ const DashboardCalendar = () => {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <Card className="border-gray-200 shadow-none gap-0">
+      <Card className="border-gray-200 -none gap-0">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-800">Calendar</CardTitle>
         </CardHeader>
@@ -179,8 +179,8 @@ const DashboardCalendar = () => {
                   onClick={() => setView(v as any)}
                   className={`
                     text-xs transition-all duration-200
-                    ${view === v 
-                      ? 'bg-white text-blue-600 shadow-sm hover:bg-white' 
+                    ${view === v
+                      ? 'bg-white text-blue-600 -sm hover:bg-white'
                       : 'text-blue-500 hover:text-blue-700 hover:bg-blue-100'
                     }
                   `}
@@ -203,25 +203,25 @@ const DashboardCalendar = () => {
                   {displayedTasks.length}
                 </Badge>
               </div>
-              
+
               {/* Progress bar */}
               <div className="h-2 bg-white/80 rounded-full mt-4 overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                  style={{ 
-                    width: `${displayedTasks.length > 0 ? Math.min(displayedTasks.length * 20, 100) : 0}%` 
+                  style={{
+                    width: `${displayedTasks.length > 0 ? Math.min(displayedTasks.length * 20, 100) : 0}%`
                   }}
                 ></div>
               </div>
             </CardHeader>
-            
+
             <CardContent>
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {displayedTasks.length > 0 ? (
                   displayedTasks.map((t) => (
-                    <Card 
+                    <Card
                       key={t.id}
-                      className="bg-white/80 backdrop-blur-sm border-white/50 hover:shadow-md transition-all duration-200"
+                      className="bg-white/80 backdrop-blur-sm border-white/50 hover:-md transition-all duration-200"
                     >
                       <CardContent className="p-3">
                         <div className="flex items-start justify-between">
@@ -270,7 +270,7 @@ const DashboardCalendar = () => {
               )}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="task-title">Task Title</Label>
@@ -282,7 +282,7 @@ const DashboardCalendar = () => {
                 autoFocus
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="task-time">Task Time</Label>
               <Input
@@ -293,7 +293,7 @@ const DashboardCalendar = () => {
               />
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button
               variant="outline"

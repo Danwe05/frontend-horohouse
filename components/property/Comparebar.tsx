@@ -60,7 +60,7 @@ export const CompareBar = ({ compared, onClear, onRemove }: CompareBarProps) => 
   const compareUrl = `/properties/compare?ids=${compared.join(",")}`;
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-50 bg-background border-t shadow-lg px-4 py-3 flex items-center justify-between gap-4">
+    <div className="fixed bottom-0 inset-x-0 z-50 bg-background border-t -lg px-4 py-3 flex items-center justify-between gap-4">
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-sm font-medium text-muted-foreground">
           Comparing {compared.length} properties:

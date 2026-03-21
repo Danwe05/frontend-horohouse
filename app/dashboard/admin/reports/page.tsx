@@ -83,7 +83,7 @@ function StatusBadge({ status }: { status: ReportStatus }) {
 function StatCard({ label, value, icon: Icon, color, subLabel, highlight }: any) {
     return (
         <Card className={cn(
-            'border-none shadow-sm ring-1 ring-slate-200/60 hover:shadow-md transition-all duration-300 group',
+            'border-none -sm ring-1 ring-slate-200/60 hover:-md transition-all duration-300 group',
             highlight && 'ring-amber-300/70 bg-amber-50/50'
         )}>
             <CardContent className="p-5 flex items-center gap-4">
@@ -181,7 +181,7 @@ function ActionMenu({ report, onUpdateStatus, onViewDetail, updating }: ActionMe
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-1 top-full w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-1 top-full w-48 bg-white rounded-xl -xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
                     <div className="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Change Status</div>
                     {['pending', 'reviewed', 'resolved', 'dismissed'].map((status) => (
                         report.status !== status && (
@@ -311,7 +311,7 @@ export default function AdminReportsPage() {
                         {/* ── Filters ── */}
                         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
                             <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[170px] bg-white border-slate-200 shadow-sm">
+                                <SelectTrigger className="w-full sm:w-[170px] bg-white border-slate-200 -sm">
                                     <Filter className="w-4 h-4 mr-2 text-slate-400" />
                                     <SelectValue placeholder="All Status" />
                                 </SelectTrigger>
@@ -326,7 +326,7 @@ export default function AdminReportsPage() {
 
                             <div className="ml-auto">
                                 <Select value={String(limit)} onValueChange={v => { setLimit(Number(v)); setPage(1); }}>
-                                    <SelectTrigger className="w-full sm:w-[120px] bg-white border-slate-200 shadow-sm">
+                                    <SelectTrigger className="w-full sm:w-[120px] bg-white border-slate-200 -sm">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -339,7 +339,7 @@ export default function AdminReportsPage() {
                         </div>
 
                         {/* ── Table ── */}
-                        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                        <div className="bg-white rounded-2xl border border-slate-200/80 -sm overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>

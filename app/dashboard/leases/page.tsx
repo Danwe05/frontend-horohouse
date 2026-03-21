@@ -131,7 +131,7 @@ function SignatureModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+      <div className="relative bg-white rounded-2xl -2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
           <div>
             <h2 className="text-base font-bold text-slate-900">Sign Lease</h2>
@@ -145,7 +145,7 @@ function SignatureModal({
           <p className="text-sm text-slate-600">
             By signing below you confirm all lease terms are correct and agree to be bound by this agreement.
           </p>
-          <div className="border-2 border-dashed border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+          <div className="border-1 border-dashed border-slate-300 rounded-xl overflow-hidden bg-slate-50">
             <SignatureCanvas
               ref={sigRef}
               canvasProps={{ width: 400, height: 160, className: 'w-full' }}
@@ -200,7 +200,7 @@ function TerminateModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+      <div className="relative bg-white rounded-2xl -2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
         <div className="p-6 text-center">
           <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
             <AlertTriangle className="w-7 h-7 text-red-600" />
@@ -316,7 +316,7 @@ function TenantSearchInput({
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden"
+            className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl -xl overflow-hidden"
           >
             {results.map(u => (
               <React.Fragment key={u._id ?? u.id}>
@@ -346,7 +346,7 @@ function TenantSearchInput({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-xl px-4 py-3 text-sm text-slate-400"
+            className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl -xl px-4 py-3 text-sm text-slate-400"
           >
             No users found for "{query}"
           </motion.div>
@@ -489,7 +489,7 @@ function CreateLeaseModal({ onClose, onCreated }: { onClose: () => void; onCreat
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in fade-in slide-in-from-bottom-4 flex flex-col">
+      <div className="relative bg-white rounded-2xl -2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in fade-in slide-in-from-bottom-4 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white shrink-0">
           <div>
@@ -665,7 +665,7 @@ function LandlordLeaseCard({
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-      className={cn('bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden', cfg.row)}>
+      className={cn('bg-white rounded-2xl border border-slate-200 -sm overflow-hidden', cfg.row)}>
       <button onClick={() => setExpanded(!expanded)} className="w-full text-left p-5 hover:bg-slate-50/50 transition-colors">
         <div className="flex items-start gap-4">
           <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 shrink-0">
@@ -792,7 +792,7 @@ function TenantLeaseCard({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn('bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden group', cfg.row)}
+      className={cn('bg-white rounded-2xl border border-slate-200 -sm overflow-hidden group', cfg.row)}
     >
       {/* Main clickable area → detail page */}
       <button
@@ -976,7 +976,7 @@ export default function LeasesPage() {
                 </p>
               </div>
               {isLandlord && activeTab === 'landlord' && (
-                <Button onClick={() => setShowCreate(true)} className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl gap-2 shadow-sm">
+                <Button onClick={() => setShowCreate(true)} className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl gap-2 -sm">
                   <Plus className="w-4 h-4" /> New Lease
                 </Button>
               )}
@@ -989,7 +989,7 @@ export default function LeasesPage() {
                   onClick={() => { setActiveTab('landlord'); setStatusFilter('all'); setSearch(''); }}
                   className={cn(
                     'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all',
-                    activeTab === 'landlord' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700',
+                    activeTab === 'landlord' ? 'bg-white text-slate-900 -sm' : 'text-slate-500 hover:text-slate-700',
                   )}
                 >
                   <Building2 className="w-3.5 h-3.5" /> My Properties
@@ -998,7 +998,7 @@ export default function LeasesPage() {
                   onClick={() => { setActiveTab('tenant'); setStatusFilter('all'); setSearch(''); }}
                   className={cn(
                     'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all relative',
-                    activeTab === 'tenant' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700',
+                    activeTab === 'tenant' ? 'bg-white text-slate-900 -sm' : 'text-slate-500 hover:text-slate-700',
                   )}
                 >
                   <GraduationCap className="w-3.5 h-3.5" /> As Tenant
@@ -1047,7 +1047,7 @@ export default function LeasesPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search by property or tenant…"
-                className="pl-9 bg-white border-slate-200 rounded-xl shadow-sm"
+                className="pl-9 bg-white border-slate-200 rounded-xl -sm"
               />
             </div>
 

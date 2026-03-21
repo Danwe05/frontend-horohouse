@@ -115,7 +115,7 @@ function getPriceSuffix(listingType: PropertyCardProps["listingType"], pricingUn
 // ---------------------------------------------------------------------------
 
 export const PropertyCardSkeleton = () => (
-  <Card className="overflow-hidden border shadow-sm animate-pulse py-0">
+  <Card className="overflow-hidden border -sm animate-pulse py-0">
     <div className="h-52 bg-muted w-full" />
     <CardContent className="pb-4 pt-3 space-y-3">
       <div className="h-5 bg-muted rounded w-2/3" />
@@ -294,7 +294,7 @@ const PropertyCard = ({
       <div className="block relative group" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
         {showCompare && (
           <div className="absolute top-3 left-3 z-20" onClick={(e) => e.preventDefault()}>
-            <div className="w-6 h-6 bg-card rounded flex items-center justify-center shadow-md">
+            <div className="w-6 h-6 bg-card rounded flex items-center justify-center -md">
               <Checkbox checked={isCompared} onCheckedChange={handleCompare} aria-label={t.propertyCardExtras?.compareThisProperty || "Compare this property"} />
             </div>
           </div>
@@ -302,7 +302,7 @@ const PropertyCard = ({
 
         <Link href={`/properties/${id}`} className="block">
           <Card className={cn(
-            "overflow-hidden shadow-none border transition-all duration-200 py-0 hover:shadow-md",
+            "overflow-hidden -none border transition-all duration-200 py-0 hover:-md",
             isCompared && "ring-2 ring-primary",
           )}>
 
@@ -420,7 +420,7 @@ const PropertyCard = ({
                     <button
                       onClick={handleShare}
                       aria-label={t.propertyCardExtras?.shareThisProperty || "Share this property"}
-                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md"
+                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform -md"
                     >
                       <Share2 className="h-3.5 w-3.5 text-foreground" />
                     </button>
@@ -435,7 +435,7 @@ const PropertyCard = ({
                       disabled={isTogglingFavorite}
                       aria-label={localFavorite ? t.propertyCardExtras.unfavorite : t.propertyCardExtras.favorite}
                       aria-pressed={localFavorite}
-                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md disabled:opacity-50"
+                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform -md disabled:opacity-50"
                     >
                       <Heart className={cn("h-4 w-4 transition-colors", localFavorite ? "fill-destructive text-destructive" : "text-foreground")} />
                     </button>

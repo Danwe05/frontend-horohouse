@@ -13,16 +13,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { 
-  Upload, 
-  X, 
-  Plus, 
-  MapPin, 
-  Home, 
-  DollarSign, 
-  Calendar, 
-  User, 
-  Phone, 
+import {
+  Upload,
+  X,
+  Plus,
+  MapPin,
+  Home,
+  DollarSign,
+  Calendar,
+  User,
+  Phone,
   Mail,
   AlertCircle,
   Loader2,
@@ -113,13 +113,13 @@ const AMENITIES_OPTIONS = [
 ];
 
 const NEARBY_AMENITIES = [
-  'Schools', 'Hospitals', 'Shopping Malls', 'Restaurants', 
-  'Parks', 'Banks', 'Pharmacies', 'Gas Stations', 'Markets', 
+  'Schools', 'Hospitals', 'Shopping Malls', 'Restaurants',
+  'Parks', 'Banks', 'Pharmacies', 'Gas Stations', 'Markets',
   'Churches', 'Mosques', 'Government Offices'
 ];
 
 const TRANSPORT_ACCESS = [
-  'Bus Stop', 'Taxi Station', 'Train Station', 'Airport', 
+  'Bus Stop', 'Taxi Station', 'Train Station', 'Airport',
   'Highway Access', 'Metro Station', 'Ferry Terminal'
 ];
 
@@ -172,18 +172,18 @@ export default function NewPropertyPage() {
     try {
       setGeocoding(true);
       const fullAddress = `${address}, ${city}, ${country}`;
-      
+
       // Using a free geocoding service (you can replace with your preferred service)
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1`
       );
-      
+
       if (!response.ok) {
         throw new Error('Geocoding failed');
       }
-      
+
       const data = await response.json();
-      
+
       if (data && data.length > 0) {
         const { lat, lon } = data[0];
         setFormData(prev => ({
@@ -281,10 +281,10 @@ export default function NewPropertyPage() {
   };
 
   const toggleArrayItem = (array: string[], item: string, field: 'nearbyAmenities' | 'transportAccess') => {
-    const newArray = array.includes(item) 
+    const newArray = array.includes(item)
       ? array.filter(i => i !== item)
       : [...array, item];
-    
+
     setFormData(prev => ({
       ...prev,
       [field]: newArray
@@ -335,10 +335,10 @@ export default function NewPropertyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setError('');
     setSuccess('');
-    
+
     if (!validateForm()) {
       return;
     }
@@ -357,17 +357,17 @@ export default function NewPropertyPage() {
         address: formData.address.trim(), // String as per schema
         neighborhood: formData.neighborhood.trim() || undefined,
         country: formData.country.trim() || undefined,
-        
+
         // Required location field matching your schema
         location: {
           type: 'Point',
           coordinates: [parseFloat(formData.longitude), parseFloat(formData.latitude)] // [lng, lat]
         },
-        
+
         // Optional coordinates (your schema has both)
         latitude: parseFloat(formData.latitude),
         longitude: parseFloat(formData.longitude),
-        
+
         // Optional numeric fields
         area: formData.area ? parseFloat(formData.area) : undefined,
         yearBuilt: formData.yearBuilt ? parseInt(formData.yearBuilt) : undefined,
@@ -376,23 +376,23 @@ export default function NewPropertyPage() {
         pricePerSqm: formData.pricePerSqm ? parseFloat(formData.pricePerSqm) : undefined,
         depositAmount: formData.depositAmount ? parseFloat(formData.depositAmount) : undefined,
         maintenanceFee: formData.maintenanceFee ? parseFloat(formData.maintenanceFee) : undefined,
-        
+
         // Contact info
         contactPhone: formData.contactPhone.trim() || undefined,
         contactEmail: formData.contactEmail.trim() || undefined,
-        
+
         // Arrays
         keywords: formData.keywords,
         nearbyAmenities: formData.nearbyAmenities,
         transportAccess: formData.transportAccess,
-        
+
         // Media
         virtualTourUrl: formData.virtualTourUrl.trim() || undefined,
         videoUrl: formData.videoUrl.trim() || undefined,
-        
+
         // Amenities object matching your schema interface
         amenities: formData.amenities,
-        
+
         // Images - you'll need to handle file uploads separately
         images: [] // Handle image uploads in a separate request
       };
@@ -408,7 +408,7 @@ export default function NewPropertyPage() {
 
       setSuccess('Property created successfully!');
       router.push(`/properties/${created.id || created._id}`);
-      
+
     } catch (err: any) {
       console.error('Property creation error:', err);
       setError(err.response?.data?.message || 'Failed to create property. Please try again.');
@@ -827,7 +827,7 @@ export default function NewPropertyPage() {
                       )}
                     </Button>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="latitude">Latitude *</Label>
@@ -978,7 +978,7 @@ export default function NewPropertyPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div className="border-1 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <input
                     type="file"
                     id="images"
@@ -990,17 +990,16 @@ export default function NewPropertyPage() {
                   />
                   <label
                     htmlFor="images"
-                    className={`cursor-pointer ${
-                      imageUploading || formData.images.length >= 10 ? 'cursor-not-allowed opacity-50' : ''
-                    }`}
+                    className={`cursor-pointer ${imageUploading || formData.images.length >= 10 ? 'cursor-not-allowed opacity-50' : ''
+                      }`}
                   >
                     <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                     <p className="text-lg font-medium text-gray-900 mb-2">
                       {imageUploading ? 'Uploading...' : 'Upload Property Images'}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {formData.images.length >= 10 
-                        ? 'Maximum 10 images allowed' 
+                      {formData.images.length >= 10
+                        ? 'Maximum 10 images allowed'
                         : `Click to select images or drag and drop (${formData.images.length}/10)`
                       }
                     </p>
@@ -1042,7 +1041,7 @@ export default function NewPropertyPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div className="border-1 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <input
                     type="file"
                     id="videos"

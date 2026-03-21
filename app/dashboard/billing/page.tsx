@@ -10,9 +10,13 @@ import {
   ShieldCheck, CalendarDays, Smartphone, Globe, AlertCircle, Star,
   RefreshCw, X, ChevronLeft, ChevronRight as ChevronRightIcon, Loader2,
   TrendingUp, DollarSign, Receipt, Ban, Search, Download, Bell,
-  Building2, Phone, BarChart2, LogOut,
+  Building2, Phone, BarChart2, LogOut, Activity, Landmark, HeartHandshake,
+  Clock, ArrowDownRight,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from "recharts";
 import { apiClient } from "@/lib/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -36,6 +40,7 @@ interface WalletData {
   mobileMoneyNumber?: string; mobileMoneyProvider?: string;
 }
 interface PaginationMeta { total: number; page: number; totalPages: number; }
+interface ChartDataPoint { name: string; amount: number; }
 
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -50,58 +55,58 @@ const fd = (ds: string) =>
 // ─── Logos ───────────────────────────────────────────────────────────────────
 const VisaLogo = () => (
   <svg className="h-5 w-auto" viewBox="0 0 200 64" fill="none">
-    <path d="M85.2 4.8 L66.5 59.2H48.6L30 17.4c-1.2-3-2.2-4.1-5.8-5.4C18.6 9.7 8.8 7.2 0 5.7L.4 4.8H31c4 0 7.5 2.7 8.4 7.2L47.5 52 85.2 4.8Z" fill="#1434CB"/>
-    <path d="M168.4 59.2H152l11.2-54.4H179.6L168.4 59.2ZM133.8 4.8c-3.8-1.4-9.8-3-17.2-3-18.9 0-32.2 10.1-32.4 24.5-.2 10.7 9.5 16.6 16.7 20.2 7.4 3.6 9.9 5.9 9.8 9.2-.1 4.9-5.9 7.2-11.3 7.2-7.6 0-11.6-1.1-17.8-3.8L79.3 57l-2.2 13.7c3.8 1.7 10.8 3.3 18 3.4 19 0 31.4-9.4 31.6-24.4.1-8.1-4.8-14.3-15.3-19.4-6.4-3.3-10.3-5.5-10.2-8.8.1-3 3.3-6.2 10.4-6.2 6-.1 10.4 1.3 13.8 2.7l1.6.8 2.8-13.8Z" fill="#1434CB"/>
+    <path d="M85.2 4.8 L66.5 59.2H48.6L30 17.4c-1.2-3-2.2-4.1-5.8-5.4C18.6 9.7 8.8 7.2 0 5.7L.4 4.8H31c4 0 7.5 2.7 8.4 7.2L47.5 52 85.2 4.8Z" fill="#1434CB" />
+    <path d="M168.4 59.2H152l11.2-54.4H179.6L168.4 59.2ZM133.8 4.8c-3.8-1.4-9.8-3-17.2-3-18.9 0-32.2 10.1-32.4 24.5-.2 10.7 9.5 16.6 16.7 20.2 7.4 3.6 9.9 5.9 9.8 9.2-.1 4.9-5.9 7.2-11.3 7.2-7.6 0-11.6-1.1-17.8-3.8L79.3 57l-2.2 13.7c3.8 1.7 10.8 3.3 18 3.4 19 0 31.4-9.4 31.6-24.4.1-8.1-4.8-14.3-15.3-19.4-6.4-3.3-10.3-5.5-10.2-8.8.1-3 3.3-6.2 10.4-6.2 6-.1 10.4 1.3 13.8 2.7l1.6.8 2.8-13.8Z" fill="#1434CB" />
   </svg>
 );
 const MastercardLogo = () => (
   <svg className="h-5 w-auto" viewBox="0 0 50 32" fill="none">
-    <circle cx="18" cy="16" r="14" fill="#EB001B"/>
-    <circle cx="32" cy="16" r="14" fill="#F79E1B"/>
-    <path d="M25 26.5C22.1 24.4 20 21 20 16C20 11 22.1 7.6 25 5.5C27.9 7.6 30 11 30 16C30 21 27.9 24.4 25 26.5Z" fill="#FF5F00"/>
+    <circle cx="18" cy="16" r="14" fill="#EB001B" />
+    <circle cx="32" cy="16" r="14" fill="#F79E1B" />
+    <path d="M25 26.5C22.1 24.4 20 21 20 16C20 11 22.1 7.6 25 5.5C27.9 7.6 30 11 30 16C30 21 27.9 24.4 25 26.5Z" fill="#FF5F00" />
   </svg>
 );
 const MoMoBadge = () => <div className="flex items-center justify-center bg-[#FFCC00] text-black text-[11px] font-black px-2 py-1 rounded-lg w-16 h-9 shrink-0 text-center leading-tight border border-[#E6B800]">MoMo</div>;
-const OrangeBadge = () => <div className="flex items-center justify-center bg-[#FF7900] text-white text-[9px] font-black px-2 py-1 rounded-lg w-16 h-9 shrink-0 text-center leading-tight border border-[#E66D00]">Orange<br/>Money</div>;
+const OrangeBadge = () => <div className="flex items-center justify-center bg-[#FF7900] text-white text-[9px] font-black px-2 py-1 rounded-lg w-16 h-9 shrink-0 text-center leading-tight border border-[#E66D00]">Orange<br />Money</div>;
 
 const METHOD_META: Record<PayMethod, { label: string; logo: () => JSX.Element }> = {
-  card:          { label: "Card",          logo: () => <div className="flex gap-1"><VisaLogo /><MastercardLogo /></div> },
-  mtn_momo:      { label: "MTN MoMo",     logo: MoMoBadge },
-  orange_money:  { label: "Orange Money", logo: OrangeBadge },
-  bank_transfer: { label: "Bank Transfer",logo: () => <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded">BANK</span> },
-  wallet:        { label: "Wallet",       logo: () => <Wallet className="w-5 h-5 text-indigo-600" /> },
+  card: { label: "Card", logo: () => <div className="flex gap-1"><VisaLogo /><MastercardLogo /></div> },
+  mtn_momo: { label: "MTN MoMo", logo: MoMoBadge },
+  orange_money: { label: "Orange Money", logo: OrangeBadge },
+  bank_transfer: { label: "Bank Transfer", logo: () => <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded">BANK</span> },
+  wallet: { label: "Wallet", logo: () => <Wallet className="w-5 h-5 text-indigo-600" /> },
 };
 
 const TYPE_META: Record<TxType, { label: string; icon: JSX.Element; bg: string; text: string; credit?: boolean }> = {
-  booking:           { label: "Booking",        icon: <ArrowUpRight className="w-4 h-4" />,    bg: "bg-blue-50",    text: "text-blue-600" },
-  subscription:      { label: "Subscription",   icon: <Star className="w-4 h-4" />,             bg: "bg-purple-50",  text: "text-purple-600" },
-  listing_fee:       { label: "Listing Fee",    icon: <Receipt className="w-4 h-4" />,          bg: "bg-amber-50",   text: "text-amber-600" },
-  boost_listing:     { label: "Boost",          icon: <TrendingUp className="w-4 h-4" />,       bg: "bg-green-50",   text: "text-green-600" },
-  commission:        { label: "Commission",     icon: <DollarSign className="w-4 h-4" />,       bg: "bg-sky-50",     text: "text-sky-600",   credit: true },
-  digital_service:   { label: "Digital Svc",   icon: <Globe className="w-4 h-4" />,            bg: "bg-teal-50",    text: "text-teal-600" },
-  refund:            { label: "Refund",         icon: <ArrowDownLeft className="w-4 h-4" />,    bg: "bg-emerald-50", text: "text-emerald-600", credit: true },
-  wallet_topup:      { label: "Top-up",         icon: <Wallet className="w-4 h-4" />,           bg: "bg-indigo-50",  text: "text-indigo-600",  credit: true },
-  wallet_withdrawal: { label: "Withdrawal",     icon: <LogOut className="w-4 h-4" />,           bg: "bg-rose-50",    text: "text-rose-600" },
+  booking: { label: "Booking", icon: <ArrowUpRight className="w-4 h-4" />, bg: "bg-blue-50", text: "text-blue-600" },
+  subscription: { label: "Subscription", icon: <Star className="w-4 h-4" />, bg: "bg-purple-50", text: "text-purple-600" },
+  listing_fee: { label: "Listing Fee", icon: <Receipt className="w-4 h-4" />, bg: "bg-amber-50", text: "text-amber-600" },
+  boost_listing: { label: "Boost", icon: <TrendingUp className="w-4 h-4" />, bg: "bg-green-50", text: "text-green-600" },
+  commission: { label: "Commission", icon: <DollarSign className="w-4 h-4" />, bg: "bg-sky-50", text: "text-sky-600", credit: true },
+  digital_service: { label: "Digital Svc", icon: <Globe className="w-4 h-4" />, bg: "bg-teal-50", text: "text-teal-600" },
+  refund: { label: "Refund", icon: <ArrowDownLeft className="w-4 h-4" />, bg: "bg-emerald-50", text: "text-emerald-600", credit: true },
+  wallet_topup: { label: "Top-up", icon: <Wallet className="w-4 h-4" />, bg: "bg-indigo-50", text: "text-indigo-600", credit: true },
+  wallet_withdrawal: { label: "Withdrawal", icon: <LogOut className="w-4 h-4" />, bg: "bg-rose-50", text: "text-rose-600" },
 };
 
 // ─── StatusBadge ─────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: TxStatus }) {
   const cfg: Record<TxStatus, [string, JSX.Element, string]> = {
-    success:   ["bg-emerald-50 text-emerald-700 border-emerald-200/60", <CheckCircle2 className="w-3 h-3" />, "Paid"],
-    failed:    ["bg-red-50 text-red-700 border-red-200/60",             <AlertCircle className="w-3 h-3" />,  "Failed"],
-    pending:   ["bg-amber-50 text-amber-700 border-amber-200/60",       <Loader2 className="w-3 h-3 animate-spin" />, "Pending"],
-    cancelled: ["bg-slate-100 text-slate-500 border-slate-200/60",      <Ban className="w-3 h-3" />,          "Cancelled"],
-    refunded:  ["bg-purple-50 text-purple-700 border-purple-200/60",    <ArrowDownLeft className="w-3 h-3" />,"Refunded"],
+    success: ["bg-emerald-50 text-emerald-700 border-emerald-200/60", <CheckCircle2 className="w-3 h-3" />, "Paid"],
+    failed: ["bg-red-50 text-red-700 border-red-200/60", <AlertCircle className="w-3 h-3" />, "Failed"],
+    pending: ["bg-amber-50 text-amber-700 border-amber-200/60", <Loader2 className="w-3 h-3 animate-spin" />, "Pending"],
+    cancelled: ["bg-slate-100 text-slate-500 border-slate-200/60", <Ban className="w-3 h-3" />, "Cancelled"],
+    refunded: ["bg-purple-50 text-purple-700 border-purple-200/60", <ArrowDownLeft className="w-3 h-3" />, "Refunded"],
   };
   const [cls, icon, label] = cfg[status] ?? cfg.pending;
   return <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${cls}`}>{icon}{label}</span>;
 }
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
-function Toast({ msg, type = "success", onClose }: { msg: string; type?: "success"|"error"; onClose: () => void }) {
+function Toast({ msg, type = "success", onClose }: { msg: string; type?: "success" | "error"; onClose: () => void }) {
   useEffect(() => { const t = setTimeout(onClose, 4500); return () => clearTimeout(t); }, [onClose]);
   return (
-    <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 ${type === "error" ? "bg-red-600" : "bg-gray-900"} text-white`}>
+    <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl -2xl animate-in slide-in-from-bottom-4 ${type === "error" ? "bg-red-600" : "bg-gray-900"} text-white`}>
       {type === "success" ? <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" /> : <AlertCircle className="w-5 h-5 text-red-300 shrink-0" />}
       <span className="font-medium text-sm">{msg}</span>
       <button onClick={onClose}><X className="w-4 h-4 text-white/60 hover:text-white" /></button>
@@ -109,35 +114,103 @@ function Toast({ msg, type = "success", onClose }: { msg: string; type?: "succes
   );
 }
 
-// ─── Sparkline ───────────────────────────────────────────────────────────────
-function Sparkline({ data }: { data: number[] }) {
+// ─── Revenue Chart ────────────────────────────────────────────────────────────
+function RevenueChart({ data }: { data: ChartDataPoint[] }) {
+  const [range, setRange] = useState<"6m" | "1y">("6m");
   if (!data.length) return null;
-  const max = Math.max(...data, 1);
-  const W = 200; const H = 48; const pad = 4;
-  const pts = data.map((v, i) => {
-    const x = pad + (i / (data.length - 1)) * (W - 2 * pad);
-    const y = H - pad - ((v / max) * (H - 2 * pad));
-    return `${x},${y}`;
-  }).join(" ");
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-12">
-      <polyline points={pts} fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <polyline points={`${pad},${H - pad} ${pts} ${W - pad},${H - pad}`} fill="rgba(255,255,255,0.08)" stroke="none"/>
-    </svg>
+    <div className="bg-white rounded-3xl border border-slate-200 -sm overflow-hidden">
+      <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        <div>
+          <h2 className="font-bold text-slate-900">Revenue Overview</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Monthly earnings performance</p>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {(["6m", "1y"] as const).map(r => (
+            <button key={r} onClick={() => setRange(r)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${range === r ? "bg-blue-50 text-blue-700" : "text-slate-400 hover:bg-slate-100"}`}>
+              {r === "6m" ? "6 Months" : "1 Year"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="p-5">
+        <div className="h-[220px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false}
+                tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 600 }} dy={8} />
+              <YAxis axisLine={false} tickLine={false}
+                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                tickFormatter={(v) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
+              <Tooltip
+                contentStyle={{ borderRadius: "14px", border: "none", box: "0 10px 25px -5px rgb(0 0 0 / 0.12)", padding: "10px 14px", fontSize: "12px" }}
+                formatter={(value: number) => [fc(value), "Revenue"]}
+                labelStyle={{ fontWeight: 700, color: "#1e293b", marginBottom: 2 }}
+              />
+              <Area type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={2.5}
+                fillOpacity={1} fill="url(#revenueGradient)" dot={false} activeDot={{ r: 5, fill: "#3b82f6", stroke: "#fff", strokeWidth: 2 }} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Activity KPI Cards ───────────────────────────────────────────────────────
+function ActivityKPIs({ transactions, currency }: { transactions: Transaction[]; currency: string }) {
+  const INCOME_TYPES: TxType[] = ["commission", "refund", "wallet_topup"];
+
+  const stats = useMemo(() => {
+    const income = transactions.filter(t => INCOME_TYPES.includes(t.type) && t.status === "success").reduce((s, t) => s + t.amount, 0);
+    const paidOut = transactions.filter(t => t.status === "success" && !TYPE_META[t.type]?.credit).reduce((s, t) => s + t.amount, 0);
+    const pending = transactions.filter(t => t.status === "pending").length;
+    const failed = transactions.filter(t => t.status === "failed").length;
+    return { income, paidOut, pending, failed };
+  }, [transactions]);
+
+  const cards = [
+    { label: "Booking Income", value: fc(stats.income, currency), icon: <ArrowDownLeft className="w-5 h-5" />, bg: "bg-emerald-50", text: "text-emerald-700", ib: "bg-emerald-100 text-emerald-600" },
+    { label: "Total Paid Out", value: fc(stats.paidOut, currency), icon: <ArrowUpRight className="w-5 h-5" />, bg: "bg-blue-50", text: "text-blue-700", ib: "bg-blue-100 text-blue-600" },
+    { label: "Pending", value: String(stats.pending), icon: <Loader2 className="w-5 h-5" />, bg: "bg-amber-50", text: "text-amber-700", ib: "bg-amber-100 text-amber-600" },
+    { label: "Failed", value: String(stats.failed), icon: <AlertCircle className="w-5 h-5" />, bg: "bg-red-50", text: "text-red-700", ib: "bg-red-100 text-red-600" },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {cards.map(c => (
+        <div key={c.label} className={`${c.bg} rounded-2xl p-4 flex items-center gap-3`}>
+          <div className={`p-2.5 rounded-xl ${c.ib} shrink-0`}>{c.icon}</div>
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{c.label}</p>
+            <p className={`text-base font-black ${c.text} leading-tight mt-0.5`}>{c.value}</p>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
 // ─── Withdrawal Modal ─────────────────────────────────────────────────────────
 function WithdrawModal({ wallet, onClose, onSuccess }: { wallet: WalletData; onClose: () => void; onSuccess: () => void }) {
-  const [method, setMethod]       = useState<"mtn_momo"|"orange_money"|"bank_transfer">("mtn_momo");
-  const [amount, setAmount]       = useState("");
-  const [phone, setPhone]         = useState(wallet.mobileMoneyNumber ?? "");
-  const [accName, setAccName]     = useState(wallet.bankAccountName ?? "");
-  const [accNum, setAccNum]       = useState(wallet.bankAccountNumber ?? "");
-  const [bankName, setBankName]   = useState(wallet.bankName ?? "");
-  const [bankCode, setBankCode]   = useState(wallet.bankCode ?? "");
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState("");
+  const [method, setMethod] = useState<"mtn_momo" | "orange_money" | "bank_transfer">("mtn_momo");
+  const [amount, setAmount] = useState("");
+  const [phone, setPhone] = useState(wallet.mobileMoneyNumber ?? "");
+  const [accName, setAccName] = useState(wallet.bankAccountName ?? "");
+  const [accNum, setAccNum] = useState(wallet.bankAccountNumber ?? "");
+  const [bankName, setBankName] = useState(wallet.bankName ?? "");
+  const [bankCode, setBankCode] = useState(wallet.bankCode ?? "");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const avail = wallet.availableBalance ?? wallet.balance ?? 0;
   const cur = wallet.currency ?? "XAF";
 
@@ -159,26 +232,24 @@ function WithdrawModal({ wallet, onClose, onSuccess }: { wallet: WalletData; onC
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 md:zoom-in-95">
+      <div className="bg-white rounded-3xl -2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 md:zoom-in-95">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div><h3 className="font-bold text-slate-900 text-lg">Withdraw Funds</h3>
             <p className="text-sm text-slate-400">Available: <span className="font-semibold text-slate-700">{fc(avail, cur)}</span></p></div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full"><X className="w-5 h-5 text-slate-500" /></button>
         </div>
         <div className="p-6 space-y-4">
-          {/* Method picker */}
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Method</label>
             <div className="grid grid-cols-3 gap-2">
-              {(["mtn_momo","orange_money","bank_transfer"] as const).map(m => (
+              {(["mtn_momo", "orange_money", "bank_transfer"] as const).map(m => (
                 <button key={m} onClick={() => setMethod(m)}
-                  className={`p-3 rounded-xl border-2 text-xs font-semibold transition-all ${method === m ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-100 text-slate-600 hover:border-blue-200"}`}>
+                  className={`p-3 rounded-xl border-1 text-xs font-semibold transition-all ${method === m ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-100 text-slate-600 hover:border-blue-200"}`}>
                   {m === "mtn_momo" ? "MTN MoMo" : m === "orange_money" ? "Orange Money" : "Bank Transfer"}
                 </button>
               ))}
             </div>
           </div>
-          {/* Amount */}
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Amount (XAF)</label>
             <div className="flex gap-2">
@@ -187,7 +258,6 @@ function WithdrawModal({ wallet, onClose, onSuccess }: { wallet: WalletData; onC
               <button onClick={() => setAmount(String(avail))} className="px-3 py-2.5 text-xs font-bold bg-slate-100 rounded-xl text-slate-600 hover:bg-slate-200">Max</button>
             </div>
           </div>
-          {/* MoMo/Orange fields */}
           {(method === "mtn_momo" || method === "orange_money") && (
             <div>
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Phone Number</label>
@@ -195,7 +265,6 @@ function WithdrawModal({ wallet, onClose, onSuccess }: { wallet: WalletData; onC
                 className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
             </div>
           )}
-          {/* Bank fields */}
           {method === "bank_transfer" && (
             <div className="space-y-3">
               <div><label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Account Name</label>
@@ -212,7 +281,7 @@ function WithdrawModal({ wallet, onClose, onSuccess }: { wallet: WalletData; onC
           )}
           {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2.5 rounded-xl border border-red-100">{error}</p>}
           <button onClick={submit} disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+            className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold  transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             {loading ? "Processing…" : "Confirm Withdrawal"}
           </button>
@@ -224,15 +293,15 @@ function WithdrawModal({ wallet, onClose, onSuccess }: { wallet: WalletData; onC
 
 // ─── Payout Setup Card ────────────────────────────────────────────────────────
 function PayoutSetupCard({ wallet, onSaved }: { wallet: WalletData | null; onSaved: () => void }) {
-  const [tab, setTab]             = useState<"momo"|"bank">("momo");
-  const [provider, setProvider]   = useState<"MTN"|"ORANGE">(wallet?.mobileMoneyProvider as any ?? "MTN");
-  const [phone, setPhone]         = useState(wallet?.mobileMoneyNumber ?? "");
-  const [accName, setAccName]     = useState(wallet?.bankAccountName ?? "");
-  const [accNum, setAccNum]       = useState(wallet?.bankAccountNumber ?? "");
-  const [bankName, setBankName]   = useState(wallet?.bankName ?? "");
-  const [bankCode, setBankCode]   = useState(wallet?.bankCode ?? "");
-  const [saving, setSaving]       = useState(false);
-  const [error, setError]         = useState("");
+  const [tab, setTab] = useState<"momo" | "bank">("momo");
+  const [provider, setProvider] = useState<"MTN" | "ORANGE">(wallet?.mobileMoneyProvider as any ?? "MTN");
+  const [phone, setPhone] = useState(wallet?.mobileMoneyNumber ?? "");
+  const [accName, setAccName] = useState(wallet?.bankAccountName ?? "");
+  const [accNum, setAccNum] = useState(wallet?.bankAccountNumber ?? "");
+  const [bankName, setBankName] = useState(wallet?.bankName ?? "");
+  const [bankCode, setBankCode] = useState(wallet?.bankCode ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const save = async () => {
     setError(""); setSaving(true);
@@ -246,7 +315,7 @@ function PayoutSetupCard({ wallet, onSaved }: { wallet: WalletData | null; onSav
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-3xl border border-slate-200 -sm overflow-hidden">
       <div className="p-5 border-b border-slate-100 bg-slate-50/40 flex items-center gap-3">
         <div className="p-2.5 bg-indigo-50 rounded-xl"><Building2 className="w-5 h-5 text-indigo-600" /></div>
         <div><h2 className="font-bold text-slate-900">Payout Details</h2>
@@ -254,19 +323,19 @@ function PayoutSetupCard({ wallet, onSaved }: { wallet: WalletData | null; onSav
       </div>
       <div className="p-5 space-y-4">
         <div className="flex rounded-xl bg-slate-100 p-1">
-          <button onClick={() => setTab("momo")} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === "momo" ? "bg-white shadow text-blue-700" : "text-slate-500"}`}>
-            <Phone className="w-4 h-4 inline mr-1.5"/>Mobile Money
+          <button onClick={() => setTab("momo")} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === "momo" ? "bg-white  text-blue-700" : "text-slate-500"}`}>
+            <Phone className="w-4 h-4 inline mr-1.5" />Mobile Money
           </button>
-          <button onClick={() => setTab("bank")} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === "bank" ? "bg-white shadow text-blue-700" : "text-slate-500"}`}>
-            <Building2 className="w-4 h-4 inline mr-1.5"/>Bank Account
+          <button onClick={() => setTab("bank")} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === "bank" ? "bg-white  text-blue-700" : "text-slate-500"}`}>
+            <Building2 className="w-4 h-4 inline mr-1.5" />Bank Account
           </button>
         </div>
         {tab === "momo" ? (
           <div className="space-y-3">
             <div className="flex gap-2">
-              {(["MTN","ORANGE"] as const).map(p => (
+              {(["MTN", "ORANGE"] as const).map(p => (
                 <button key={p} onClick={() => setProvider(p)}
-                  className={`flex-1 py-2 rounded-xl border-2 text-sm font-bold transition-all ${provider === p ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-100 text-slate-500 hover:border-blue-200"}`}>
+                  className={`flex-1 py-2 rounded-xl border-1 text-sm font-bold transition-all ${provider === p ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-100 text-slate-500 hover:border-blue-200"}`}>
                   {p === "MTN" ? "MTN MoMo" : "Orange Money"}
                 </button>
               ))}
@@ -274,20 +343,20 @@ function PayoutSetupCard({ wallet, onSaved }: { wallet: WalletData | null; onSav
             <div>
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Phone Number</label>
               <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="237XXXXXXXXX"
-                className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"/>
+                className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
             </div>
           </div>
         ) : (
           <div className="space-y-3">
             <div><label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Account Name</label>
-              <input value={accName} onChange={e => setAccName(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"/></div>
+              <input value={accName} onChange={e => setAccName(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" /></div>
             <div><label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Account Number</label>
-              <input value={accNum} onChange={e => setAccNum(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"/></div>
+              <input value={accNum} onChange={e => setAccNum(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" /></div>
             <div className="grid grid-cols-2 gap-3">
               <div><label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Bank Name</label>
-                <input value={bankName} onChange={e => setBankName(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"/></div>
+                <input value={bankName} onChange={e => setBankName(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" /></div>
               <div><label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Bank Code</label>
-                <input value={bankCode} onChange={e => setBankCode(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"/></div>
+                <input value={bankCode} onChange={e => setBankCode(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" /></div>
             </div>
           </div>
         )}
@@ -308,7 +377,7 @@ function TxModal({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
   const mm = METHOD_META[tx.paymentMethod] ?? METHOD_META.card;
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 md:zoom-in-95">
+      <div className="bg-white rounded-3xl -2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 md:zoom-in-95">
         <div className="p-6 border-b border-slate-100 flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-xl ${tm.bg} ${tm.text}`}>{tm.icon}</div>
@@ -348,7 +417,7 @@ function TxModal({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
         {tx.status === "pending" && tx.flutterwavePaymentLink && (
           <div className="p-6 pt-0">
             <a href={tx.flutterwavePaymentLink} target="_blank" rel="noopener noreferrer"
-              className="block w-full text-center py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow transition-colors">
+              className="block w-full text-center py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold  transition-colors">
               Complete Payment →
             </a>
           </div>
@@ -358,7 +427,7 @@ function TxModal({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
   );
 }
 
-// ─── CSV Export helper ────────────────────────────────────────────────────────
+// ─── CSV Export ───────────────────────────────────────────────────────────────
 function exportCSV(transactions: Transaction[]) {
   const hdr = "Date,Type,Description,Amount,Currency,Status,Method,Reference";
   const rows = transactions.map(t =>
@@ -372,9 +441,9 @@ function exportCSV(transactions: Transaction[]) {
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 export default function BillingPage() {
-  const [activeTab, setActiveTab]     = useState("settings");
+  const [activeTab, setActiveTab] = useState("settings");
 
-  // ── Subscription (shared hook — same data source as subscriptions page) ──
+  // ── Subscription ──
   const { subscription, loading: subLoading } = useSubscription();
   const remainingDays = useMemo(() => {
     if (!subscription?.endDate) return null;
@@ -383,39 +452,39 @@ export default function BillingPage() {
   }, [subscription?.endDate]);
 
   // ── Preferred method ──
-  const [preferred, setPreferred]     = useState<string>(() =>
+  const [preferred, setPreferred] = useState<string>(() =>
     typeof window !== "undefined" ? localStorage.getItem("hh_preferred_method") ?? "" : ""
   );
 
   // ── Wallet ──
-  const [wallet, setWallet]           = useState<WalletData | null>(null);
+  const [wallet, setWallet] = useState<WalletData | null>(null);
   const [walletLoading, setWalletLoading] = useState(true);
-  const [showWithdraw, setShowWithdraw]   = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
 
-  // ── Sparkline ──
-  const [sparkData, setSparkData]     = useState<number[]>([]);
+  // ── Revenue chart data ──
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
 
   // ── Transactions ──
-  const [transactions, setTxs]        = useState<Transaction[]>([]);
-  const [txLoading, setTxLoading]     = useState(false);
-  const [txError, setTxError]         = useState<string | null>(null);
-  const [pagination, setPagination]   = useState<PaginationMeta>({ total: 0, page: 1, totalPages: 1 });
-  const [page, setPage]               = useState(1);
+  const [transactions, setTxs] = useState<Transaction[]>([]);
+  const [txLoading, setTxLoading] = useState(false);
+  const [txError, setTxError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState<PaginationMeta>({ total: 0, page: 1, totalPages: 1 });
+  const [page, setPage] = useState(1);
 
   // ── Filters ──
-  const [filterStatus, setFilterStatus]   = useState<TxStatus | "all">("all");
-  const [filterType, setFilterType]       = useState<TxType | "all">("all");
-  const [filterMethod, setFilterMethod]   = useState<PayMethod | "all">("all");
-  const [startDate, setStartDate]         = useState("");
-  const [endDate, setEndDate]             = useState("");
-  const [search, setSearch]               = useState("");
-  const [flowDir, setFlowDir]             = useState<"all"|"income"|"expenses">("all"); // income/expense quick toggle
+  const [filterStatus, setFilterStatus] = useState<TxStatus | "all">("all");
+  const [filterType, setFilterType] = useState<TxType | "all">("all");
+  const [filterMethod, setFilterMethod] = useState<PayMethod | "all">("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [search, setSearch] = useState("");
+  const [flowDir, setFlowDir] = useState<"all" | "income" | "expenses">("all");
 
   // ── UI ──
-  const [selectedTx, setSelectedTx]   = useState<Transaction | null>(null);
-  const [pendingAlert, setPendingAlert]= useState(false);
-  const [toast, setToast]             = useState<{ msg: string; type?: "success"|"error" } | null>(null);
-  const showToast = (msg: string, type: "success"|"error" = "success") => setToast({ msg, type });
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [pendingAlert, setPendingAlert] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; type?: "success" | "error" } | null>(null);
+  const showToast = (msg: string, type: "success" | "error" = "success") => setToast({ msg, type });
 
   // ── Initial data load ──
   useEffect(() => {
@@ -425,27 +494,47 @@ export default function BillingPage() {
       .catch(() => apiClient.getWallet().then(d => setWallet(d as WalletData)).catch(() => setWallet(null)))
       .finally(() => setWalletLoading(false));
 
-    // Subscription is loaded by useSubscription() hook — no extra fetch needed.
+    // Build the revenue chart from the user's own transactions (last 6 months).
+    // We avoid the /analytics/revenue/monthly-chart endpoint because it is an
+    // admin/host endpoint and returns empty data for regular users.
+    apiClient.getUserTransactions({ limit: 500 })
+      .then((res: any) => {
+        const txs: Transaction[] = res.transactions ?? [];
+        const INCOME_TYPES: TxType[] = ["commission", "refund", "wallet_topup"];
 
-    apiClient.getMonthlyRevenueChart(6)
-      .then((d: any) => {
-        const arr = Array.isArray(d) ? d : (Array.isArray(d?.data) ? d.data : []);
-        setSparkData(arr.map((m: any) => m.total ?? m.amount ?? 0));
+        // Build a map of month label → total income
+        const map: Record<string, number> = {};
+        const now = new Date();
+        // Pre-populate the last 6 months so months with no data still show as 0
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const key = d.toLocaleString("en-US", { month: "short", year: "2-digit" });
+          map[key] = 0;
+        }
+
+        txs.forEach(t => {
+          if (t.status !== "success") return;
+          if (!INCOME_TYPES.includes(t.type)) return;
+          const d = new Date(t.createdAt);
+          const key = d.toLocaleString("en-US", { month: "short", year: "2-digit" });
+          if (key in map) map[key] = (map[key] ?? 0) + t.amount;
+        });
+
+        setChartData(Object.entries(map).map(([name, amount]) => ({ name, amount })));
       })
-      .catch(() => setSparkData([]));
+      .catch(() => setChartData([]));
   }, []);
-
 
   // ── Load transactions ──
   const loadTxs = useCallback(async () => {
     setTxLoading(true); setTxError(null);
     try {
       const params: Record<string, any> = { page, limit: 10 };
-      if (filterStatus !== "all")  params.status        = filterStatus;
-      if (filterType !== "all")    params.type          = filterType;
-      if (filterMethod !== "all")  params.paymentMethod = filterMethod;
-      if (startDate)               params.startDate     = startDate;
-      if (endDate)                 params.endDate       = endDate;
+      if (filterStatus !== "all") params.status = filterStatus;
+      if (filterType !== "all") params.type = filterType;
+      if (filterMethod !== "all") params.paymentMethod = filterMethod;
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
       const res = await apiClient.getUserTransactions(params);
       const txs: Transaction[] = res.transactions ?? [];
       setTxs(txs);
@@ -458,7 +547,6 @@ export default function BillingPage() {
   useEffect(() => { if (activeTab === "activity") loadTxs(); }, [activeTab, loadTxs]);
   useEffect(() => { setPage(1); }, [filterStatus, filterType, filterMethod, startDate, endDate]);
 
-  // ── Tab-focus auto-refresh ──
   useEffect(() => {
     const handler = () => { if (!document.hidden && activeTab === "activity") loadTxs(); };
     document.addEventListener("visibilitychange", handler);
@@ -470,7 +558,7 @@ export default function BillingPage() {
 
   const visibleTxs = useMemo(() => {
     let list = transactions;
-    if (flowDir === "income")   list = list.filter(t => INCOME_TYPES.includes(t.type));
+    if (flowDir === "income") list = list.filter(t => INCOME_TYPES.includes(t.type));
     if (flowDir === "expenses") list = list.filter(t => EXPENSE_TYPES.includes(t.type));
     if (search.trim()) list = list.filter(t =>
       (t.description ?? "").toLowerCase().includes(search.toLowerCase()) ||
@@ -478,11 +566,6 @@ export default function BillingPage() {
       t._id.toLowerCase().includes(search.toLowerCase()));
     return list;
   }, [transactions, flowDir, search]);
-
-  const bookingIncome = useMemo(() =>
-    transactions.filter(t => INCOME_TYPES.includes(t.type) && t.status === "success")
-      .reduce((s, t) => s + t.amount, 0)
-  , [transactions]);
 
   const pendingCount = transactions.filter(t => t.status === "pending" && t.flutterwavePaymentLink).length;
   const cur = wallet?.currency ?? "XAF";
@@ -493,10 +576,10 @@ export default function BillingPage() {
   };
 
   const PREF_METHODS = [
-    { id: "card",          name: "Credit / Debit Card", desc: "Visa, Mastercard", icon: <CreditCard className="w-5 h-5" /> },
-    { id: "mtn_momo",      name: "MTN Mobile Money",    desc: "Pay via MoMo",     icon: <Smartphone className="w-5 h-5" /> },
-    { id: "orange_money",  name: "Orange Money",         desc: "Orange wallet",   icon: <Smartphone className="w-5 h-5" /> },
-    { id: "bank_transfer", name: "Bank Transfer",        desc: "Direct transfer", icon: <Building2 className="w-5 h-5" /> },
+    { id: "card", name: "Credit / Debit Card", desc: "Visa, Mastercard", icon: <CreditCard className="w-5 h-5" /> },
+    { id: "mtn_momo", name: "MTN Mobile Money", desc: "Pay via MoMo", icon: <Smartphone className="w-5 h-5" /> },
+    { id: "orange_money", name: "Orange Money", desc: "Orange wallet", icon: <Smartphone className="w-5 h-5" /> },
+    { id: "bank_transfer", name: "Bank Transfer", desc: "Direct transfer", icon: <Building2 className="w-5 h-5" /> },
   ];
 
   return (
@@ -511,7 +594,7 @@ export default function BillingPage() {
               {/* Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-slate-900 text-white shadow-sm shrink-0"><Wallet className="w-5 h-5" /></div>
+                  <div className="p-2.5 rounded-xl bg-slate-900 text-white -sm shrink-0"><Wallet className="w-5 h-5" /></div>
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Billing &amp; Payments</h1>
                     <p className="text-slate-500 text-sm mt-0.5 flex items-center gap-1.5">
@@ -519,9 +602,13 @@ export default function BillingPage() {
                     </p>
                   </div>
                 </div>
+                <button onClick={() => exportCSV(visibleTxs)} disabled={!visibleTxs.length && activeTab !== "activity"}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-sm font-semibold hover:bg-slate-50 disabled:opacity-40 transition-colors -sm">
+                  <Download className="w-4 h-4" /> Export Statement
+                </button>
               </div>
 
-              {/* Pending payment alert banner */}
+              {/* Pending payment alert */}
               {pendingAlert && pendingCount > 0 && (
                 <div className="mb-5 flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3.5">
                   <Bell className="w-5 h-5 text-amber-500 shrink-0 animate-bounce" />
@@ -536,28 +623,26 @@ export default function BillingPage() {
 
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid grid-cols-2 w-full max-w-[420px] bg-slate-100 p-1.5 rounded-2xl mb-8">
-                  <TabsTrigger value="settings" className="rounded-xl font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all text-slate-500">Payment Settings</TabsTrigger>
-                  <TabsTrigger value="activity" className="rounded-xl font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all text-slate-500">Payment Activity</TabsTrigger>
+                  <TabsTrigger value="settings" className="rounded-xl font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:-sm transition-all text-slate-500">Payment Settings</TabsTrigger>
+                  <TabsTrigger value="activity" className="rounded-xl font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:-sm transition-all text-slate-500">Payment Activity</TabsTrigger>
                 </TabsList>
 
-                {/* ═══ SETTINGS ═══ */}
+                {/* ═══ SETTINGS TAB ═══ */}
                 <TabsContent value="settings" className="space-y-5">
-                  {/* Wallet card with sparkline */}
+
+                  {/* Wallet card */}
                   <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 text-white relative overflow-hidden">
-                    <div className="absolute inset-0 flex items-end pointer-events-none opacity-50">
-                      <div className="w-full px-4 pb-2"><Sparkline data={sparkData} /></div>
-                    </div>
                     <div className="relative z-10">
                       <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Available Balance</p>
                       {walletLoading
                         ? <div className="h-10 w-48 bg-slate-700 rounded-xl animate-pulse mt-2" />
                         : wallet
                           ? <>
-                              <h2 className="text-4xl font-black tracking-tight mt-1">{fc(wallet.availableBalance ?? wallet.balance ?? 0, cur)}</h2>
-                              {(wallet.pendingBalance ?? 0) > 0 && (
-                                <p className="text-amber-400 text-xs font-semibold mt-1">+ {fc(wallet.pendingBalance, cur)} pending clearance</p>
-                              )}
-                            </>
+                            <h2 className="text-4xl font-black tracking-tight mt-1">{fc(wallet.availableBalance ?? wallet.balance ?? 0, cur)}</h2>
+                            {(wallet.pendingBalance ?? 0) > 0 && (
+                              <p className="text-amber-400 text-xs font-semibold mt-1">+ {fc(wallet.pendingBalance, cur)} pending clearance</p>
+                            )}
+                          </>
                           : <h2 className="text-4xl font-black tracking-tight mt-1">— —</h2>}
                       {wallet && !walletLoading && (
                         <div className="flex gap-6 mt-5 pt-4 border-t border-slate-700/60">
@@ -565,12 +650,12 @@ export default function BillingPage() {
                           <div><p className="text-slate-400 text-xs">Total Withdrawn</p><p className="font-bold text-sm mt-0.5">{fc(wallet.totalWithdrawn ?? 0, cur)}</p></div>
                         </div>
                       )}
-                      <div className="relative z-10 mt-5">
+                      <div className="mt-5">
                         {wallet && (wallet.availableBalance ?? wallet.balance ?? 0) >= 5000
                           ? <button onClick={() => setShowWithdraw(true)}
-                              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-slate-100 transition-colors shadow-md">
-                              <LogOut className="w-4 h-4" /> Withdraw Funds
-                            </button>
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-slate-100 transition-colors -md">
+                            <LogOut className="w-4 h-4" /> Withdraw Funds
+                          </button>
                           : <p className="text-slate-500 text-xs">Min 5,000 XAF required to withdraw.</p>}
                         {!walletLoading && wallet && (wallet.totalEarned ?? 0) === 0 && (
                           <div className="mt-4 bg-white/10 rounded-2xl p-4 border border-white/20">
@@ -581,9 +666,12 @@ export default function BillingPage() {
                     </div>
                   </div>
 
-                  {/* Subscription card — same data as /dashboard/subscriptions */}
+                  {/* Revenue chart — only when data available */}
+                  {chartData.length > 0 && <RevenueChart data={chartData} />}
+
+                  {/* Subscription */}
                   {(subscription || subLoading) && (
-                    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
+                    <div className="bg-white rounded-3xl border border-slate-200 -sm p-5">
                       {subLoading ? (
                         <div className="h-16 bg-slate-100 rounded-2xl animate-pulse" />
                       ) : subscription ? (
@@ -615,9 +703,8 @@ export default function BillingPage() {
                     </div>
                   )}
 
-
-                  {/* Preferred method */}
-                  <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                  {/* Preferred payment method */}
+                  <div className="bg-white rounded-3xl border border-slate-200 -sm overflow-hidden">
                     <div className="p-5 border-b border-slate-100 bg-slate-50/50">
                       <h2 className="text-base font-bold text-slate-900">Preferred Payment Method</h2>
                       <p className="text-sm text-slate-500 mt-0.5">Pre-selected when you checkout via Flutterwave.</p>
@@ -627,7 +714,7 @@ export default function BillingPage() {
                         const active = preferred === m.id;
                         return (
                           <button key={m.id} onClick={() => handleSetPreferred(m.id)}
-                            className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left group ${active ? "border-blue-500 bg-blue-50/30" : "border-slate-100 hover:border-blue-300 hover:bg-slate-50"}`}>
+                            className={`flex items-center gap-4 p-4 rounded-2xl border-1 transition-all text-left group ${active ? "border-blue-500 bg-blue-50/30" : "border-slate-100 hover:border-blue-300 hover:bg-slate-50"}`}>
                             <div className={`p-3 rounded-xl transition-colors ${active ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600"}`}>{m.icon}</div>
                             <div className="flex-1"><p className={`font-semibold text-sm ${active ? "text-blue-700" : "text-slate-800"}`}>{m.name}</p><p className="text-xs text-slate-500 mt-0.5">{m.desc}</p></div>
                             {active && <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" />}
@@ -647,27 +734,15 @@ export default function BillingPage() {
                   <PayoutSetupCard wallet={wallet} onSaved={() => showToast("Payout details saved")} />
                 </TabsContent>
 
-                {/* ═══ ACTIVITY ═══ */}
+                {/* ═══ ACTIVITY TAB ═══ */}
                 <TabsContent value="activity">
-                  {/* KPIs */}
+
+                  {/* KPI summary cards */}
                   {!txLoading && transactions.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      {[
-                        { label: "Booking Income", value: fc(bookingIncome, transactions[0]?.currency),                                             icon: <ArrowDownLeft className="w-5 h-5" />, bg: "bg-emerald-50",  text: "text-emerald-700",  ib: "bg-emerald-100 text-emerald-600" },
-                        { label: "Total Paid Out",  value: fc(transactions.filter(t => t.status === "success" && !TYPE_META[t.type]?.credit).reduce((s, t) => s + t.amount, 0), transactions[0]?.currency), icon: <ArrowUpRight className="w-5 h-5" />, bg: "bg-blue-50",    text: "text-blue-700",    ib: "bg-blue-100 text-blue-600" },
-                        { label: "Pending",         value: String(transactions.filter(t => t.status === "pending").length),                         icon: <Loader2 className="w-5 h-5" />,    bg: "bg-amber-50",   text: "text-amber-700",   ib: "bg-amber-100 text-amber-600" },
-                        { label: "Failed",          value: String(transactions.filter(t => t.status === "failed").length),                          icon: <AlertCircle className="w-5 h-5" />, bg: "bg-red-50",     text: "text-red-700",     ib: "bg-red-100 text-red-600" },
-                      ].map(c => (
-                        <div key={c.label} className={`${c.bg} rounded-2xl p-4 flex items-center gap-3`}>
-                          <div className={`p-2.5 rounded-xl ${c.ib} shrink-0`}>{c.icon}</div>
-                          <div><p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{c.label}</p>
-                            <p className={`text-base font-black ${c.text} leading-tight mt-0.5`}>{c.value}</p></div>
-                        </div>
-                      ))}
-                    </div>
+                    <ActivityKPIs transactions={transactions} currency={transactions[0]?.currency ?? cur} />
                   )}
 
-                  <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-white rounded-3xl border border-slate-200 -sm overflow-hidden">
                     {/* Toolbar */}
                     <div className="p-5 md:p-6 border-b border-slate-100 bg-slate-50/40 space-y-3">
                       <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
@@ -676,19 +751,15 @@ export default function BillingPage() {
                           <p className="text-sm text-slate-500">{txLoading ? "Loading…" : `${pagination.total} transaction${pagination.total !== 1 ? "s" : ""}`}</p>
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          {/* Income / Expense quick toggle */}
                           <div className="flex bg-white border border-slate-200 rounded-xl overflow-hidden text-xs font-bold">
                             {(["all", "income", "expenses"] as const).map(d => (
                               <button key={d} onClick={() => setFlowDir(d)}
-                                className={`px-3 py-2 capitalize transition-colors ${
-                                  flowDir === d
-                                    ? d === "income"
-                                      ? "bg-emerald-500 text-white"
-                                      : d === "expenses"
-                                        ? "bg-red-500 text-white"
-                                        : "bg-slate-900 text-white"
-                                    : "text-slate-500 hover:bg-slate-50"
-                                }`}>
+                                className={`px-3 py-2 capitalize transition-colors ${flowDir === d
+                                  ? d === "income" ? "bg-emerald-500 text-white"
+                                    : d === "expenses" ? "bg-red-500 text-white"
+                                      : "bg-slate-900 text-white"
+                                  : "text-slate-500 hover:bg-slate-50"
+                                  }`}>
                                 {d === "income" ? "+ Income" : d === "expenses" ? "− Expenses" : "All"}
                               </button>
                             ))}
@@ -703,7 +774,8 @@ export default function BillingPage() {
                           </button>
                         </div>
                       </div>
-                      {/* Search + dropdowns */}
+
+                      {/* Search + filters */}
                       <div className="flex flex-wrap gap-2">
                         <div className="relative flex-1 min-w-[180px]">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
@@ -711,9 +783,9 @@ export default function BillingPage() {
                             className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" />
                         </div>
                         {[
-                          { val: filterStatus, set: (v: any) => setFilterStatus(v), opts: [["all","All Statuses"],["success","Success"],["pending","Pending"],["failed","Failed"],["cancelled","Cancelled"],["refunded","Refunded"]] },
-                          { val: filterType,   set: (v: any) => setFilterType(v),   opts: [["all","All Types"],["commission","Booking Income"],["booking","Booking"],["subscription","Subscription"],["listing_fee","Listing Fee"],["boost_listing","Boost"],["refund","Refund"],["wallet_topup","Top-up"],["wallet_withdrawal","Withdrawal"]] },
-                          { val: filterMethod, set: (v: any) => setFilterMethod(v), opts: [["all","All Methods"],["card","Card"],["mtn_momo","MTN MoMo"],["orange_money","Orange Money"],["bank_transfer","Bank"],["wallet","Wallet"]] },
+                          { val: filterStatus, set: (v: any) => setFilterStatus(v), opts: [["all", "All Statuses"], ["success", "Success"], ["pending", "Pending"], ["failed", "Failed"], ["cancelled", "Cancelled"], ["refunded", "Refunded"]] },
+                          { val: filterType, set: (v: any) => setFilterType(v), opts: [["all", "All Types"], ["commission", "Booking Income"], ["booking", "Booking"], ["subscription", "Subscription"], ["listing_fee", "Listing Fee"], ["boost_listing", "Boost"], ["refund", "Refund"], ["wallet_topup", "Top-up"], ["wallet_withdrawal", "Withdrawal"]] },
+                          { val: filterMethod, set: (v: any) => setFilterMethod(v), opts: [["all", "All Methods"], ["card", "Card"], ["mtn_momo", "MTN MoMo"], ["orange_money", "Orange Money"], ["bank_transfer", "Bank"], ["wallet", "Wallet"]] },
                         ].map((f, i) => (
                           <select key={i} value={f.val} onChange={e => f.set(e.target.value)}
                             className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer">
@@ -721,6 +793,7 @@ export default function BillingPage() {
                           </select>
                         ))}
                       </div>
+
                       {/* Date range */}
                       <div className="flex flex-wrap gap-2 items-center">
                         <CalendarDays className="w-4 h-4 text-slate-400 shrink-0" />
@@ -738,7 +811,7 @@ export default function BillingPage() {
                       </div>
                     </div>
 
-                    {txLoading && <div className="p-6 space-y-3">{[...Array(5)].map((_,i) => <div key={i} className="h-16 bg-slate-100 rounded-2xl animate-pulse" />)}</div>}
+                    {txLoading && <div className="p-6 space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-16 bg-slate-100 rounded-2xl animate-pulse" />)}</div>}
 
                     {txError && !txLoading && (
                       <div className="py-16 flex flex-col items-center gap-3 text-red-500">
@@ -878,13 +951,12 @@ export default function BillingPage() {
         </SidebarInset>
       </div>
 
-      {/* Withdrawal modal */}
       {showWithdraw && wallet && (
         <WithdrawModal wallet={wallet} onClose={() => setShowWithdraw(false)}
           onSuccess={() => {
             setShowWithdraw(false);
             showToast("Withdrawal requested — sent within 24–48 hours");
-            apiClient.getWalletStats().then(d => setWallet(d as WalletData)).catch(() => {});
+            apiClient.getWalletStats().then(d => setWallet(d as WalletData)).catch(() => { });
           }} />
       )}
 

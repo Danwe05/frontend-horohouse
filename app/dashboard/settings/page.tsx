@@ -112,7 +112,7 @@ function SettingsContent({ user }: { user: NonNullable<ReturnType<typeof useAuth
                     className={`relative z-10 flex items-center justify-center p-2 rounded-lg transition-colors
                       ${activeTab === tab.id
                         ? 'bg-blue-100 text-blue-600'
-                        : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:shadow-sm'
+                        : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:-sm'
                       }
                       ${tab.id === 'student-id' && activeTab !== 'student-id'
                         ? 'bg-purple-50 text-purple-400 group-hover:bg-purple-50'
@@ -149,13 +149,13 @@ function SettingsContent({ user }: { user: NonNullable<ReturnType<typeof useAuth
               transition={{ duration: 0.2, ease: 'easeInOut' }}
               className="space-y-6"
             >
-              {activeTab === 'profile'       && <ProfileSettings user={user} />}
-              {activeTab === 'security'      && <SecuritySettings user={user} />}
+              {activeTab === 'profile' && <ProfileSettings user={user} />}
+              {activeTab === 'security' && <SecuritySettings user={user} />}
               {activeTab === 'notifications' && <NotificationSettings user={user} />}
-              {activeTab === 'privacy'       && <PrivacySettings user={user} />}
-              {activeTab === 'preferences'   && <PreferencesSettings user={user} />}
-              {activeTab === 'account'       && <AccountSettings user={user} />}
-              {activeTab === 'student-id'    && <StudentIdSettings />}
+              {activeTab === 'privacy' && <PrivacySettings user={user} />}
+              {activeTab === 'preferences' && <PreferencesSettings user={user} />}
+              {activeTab === 'account' && <AccountSettings user={user} />}
+              {activeTab === 'student-id' && <StudentIdSettings />}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -193,7 +193,7 @@ export default function SettingsPage() {
 
           <div className="flex-1 flex flex-col lg:flex-row min-h-screen">
             <div className="flex-1 p-2 lg:p-4 bg-white lg:bg-transparent">
-              <div className="bg-white rounded-xl shadow-ssm border border-gray-100 lg:border-none lg:shadow-none lg:rounded-none">
+              <div className="bg-white rounded-xl -ssm border border-gray-100 lg:border-none lg:-none lg:rounded-none">
 
                 {/* ✅ Suspense boundary wraps the component that calls useSearchParams() */}
                 <Suspense

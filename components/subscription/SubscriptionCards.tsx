@@ -40,8 +40,8 @@ export const SubscriptionCards: React.FC<SubscriptionCardsProps> = ({
           <button
             onClick={() => setBillingCycle(BillingCycle.MONTHLY)}
             className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all ${billingCycle === BillingCycle.MONTHLY
-                ? 'bg-white shadow-sm text-blue-600'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'bg-white -sm text-blue-600'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
           >
             Monthly
@@ -49,8 +49,8 @@ export const SubscriptionCards: React.FC<SubscriptionCardsProps> = ({
           <button
             onClick={() => setBillingCycle(BillingCycle.YEARLY)}
             className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${billingCycle === BillingCycle.YEARLY
-                ? 'bg-white shadow-sm text-blue-600'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'bg-white -sm text-blue-600'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
           >
             Yearly
@@ -69,8 +69,8 @@ export const SubscriptionCards: React.FC<SubscriptionCardsProps> = ({
             <Card
               key={plan.name}
               className={`relative overflow-hidden border-0 transition-all duration-500 group hover:-translate-y-2 rounded-[32px] ${isPopular
-                  ? 'bg-slate-900 text-white shadow-2xl shadow-slate-900/40 scale-105 z-10'
-                  : 'bg-white text-slate-900 shadow-xl shadow-slate-200/50 border border-slate-100'
+                ? 'bg-slate-900 text-white -2xl -slate-900/40 scale-105 z-10'
+                : 'bg-white text-slate-900 -xl -slate-200/50 border border-slate-100'
                 }`}
             >
               {isPopular && (
@@ -127,10 +127,10 @@ export const SubscriptionCards: React.FC<SubscriptionCardsProps> = ({
                   onClick={() => onSelectPlan(plan, billingCycle)}
                   disabled={loading || isCurrentPlan}
                   className={`w-full h-12 rounded-2xl font-black text-sm transition-all active:scale-95 ${isCurrentPlan
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : isPopular
-                        ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                        : 'bg-slate-900 hover:bg-slate-800 text-white'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : isPopular
+                      ? 'bg-blue-600 hover:bg-blue-500 text-white -lg -blue-500/25'
+                      : 'bg-slate-900 hover:bg-slate-800 text-white'
                     }`}
                 >
                   {isCurrentPlan ? '✓ Current Plan' : 'Get Started'}

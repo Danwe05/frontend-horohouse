@@ -57,7 +57,7 @@ const SavedProperties: React.FC<SavedPropertiesProps> = ({ properties }) => {
         {properties.map((property, index) => (
           <div
             key={index}
-            className="flex bg-white rounded-xl shadow-md overflow-hidden border"
+            className="flex bg-white rounded-xl -md overflow-hidden border"
           >
             {/* Image */}
             <div className="relative w-40 h-32 flex-shrink-0">

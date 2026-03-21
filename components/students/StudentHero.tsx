@@ -14,7 +14,7 @@ export default function StudentHero() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-blue-700/90 to-blue-600/80" />
       </div>
-      
+
       <div className="relative z-10 max-w-7xl mx-auto px-5 md:px-10 lg:px-10">
         <div className="text-center max-w-3xl mx-auto mt-10">
           <motion.span
@@ -25,7 +25,7 @@ export default function StudentHero() {
             <FaGraduationCap className="text-lg" />
             HoroCampus
           </motion.span>
-          
+
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -35,7 +35,7 @@ export default function StudentHero() {
             Student Living, <br />
             <span className="text-blue-200">Simplified & Verified.</span>
           </motion.h1>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -44,25 +44,25 @@ export default function StudentHero() {
           >
             Find affordable accommodation close to campus, split rent with verified roommates, and deal only with student-approved landlords.
           </motion.p>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <button className="bg-white text-blue-700 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all shadow-xl flex items-center justify-center gap-2">
+            <button className="bg-white text-blue-700 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all -xl flex items-center justify-center gap-2">
               <FaSearchLocation />
               Find Housing
             </button>
-            <button className="bg-blue-800 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-900 transition-all shadow-xl flex items-center justify-center gap-2 border border-blue-500/30">
+            <button className="bg-blue-800 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-900 transition-all -xl flex items-center justify-center gap-2 border border-blue-500/30">
               <FaHandshake />
               Find Roommates
             </button>
           </motion.div>
         </div>
       </div>
-      
+
       {/* Decorative wave divider */}
       <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-10 rotate-180">
         <svg

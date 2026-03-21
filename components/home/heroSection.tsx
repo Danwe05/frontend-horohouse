@@ -290,7 +290,7 @@ export default function HeroSection() {
               <button
                 key={tab.value}
                 className={`flex-1 py-3 rounded-tl-2xl rounded-tr-2xl font-semibold capitalize transition-all duration-300 transform text-sm ${selectedTab === tab.value
-                  ? 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-blue-600 text-white -sm'
                   : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
                   }`}
                 onClick={() => handleTabChange(tab.value)}
@@ -303,7 +303,7 @@ export default function HeroSection() {
           {/* Search Box - Desktop */}
           <div className="hidden lg:block w-[70vw] max-w-4xl">
             <div
-              className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl rounded-tl-none border border-white/20 hover:shadow-2xl transition-all duration-300 w-full"
+              className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl rounded-tl-none border border-white/20 hover:-2xl transition-all duration-300 w-full"
               style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}
             >
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -329,14 +329,14 @@ export default function HeroSection() {
                       autoComplete="off"
                     />
                     {showSuggestions && suggestions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 max-h-[320px] overflow-y-auto">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border-1 border-gray-200 rounded-xl -2xl z-50 max-h-[320px] overflow-y-auto">
                         <div className="p-1">
                           {suggestions.map((suggestion, index) => (
                             <div
                               key={index}
                               onClick={() => handleSuggestionClick(suggestion)}
                               onMouseEnter={() => setSelectedIndex(index)}
-                              className={`px-3 py-2.5 rounded-lg cursor-pointer flex items-start gap-3 transition-all ${selectedIndex === index ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-gray-100'
+                              className={`px-3 py-2.5 rounded-lg cursor-pointer flex items-start gap-3 transition-all ${selectedIndex === index ? 'bg-blue-600 text-white -md' : 'hover:bg-gray-100'
                                 }`}
                             >
                               <MapPin className={`h-4 w-4 mt-0.5 flex-shrink-0 ${selectedIndex === index ? 'text-white' : 'text-gray-400'}`} />
@@ -484,7 +484,7 @@ export default function HeroSection() {
               <button
                 key={tab.value}
                 className={`flex-1 py-2.5 sm:py-3 rounded-lg font-semibold capitalize transition-all duration-300 text-sm ${selectedTab === tab.value
-                  ? 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-blue-600 text-white -sm'
                   : 'text-gray-600'
                   }`}
                 onClick={() => handleTabChange(tab.value)}
@@ -497,7 +497,7 @@ export default function HeroSection() {
           {/* Mobile Search Box */}
           <div className="lg:hidden w-full px-4 mt-4 relative z-20">
             <div
-              className="bg-white/90 backdrop-blur-lg p-4 sm:p-5 rounded-2xl w-full max-w-md mx-auto shadow-lg"
+              className="bg-white/90 backdrop-blur-lg p-4 sm:p-5 rounded-2xl w-full max-w-md mx-auto -lg"
               style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}
             >
               <div className="grid grid-cols-1 gap-3 mb-3">

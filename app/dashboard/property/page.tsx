@@ -176,7 +176,7 @@ const PropertyPage = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="hidden sm:flex items-center bg-white border rounded-lg px-3 py-1 shadow-sm">
+                  <div className="hidden sm:flex items-center bg-white border rounded-lg px-3 py-1 -sm">
                     <div className="px-3 border-r">
                       <p className="text-[10px] uppercase font-bold text-slate-400">{s.header?.total || 'Total'}</p>
                       <p className="text-sm font-semibold">{stats.total}</p>
@@ -186,14 +186,14 @@ const PropertyPage = () => {
                       <p className="text-sm font-semibold">{stats.active}</p>
                     </div>
                   </div>
-                  <Button onClick={() => router.push('/dashboard/propertyForm')} className="shadow-md bg-blue-600 hover:bg-blue-700 transition-all">
+                  <Button onClick={() => router.push('/dashboard/propertyForm')} className="-md bg-blue-600 hover:bg-blue-700 transition-all">
                     <Plus className="w-4 h-4 mr-2" /> {s.header?.addProperty || 'Add Property'}
                   </Button>
                 </div>
               </div>
 
               {/* MODERN FILTER BAR */}
-              <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 sticky top-0 z-10">
+              <div className="bg-white p-2 rounded-2xl -sm border border-slate-200 sticky top-0 z-10">
                 <div className="flex flex-col lg:flex-row gap-3">
                   {/* Search - Grows to fill space */}
                   <div className="relative flex-1">
@@ -358,7 +358,7 @@ const PropertyPage = () => {
                     <p className="text-slate-500 font-medium">{s.emptyStates?.loading || "Loading your properties..."}</p>
                   </div>
                 ) : properties.length === 0 ? (
-                  <div className="bg-white rounded-3xl border-2 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
+                  <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
                     <div className={`p-6 rounded-full mb-6 ${pageConfig.color}`}>
                       <PageIcon className="w-12 h-12" />
                     </div>

@@ -34,9 +34,9 @@ function StarRating({ value, size = 16 }: { value: number; size?: number }) {
 const getTypeConfig = (type: ReviewType, s: any) => {
     const config: Record<ReviewType, { label: string; icon: React.ReactNode; color: string }> = {
         property: { label: s?.property || 'Property', icon: <Building2 className="h-3 w-3" />, color: 'bg-indigo-100 text-indigo-700' },
-        agent:    { label: s?.agent || 'Agent',    icon: <Users className="h-3 w-3" />,     color: 'bg-purple-100 text-purple-700' },
-        stay:     { label: s?.stay || 'Stay',     icon: <BedDouble className="h-3 w-3" />, color: 'bg-blue-100 text-blue-700' },
-        guest:    { label: s?.asGuest || 'As Guest', icon: <Users className="h-3 w-3" />,     color: 'bg-emerald-100 text-emerald-700' },
+        agent: { label: s?.agent || 'Agent', icon: <Users className="h-3 w-3" />, color: 'bg-purple-100 text-purple-700' },
+        stay: { label: s?.stay || 'Stay', icon: <BedDouble className="h-3 w-3" />, color: 'bg-blue-100 text-blue-700' },
+        guest: { label: s?.asGuest || 'As Guest', icon: <Users className="h-3 w-3" />, color: 'bg-emerald-100 text-emerald-700' },
     };
     return config[type] || config.property;
 };
@@ -71,7 +71,7 @@ function ReviewCard({ review, currentUserId, onDelete, onHelpful, s }: {
     const sub = review.staySubRatings;
 
     return (
-        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm space-y-3">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 -sm space-y-3">
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border border-slate-100">
@@ -103,12 +103,12 @@ function ReviewCard({ review, currentUserId, onDelete, onHelpful, s }: {
 
             {sub && (
                 <div className="space-y-1 rounded-xl bg-slate-50 p-3">
-                    <SubRatingBar label={s?.cleanliness || "Cleanliness"}   value={sub.cleanliness} />
-                    <SubRatingBar label={s?.accuracy || "Accuracy"}      value={sub.accuracy} />
-                    <SubRatingBar label={s?.checkIn || "Check-in"}      value={sub.checkIn} />
+                    <SubRatingBar label={s?.cleanliness || "Cleanliness"} value={sub.cleanliness} />
+                    <SubRatingBar label={s?.accuracy || "Accuracy"} value={sub.accuracy} />
+                    <SubRatingBar label={s?.checkIn || "Check-in"} value={sub.checkIn} />
                     <SubRatingBar label={s?.communication || "Communication"} value={sub.communication} />
-                    <SubRatingBar label={s?.location || "Location"}      value={sub.location} />
-                    <SubRatingBar label={s?.value || "Value"}         value={sub.value} />
+                    <SubRatingBar label={s?.location || "Location"} value={sub.location} />
+                    <SubRatingBar label={s?.value || "Value"} value={sub.value} />
                 </div>
             )}
 
@@ -163,11 +163,11 @@ export default function MyReviewsClient() {
     const { t } = useLanguage();
     const s = (t as any)?.reviews || {};
 
-    const [writtenReviews, setWrittenReviews]   = useState<Review[]>([]);
+    const [writtenReviews, setWrittenReviews] = useState<Review[]>([]);
     const [receivedReviews, setReceivedReviews] = useState<Review[]>([]);
-    const [loading, setLoading]                 = useState(true);
-    const [deleteDialog, setDeleteDialog]       = useState<{ open: boolean; id: string | null }>({ open: false, id: null });
-    const [deleting, setDeleting]               = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: string | null }>({ open: false, id: null });
+    const [deleting, setDeleting] = useState(false);
 
     const fetchReviews = useCallback(async () => {
         setLoading(true);
@@ -231,7 +231,7 @@ export default function MyReviewsClient() {
                     </div>
                 ) : (
                     <Tabs defaultValue="written">
-                        <TabsList className="bg-white border border-slate-100 shadow-sm">
+                        <TabsList className="bg-white border border-slate-100 -sm">
                             <TabsTrigger value="written" className="gap-1.5">
                                 <Edit3 className="h-3.5 w-3.5" /> {s?.written || "Written"}
                                 <span className="ml-1 rounded-full bg-slate-100 px-1.5 text-[10px] font-semibold text-slate-500">

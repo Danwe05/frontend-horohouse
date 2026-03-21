@@ -39,9 +39,9 @@ function ResetPasswordContent() {
   // Get token from URL and validate it
   useEffect(() => {
     const tokenParam = searchParams?.get('token');
-    
+
     console.log('🔍 Token from URL:', tokenParam);
-    
+
     if (!tokenParam) {
       console.error('❌ No token found in URL');
       setTokenError('Invalid reset link. Please request a new password reset.');
@@ -62,12 +62,12 @@ function ResetPasswordContent() {
 
   const validateToken = async (tokenToValidate: string) => {
     console.log('🔐 Validating token...', tokenToValidate.substring(0, 10) + '...');
-    
+
     try {
       const result = await authService.validateResetToken(tokenToValidate);
-      
+
       console.log('✅ Token validation result:', result);
-      
+
       if (result.valid) {
         setIsTokenValid(true);
         if (result.email) {
@@ -139,9 +139,9 @@ function ResetPasswordContent() {
   };
 
   const isFormValid = () => {
-    return validatePassword(password) && 
-           validateConfirmPassword(confirmPassword) &&
-           password === confirmPassword;
+    return validatePassword(password) &&
+      validateConfirmPassword(confirmPassword) &&
+      password === confirmPassword;
   };
 
   const handleSubmit = async () => {
@@ -203,11 +203,11 @@ function ResetPasswordContent() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
                 <AlertCircle className="w-8 h-8 text-red-600" aria-hidden="true" />
               </div>
-              
+
               <h1 className="text-3xl font-bold text-gray-900 mb-3">
                 Invalid Reset Link
               </h1>
-              
+
               <p className="text-gray-600 text-sm mb-4">
                 {tokenError || 'This password reset link is invalid or has expired.'}
               </p>
@@ -223,7 +223,7 @@ function ResetPasswordContent() {
               <div className="space-y-3">
                 <button
                   onClick={() => router.push('/auth/forgot-password')}
-                  className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 -sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 >
                   Request New Reset Link
                 </button>
@@ -253,18 +253,18 @@ function ResetPasswordContent() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
                 <CheckCircle2 className="w-8 h-8 text-green-600" aria-hidden="true" />
               </div>
-              
+
               <h1 className="text-3xl font-bold text-gray-900 mb-3">
                 Password Reset Successful!
               </h1>
-              
+
               <p className="text-gray-600 text-sm mb-8">
                 Your password has been reset successfully. You can now sign in with your new password.
               </p>
 
               <button
                 onClick={() => router.push('/auth/login')}
-                className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 -sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
                 Sign In Now
               </button>
@@ -299,7 +299,7 @@ function ResetPasswordContent() {
           </div>
 
           {error && (
-            <div 
+            <div
               className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg text-sm flex items-start gap-3"
               role="alert"
             >
@@ -393,9 +393,9 @@ function ResetPasswordContent() {
               type="button"
               onClick={handleSubmit}
               disabled={isLoading}
-              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
+              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 -sm mt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
                 ${!isLoading
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:shadow-md active:scale-[0.98]'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98]'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
             >
               {isLoading ? (

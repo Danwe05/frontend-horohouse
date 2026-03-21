@@ -15,30 +15,30 @@ import apiClient from '@/lib/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type LeadStatus   = 'new' | 'contacted' | 'qualified' | 'lost';
+type LeadStatus = 'new' | 'contacted' | 'qualified' | 'lost';
 type LeadPriority = 'low' | 'medium' | 'high';
-type LeadSource   = 'website' | 'referral' | 'message' | 'campaign';
+type LeadSource = 'website' | 'referral' | 'message' | 'campaign';
 
 export type LeadNote = { _id?: string; content: string; createdAt: string };
 
 export type Lead = {
-  id?:               string;
-  _id?:              string;
-  name:              string;
-  email?:            string;
-  phone?:            string;
-  interest?:         string;
-  source:            LeadSource;
-  status:            LeadStatus;
-  location?:         string;
-  createdAt:         string;
-  lastContactedAt?:  string;
-  budget?:           number;
-  propertyType?:     string;
-  priority?:         LeadPriority;
-  assignedAgent?:    string;
-  tags?:             string[];
-  notes?:            LeadNote[];
+  id?: string;
+  _id?: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  interest?: string;
+  source: LeadSource;
+  status: LeadStatus;
+  location?: string;
+  createdAt: string;
+  lastContactedAt?: string;
+  budget?: number;
+  propertyType?: string;
+  priority?: LeadPriority;
+  assignedAgent?: string;
+  tags?: string[];
+  notes?: LeadNote[];
 };
 
 const emptyLead: Partial<Lead> = {
@@ -272,7 +272,7 @@ export function AddLeadForm({
 
   return (
     <Dialog open={open} onOpenChange={o => { if (!o) reset(); onOpenChange(o); }}>
-      <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+      <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none -2xl rounded-2xl">
 
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-7 text-white relative overflow-hidden">
           <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
@@ -301,7 +301,7 @@ export function AddLeadForm({
           <Button
             onClick={handleSubmit}
             disabled={!data.name?.trim() || saving}
-            className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 shadow-md shadow-blue-500/20 gap-2"
+            className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 -md -blue-500/20 gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             {saving ? 'Registering…' : 'Register Lead'}
@@ -331,7 +331,7 @@ export function EditLeadForm({
 
   // Sync local state when the lead prop changes (e.g. opening for a different lead)
   const leadId = lead?._id ?? lead?.id;
-  const dataId  = data?._id  ?? data?.id;
+  const dataId = data?._id ?? data?.id;
   if (lead && leadId !== dataId) {
     setData({ ...lead });
   }
@@ -354,7 +354,7 @@ export function EditLeadForm({
 
   return (
     <Dialog open={open} onOpenChange={o => { if (!o) onOpenChange(false); }}>
-      <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+      <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none -2xl rounded-2xl">
 
         <div className="bg-gradient-to-br from-violet-600 to-indigo-700 p-7 text-white relative overflow-hidden">
           <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
@@ -382,7 +382,7 @@ export function EditLeadForm({
           <Button
             onClick={handleSubmit}
             disabled={!data.name?.trim() || saving}
-            className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold px-7 shadow-md shadow-violet-500/20 gap-2"
+            className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold px-7 -md -violet-500/20 gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
             {saving ? 'Saving…' : 'Save Changes'}
@@ -398,17 +398,17 @@ export function EditLeadForm({
 // Delegates to AddLeadForm or EditLeadForm based on whether `lead` is provided.
 
 export function LeadForm({
-  open       = false,
+  open = false,
   onOpenChange,
   lead,
   onSuccess,
 }: {
-  open?:          boolean;
-  onOpenChange?:  (o: boolean) => void;
-  lead?:          Lead | null;
-  onSuccess?:     (lead: Lead) => void;
+  open?: boolean;
+  onOpenChange?: (o: boolean) => void;
+  lead?: Lead | null;
+  onSuccess?: (lead: Lead) => void;
 }) {
-  const handleChange = onOpenChange ?? (() => {});
+  const handleChange = onOpenChange ?? (() => { });
 
   if (lead) {
     return (

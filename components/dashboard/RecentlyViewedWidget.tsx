@@ -80,7 +80,7 @@ export default function RecentlyViewedWidget() {
   const formatTimeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    
+
     if (hours < 1) {
       const minutes = Math.floor(diff / (1000 * 60));
       return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
@@ -110,7 +110,7 @@ export default function RecentlyViewedWidget() {
       };
 
       const data = await apiClient.getViewedProperties(params);
-      
+
       setProperties(data.properties || []);
       setTotal(data.total || 0);
       setTotalPages(data.totalPages || 1);
@@ -414,20 +414,20 @@ export default function RecentlyViewedWidget() {
               {formattedProperties.map((property) => (
                 <div key={property.id} className="relative group">
                   <PropertyCard {...property} />
-                  
+
                   {/* Remove Button Overlay */}
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       handleRemoveProperty(property.id);
                     }}
-                    className="absolute top-3 right-3 bg-destructive text-destructive-foreground p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-destructive/90 z-10"
+                    className="absolute top-3 right-3 bg-destructive text-destructive-foreground p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity -lg hover:bg-destructive/90 z-10"
                     title="Remove from history"
                   >
                     <Trash2 className="h-4 w-4 text-white" />
                   </button>
 
-                
+
                 </div>
               ))}
             </div>

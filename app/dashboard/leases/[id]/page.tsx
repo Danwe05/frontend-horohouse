@@ -117,24 +117,24 @@ function formatDateLong(iso: string) {
 
 const RATING_CFG = {
   excellent: { label: 'Excellent', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', dot: 'bg-emerald-500' },
-  good:      { label: 'Good',      color: 'text-blue-700',    bg: 'bg-blue-50 border-blue-200',       dot: 'bg-blue-500'    },
-  fair:      { label: 'Fair',      color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200',     dot: 'bg-amber-500'   },
-  poor:      { label: 'Poor',      color: 'text-red-700',     bg: 'bg-red-50 border-red-200',         dot: 'bg-red-500'     },
+  good: { label: 'Good', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200', dot: 'bg-blue-500' },
+  fair: { label: 'Fair', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200', dot: 'bg-amber-500' },
+  poor: { label: 'Poor', color: 'text-red-700', bg: 'bg-red-50 border-red-200', dot: 'bg-red-500' },
 };
 
 const STATUS_CFG = {
-  draft:          { label: 'Draft',           icon: FileText,     color: 'text-slate-600',     bg: 'bg-slate-100' },
-  pending_tenant: { label: 'Awaiting Tenant', icon: Clock,        color: 'text-amber-700',     bg: 'bg-amber-100' },
-  active:         { label: 'Active',          icon: CheckCircle2, color: 'text-emerald-700',   bg: 'bg-emerald-100' },
-  expired:        { label: 'Expired',         icon: XCircle,      color: 'text-slate-500',     bg: 'bg-slate-100' },
-  terminated:     { label: 'Terminated',      icon: XCircle,      color: 'text-red-600',       bg: 'bg-red-100' },
+  draft: { label: 'Draft', icon: FileText, color: 'text-slate-600', bg: 'bg-slate-100' },
+  pending_tenant: { label: 'Awaiting Tenant', icon: Clock, color: 'text-amber-700', bg: 'bg-amber-100' },
+  active: { label: 'Active', icon: CheckCircle2, color: 'text-emerald-700', bg: 'bg-emerald-100' },
+  expired: { label: 'Expired', icon: XCircle, color: 'text-slate-500', bg: 'bg-slate-100' },
+  terminated: { label: 'Terminated', icon: XCircle, color: 'text-red-600', bg: 'bg-red-100' },
 };
 
 const PAYMENT_STATUS_CFG: Record<string, { label: string; color: string; bg: string }> = {
-  paid:     { label: 'Paid',     color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-  pending:  { label: 'Pending',  color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200'     },
-  overdue:  { label: 'Overdue',  color: 'text-red-700',     bg: 'bg-red-50 border-red-200'         },
-  partial:  { label: 'Partial',  color: 'text-blue-700',    bg: 'bg-blue-50 border-blue-200'       },
+  paid: { label: 'Paid', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
+  pending: { label: 'Pending', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
+  overdue: { label: 'Overdue', color: 'text-red-700', bg: 'bg-red-50 border-red-200' },
+  partial: { label: 'Partial', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
 };
 
 // ─── Section wrapper ──────────────────────────────────────────────────────────
@@ -147,7 +147,7 @@ function Section({ title, icon: Icon, children, defaultOpen = true }: {
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200 -sm overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50/50 transition-colors"
@@ -208,7 +208,7 @@ function SignModal({ leaseId, propertyTitle, onClose, onSigned }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+      <div className="relative bg-white rounded-2xl -2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
           <div>
             <h2 className="font-bold text-slate-900">Sign Lease Agreement</h2>
@@ -218,7 +218,7 @@ function SignModal({ leaseId, propertyTitle, onClose, onSigned }: {
         </div>
         <div className="px-6 py-5 space-y-4">
           <p className="text-sm text-slate-600">By signing below you confirm all lease terms are correct and agree to be bound by this agreement.</p>
-          <div className="border-2 border-dashed border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+          <div className="border-1 border-dashed border-slate-300 rounded-xl overflow-hidden bg-slate-50">
             <SignatureCanvas ref={sigRef} canvasProps={{ width: 400, height: 160, className: 'w-full' }} backgroundColor="rgb(248,250,252)" onBegin={() => setIsEmpty(false)} />
           </div>
           <p className="text-[10px] text-slate-400 text-center">Draw your signature above</p>
@@ -263,7 +263,7 @@ function TerminateModal({ leaseId, propertyTitle, onClose, onTerminated }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+      <div className="relative bg-white rounded-2xl -2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
         <div className="p-6 text-center">
           <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
             <AlertTriangle className="w-7 h-7 text-red-600" />
@@ -319,7 +319,7 @@ function MaintenanceModal({ lease, onClose, onSent }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+      <div className="relative bg-white rounded-2xl -2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
           <div>
             <h2 className="font-bold text-slate-900">Report Maintenance Issue</h2>
@@ -370,7 +370,7 @@ function PhotoGallery({ urls, label }: { urls: string[]; label: string }) {
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" onClick={() => setSelected(null)}>
             <div className="absolute inset-0 bg-black/80" />
             <motion.img initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              src={selected} alt={label} className="relative max-w-2xl max-h-[80vh] w-full object-contain rounded-xl shadow-2xl" />
+              src={selected} alt={label} className="relative max-w-2xl max-h-[80vh] w-full object-contain rounded-xl -2xl" />
             <button className="absolute top-4 right-4 p-2 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-colors" onClick={() => setSelected(null)}>
               <X className="w-5 h-5" />
             </button>
@@ -389,15 +389,15 @@ export default function LeaseDetailPage() {
   const { user } = useAuth();
   const leaseId = params.id as string;
 
-  const [lease,    setLease]    = useState<Lease | null>(null);
-  const [cycles,   setCycles]   = useState<PaymentCycle[]>([]);
+  const [lease, setLease] = useState<Lease | null>(null);
+  const [cycles, setCycles] = useState<PaymentCycle[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
-  const [loading,  setLoading]  = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [showSign,       setShowSign]       = useState(false);
-  const [showTerminate,  setShowTerminate]  = useState(false);
-  const [showMaintenance,setShowMaintenance]= useState(false);
-  const [msgLoading,     setMsgLoading]     = useState(false);
+  const [showSign, setShowSign] = useState(false);
+  const [showTerminate, setShowTerminate] = useState(false);
+  const [showMaintenance, setShowMaintenance] = useState(false);
+  const [msgLoading, setMsgLoading] = useState(false);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -430,8 +430,8 @@ export default function LeaseDetailPage() {
     try {
       const conv = await apiClient.createConversation({
         participantId: lease.landlordUserId._id,
-        propertyId:    lease.propertyId._id,
-        type:          'lease',
+        propertyId: lease.propertyId._id,
+        type: 'lease',
       });
       router.push(`/dashboard/inquiry?conversation=${conv._id || conv.conversationId}`);
     } catch {
@@ -461,14 +461,14 @@ export default function LeaseDetailPage() {
 
   if (!lease) return null;
 
-  const myRecord      = lease.tenants.find(t => t.tenantUserId === user?._id);
-  const iHaveSigned   = !!myRecord?.signedAt;
+  const myRecord = lease.tenants.find(t => t.tenantUserId === user?._id);
+  const iHaveSigned = !!myRecord?.signedAt;
   const landlordSigned = !!lease.landlordSignedAt;
-  const canSign        = landlordSigned && lease.status === 'pending_tenant' && !iHaveSigned;
-  const canTerminate   = lease.status === 'active';
-  const statusCfg      = STATUS_CFG[lease.status] ?? STATUS_CFG.draft;
-  const StatusIcon     = statusCfg.icon;
-  const propertyImg    = lease.propertyId?.images?.[0]?.url;
+  const canSign = landlordSigned && lease.status === 'pending_tenant' && !iHaveSigned;
+  const canTerminate = lease.status === 'active';
+  const statusCfg = STATUS_CFG[lease.status] ?? STATUS_CFG.draft;
+  const StatusIcon = statusCfg.icon;
+  const propertyImg = lease.propertyId?.images?.[0]?.url;
 
   // Maintenance inquiries — filter for this property's maintenance type
   const maintenanceInquiries = inquiries.filter((inq: any) =>
@@ -498,7 +498,7 @@ export default function LeaseDetailPage() {
 
             {/* Hero header */}
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              className="bg-white rounded-2xl border border-slate-200 -sm overflow-hidden">
               {/* Property image banner */}
               {propertyImg ? (
                 <div className="h-40 w-full relative">
@@ -531,9 +531,9 @@ export default function LeaseDetailPage() {
               {/* Key metrics strip */}
               <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-slate-100 border-t border-slate-100">
                 {[
-                  { label: 'My Share',    value: formatXAF(myRecord?.rentShare ?? lease.monthlyRent) },
-                  { label: 'Deposit',     value: formatXAF(lease.depositAmount) },
-                  { label: 'Start',       value: formatDate(lease.leaseStart) },
+                  { label: 'My Share', value: formatXAF(myRecord?.rentShare ?? lease.monthlyRent) },
+                  { label: 'Deposit', value: formatXAF(lease.depositAmount) },
+                  { label: 'Start', value: formatDate(lease.leaseStart) },
                   { label: daysLeft > 0 ? `${daysLeft}d left` : 'Ended', value: formatDate(lease.leaseEnd) },
                 ].map(({ label, value }) => (
                   <div key={label} className="px-4 py-3 text-center">
@@ -549,7 +549,7 @@ export default function LeaseDetailPage() {
               <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
                 className="flex flex-wrap gap-3">
                 {canSign && (
-                  <Button onClick={() => setShowSign(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2 shadow-sm">
+                  <Button onClick={() => setShowSign(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2 -sm">
                     <PenLine className="w-4 h-4" /> Sign Lease
                     <span className="ml-1 bg-white/20 text-[10px] font-black px-1.5 py-0.5 rounded-full animate-pulse">REQUIRED</span>
                   </Button>
@@ -569,8 +569,8 @@ export default function LeaseDetailPage() {
                   {lease.landlordUserId.profilePicture
                     ? <img src={lease.landlordUserId.profilePicture} alt={lease.landlordUserId.name} className="w-full h-full object-cover" />
                     : <div className="w-full h-full flex items-center justify-center text-2xl font-black text-slate-500">
-                        {lease.landlordUserId.name.charAt(0).toUpperCase()}
-                      </div>
+                      {lease.landlordUserId.name.charAt(0).toUpperCase()}
+                    </div>
                   }
                 </div>
                 <div className="flex-1 min-w-0">
@@ -649,8 +649,8 @@ export default function LeaseDetailPage() {
                 {/* Date + financial summary */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                   {[
-                    { label: 'Lease Start',    value: formatDateLong(lease.leaseStart) },
-                    { label: 'Lease End',      value: formatDateLong(lease.leaseEnd) },
+                    { label: 'Lease Start', value: formatDateLong(lease.leaseStart) },
+                    { label: 'Lease End', value: formatDateLong(lease.leaseEnd) },
                     { label: 'Advance Months', value: `${lease.advanceMonths} months` },
                   ].map(({ label, value }) => (
                     <div key={label} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
@@ -788,9 +788,9 @@ export default function LeaseDetailPage() {
       </div>
 
       {/* Modals */}
-      {showSign        && <SignModal        leaseId={leaseId} propertyTitle={lease.propertyId.title} onClose={() => setShowSign(false)}        onSigned={fetchAll}  />}
-      {showTerminate   && <TerminateModal   leaseId={leaseId} propertyTitle={lease.propertyId.title} onClose={() => setShowTerminate(false)}   onTerminated={() => { fetchAll(); router.push('/dashboard/leases'); }} />}
-      {showMaintenance && <MaintenanceModal lease={lease}                                             onClose={() => setShowMaintenance(false)} onSent={fetchAll}    />}
+      {showSign && <SignModal leaseId={leaseId} propertyTitle={lease.propertyId.title} onClose={() => setShowSign(false)} onSigned={fetchAll} />}
+      {showTerminate && <TerminateModal leaseId={leaseId} propertyTitle={lease.propertyId.title} onClose={() => setShowTerminate(false)} onTerminated={() => { fetchAll(); router.push('/dashboard/leases'); }} />}
+      {showMaintenance && <MaintenanceModal lease={lease} onClose={() => setShowMaintenance(false)} onSent={fetchAll} />}
     </SidebarProvider>
   );
 }

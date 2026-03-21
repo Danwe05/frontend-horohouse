@@ -56,7 +56,7 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
         className="fixed inset-0 bg-black/40 z-[100]"
         onClick={onClose}
       />
-      
+
       <motion.div
         key="lang-modal"
         variants={modalVariants}
@@ -65,8 +65,8 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
         exit="exit"
         className="fixed top-24 left-1/2 -translate-x-1/2 w-[90%] sm:w-full max-w-3xl z-[101] px-4 pointer-events-auto"
       >
-        <div className="bg-white rounded-2xl shadow-2xl shadow-blue-100/60 border border-blue-100 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
-          
+        <div className="bg-white rounded-2xl -2xl -blue-100/60 border border-blue-100 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
+
           {/* Left Sidebar - Tabs */}
           <div className="w-full md:w-64 bg-slate-50 border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-6 flex flex-col gap-2 shrink-0">
             <div className="flex justify-between items-center mb-4 md:mb-6">
@@ -79,7 +79,7 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <button
               onClick={() => setActiveTab('language')}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium text-sm w-full text-left
@@ -88,7 +88,7 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
               <Globe className={`w-5 h-5 ${activeTab === 'language' ? 'text-blue-600' : 'text-slate-400'}`} />
               Language
             </button>
-            
+
             <button
               onClick={() => setActiveTab('currency')}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium text-sm w-full text-left
@@ -120,16 +120,16 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
                         key={key}
                         onClick={() => handleLanguageSelect(key as Language)}
                         className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200
-                          ${isSelected 
-                            ? 'border-blue-500 bg-blue-50 shadow-blue-500/10' 
+                          ${isSelected
+                            ? 'border-blue-500 bg-blue-50 -blue-500/10'
                             : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`}
                       >
                         <div className="flex items-center gap-3">
-                          <img 
-                            src={lang.flag} 
-                            alt={lang.name} 
-                            className="w-10 h-10 rounded-full object-cover ring-1 ring-slate-100" 
-                            loading="lazy" 
+                          <img
+                            src={lang.flag}
+                            alt={lang.name}
+                            className="w-10 h-10 rounded-full object-cover ring-1 ring-slate-100"
+                            loading="lazy"
                           />
                           <span className={`font-semibold ${isSelected ? 'text-blue-700' : 'text-slate-700'}`}>
                             {lang.name}
@@ -154,8 +154,8 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
                         key={c.value}
                         onClick={() => handleCurrencySelect(c.value)}
                         className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200
-                          ${isSelected 
-                            ? 'border-emerald-500 bg-emerald-50 shadow-emerald-500/10' 
+                          ${isSelected
+                            ? 'border-emerald-500 bg-emerald-50 -emerald-500/10'
                             : 'border-slate-200 hover:border-emerald-300 hover:bg-slate-50'}`}
                       >
                         <div className="flex items-center gap-4">

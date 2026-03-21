@@ -184,7 +184,7 @@ export default function TermsOfServicePage() {
                             Building Africa's Future. <br /> Together.
                         </h2>
                         <div className="flex flex-wrap justify-center gap-4">
-                            <a href="/dashboard" className="px-8 py-4 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
+                            <a href="/dashboard" className="px-8 py-4 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all -lg -blue-600/20">
                                 Go to Dashboard
                             </a>
                             <a href="/privacy" className="px-8 py-4 rounded-full bg-slate-100 text-slate-900 font-bold hover:bg-slate-200 transition-all">
@@ -195,7 +195,7 @@ export default function TermsOfServicePage() {
                 </div>
             </section>
 
-            
+
         </main>
     );
 }

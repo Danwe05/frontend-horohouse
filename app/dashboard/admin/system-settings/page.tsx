@@ -176,7 +176,7 @@ export default function PlatformSettingsPage() {
                                 <Button
                                     onClick={handleSave}
                                     disabled={isSaving}
-                                    className="rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100 px-6 py-6"
+                                    className="rounded-xl bg-indigo-600 hover:bg-indigo-700 -lg -indigo-100 px-6 py-6"
                                 >
                                     {isSaving ? (
                                         <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -190,16 +190,16 @@ export default function PlatformSettingsPage() {
 
                         <Tabs defaultValue="general" className="space-y-6">
                             <TabsList className="bg-white/50 backdrop-blur-md p-1 rounded-2xl border border-slate-100 h-14 w-full md:w-auto overflow-x-auto justify-start inline-flex">
-                                <TabsTrigger value="general" className="rounded-xl px-6 h-full data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all gap-2">
+                                <TabsTrigger value="general" className="rounded-xl px-6 h-full data-[state=active]:bg-white data-[state=active]:-sm transition-all gap-2">
                                     <Globe className="w-4 h-4" /> General
                                 </TabsTrigger>
-                                <TabsTrigger value="social" className="rounded-xl px-6 h-full data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all gap-2">
+                                <TabsTrigger value="social" className="rounded-xl px-6 h-full data-[state=active]:bg-white data-[state=active]:-sm transition-all gap-2">
                                     <Share2 className="w-4 h-4" /> Social
                                 </TabsTrigger>
-                                <TabsTrigger value="features" className="rounded-xl px-6 h-full data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all gap-2">
+                                <TabsTrigger value="features" className="rounded-xl px-6 h-full data-[state=active]:bg-white data-[state=active]:-sm transition-all gap-2">
                                     <Zap className="w-4 h-4" /> Features
                                 </TabsTrigger>
-                                <TabsTrigger value="maintenance" className="rounded-xl px-6 h-full data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all gap-2">
+                                <TabsTrigger value="maintenance" className="rounded-xl px-6 h-full data-[state=active]:bg-white data-[state=active]:-sm transition-all gap-2">
                                     <Shield className="w-4 h-4" /> Maintenance
                                 </TabsTrigger>
                             </TabsList>
@@ -207,7 +207,7 @@ export default function PlatformSettingsPage() {
                             {/* General Settings */}
                             <TabsContent value="general" className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
+                                    <Card className="border-none -sm rounded-3xl overflow-hidden">
                                         <CardHeader className="bg-slate-50/50 border-b border-slate-100">
                                             <CardTitle className="text-lg">Site Identity</CardTitle>
                                             <CardDescription>Basic platform information.</CardDescription>
@@ -247,7 +247,7 @@ export default function PlatformSettingsPage() {
                                         </CardContent>
                                     </Card>
 
-                                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
+                                    <Card className="border-none -sm rounded-3xl overflow-hidden">
                                         <CardHeader className="bg-slate-50/50 border-b border-slate-100">
                                             <CardTitle className="text-lg">Contact Information</CardTitle>
                                             <CardDescription>Emails and phone numbers for support.</CardDescription>
@@ -294,7 +294,7 @@ export default function PlatformSettingsPage() {
 
                             {/* Social Settings */}
                             <TabsContent value="social">
-                                <Card className="border-none shadow-sm rounded-3xl overflow-hidden max-w-2xl">
+                                <Card className="border-none -sm rounded-3xl overflow-hidden max-w-2xl">
                                     <CardHeader className="bg-slate-50/50 border-b border-slate-100">
                                         <CardTitle className="text-lg">Social Media Links</CardTitle>
                                         <CardDescription>Configure external links for the platform.</CardDescription>
@@ -344,7 +344,7 @@ export default function PlatformSettingsPage() {
 
                             {/* Feature Toggles */}
                             <TabsContent value="features" className="space-y-6">
-                                <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
+                                <Card className="border-none -sm rounded-3xl overflow-hidden">
                                     <CardHeader className="bg-slate-50/50 border-b border-slate-100">
                                         <CardTitle className="text-lg flex items-center gap-2">
                                             <Zap className="w-5 h-5 text-amber-500" /> Feature Flags
@@ -423,7 +423,7 @@ export default function PlatformSettingsPage() {
 
                             {/* Maintenance Mode */}
                             <TabsContent value="maintenance">
-                                <Card className="border-none shadow-xl shadow-red-100/20 bg-white rounded-3xl overflow-hidden border-2 border-transparent data-[maintenance=true]:border-red-100" data-maintenance={settings.maintenanceMode}>
+                                <Card className="border-none -xl -red-100/20 bg-white rounded-3xl overflow-hidden border-1 border-transparent data-[maintenance=true]:border-red-100" data-maintenance={settings.maintenanceMode}>
                                     <CardHeader className={cn("bg-slate-50/50 border-b border-slate-100", settings.maintenanceMode && "bg-red-50/50 border-red-100")}>
                                         <div className="flex items-center gap-3">
                                             <AlertTriangle className={cn("w-6 h-6", settings.maintenanceMode ? "text-red-500" : "text-slate-400")} />
@@ -474,7 +474,7 @@ export default function PlatformSettingsPage() {
 
                         {/* Sticky Actions Bar */}
                         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-2xl px-6 z-50">
-                            <Card className="bg-white/90 backdrop-blur-xl border border-slate-200 shadow-2xl rounded-3xl p-4 flex items-center justify-between">
+                            <Card className="bg-white/90 backdrop-blur-xl border border-slate-200 -2xl rounded-3xl p-4 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                     <span className="text-sm font-medium text-slate-600">Configuration active</span>
@@ -488,7 +488,7 @@ export default function PlatformSettingsPage() {
                                         Reset
                                     </Button>
                                     <Button
-                                        className="rounded-xl h-11 px-8 bg-black hover:bg-zinc-800 text-white shadow-lg"
+                                        className="rounded-xl h-11 px-8 bg-black hover:bg-zinc-800 text-white -lg"
                                         onClick={handleSave}
                                         disabled={isSaving}
                                     >

@@ -56,7 +56,7 @@ const BookingTimeline = ({ status, s }: { status: BookingStatus, s: any }) => {
             />
             {steps.map((step, i) => (
                 <div key={i} className="relative z-10 flex flex-col items-center gap-2">
-                    <div className={`h-4 w-4 rounded-full border-2 transition-colors ${i <= currentStep ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-200'
+                    <div className={`h-4 w-4 rounded-full border-1 transition-colors ${i <= currentStep ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-200'
                         }`} />
                     <span className={`text-[10px] font-bold uppercase tracking-tighter ${i <= currentStep ? 'text-indigo-600' : 'text-slate-400'
                         }`}>{step}</span>
@@ -221,7 +221,7 @@ export default function BookingDetailPage() {
                             <div className="flex items-center gap-4">
                                 <Button
                                     variant="ghost" size="icon"
-                                    className="rounded-2xl bg-white border border-slate-200 shadow-sm"
+                                    className="rounded-2xl bg-white border border-slate-200 -sm"
                                     onClick={() => router.push('/dashboard/bookings')}
                                 >
                                     <ArrowLeft className="h-4 w-4" />
@@ -257,7 +257,7 @@ export default function BookingDetailPage() {
                             <div className="lg:col-span-2 space-y-8">
 
                                 {/* Hero image + quick info */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+                                <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden -sm">
                                     <div className="relative h-[400px]">
                                         <img
                                             src={prop?.images?.[0]?.url}
@@ -310,7 +310,7 @@ export default function BookingDetailPage() {
                                 </div>
 
                                 {/* Amenities */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm">
+                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 -sm">
                                     <div className="flex items-center justify-between mb-8">
                                         <h3 className="text-xl font-black text-slate-900">{sd.whatOffers || 'What this place offers'}</h3>
                                         <Badge variant="outline" className="rounded-xl px-3 py-1 text-xs font-bold text-slate-400">
@@ -354,7 +354,7 @@ export default function BookingDetailPage() {
                             <div className="space-y-6 lg:sticky lg:top-8 self-start">
 
                                 {/* Payment summary card */}
-                                <div className="bg-white rounded-[2.5rem] border-2 border-slate-900 p-8 shadow-2xl shadow-indigo-100">
+                                <div className="bg-white rounded-[2.5rem] border-1 border-slate-900 p-8 -2xl -indigo-100">
                                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
                                         {sd.paymentSummary || 'Payment Summary'}
                                     </h3>
@@ -401,8 +401,8 @@ export default function BookingDetailPage() {
 
                                     {/* Payment status pill */}
                                     <div className={`rounded-2xl p-4 mb-8 flex items-center justify-between ${booking.paymentStatus === 'paid'
-                                            ? 'bg-emerald-50 text-emerald-700'
-                                            : 'bg-amber-50 text-amber-700'
+                                        ? 'bg-emerald-50 text-emerald-700'
+                                        : 'bg-amber-50 text-amber-700'
                                         }`}>
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider">
                                             <ShieldCheck className="h-4 w-4" />
@@ -419,7 +419,7 @@ export default function BookingDetailPage() {
                                         {/* Pay button — shown to guest when unpaid and booking is active */}
                                         {canPay && (
                                             <Button
-                                                className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-100 gap-2"
+                                                className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg -xl -indigo-100 gap-2"
                                                 onClick={handlePay}
                                                 disabled={payingNow}
                                             >
@@ -434,7 +434,7 @@ export default function BookingDetailPage() {
                                         {/* Review button */}
                                         {canReview && (
                                             <Button
-                                                className="w-full h-14 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-lg shadow-xl shadow-amber-100"
+                                                className="w-full h-14 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-lg -xl -amber-100"
                                                 onClick={() => setReviewOpen(true)}
                                             >
                                                 {sd.rateExperience || 'Rate Experience'}
@@ -464,7 +464,7 @@ export default function BookingDetailPage() {
                                 </div>
 
                                 {/* Host card */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm">
+                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 -sm">
                                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">{sd.yourHost || 'Your Host'}</h3>
                                     <div className="flex items-center gap-4 mb-6">
                                         <div className="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center text-xl font-black text-indigo-600">
@@ -488,7 +488,7 @@ export default function BookingDetailPage() {
                                 </div>
 
                                 {/* Map placeholder */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-4 shadow-sm group cursor-pointer overflow-hidden">
+                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-4 -sm group cursor-pointer overflow-hidden">
                                     <div className="h-40 bg-slate-100 rounded-[1.5rem] flex items-center justify-center flex-col gap-2 transition-colors group-hover:bg-slate-200">
                                         <MapIcon className="h-8 w-8 text-slate-300" />
                                         <p className="text-xs font-black text-slate-400 uppercase tracking-widest">

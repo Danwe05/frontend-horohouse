@@ -131,7 +131,7 @@ export default function AgentsPage() {
             </section>
 
             {/* Filter Section */}
-            <div className="sticky top-16 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">
+            <div className="sticky top-16 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 -sm transition-all">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex flex-col gap-4">
                         {/* Search Row */}
@@ -160,7 +160,7 @@ export default function AgentsPage() {
                             </div>
                             <Button
                                 onClick={handleSearch}
-                                className="h-11 px-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5"
+                                className="h-11 px-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold -lg -blue-600/20 transition-all hover:-translate-y-0.5"
                             >
                                 Search
                             </Button>
@@ -171,14 +171,14 @@ export default function AgentsPage() {
                             <div className="flex bg-slate-100 p-1 rounded-lg shrink-0">
                                 <button
                                     onClick={() => setServiceType('buying')}
-                                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${serviceType === 'buying' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${serviceType === 'buying' ? 'bg-white text-blue-700 -sm' : 'text-slate-600 hover:text-slate-900'
                                         }`}
                                 >
                                     Buying
                                 </button>
                                 <button
                                     onClick={() => setServiceType('selling')}
-                                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${serviceType === 'selling' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${serviceType === 'selling' ? 'bg-white text-blue-700 -sm' : 'text-slate-600 hover:text-slate-900'
                                         }`}
                                 >
                                     Selling
@@ -333,7 +333,7 @@ export default function AgentsPage() {
                 )}
             </div>
 
-            
+
         </main>
     );
 }
@@ -345,10 +345,10 @@ function AgentCard({ agent }: { agent: Agent }) {
 
     return (
         <Link href={`/agents/${agent.id}`} className="block h-full">
-            <div className="group h-full bg-white rounded-2xl p-6 border border-slate-200 hover:border-blue-200 hover:shadow-lg transition-shadow duration-300 relative overflow-hidden">
+            <div className="group h-full bg-white rounded-2xl p-6 border border-slate-200 hover:border-blue-200 hover:-lg transition- duration-300 relative overflow-hidden">
                 <div className="flex items-start gap-4 mb-6">
                     <div className="relative">
-                        <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 shadow-inner">
+                        <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 -inner">
                             {agent.profilePicture ? (
                                 <Image
                                     src={agent.profilePicture}
@@ -364,7 +364,7 @@ function AgentCard({ agent }: { agent: Agent }) {
                             )}
                         </div>
                         {isTopAgent && (
-                            <div className="absolute -bottom-2 -right-2 bg-amber-100 text-amber-700 p-1.5 rounded-full border-2 border-white shadow-sm" title="Top Agent">
+                            <div className="absolute -bottom-2 -right-2 bg-amber-100 text-amber-700 p-1.5 rounded-full border-1 border-white -sm" title="Top Agent">
                                 <Award className="w-3 h-3" />
                             </div>
                         )}
@@ -402,7 +402,7 @@ function AgentCard({ agent }: { agent: Agent }) {
                 <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                     <div className="flex -space-x-2">
                         {agent.languages?.slice(0, 3).map((lang, i) => (
-                            <div key={i} className="w-6 h-6 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] text-slate-600 font-bold uppercase" title={lang}>
+                            <div key={i} className="w-6 h-6 rounded-full bg-slate-100 border-1 border-white flex items-center justify-center text-[10px] text-slate-600 font-bold uppercase" title={lang}>
                                 {lang.charAt(0)}
                             </div>
                         ))}

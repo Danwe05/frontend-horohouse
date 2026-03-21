@@ -65,7 +65,7 @@ export function WelcomeStep() {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", duration: 0.6 }}
-          className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-50/80 rounded-3xl flex items-center justify-center shadow-inner border border-blue-100/50 backdrop-blur-sm shrink-0"
+          className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-50/80 rounded-3xl flex items-center justify-center -inner border border-blue-100/50 backdrop-blur-sm shrink-0"
         >
           <Home className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" />
         </motion.div>
@@ -99,7 +99,7 @@ export function WelcomeStep() {
               key={index}
               variants={itemVariants}
               whileHover={{ scale: 1.03, y: -2 }}
-              className="flex items-center sm:flex-col sm:items-center sm:text-center p-3 sm:p-5 bg-white/60 backdrop-blur-md rounded-2xl border border-white/80 shadow-sm hover:shadow-md transition-all group cursor-default text-left gap-4 sm:gap-0"
+              className="flex items-center sm:flex-col sm:items-center sm:text-center p-3 sm:p-5 bg-white/60 backdrop-blur-md rounded-2xl border border-white/80 -sm hover:-md transition-all group cursor-default text-left gap-4 sm:gap-0"
             >
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 sm:mb-3 group-hover:scale-110 transition-transform bg-gradient-to-br from-blue-50 to-indigo-50 shrink-0">
                 {feature.icon}
@@ -131,7 +131,7 @@ export function WelcomeStep() {
           onClick={handleGetStarted}
           disabled={isLoading}
           size="lg"
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-10 shadow-lg shadow-blue-200 group relative overflow-hidden w-full sm:w-auto"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-10 -lg -blue-200 group relative overflow-hidden w-full sm:w-auto"
         >
           {isLoading ? (
             <span className="flex items-center">

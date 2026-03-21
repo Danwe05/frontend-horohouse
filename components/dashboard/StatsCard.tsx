@@ -89,9 +89,9 @@ export const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
     }, [numericValue, animateValue]);
 
     const variantStyles = {
-      default: 'bg-blue-50 border-0 shadow-none',
-      highlighted: 'bg-blue-50 border-0 shadow-none',
-      subtle: 'border-0 shadow-none',
+      default: 'bg-blue-50 border-0 -none',
+      highlighted: 'bg-blue-50 border-0 -none',
+      subtle: 'border-0 -none',
       success: 'border-0',
       warning: 'border-0',
       danger: 'border-0',
@@ -116,59 +116,59 @@ export const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
 
     const displayValue = animateValue && !isNaN(numericValue) ? animatedValue : value;
 
-// 1. SIMPLIFIED SPARKLINE RENDERING IN StatsCard.tsx
-// Replace the renderSparkline function with this:
+    // 1. SIMPLIFIED SPARKLINE RENDERING IN StatsCard.tsx
+    // Replace the renderSparkline function with this:
 
-const renderSparkline = () => {
-  if (!sparklineData || sparklineData.length === 0) return null;
+    const renderSparkline = () => {
+      if (!sparklineData || sparklineData.length === 0) return null;
 
-  const max = Math.max(...sparklineData);
-  const min = Math.min(...sparklineData);
-  const range = max - min || 1;
+      const max = Math.max(...sparklineData);
+      const min = Math.min(...sparklineData);
+      const range = max - min || 1;
 
-  return (
-    <div className="h-10 w-full mt-2 flex items-end gap-1">
-      {sparklineData.map((val, i) => {
-        const height = ((val - min) / range) * 100;
-        
-        return (
-          <div
-            key={i}
-            className="flex-1 bg-blue-500 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-            style={{ height: `${Math.max(height, 5)}%` }}
-          />
-        );
-      })}
-    </div>
-  );
-};
+      return (
+        <div className="h-10 w-full mt-2 flex items-end gap-1">
+          {sparklineData.map((val, i) => {
+            const height = ((val - min) / range) * 100;
 
-// 2. IMPROVED SPARKLINE GENERATION IN useStatsCardConfig.tsx
-// Replace the generateSparkline function with this:
+            return (
+              <div
+                key={i}
+                className="flex-1 bg-blue-500 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+                style={{ height: `${Math.max(height, 5)}%` }}
+              />
+            );
+          })}
+        </div>
+      );
+    };
 
-const generateSparkline = (trend: number, baseValue: number = 50, points: number = 8): number[] => {
-  const data: number[] = [];
-  const trendStrength = Math.min(Math.abs(trend), 30); // Cap trend influence
-  
-  for (let i = 0; i < points; i++) {
-    const progress = i / (points - 1);
-    
-    // Add smooth trend progression
-    const trendValue = trend > 0 
-      ? progress * trendStrength 
-      : -progress * trendStrength;
-    
-    // Add natural variation (smaller for more realistic data)
-    const variation = (Math.sin(i * 0.8) * 3) + (Math.random() - 0.5) * 4;
-    
-    // Combine base value, trend, and variation
-    const value = baseValue + trendValue + variation;
-    
-    data.push(Math.max(5, value)); // Ensure minimum value
-  }
-  
-  return data;
-};
+    // 2. IMPROVED SPARKLINE GENERATION IN useStatsCardConfig.tsx
+    // Replace the generateSparkline function with this:
+
+    const generateSparkline = (trend: number, baseValue: number = 50, points: number = 8): number[] => {
+      const data: number[] = [];
+      const trendStrength = Math.min(Math.abs(trend), 30); // Cap trend influence
+
+      for (let i = 0; i < points; i++) {
+        const progress = i / (points - 1);
+
+        // Add smooth trend progression
+        const trendValue = trend > 0
+          ? progress * trendStrength
+          : -progress * trendStrength;
+
+        // Add natural variation (smaller for more realistic data)
+        const variation = (Math.sin(i * 0.8) * 3) + (Math.random() - 0.5) * 4;
+
+        // Combine base value, trend, and variation
+        const value = baseValue + trendValue + variation;
+
+        data.push(Math.max(5, value)); // Ensure minimum value
+      }
+
+      return data;
+    };
 
     const renderProgress = () => {
       if (progress === undefined) return null;
@@ -230,7 +230,7 @@ const generateSparkline = (trend: number, baseValue: number = 50, points: number
       <Card
         ref={ref}
         className={cn(
-          'overflow-hidden transition-all duration-300 hover:shadow-lg',
+          'overflow-hidden transition-all duration-300',
           variantStyles[variant],
           (onClick || expandable) && 'cursor-pointer',
           className
@@ -276,7 +276,7 @@ const generateSparkline = (trend: number, baseValue: number = 50, points: number
               <span className={cn(
                 'font-bold text-slate-900 transition-all duration-300',
                 compactMode ? 'text-2xl' : 'text-3xl',
-                isHovered && 'scale-105'
+                isHovered && ''
               )}>
                 {displayValue}
               </span>
@@ -285,7 +285,7 @@ const generateSparkline = (trend: number, baseValue: number = 50, points: number
                   'text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1',
                   trendColor,
                   'transition-all duration-300',
-                  isHovered && 'scale-110'
+                  isHovered && ''
                 )}>
                   <TrendIcon className="h-3 w-3" />
                   {Math.abs(trend.value)}%
@@ -298,55 +298,6 @@ const generateSparkline = (trend: number, baseValue: number = 50, points: number
               <p className="text-xs text-slate-500">{subtitle}</p>
             )}
 
-            {/* Sparkline Chart */}
-            {/* {sparklineData && renderSparkline()} */}
-
-            {/* Progress Bar */}
-            {/* {progress !== undefined && renderProgress()} */}
-
-            {/* Breakdown Section */}
-            {/* {breakdown && breakdown.length > 0 && (
-              <div className={cn(
-                'pt-2 border-t border-slate-200/60 space-y-1 overflow-hidden transition-all duration-300',
-                expandable && !isExpanded && compactMode && 'max-h-0 pt-0 border-0',
-                expandable && !isExpanded && !compactMode && 'max-h-20'
-              )}>
-                {breakdown.map((item, index) => (
-                  <div key={index} className="space-y-1">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-500">{item.label}</span>
-                      <span className="text-xs font-semibold text-slate-700">
-                        {item.value}
-                      </span>
-                    </div>
-                    {item.percentage !== undefined && (
-                      <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <div
-                          className={cn(
-                            'h-full transition-all duration-500',
-                            item.color || 'bg-blue-500'
-                          )}
-                          style={{ width: `${item.percentage}%` }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )} */}
-
-            {/* Action Button */}
-            {/* {action && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleActionClick}
-                className="w-full mt-2 text-xs group hover:bg-slate-100"
-              >
-                {action.label}
-                <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-1" />
-              </Button>
-            )} */}
           </div>
         </CardContent>
       </Card>

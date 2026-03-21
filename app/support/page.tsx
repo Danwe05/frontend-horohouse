@@ -69,8 +69,8 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
 
 const CategoryCard = ({ icon: Icon, title, description, delay = 0 }: { icon: any, title: string, description: string, delay?: number }) => (
     <FadeIn delay={delay}>
-        <div className="group p-8 rounded-[32px] bg-white border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(59,130,246,0.1)] transition-all duration-500 hover:-translate-y-2 relative overflow-hidden flex flex-col h-full">
-            <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-800 mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-blue-200">
+        <div className="group p-8 rounded-[32px] bg-white border border-slate-200/60 -[0_8px_30px_rgb(0,0,0,0.04)] hover:-[0_20px_50px_rgba(59,130,246,0.1)] transition-all duration-500 hover:-translate-y-2 relative overflow-hidden flex flex-col h-full">
+            <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-800 mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 -sm group-hover:-blue-200">
                 <Icon className="w-8 h-8" />
             </div>
             <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">{title}</h3>
@@ -115,7 +115,7 @@ export default function SupportPage() {
                             <input
                                 type="text"
                                 placeholder="Search resources, guides, or FAQs..."
-                                className="w-full pl-16 pr-8 py-7 rounded-[32px] bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-8 focus:ring-blue-500/10 transition-all text-xl shadow-2xl shadow-black/20"
+                                className="w-full pl-16 pr-8 py-7 rounded-[32px] bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-8 focus:ring-blue-500/10 transition-all text-xl -2xl -black/20"
                             />
                         </div>
                         <div className="mt-8 flex justify-center flex-wrap gap-4 text-sm text-blue-200/70">
@@ -171,7 +171,7 @@ export default function SupportPage() {
                             Our support team is available 24/7 to help you with any technical issues, billing questions, or property disputes.
                         </p>
                         <div className="space-y-6">
-                            <div className="flex items-center gap-4 p-6 rounded-3xl bg-white border border-slate-100 shadow-sm">
+                            <div className="flex items-center gap-4 p-6 rounded-3xl bg-white border border-slate-100 -sm">
                                 <div className="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-600">
                                     <MessageCircle className="w-6 h-6" />
                                 </div>
@@ -181,7 +181,7 @@ export default function SupportPage() {
                                 </div>
                                 <button className="ml-auto px-4 py-2 rounded-xl bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition-colors">Chat Now</button>
                             </div>
-                            <div className="flex items-center gap-4 p-6 rounded-3xl bg-white border border-slate-100 shadow-sm">
+                            <div className="flex items-center gap-4 p-6 rounded-3xl bg-white border border-slate-100 -sm">
                                 <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
                                     <Mail className="w-6 h-6" />
                                 </div>
@@ -194,7 +194,7 @@ export default function SupportPage() {
                         </div>
                     </FadeIn>
                     <FadeIn delay={0.2} className="relative">
-                        <div className="relative aspect-square md:aspect-[4/3] rounded-[40px] overflow-hidden shadow-2xl">
+                        <div className="relative aspect-square md:aspect-[4/3] rounded-[40px] overflow-hidden -2xl">
                             {/* This would be an illustration or a clean photo of support team */}
                             <div className="absolute inset-0 bg-blue-600 flex items-center justify-center text-white">
                                 <div className="text-center p-12">
@@ -214,7 +214,7 @@ export default function SupportPage() {
                                 </div>
                             </div>
                             {/* Floating badges */}
-                            <div className="absolute top-8 left-8 p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-white shadow-xl flex items-center gap-3">
+                            <div className="absolute top-8 left-8 p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-white -xl flex items-center gap-3">
                                 <CheckCircle2 className="w-5 h-5 text-green-500" />
                                 <span className="text-sm font-bold text-slate-900">Verified Support</span>
                             </div>
@@ -239,7 +239,7 @@ export default function SupportPage() {
                 </div>
             </section>
 
-            
+
         </main>
     );
 }

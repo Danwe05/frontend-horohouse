@@ -29,10 +29,10 @@ export default function TopListing() {
   const [api, setApi] = useState<CarouselApi>();
 
   useEffect(() => {
-      if (!api) return;
-      api.on("select", () => {
-          setStartIndex(api.selectedScrollSnap());
-      });
+    if (!api) return;
+    api.on("select", () => {
+      setStartIndex(api.selectedScrollSnap());
+    });
   }, [api]);
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,7 +120,7 @@ export default function TopListing() {
   const showPeek = formattedProperties.length > cardsVisible;
 
   const PropertyCardSkeleton = () => (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+    <div className="bg-white rounded-lg -sm overflow-hidden border border-gray-100">
       <Skeleton className="h-48 w-full" />
       <div className="p-4 space-y-3">
         <div className="flex justify-between items-start">
@@ -162,10 +162,10 @@ export default function TopListing() {
                 {loading ? (
                   <Skeleton className="h-5 w-48" />
                 ) : (
-                  <p>{(formattedProperties.length === 1 
-                        ? (_t.topListing?.propertiesAvailable || '{{count}} property') 
-                        : (_t.topListing?.propertiesAvailable_plural || '{{count}} properties')
-                      ).replace('{{count}}', String(formattedProperties.length))}</p>
+                  <p>{(formattedProperties.length === 1
+                    ? (_t.topListing?.propertiesAvailable || '{{count}} property')
+                    : (_t.topListing?.propertiesAvailable_plural || '{{count}} properties')
+                  ).replace('{{count}}', String(formattedProperties.length))}</p>
                 )}
               </div>
             </div>
@@ -188,8 +188,8 @@ export default function TopListing() {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleCityChange(city)}
                     className={`shrink-0 snap-start px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${activeCity === city
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white border border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white border border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
                       }`}
                   >
                     {city === 'All' ? _t.common?.all || 'All' : city}
@@ -215,7 +215,7 @@ export default function TopListing() {
                   whileTap={{ scale: 0.9 }}
                   onClick={language === 'ar' ? handleLeftClick : handleRightClick}
                   disabled={language === 'ar' ? startIndex === 0 : startIndex === maxStartIndex}
-                  className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${(language === 'ar' ? startIndex === 0 : startIndex === maxStartIndex) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                  className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${(language === 'ar' ? startIndex === 0 : startIndex === maxStartIndex) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:-xl'
                     }`}
                 >
                   <ChevronRight className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
@@ -248,26 +248,26 @@ export default function TopListing() {
         ) : (
           <>
             <div className="relative overflow-hidden w-full pt-2">
-                <Carousel
-                    setApi={setApi}
-                    opts={{
-                        align: "start",
-                        loop: false,
-                    }}
-                    className="w-full"
-                >
-                    <CarouselContent className="-ml-3">
-                        {formattedProperties.map((property) => (
-                            <CarouselItem
-                                key={property.id}
-                                className="pl-3"
-                                style={{ flexBasis: `calc(100% / ${cardsVisible + (showPeek ? 0.15 : 0)})` }}
-                            >
-                                <PropertyCard {...property} />
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                </Carousel>
+              <Carousel
+                setApi={setApi}
+                opts={{
+                  align: "start",
+                  loop: false,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-3">
+                  {formattedProperties.map((property) => (
+                    <CarouselItem
+                      key={property.id}
+                      className="pl-3"
+                      style={{ flexBasis: `calc(100% / ${cardsVisible + (showPeek ? 0.15 : 0)})` }}
+                    >
+                      <PropertyCard {...property} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
             </div>
 
             {/* Progress dots */}
@@ -291,7 +291,7 @@ export default function TopListing() {
                   whileTap={{ scale: 0.9 }}
                   onClick={handleLeftClick}
                   disabled={startIndex === 0}
-                  className={`w-12 h-12 bg-white border-2 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${startIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
+                  className={`w-12 h-12 bg-white border-1 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all -md ${startIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
                     }`}
                 >
                   <ChevronLeft className="w-5 h-5" />
@@ -301,7 +301,7 @@ export default function TopListing() {
                   whileTap={{ scale: 0.9 }}
                   onClick={handleRightClick}
                   disabled={startIndex === maxStartIndex}
-                  className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${startIndex === maxStartIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                  className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all -md ${startIndex === maxStartIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:-xl'
                     }`}
                 >
                   <ChevronRight className="w-5 h-5" />

@@ -45,7 +45,7 @@ export default function RecentView() {
         {recentProperties.map((property) => (
           <div
             key={property.id}
-            className="bg-white rounded-lg shadow-xl hover:shadow-lg transition overflow-hidden"
+            className="bg-white rounded-lg -xl hover:-lg transition overflow-hidden"
           >
             {/* Image with overlays */}
             <div className="relative">
@@ -59,7 +59,7 @@ export default function RecentView() {
                 Recent viewed
               </span>
               {/* Favorite button */}
-              <button className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:scale-110 transition">
+              <button className="absolute top-3 right-3 bg-white p-2 rounded-full  hover:scale-110 transition">
                 <Heart className="w-4 h-4 text-red-500 fill-red-500" />
               </button>
             </div>

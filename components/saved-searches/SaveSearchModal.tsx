@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  X, 
-  Save, 
-  Bell, 
-  MapPin, 
-  DollarSign, 
-  Home, 
-  Bed, 
+import {
+  X,
+  Save,
+  Bell,
+  MapPin,
+  DollarSign,
+  Home,
+  Bed,
   Bath,
   Loader2,
   Check
@@ -28,7 +28,7 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
     notificationFrequency: 'daily',
     isActive: true
   });
-  
+
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<{
     name?: string;
@@ -87,7 +87,7 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
         isActive: true
       });
     }
-    
+
     // Clear errors when modal opens
     setErrors({});
   }, [isOpen]); // Only depend on isOpen
@@ -113,35 +113,35 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
       name?: string;
       criteria?: string;
     } = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Please enter a name for this search';
     }
-    
+
     const hasCriteria = Object.values(formData.searchCriteria).some(
       val => val && (typeof val !== 'object' || val.length > 0)
     );
-    
+
     if (!hasCriteria) {
       newErrors.criteria = 'Please add at least one search criterion';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validate()) return;
-    
+
     setIsSaving(true);
-    
+
     try {
       const cleanedCriteria = Object.fromEntries(
-        Object.entries(formData.searchCriteria).filter(([_, v]) => 
+        Object.entries(formData.searchCriteria).filter(([_, v]) =>
           v !== '' && v !== undefined && (typeof v !== 'object' || v.length > 0)
         )
       );
-      
+
       // Convert string prices back to numbers
       const dataToSave: any = {
         name: formData.name,
@@ -155,12 +155,12 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
         notificationFrequency: formData.notificationFrequency,
         isActive: formData.isActive
       };
-      
+
       // Remove undefined values
       dataToSave.searchCriteria = Object.fromEntries(
         Object.entries(dataToSave.searchCriteria).filter(([_, v]) => v !== undefined)
       );
-      
+
       await onSave(dataToSave);
       onClose();
     } catch (error) {
@@ -180,7 +180,7 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl -2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
@@ -211,9 +211,8 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="e.g., Downtown Apartments"
-              className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all ${
-                errors.name ? 'border-red-500' : 'border-gray-200'
-              }`}
+              className={`w-full px-4 py-3 border-1 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all ${errors.name ? 'border-red-500' : 'border-gray-200'
+                }`}
             />
             {errors.name && (
               <p className="text-sm text-red-600 mt-1">{errors.name}</p>
@@ -230,7 +229,7 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
                 {getCriteriaCount()} criteria set
               </span>
             </div>
-            
+
             {errors.criteria && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
                 {errors.criteria}
@@ -382,34 +381,30 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
                   key={option.value}
                   type="button"
                   onClick={() => handleChange('notificationFrequency', option.value)}
-                  className={`p-4 rounded-xl border-2 transition-all text-left ${
-                    formData.notificationFrequency === option.value
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
-                  }`}
+                  className={`p-4 rounded-xl border-1 transition-all text-left ${formData.notificationFrequency === option.value
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <Bell className={`h-4 w-4 ${
-                      formData.notificationFrequency === option.value
-                        ? 'text-blue-600'
-                        : 'text-gray-400'
-                    }`} />
+                    <Bell className={`h-4 w-4 ${formData.notificationFrequency === option.value
+                      ? 'text-blue-600'
+                      : 'text-gray-400'
+                      }`} />
                     {formData.notificationFrequency === option.value && (
                       <Check className="h-4 w-4 text-blue-600" />
                     )}
                   </div>
-                  <div className={`font-semibold text-sm ${
-                    formData.notificationFrequency === option.value
-                      ? 'text-blue-900'
-                      : 'text-gray-900'
-                  }`}>
+                  <div className={`font-semibold text-sm ${formData.notificationFrequency === option.value
+                    ? 'text-blue-900'
+                    : 'text-gray-900'
+                    }`}>
                     {option.label}
                   </div>
-                  <div className={`text-xs ${
-                    formData.notificationFrequency === option.value
-                      ? 'text-blue-600'
-                      : 'text-gray-500'
-                  }`}>
+                  <div className={`text-xs ${formData.notificationFrequency === option.value
+                    ? 'text-blue-600'
+                    : 'text-gray-500'
+                    }`}>
                     {option.desc}
                   </div>
                 </button>
@@ -428,13 +423,11 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
             <button
               type="button"
               onClick={() => handleChange('isActive', !formData.isActive)}
-              className={`relative w-14 h-8 rounded-full transition-colors ${
-                formData.isActive ? 'bg-green-500' : 'bg-gray-300'
-              }`}
+              className={`relative w-14 h-8 rounded-full transition-colors ${formData.isActive ? 'bg-green-500' : 'bg-gray-300'
+                }`}
             >
-              <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform ${
-                formData.isActive ? 'translate-x-7' : 'translate-x-1'
-              }`} />
+              <div className={`absolute top-1 w-6 h-6 bg-white rounded-full -md transition-transform ${formData.isActive ? 'translate-x-7' : 'translate-x-1'
+                }`} />
             </button>
           </div>
 
@@ -451,14 +444,14 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData = null, currentF
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="px-6 py-2.5 border-2 border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50"
+            className="px-6 py-2.5 border-1 border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all active:scale-95 disabled:opacity-50 disabled:hover:scale-100 shadow-lg shadow-blue-500/30"
+            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all active:scale-95 disabled:opacity-50 disabled:hover:scale-100 -lg -blue-500/30"
           >
             {isSaving ? (
               <>

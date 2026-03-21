@@ -6,10 +6,10 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    type CarouselApi,
 } from "@/components/ui/carousel";
 import PropertyCard from '@/components/property/PropertyCard';
 import apiClient from '@/lib/api';
@@ -191,8 +191,8 @@ export default function RecentlyViewedProperties() {
                                 ) : (
                                     <>
                                         <p>
-                                            {(formattedProperties.length === 1 
-                                                ? (_t.recentlyViewed?.subtitle_one || '{{count}} property recently viewed based on your activity') 
+                                            {(formattedProperties.length === 1
+                                                ? (_t.recentlyViewed?.subtitle_one || '{{count}} property recently viewed based on your activity')
                                                 : (_t.recentlyViewed?.subtitle_other || '{{count}} properties recently viewed based on your activity')
                                             ).replace('{{count}}', String(formattedProperties.length))}
                                         </p>
@@ -218,7 +218,7 @@ export default function RecentlyViewedProperties() {
                                     whileTap={{ scale: 0.9 }}
                                     onClick={handleNext}
                                     disabled={currentIndex === maxIndex}
-                                    className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                                    className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:-xl'
                                         }`}
                                 >
                                     <ChevronRight className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
@@ -288,7 +288,7 @@ export default function RecentlyViewedProperties() {
                                         whileTap={{ scale: 0.9 }}
                                         onClick={handlePrevious}
                                         disabled={currentIndex === 0}
-                                        className={`w-12 h-12 bg-white border-2 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
+                                        className={`w-12 h-12 bg-white border-1 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all -md ${currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
                                             }`}
                                     >
                                         <ChevronLeft className="w-5 h-5" />
@@ -298,7 +298,7 @@ export default function RecentlyViewedProperties() {
                                         whileTap={{ scale: 0.9 }}
                                         onClick={handleNext}
                                         disabled={currentIndex === maxIndex}
-                                        className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                                        className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all -md ${currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:-xl'
                                             }`}
                                     >
                                         <ChevronRight className="w-5 h-5" />

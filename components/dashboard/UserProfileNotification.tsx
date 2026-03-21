@@ -2,7 +2,7 @@
 import React from 'react';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
-import NotificationDropdown  from '@/components/notifications/NotificationDropdown';
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 
 const UserProfileNotification = () => {
 
@@ -18,7 +18,7 @@ const UserProfileNotification = () => {
       </div>
 
       {/* User Profile */}
-      <div className="flex items-center gap-2 bg-blue-50 p-4 rounded-lg shadow mx-7 mt-7">
+      <div className="flex items-center gap-2 bg-blue-50 p-4 rounded-lg  mx-7 mt-7">
         <img
           src="/TopRealEstate_agent_Image.jpg"
           alt="User"

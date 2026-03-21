@@ -32,13 +32,13 @@ const STATUS_CONFIG: Record<BookingStatus, { color: string; icon: React.ReactNod
     [BookingStatus.REJECTED]: { color: 'bg-red-100/50 text-red-700 border-red-200', icon: <XCircle className="h-3 w-3" /> },
     [BookingStatus.CANCELLED]: { color: 'bg-slate-100/50 text-slate-600 border-slate-200', icon: <RotateCcw className="h-3 w-3" /> },
     [BookingStatus.COMPLETED]: { color: 'bg-blue-100/50 text-blue-700 border-blue-200', icon: <CheckCircle2 className="h-3 w-3" /> },
-    [BookingStatus.NO_SHOW]: { color: 'bg-orange-100/50 text-orange-700 border-orange-200', icon: <AlertCircle className="h-3 w-3"/> },
+    [BookingStatus.NO_SHOW]: { color: 'bg-orange-100/50 text-orange-700 border-orange-200', icon: <AlertCircle className="h-3 w-3" /> },
 };
 
 function StatusBadge({ status, label }: { status: BookingStatus, label: string }) {
     const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG[BookingStatus.PENDING];
     return (
-        <span className={`inline-flex items-center gap-1.5 rounded-lg border backdrop-blur-md px-3 py-1.5 text-xs font-semibold shadow-none ${cfg.color}`}>
+        <span className={`inline-flex items-center gap-1.5 rounded-lg border backdrop-blur-md px-3 py-1.5 text-xs font-semibold -none ${cfg.color}`}>
             {cfg.icon}
             {label}
         </span>
@@ -161,11 +161,11 @@ export default function BookingsPage() {
                         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
                             <div>
                                 <div className="flex flex-wrap items-center gap-3.5 mb-2">
-                                    <div className="p-2.5 bg-blue-50/80 rounded-xl border border-blue-100/50 shadow-none">
+                                    <div className="p-2.5 bg-blue-50/80 rounded-xl border border-blue-100/50 -none">
                                         <BedDouble className="w-6 h-6 text-blue-600" />
                                     </div>
                                     <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">{title}</h1>
-                                    <Badge className="bg-blue-100/50 text-blue-700 border border-blue-200/50 hover:bg-blue-100/80 text-xs px-2.5 py-1 rounded-md shadow-none font-semibold">
+                                    <Badge className="bg-blue-100/50 text-blue-700 border border-blue-200/50 hover:bg-blue-100/80 text-xs px-2.5 py-1 rounded-md -none font-semibold">
                                         {badgeLabel}
                                     </Badge>
                                 </div>
@@ -177,11 +177,11 @@ export default function BookingsPage() {
                             <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full lg:w-auto mt-4 lg:mt-0">
                                 {/* Role View Switcher */}
                                 {isHost && (
-                                    <div className="flex rounded-xl border border-slate-200/60 bg-white/60 backdrop-blur-sm p-1 shadow-none w-full sm:w-auto">
+                                    <div className="flex rounded-xl border border-slate-200/60 bg-white/60 backdrop-blur-sm p-1 -none w-full sm:w-auto">
                                         <Button
                                             variant={viewMode === 'guest' ? 'secondary' : 'ghost'}
                                             size="sm"
-                                            className={cn("h-9 text-xs font-semibold rounded-lg flex-1 sm:flex-none transition-all", viewMode === 'guest' ? "bg-white shadow-none border border-slate-200/50 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50")}
+                                            className={cn("h-9 text-xs font-semibold rounded-lg flex-1 sm:flex-none transition-all", viewMode === 'guest' ? "bg-white -none border border-slate-200/50 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50")}
                                             onClick={() => { setViewMode('guest'); setPage(1); }}
                                         >
                                             {s.asGuest || 'As Guest'}
@@ -189,7 +189,7 @@ export default function BookingsPage() {
                                         <Button
                                             variant={viewMode === 'host' ? 'secondary' : 'ghost'}
                                             size="sm"
-                                            className={cn("h-9 text-xs font-semibold rounded-lg flex-1 sm:flex-none transition-all", viewMode === 'host' ? "bg-white shadow-none border border-slate-200/50 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50")}
+                                            className={cn("h-9 text-xs font-semibold rounded-lg flex-1 sm:flex-none transition-all", viewMode === 'host' ? "bg-white -none border border-slate-200/50 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50")}
                                             onClick={() => { setViewMode('host'); setPage(1); }}
                                         >
                                             {s.asHost || 'As Host'}
@@ -198,7 +198,7 @@ export default function BookingsPage() {
                                             <Button
                                                 variant={viewMode === 'admin' ? 'secondary' : 'ghost'}
                                                 size="sm"
-                                                className={cn("h-9 text-xs font-semibold rounded-lg flex-1 sm:flex-none transition-all", viewMode === 'admin' ? "bg-blue-50 shadow-none border border-blue-100/50 text-blue-700 hover:bg-blue-100/50" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50")}
+                                                className={cn("h-9 text-xs font-semibold rounded-lg flex-1 sm:flex-none transition-all", viewMode === 'admin' ? "bg-blue-50 -none border border-blue-100/50 text-blue-700 hover:bg-blue-100/50" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50")}
                                                 onClick={() => { setViewMode('admin'); setPage(1); }}
                                             >
                                                 {s.adminMode || 'Admin Mode'}
@@ -212,7 +212,7 @@ export default function BookingsPage() {
                                         <Button
                                             variant={layoutMode === 'card' ? 'secondary' : 'ghost'}
                                             size="sm"
-                                            className={cn("h-9 w-9 p-0 rounded-lg shadow-none", layoutMode === 'card' ? "bg-white text-blue-600" : "text-slate-500 hover:text-slate-900")}
+                                            className={cn("h-9 w-9 p-0 rounded-lg -none", layoutMode === 'card' ? "bg-white text-blue-600" : "text-slate-500 hover:text-slate-900")}
                                             onClick={() => setLayoutMode('card')}
                                             title={s.cardView || "Card View"}
                                         >
@@ -221,7 +221,7 @@ export default function BookingsPage() {
                                         <Button
                                             variant={layoutMode === 'table' ? 'secondary' : 'ghost'}
                                             size="sm"
-                                            className={cn("h-9 w-9 p-0 rounded-lg shadow-none", layoutMode === 'table' ? "bg-white text-blue-600" : "text-slate-500 hover:text-slate-900")}
+                                            className={cn("h-9 w-9 p-0 rounded-lg -none", layoutMode === 'table' ? "bg-white text-blue-600" : "text-slate-500 hover:text-slate-900")}
                                             onClick={() => setLayoutMode('table')}
                                             title={s.tableView || "Table View"}
                                         >
@@ -230,13 +230,13 @@ export default function BookingsPage() {
                                     </div>
                                     <div className="w-full md:w-[180px]">
                                         <Select value={filter} onValueChange={(v) => { setFilter(v); setPage(1); }}>
-                                            <SelectTrigger className="h-11 w-full bg-white border border-slate-200/60 hover:border-slate-300 focus:bg-white focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all shadow-none">
+                                            <SelectTrigger className="h-11 w-full bg-white border border-slate-200/60 hover:border-slate-300 focus:bg-white focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all -none">
                                                 <div className="flex items-center">
                                                     <Filter className="h-4 w-4 mr-2 text-slate-400" />
                                                     <SelectValue placeholder={s.filterStatus || "Filter Status"} />
                                                 </div>
                                             </SelectTrigger>
-                                            <SelectContent className="rounded-xl border-slate-200 shadow-none">
+                                            <SelectContent className="rounded-xl border-slate-200 -none">
                                                 <SelectItem value="all" className="rounded-lg">{s.allStays || 'All Stays'}</SelectItem>
                                                 {Object.values(BookingStatus).map((stat) => (
                                                     <SelectItem key={stat} value={stat} className="rounded-lg">{getStatusLabel(stat)}</SelectItem>
@@ -255,7 +255,7 @@ export default function BookingsPage() {
                                 <p className="text-sm font-medium text-slate-500 animate-pulse">{s.loading || 'Loading bookings data...'}</p>
                             </div>
                         ) : bookings.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-10 sm:p-20 text-center shadow-none">
+                            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-10 sm:p-20 text-center -none">
                                 <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
                                     <BedDouble className="h-10 w-10 text-slate-300" />
                                 </div>
@@ -264,7 +264,7 @@ export default function BookingsPage() {
                                     {viewMode === 'guest' ? (s.noStaysGuest || 'Looks like you don\'t have any upcoming stays booked yet. Start exploring properties to plan your next trip!') : (s.noStaysHost || 'We couldn\'t find any reservations matching your current criteria.')}
                                 </p>
                                 {viewMode === 'guest' && (
-                                    <Button className="mt-8 h-12 px-8 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 shadow-none text-white transition-all hover:-translate-y-0.5" onClick={() => router.push('/properties?listingType=short_term')}>
+                                    <Button className="mt-8 h-12 px-8 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 -none text-white transition-all hover:-translate-y-0.5" onClick={() => router.push('/properties?listingType=short_term')}>
                                         {s.browseStays || 'Browse Short-Term Stays'}
                                     </Button>
                                 )}
@@ -288,7 +288,7 @@ export default function BookingsPage() {
                                         />
                                     ))
                                 ) : (
-                                    <div className="bg-white rounded-2xl border border-slate-200 shadow-none overflow-hidden overflow-x-auto w-full">
+                                    <div className="bg-white rounded-2xl border border-slate-200 -none overflow-hidden overflow-x-auto w-full">
                                         <table className="w-full text-sm text-left">
                                             <thead className="bg-slate-50/80 text-xs text-slate-500 uppercase font-semibold border-b border-slate-200">
                                                 <tr>
@@ -341,7 +341,7 @@ export default function BookingsPage() {
 
             {/* ── Action dialog (Cancel/Confirm/Reject) ── */}
             <Dialog open={!!actionDialogOpen} onOpenChange={(open) => !open && setActionDialogOpen(null)}>
-                <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)] mx-auto rounded-2xl border-slate-200 p-0 overflow-hidden shadow-none">
+                <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)] mx-auto rounded-2xl border-slate-200 p-0 overflow-hidden -none">
                     <div className="p-6 sm:p-8">
                         <DialogHeader className="space-y-4 mb-6 text-left">
                             <div className={cn(
@@ -371,17 +371,17 @@ export default function BookingsPage() {
                                 placeholder={actionDialogOpen === 'confirm' ? (s.dialogMessagePlaceholder || 'E.g. "Looking forward to hosting you!"') : (s.dialogReasonPlaceholder || 'E.g. "We need to cancel due to unforeseen maintenance..."')}
                                 value={note}
                                 onChange={(e) => setNote(e.target.value)}
-                                className="min-h-[100px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-blue-500 focus-visible:bg-white transition-all resize-none shadow-none"
+                                className="min-h-[100px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-blue-500 focus-visible:bg-white transition-all resize-none -none"
                             />
                         </div>
 
                         <DialogFooter className="gap-3 sm:space-x-0 sm:flex-nowrap mt-4">
-                            <Button variant="outline" className="rounded-xl h-12 w-full sm:w-1/2 font-semibold border-slate-200 hover:bg-slate-50 shadow-none" onClick={() => setActionDialogOpen(null)}>
+                            <Button variant="outline" className="rounded-xl h-12 w-full sm:w-1/2 font-semibold border-slate-200 hover:bg-slate-50 -none" onClick={() => setActionDialogOpen(null)}>
                                 {s.goBack || 'Go Back'}
                             </Button>
                             <Button
                                 className={cn(
-                                    "rounded-xl h-12 w-full sm:w-1/2 font-semibold shadow-none text-white transition-all",
+                                    "rounded-xl h-12 w-full sm:w-1/2 font-semibold -none text-white transition-all",
                                     actionDialogOpen === 'confirm' ? "bg-blue-600 hover:bg-blue-700" : "bg-red-600 hover:bg-red-700"
                                 )}
                                 onClick={handleAction}
@@ -421,7 +421,7 @@ function BookingCard({
         ((viewMode === 'host' || viewMode === 'admin') && isConfirmed);
 
     return (
-        <div className="group relative overflow-hidden flex flex-col md:flex-row bg-white rounded-2xl border border-slate-200 shadow-none hover:border-blue-200 transition-all duration-300">
+        <div className="group relative overflow-hidden flex flex-col md:flex-row bg-white rounded-2xl border border-slate-200 -none hover:border-blue-200 transition-all duration-300">
             {/* Image */}
             <div className="relative h-48 md:h-auto md:w-64 shrink-0 bg-slate-100 overflow-hidden">
                 {prop?.images?.[0]?.url ? (
@@ -611,7 +611,7 @@ function BookingTableRow({
                             </Button>
                         </>
                     )}
-                    
+
                     {booking.status === BookingStatus.COMPLETED && !booking.guestReviewLeft && viewMode === 'guest' && (
                         <Button size="sm" variant="outline" className="h-8 px-3 rounded-lg text-xs font-semibold border-amber-200 bg-amber-50/50 text-amber-700 hover:bg-amber-100" onClick={(e) => { e.stopPropagation(); onViewDetail(); }}>
                             <Star className="mr-1 h-3 w-3 fill-amber-500/20 text-amber-500" /> {s.actionReview || 'Review'}
@@ -623,7 +623,7 @@ function BookingTableRow({
                             {s.actionCancel || 'Cancel'}
                         </Button>
                     )}
-                    
+
                     <Button size="sm" variant="ghost" className="h-8 px-3 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 group-hover:text-blue-600" onClick={onViewDetail}>
                         {s.actionDetails || 'Details'}
                     </Button>

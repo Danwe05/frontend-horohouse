@@ -133,8 +133,8 @@ function PropertyMiniCard({
   index: number
 }) {
   // Get the first image or use placeholder
-  const imageUrl = property.images && property.images.length > 0 
-    ? property.images[0].url || property.images[0] 
+  const imageUrl = property.images && property.images.length > 0
+    ? property.images[0].url || property.images[0]
     : "/placeholder.svg"
 
   // Build location string from available fields
@@ -154,7 +154,7 @@ function PropertyMiniCard({
   return (
     <Card
       className={cn(
-        "group min-w-[280px] max-w-[280px] flex-shrink-0 overflow-hidden border-border bg-background transition-all duration-300 hover:shadow-xl hover:-translate-y-1 snap-start",
+        "group min-w-[280px] max-w-[280px] flex-shrink-0 overflow-hidden border-border bg-background transition-all duration-300 hover:-xl hover:-translate-y-1 snap-start",
         "animate-in fade-in-0 slide-in-from-right-4 pt-0",
       )}
       style={{ animationDelay: `${index * 100}ms`, animationFillMode: "backwards" }}
@@ -169,13 +169,13 @@ function PropertyMiniCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
         {/* Price Badge */}
-        <Badge className="absolute left-3 top-3 bg-accent text-accent-foreground font-bold shadow-lg">
+        <Badge className="absolute left-3 top-3 bg-accent text-accent-foreground font-bold -lg">
           {formatPrice(property.price)} {property.currency || "FCFA"}
         </Badge>
 
         {/* Bottom Info Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-3">
-          <h4 className="font-semibold text-white text-sm line-clamp-1 mb-1 drop-shadow-lg">{property.title}</h4>
+          <h4 className="font-semibold text-white text-sm line-clamp-1 mb-1 drop--lg">{property.title}</h4>
           <div className="flex items-center gap-1.5 text-white/90 text-xs">
             <MapPin className="h-3 w-3" />
             <span className="line-clamp-1">{location}</span>
@@ -218,8 +218,8 @@ function PropertyMiniCard({
               </a>
             </Button>
           )}
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             className="flex-1 h-8 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
             asChild
           >

@@ -301,7 +301,7 @@ export default function RoommatesPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-white text-blue-600 rounded-[32px] p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl shadow-blue-900/40 border border-blue-400/20">
+                    <div className="bg-white text-blue-600 rounded-[32px] p-8 flex flex-col sm:flex-row items-center justify-between gap-6 -2xl -blue-900/40 border border-blue-400/20">
                       <div className="text-center sm:text-left">
                         <p className="text-sm font-black uppercase tracking-widest mb-1 opacity-60">{s.joinPool || 'Join the pool'}</p>
                         <p className="text-xl font-black text-slate-900 leading-tight">{s.appearInSearches || 'Appear in searches & find matches.'}</p>
@@ -329,15 +329,15 @@ export default function RoommatesPage() {
                 {/* Decorative Elements */}
                 <div className="absolute -top-6 -right-6 w-32 h-32 bg-blue-400/20 rounded-full blur-2xl animate-pulse" />
                 <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-indigo-400/20 rounded-full blur-2xl animate-pulse delay-700" />
-                
-                <div className="relative z-10 border-[12px] border-white/10 rounded-[4rem] overflow-hidden aspect-[4/5] shadow-2xl shadow-blue-900/40">
-                  <img 
-                    src="https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=2070&auto=format&fit=crop" 
-                    alt="Premium Roommate Matching" 
+
+                <div className="relative z-10 border-[12px] border-white/10 rounded-[4rem] overflow-hidden aspect-[4/5] -2xl -blue-900/40">
+                  <img
+                    src="https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=2070&auto=format&fit=crop"
+                    alt="Premium Roommate Matching"
                     className="w-full h-full object-cover grayscale-[0.6] group-hover:grayscale-0 transition-all duration-1000"
                   />
                   {/* Floating Badge */}
-                  <div className="absolute bottom-6 left-6 right-6 bg-white p-6 rounded-[2.5rem] flex items-center justify-between shadow-xl shadow-black/10 transition-transform group-hover:-translate-y-2 duration-500">
+                  <div className="absolute bottom-6 left-6 right-6 bg-white p-6 rounded-[2.5rem] flex items-center justify-between -xl -black/10 transition-transform group-hover:-translate-y-2 duration-500">
                     <div>
                       <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">{s.featuredMatch || 'Featured Match'}</p>
                       <p className="text-slate-900 font-black text-base uppercase tracking-tight">{s.perfectSuite || 'The Perfect Suite'}</p>
@@ -371,11 +371,10 @@ export default function RoommatesPage() {
                 <button
                   key={t.key}
                   onClick={() => setTab(t.key as Tab)}
-                  className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all ${
-                    tab === t.key
-                      ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20'
+                  className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all ${tab === t.key
+                      ? 'bg-slate-900 text-white -lg -slate-900/20'
                       : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
-                  }`}
+                    }`}
                 >
                   {t.icon}
                   {t.label}
@@ -412,7 +411,7 @@ export default function RoommatesPage() {
                     exit={{ opacity: 0, scale: 0.8 }}
                     className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0"
                   >
-                    {s.maxLabel || 'Max'} {maxBudget/1000}K
+                    {s.maxLabel || 'Max'} {maxBudget / 1000}K
                     <button onClick={() => setMaxBudget(undefined)} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
                   </motion.div>
                 )}
@@ -429,7 +428,7 @@ export default function RoommatesPage() {
               <SelectTrigger className="w-full sm:w-44 h-11 rounded-full border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wide px-5 focus:ring-blue-100 border-none transition-all hover:bg-slate-100">
                 <SelectValue placeholder={s.allModes || 'All modes'} />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl border-slate-100 p-1 shadow-2xl">
+              <SelectContent className="rounded-2xl border-slate-100 p-1 -2xl">
                 <SelectItem value="all" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.allModes || 'All modes'}</SelectItem>
                 <SelectItem value="need_room" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.needsRoom || 'Needs a room'}</SelectItem>
                 <SelectItem value="have_room" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.hasRoom || 'Has a room'}</SelectItem>
@@ -443,7 +442,7 @@ export default function RoommatesPage() {
               <SelectTrigger className="w-full sm:w-44 h-11 rounded-full border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wide px-5 focus:ring-blue-100 border-none transition-all hover:bg-slate-100">
                 <SelectValue placeholder={s.anyBudget || 'Any budget'} />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl border-slate-100 p-1 shadow-2xl">
+              <SelectContent className="rounded-2xl border-slate-100 p-1 -2xl">
                 <SelectItem value="any" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.anyBudget || 'Any budget'}</SelectItem>
                 <SelectItem value="30000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max30k || 'Max 30K'}</SelectItem>
                 <SelectItem value="50000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max50k || 'Max 50K'}</SelectItem>
@@ -459,23 +458,23 @@ export default function RoommatesPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
         {/* Statistics / Status */}
         <div className="flex items-center justify-between mb-8">
-           <div>
-             <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">
-               {tab === 'browse' ? (s.availableRoommates || 'Available Roommates') : (s.yourMatchingPool || 'Your Matching Pool')}
-             </h2>
-             <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">
-               {total} {s.activeTracking || 'active profiles tracking'}
-             </p>
-           </div>
-           
-           {(modeFilter || maxBudget) && (
-              <button
-                onClick={() => { setModeFilter(''); setMaxBudget(undefined); }}
-                className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-all border border-blue-100"
-              >
-                {s.clearFilters || 'Clear Filters'}
-              </button>
-           )}
+          <div>
+            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">
+              {tab === 'browse' ? (s.availableRoommates || 'Available Roommates') : (s.yourMatchingPool || 'Your Matching Pool')}
+            </h2>
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">
+              {total} {s.activeTracking || 'active profiles tracking'}
+            </p>
+          </div>
+
+          {(modeFilter || maxBudget) && (
+            <button
+              onClick={() => { setModeFilter(''); setMaxBudget(undefined); }}
+              className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-all border border-blue-100"
+            >
+              {s.clearFilters || 'Clear Filters'}
+            </button>
+          )}
         </div>
 
         {/* ── Browse tab ──────────────────────────────────────────────────── */}
@@ -493,13 +492,13 @@ export default function RoommatesPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                       <div className="h-3 bg-slate-50 rounded-full" />
-                       <div className="h-3 bg-slate-50 rounded-full w-5/6" />
+                      <div className="h-3 bg-slate-50 rounded-full" />
+                      <div className="h-3 bg-slate-50 rounded-full w-5/6" />
                     </div>
                     <div className="flex flex-wrap gap-2 pt-4">
-                       <div className="h-6 bg-slate-50 rounded-full w-20" />
-                       <div className="h-6 bg-slate-50 rounded-full w-24" />
-                       <div className="h-6 bg-slate-50 rounded-full w-16" />
+                      <div className="h-6 bg-slate-50 rounded-full w-20" />
+                      <div className="h-6 bg-slate-50 rounded-full w-24" />
+                      <div className="h-6 bg-slate-50 rounded-full w-16" />
                     </div>
                   </div>
                 ))}
@@ -515,7 +514,7 @@ export default function RoommatesPage() {
                 </p>
                 <button
                   onClick={() => { setModeFilter(''); setMaxBudget(undefined); }}
-                  className="mt-8 text-[11px] font-black uppercase tracking-widest bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-xl shadow-slate-900/20 hover:scale-105 transition-all"
+                  className="mt-8 text-[11px] font-black uppercase tracking-widest bg-slate-900 text-white px-8 py-4 rounded-2xl -xl -slate-900/20 hover:scale-105 transition-all"
                 >
                   {s.resetAllFilters || 'Reset all filters'}
                 </button>
@@ -548,9 +547,9 @@ export default function RoommatesPage() {
                   <ChevronLeft className="w-4 h-4 mr-2" /> {s.previous || 'Previous'}
                 </Button>
                 <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 rounded-2xl">
-                   <span className="text-[10px] font-black text-slate-900">{page}</span>
-                   <span className="text-[10px] font-black text-slate-300">/</span>
-                   <span className="text-[10px] font-black text-slate-500">{totalPages}</span>
+                  <span className="text-[10px] font-black text-slate-900">{page}</span>
+                  <span className="text-[10px] font-black text-slate-300">/</span>
+                  <span className="text-[10px] font-black text-slate-500">{totalPages}</span>
                 </div>
                 <Button
                   variant="outline"

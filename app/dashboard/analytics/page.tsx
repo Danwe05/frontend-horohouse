@@ -45,13 +45,13 @@ const DashboardHeader = ({ title, description, dateRange, setDateRange, onExport
     </div>
 
     {/* MODERN FILTER BAR */}
-    <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 sticky top-4 z-10 transition-all flex items-center gap-2">
+    <div className="bg-white p-2 rounded-2xl -sm border border-slate-200 sticky top-4 z-10 transition-all flex items-center gap-2">
       <Select value={dateRange} onValueChange={setDateRange}>
-        <SelectTrigger className="w-[160px] h-11 border-none bg-slate-50 rounded-xl text-sm text-slate-600 shadow-none font-semibold">
+        <SelectTrigger className="w-[160px] h-11 border-none bg-slate-50 rounded-xl text-sm text-slate-600 -none font-semibold">
           <Calendar className="w-4 h-4 mr-2 text-slate-400" />
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="rounded-xl shadow-lg border-slate-100">
+        <SelectContent className="rounded-xl -lg border-slate-100">
           <SelectItem value="7days" className="rounded-lg">{s?.last7days || 'Last 7 days'}</SelectItem>
           <SelectItem value="30days" className="rounded-lg">{s?.last30days || 'Last 30 days'}</SelectItem>
           <SelectItem value="90days" className="rounded-lg">{s?.last90days || 'Last 90 days'}</SelectItem>
@@ -77,7 +77,7 @@ const ModernKPICard = ({ title, value, change, trend, icon: Icon, colorClass = "
   };
 
   return (
-    <Card className="rounded-2xl border-slate-200 shadow-sm transition-all hover:shadow-md">
+    <Card className="rounded-2xl border-slate-200 -sm transition-all hover:-md">
       <CardContent className="p-5 flex items-center gap-4">
         <div className={`p-3 rounded-2xl ${variants[colorClass]}`}>
           <Icon className="w-6 h-6" />
@@ -120,7 +120,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
       {data?.insights && data.insights.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {data.insights.slice(0, 3).map((insight: string, idx: number) => (
-            <div key={idx} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-start gap-3">
+            <div key={idx} className="bg-white rounded-2xl p-4 -sm border border-slate-100 flex items-start gap-3">
               <div className="bg-blue-50 p-2 rounded-xl mt-0.5">
                 <CheckCircle2 className="h-5 w-5 text-blue-600" />
               </div>
@@ -142,7 +142,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart */}
-        <Card className="lg:col-span-2 rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+        <Card className="lg:col-span-2 rounded-3xl border-slate-200 -sm overflow-hidden">
           <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6">
             <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
               <Activity className="w-5 h-5 text-blue-500" />
@@ -167,7 +167,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }} dx={-10} />
                   <Tooltip
-                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)', padding: '12px 16px', fontWeight: 600 }}
+                    contentStyle={{ borderRadius: '16px', border: 'none', box: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)', padding: '12px 16px', fontWeight: 600 }}
                     itemStyle={{ fontSize: '14px', padding: '2px 0' }}
                     labelStyle={{ color: '#64748b', marginBottom: '8px', fontSize: '13px' }}
                   />
@@ -185,7 +185,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
         </Card>
 
         {/* Recent Activity List */}
-        <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px] lg:h-auto">
+        <Card className="rounded-3xl border-slate-200 -sm overflow-hidden flex flex-col h-[400px] lg:h-auto">
           <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6">
             <CardTitle className="text-lg font-bold text-slate-800">{s?.recentHistory || "Recent History"}</CardTitle>
           </CardHeader>
@@ -194,7 +194,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
               <div className="divide-y divide-slate-100">
                 {data.recentActivity.map((activity: any) => (
                   <div key={activity.id} className="p-4 hover:bg-slate-50 transition-colors flex gap-4 cursor-pointer group">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-white group-hover:-sm transition-all">
                       {activity.type.includes('favorite') ? <Heart className="w-4 h-4 text-pink-500" /> : <Search className="w-4 h-4 text-blue-500" />}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -249,7 +249,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport, s }:
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Chart */}
-        <Card className="lg:col-span-2 rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+        <Card className="lg:col-span-2 rounded-3xl border-slate-200 -sm overflow-hidden">
           <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6 flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
               <Activity className="w-5 h-5 text-indigo-500" />
@@ -274,7 +274,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport, s }:
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }} dx={-10} />
                   <Tooltip
-                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', padding: '12px 16px', fontWeight: 600 }}
+                    contentStyle={{ borderRadius: '16px', border: 'none', box: '0 10px 25px -5px rgba(0,0,0,0.1)', padding: '12px 16px', fontWeight: 600 }}
                     itemStyle={{ fontSize: '14px', padding: '2px 0' }}
                   />
                   <Area type="monotone" name="Views" dataKey="views" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorViewsAgent)" activeDot={{ r: 6, strokeWidth: 0, fill: '#8b5cf6' }} />
@@ -291,7 +291,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport, s }:
         </Card>
 
         {/* Funnel */}
-        <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        <Card className="rounded-3xl border-slate-200 -sm overflow-hidden flex flex-col">
           <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6">
             <CardTitle className="text-lg font-bold text-slate-800">{s?.conversionFunnel || "Conversion Funnel"}</CardTitle>
             <CardDescription className="text-slate-500 font-medium mt-1">{s?.conversionFunnelDesc || "From inquiry to closed deal"}</CardDescription>
@@ -332,7 +332,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport, s }:
               </div>
 
               <div className="mt-12 text-center bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                <div className="w-16 h-16 mx-auto rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
+                <div className="w-16 h-16 mx-auto rounded-full bg-white -sm flex items-center justify-center mb-3">
                   <span className="text-xl font-black text-purple-600">{data?.conversionRate?.conversionPercentage || '0'}%</span>
                 </div>
                 <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{s?.successRate || "Success Rate"}</p>
@@ -343,7 +343,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport, s }:
       </div>
 
       {/* Top Listings (Agent only) */}
-      <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+      <Card className="rounded-3xl border-slate-200 -sm overflow-hidden">
         <CardHeader className="bg-white border-b border-slate-50 pb-4 pt-6 px-6">
           <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <Home className="w-5 h-5 text-orange-500" />

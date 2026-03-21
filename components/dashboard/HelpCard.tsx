@@ -2,7 +2,7 @@ import React from "react";
 
 interface HelpCardProps {
   count: number | string;
-  variant?: "large" | "small"; 
+  variant?: "large" | "small";
 }
 
 const HelpCard: React.FC<HelpCardProps> = ({ count, variant = "large" }) => {
@@ -15,7 +15,7 @@ const HelpCard: React.FC<HelpCardProps> = ({ count, variant = "large" }) => {
   const marginBottom = variant === "small" ? "mb-3" : "mb-12"
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200 -sm flex flex-col overflow-hidden">
       {/* Section 1 */}
       <div className="flex justify-between items-start">
         <div className="my-4 mx-6">

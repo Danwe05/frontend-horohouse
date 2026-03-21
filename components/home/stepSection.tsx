@@ -13,8 +13,8 @@ const getSteps = (t: any) => [
     title: t.stepSection?.steps?.['1']?.title || "Browse Properties",
     description: t.stepSection?.steps?.['1']?.desc || "Explore our curated collection of properties with advanced filters and virtual tours.",
     features: [
-      t.stepSection?.steps?.['1']?.f1 || "Advanced search filters", 
-      t.stepSection?.steps?.['1']?.f2 || "Virtual tours", 
+      t.stepSection?.steps?.['1']?.f1 || "Advanced search filters",
+      t.stepSection?.steps?.['1']?.f2 || "Virtual tours",
       t.stepSection?.steps?.['1']?.f3 || "Save favorites"
     ]
   },
@@ -24,8 +24,8 @@ const getSteps = (t: any) => [
     title: t.stepSection?.steps?.['2']?.title || "Schedule Viewing",
     description: t.stepSection?.steps?.['2']?.desc || "Book in-person or virtual viewings at your convenience with our smart scheduling system.",
     features: [
-      t.stepSection?.steps?.['2']?.f1 || "Flexible scheduling", 
-      t.stepSection?.steps?.['2']?.f2 || "Virtual tours", 
+      t.stepSection?.steps?.['2']?.f1 || "Flexible scheduling",
+      t.stepSection?.steps?.['2']?.f2 || "Virtual tours",
       t.stepSection?.steps?.['2']?.f3 || "Agent matching"
     ]
   },
@@ -35,8 +35,8 @@ const getSteps = (t: any) => [
     title: t.stepSection?.steps?.['3']?.title || "Make an Offer",
     description: t.stepSection?.steps?.['3']?.desc || "Submit your offer digitally with guided assistance and transparent documentation.",
     features: [
-      t.stepSection?.steps?.['3']?.f1 || "Digital paperwork", 
-      t.stepSection?.steps?.['3']?.f2 || "Offer tracking", 
+      t.stepSection?.steps?.['3']?.f1 || "Digital paperwork",
+      t.stepSection?.steps?.['3']?.f2 || "Offer tracking",
       t.stepSection?.steps?.['3']?.f3 || "Legal guidance"
     ]
   },
@@ -46,8 +46,8 @@ const getSteps = (t: any) => [
     title: t.stepSection?.steps?.['4']?.title || "Close & Move In",
     description: t.stepSection?.steps?.['4']?.desc || "Complete the transaction smoothly and get ready to move into your new home.",
     features: [
-      t.stepSection?.steps?.['4']?.f1 || "Secure payment", 
-      t.stepSection?.steps?.['4']?.f2 || "Key handover", 
+      t.stepSection?.steps?.['4']?.f1 || "Secure payment",
+      t.stepSection?.steps?.['4']?.f2 || "Key handover",
       t.stepSection?.steps?.['4']?.f3 || "Move-in support"
     ]
   }
@@ -83,7 +83,7 @@ export function StepsSection() {
               )}
 
               {/* Step Card */}
-              <Card className="h-full border-blue-100 bg-white/70 backdrop-blur-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300 group">
+              <Card className="h-full border-blue-100 bg-white/70 backdrop-blur-sm hover:-lg transition-all duration-300 hover:border-blue-300 group">
                 <CardContent className="p-6 md:p-8">
                   {/* Step Number with Gradient */}
                   <div className="relative mb-6">
@@ -105,7 +105,7 @@ export function StepsSection() {
                   <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors">
                     {step.title}
                   </h3>
-                  
+
                   <p className="text-gray-600 mb-4 leading-relaxed">
                     {step.description}
                   </p>
@@ -128,7 +128,7 @@ export function StepsSection() {
         {/* CTA Section */}
         <div className="text-center mt-16">
           <div className="inline-flex flex-col sm:flex-row gap-4">
-            <button className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl">
+            <button className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors -lg hover:-xl">
               {t.stepSection?.cta || 'Get Started Today'}
             </button>
             <button className="px-8 py-3 border border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors">

@@ -43,7 +43,7 @@ const PerformanceOvertime: React.FC<PerformanceOvertimeProps> = ({ data: initial
         <h2 className="text-white font-semibold text-xs">Performance Overtime</h2>
 
         <div className="relative">
-          <button className="bg-white text-blue-600 font-medium text-[10px] px-2 py-1 rounded-md border border-gray-300 shadow-sm">
+          <button className="bg-white text-blue-600 font-medium text-[10px] px-2 py-1 rounded-md border border-gray-300 -sm">
             {metric}
           </button>
           <select

@@ -22,7 +22,7 @@ interface PropertyFormData {
   type: string;
   listingType: string;
   price: string;
-  
+
   // Property Details
   area: string;
   yearBuilt: string;
@@ -31,7 +31,7 @@ interface PropertyFormData {
   pricePerSqm: string;
   depositAmount: string;
   maintenanceFee: string;
-  
+
   // Location
   address: string;
   city: string;
@@ -39,7 +39,7 @@ interface PropertyFormData {
   country: string;
   latitude: string;
   longitude: string;
-  
+
   // Amenities
   bedrooms: number;
   bathrooms: number;
@@ -54,12 +54,12 @@ interface PropertyFormData {
   hasInternet: boolean;
   hasGenerator: boolean;
   furnished: boolean;
-  
+
   // Features
   keywords: string;
   nearbyAmenities: string[];
   transportAccess: string[];
-  
+
   // Media
   images: PropertyImage[];
   floorPlan: File | null;
@@ -94,7 +94,7 @@ const PropertyFormPage = () => {
           <div className="flex-1 min-h-screen  lg:pt-0">
             {/* Property Form Section */}
             <div className="flex-1 p-2 lg:p-4 bg-white lg:bg-transparent">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 lg:border-none lg:shadow-none lg:rounded-none">
+              <div className="bg-white rounded-xl -sm border border-gray-100 lg:border-none lg:-none lg:rounded-none">
                 <PropertyForm onAdd={handleAddProperty} />
               </div>
             </div>

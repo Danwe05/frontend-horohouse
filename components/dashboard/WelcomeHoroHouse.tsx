@@ -76,8 +76,8 @@ const WelcomeHorohouse = () => {
       <div className="">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-700 flex items-center gap-2">
             {greeting}    
-            {greetingIcon}                       
             {_t.welcome?.greetingSep || ", "}{displayName}!
+            {greetingIcon}                       
         </h1>
         <p className="text-gray-500 text-lg md:text-sm mt-3 ">
           {role === 'admin' && (

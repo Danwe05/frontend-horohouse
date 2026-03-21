@@ -330,7 +330,7 @@ const InquiriesContent = () => {
   };
 
   const StatCard = ({ title, value, icon: Icon, trend, color, bg }: any) => (
-    <Card className="rounded-2xl border-slate-200 shadow-sm transition-all hover:shadow-md">
+    <Card className="rounded-2xl border-slate-200 -sm transition-all hover:-md">
       <CardContent className="p-5 flex items-center gap-4">
         <div className={`p-3 rounded-2xl ${bg}`}>
           <Icon className={`w-6 h-6 ${color}`} />
@@ -366,7 +366,7 @@ const InquiriesContent = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="rounded-full px-6 shadow-sm border-slate-200 text-slate-600">
+          <Button variant="outline" className="rounded-full px-6 -sm border-slate-200 text-slate-600">
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -383,7 +383,7 @@ const InquiriesContent = () => {
       </div>
 
       {/* MODERN FILTER BAR */}
-      <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 sticky top-4 z-10 transition-all">
+      <div className="bg-white p-2 rounded-2xl -sm border border-slate-200 sticky top-4 z-10 transition-all">
         <div className="flex flex-col lg:flex-row gap-3">
           {/* Search */}
           <div className="relative flex-1">
@@ -443,22 +443,22 @@ const InquiriesContent = () => {
         <div className="flex flex-wrap items-center gap-2 animate-in fade-in zoom-in-95 duration-200">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mr-2">Filters:</span>
           {query && (
-            <Badge variant="secondary" className="bg-white border shadow-sm text-slate-600 px-3 py-1.5 rounded-full gap-2 text-sm font-medium">
+            <Badge variant="secondary" className="bg-white border -sm text-slate-600 px-3 py-1.5 rounded-full gap-2 text-sm font-medium">
               "{query}" <X className="w-3.5 h-3.5 text-slate-400 hover:text-slate-700 cursor-pointer" onClick={() => setQuery('')} />
             </Badge>
           )}
           {status !== 'all' && (
-            <Badge variant="secondary" className="bg-white border shadow-sm text-slate-600 px-3 py-1.5 rounded-full gap-2 text-sm font-medium">
+            <Badge variant="secondary" className="bg-white border -sm text-slate-600 px-3 py-1.5 rounded-full gap-2 text-sm font-medium">
               Status: <span className="capitalize">{status.toLowerCase()}</span> <X className="w-3.5 h-3.5 text-slate-400 hover:text-slate-700 cursor-pointer" onClick={() => setStatus('all')} />
             </Badge>
           )}
           {type !== 'all' && (
-            <Badge variant="secondary" className="bg-white border shadow-sm text-slate-600 px-3 py-1.5 rounded-full gap-2 text-sm font-medium">
+            <Badge variant="secondary" className="bg-white border -sm text-slate-600 px-3 py-1.5 rounded-full gap-2 text-sm font-medium">
               Type: <span className="capitalize">{type.toLowerCase()}</span> <X className="w-3.5 h-3.5 text-slate-400 hover:text-slate-700 cursor-pointer" onClick={() => setType('all')} />
             </Badge>
           )}
           {isReadParam !== 'all' && (
-            <Badge variant="secondary" className="bg-white border shadow-sm text-slate-600 px-3 py-1.5 rounded-full gap-2 text-sm font-medium">
+            <Badge variant="secondary" className="bg-white border -sm text-slate-600 px-3 py-1.5 rounded-full gap-2 text-sm font-medium">
               {isReadParam === 'true' ? 'Read' : 'Unread'} <X className="w-3.5 h-3.5 text-slate-400 hover:text-slate-700 cursor-pointer" onClick={() => setIsReadParam('all')} />
             </Badge>
           )}
@@ -488,7 +488,7 @@ const InquiriesContent = () => {
       )}
 
       {/* TABLE AREA */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-4">
+      <div className="bg-white rounded-2xl -sm border border-slate-200 overflow-hidden mt-4">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-slate-50/50 border-b">
@@ -542,7 +542,7 @@ const InquiriesContent = () => {
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="flex items-center space-x-3">
-                      <Avatar className="h-10 w-10 border-2 border-white shadow-sm font-bold">
+                      <Avatar className="h-10 w-10 border-1 border-white -sm font-bold">
                         <AvatarImage src={inquiry.userId?.profilePicture} />
                         <AvatarFallback className="bg-slate-100 text-slate-600">
                           {inquiry.userId?.name?.split(' ').map(n => n[0]).join('') || 'U'}
@@ -648,7 +648,7 @@ const InquiriesContent = () => {
                               <Button
                                 onClick={() => respondToInquiry(inquiry._id)}
                                 disabled={respondingTo === inquiry._id || !responseText.trim()}
-                                className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-md min-w-[120px]"
+                                className="rounded-full bg-blue-600 hover:bg-blue-700 -md min-w-[120px]"
                               >
                                 {respondingTo === inquiry._id ? (
                                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...</>
@@ -667,7 +667,7 @@ const InquiriesContent = () => {
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-lg">
+                        <DropdownMenuContent align="end" className="w-48 rounded-xl -lg">
                           <DropdownMenuItem onClick={() => viewInquiry(inquiry)} className="cursor-pointer text-slate-700">
                             <Eye className="h-4 w-4 mr-2" /> View Details
                           </DropdownMenuItem>
@@ -723,20 +723,20 @@ const InquiriesContent = () => {
               Showing <span className="text-slate-900">{validInquiries.length}</span> results
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} className="h-8 rounded-lg shadow-sm">
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} className="h-8 rounded-lg -sm">
                 Previous
               </Button>
               <div className="flex items-center gap-1 hidden sm:flex">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   const page = i + 1;
                   return (
-                    <Button key={page} variant={currentPage === page ? "default" : "ghost"} size="sm" className={`w-8 h-8 p-0 rounded-lg ${currentPage === page ? 'bg-slate-900 shadow-sm' : 'text-slate-600 hover:bg-slate-200'}`} onClick={() => setCurrentPage(page)}>
+                    <Button key={page} variant={currentPage === page ? "default" : "ghost"} size="sm" className={`w-8 h-8 p-0 rounded-lg ${currentPage === page ? 'bg-slate-900 -sm' : 'text-slate-600 hover:bg-slate-200'}`} onClick={() => setCurrentPage(page)}>
                       {page}
                     </Button>
                   );
                 })}
               </div>
-              <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} className="h-8 rounded-lg shadow-sm">
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} className="h-8 rounded-lg -sm">
                 Next
               </Button>
             </div>

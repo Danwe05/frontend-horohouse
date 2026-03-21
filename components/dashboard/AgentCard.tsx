@@ -36,7 +36,7 @@ const CircularProgress = ({ completion, size, color }: any) => {
 };
 
 const CardSkeleton = () => (
-  <div className="w-full bg-white rounded-xl p-6 flex flex-col items-center gap-4 border border-gray-200 shadow-md">
+  <div className="w-full bg-white rounded-xl p-6 flex flex-col items-center gap-4 border border-gray-200 -md">
     <Skeleton className="w-20 h-20 rounded-full" />
     <Skeleton className="h-6 w-32" />
     <Skeleton className="h-4 w-24" />
@@ -90,7 +90,7 @@ const AgentCard = ({
         {/* Card principale */}
         <div
           onClick={() => setIsOpen(true)}
-          className="bg-white rounded-xl p-6 flex flex-col items-center gap-4 cursor-pointer border border-gray-200 shadow-md hover:shadow-lg hover:border-blue-400 transition-all duration-200"
+          className="bg-white rounded-xl p-6 flex flex-col items-center gap-4 cursor-pointer border border-gray-200 -md hover:-lg hover:border-blue-400 transition-all duration-200"
         >
           <div className="relative">
             <div className="absolute inset-0 bg-blue-500 rounded-full blur-md opacity-20"></div>
@@ -131,11 +131,11 @@ const AgentCard = ({
 
           {/* Action Buttons */}
           <div className="flex gap-3 w-full pt-2">
-            <button className="flex items-center justify-center flex-1 bg-blue-600 text-white rounded-lg py-2.5 hover:bg-blue-700 transition-colors font-semibold text-sm gap-2 shadow-sm">
+            <button className="flex items-center justify-center flex-1 bg-blue-600 text-white rounded-lg py-2.5 hover:bg-blue-700 transition-colors font-semibold text-sm gap-2 -sm">
               <Phone size={16} />
               Call
             </button>
-            <button className="flex items-center justify-center flex-1 bg-black text-white rounded-lg py-2.5 hover:bg-gray-800 transition-colors font-semibold text-sm gap-2 shadow-sm">
+            <button className="flex items-center justify-center flex-1 bg-black text-white rounded-lg py-2.5 hover:bg-gray-800 transition-colors font-semibold text-sm gap-2 -sm">
               <Mail size={16} />
               Message
             </button>
@@ -227,11 +227,11 @@ const AgentCard = ({
 
             {/* Contact Buttons */}
             <div className="w-full flex gap-3">
-              <button className="flex-1 bg-blue-600 text-white rounded-lg py-3 hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center gap-2 shadow-md">
+              <button className="flex-1 bg-blue-600 text-white rounded-lg py-3 hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center gap-2 -md">
                 <Phone size={18} />
                 Call
               </button>
-              <button className="flex-1 bg-black text-white rounded-lg py-3 hover:bg-gray-800 transition-colors font-semibold flex items-center justify-center gap-2 shadow-md">
+              <button className="flex-1 bg-black text-white rounded-lg py-3 hover:bg-gray-800 transition-colors font-semibold flex items-center justify-center gap-2 -md">
                 <Mail size={18} />
                 Email
               </button>
@@ -374,7 +374,7 @@ export default function AgentCardGrid() {
           <p className="text-gray-600 text-lg">Meet our dedicated team of professionals</p>
           <div className="h-1 w-20 bg-blue-600 mt-4 rounded-full"></div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {isLoading ? (
             mockAgents.map((_, index) => <CardSkeleton key={index} />)

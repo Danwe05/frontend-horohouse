@@ -112,7 +112,7 @@ const PricingToolPage = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                                 {/* Main Form Area */}
                                 <div className="lg:col-span-8">
-                                    <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden bg-white">
+                                    <Card className="rounded-3xl border-slate-200 -sm overflow-hidden bg-white">
                                         <CardHeader className="border-b border-slate-50 pb-4 pt-6 px-6 bg-slate-50/50">
                                             <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                                                 <MapPin className="w-5 h-5 text-blue-500" />
@@ -202,7 +202,7 @@ const PricingToolPage = () => {
                                                     <Button
                                                         onClick={handleAnalyze}
                                                         disabled={isAnalyzing || !formData.address || !formData.area}
-                                                        className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all font-bold text-base"
+                                                        className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white -md transition-all font-bold text-base"
                                                     >
                                                         {isAnalyzing ? (
                                                             <><Activity className="w-5 h-5 mr-2 animate-spin" /> Processing...</>
@@ -219,11 +219,11 @@ const PricingToolPage = () => {
                                 {/* Side Panel / Info */}
                                 <div className="lg:col-span-4 space-y-6">
                                     {isAnalyzing ? (
-                                        <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden h-full">
+                                        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden h-full">
                                             <CardContent className="p-8 flex flex-col items-center justify-center h-full text-center space-y-6">
                                                 <div className="relative">
                                                     <div className="absolute -inset-4 bg-blue-100 rounded-full blur-xl animate-pulse"></div>
-                                                    <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center relative z-10 shadow-lg animate-bounce">
+                                                    <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center relative z-10 -lg animate-bounce">
                                                         <Sparkles className="w-10 h-10 text-white" />
                                                     </div>
                                                 </div>
@@ -238,7 +238,7 @@ const PricingToolPage = () => {
                                         </Card>
                                     ) : result ? (
                                         <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-                                            <Card className="rounded-3xl border-slate-200 shadow-sm bg-slate-900 text-white overflow-hidden relative">
+                                            <Card className="rounded-3xl border-slate-200 -sm bg-slate-900 text-white overflow-hidden relative">
                                                 <CardContent className="p-8 relative z-10">
                                                     <div className="flex justify-between items-start mb-6">
                                                         <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 px-3 py-1 text-xs uppercase tracking-widest">Analysis Complete</Badge>
@@ -268,7 +268,7 @@ const PricingToolPage = () => {
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden">
+                                            <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
                                                 <CardHeader className="border-b border-slate-50 pb-4 pt-6 px-6 bg-slate-50/50">
                                                     <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                                                         <TrendingUp className="w-5 h-5 text-blue-500" /> Market Insights
@@ -295,7 +295,7 @@ const PricingToolPage = () => {
                                             </Card>
                                         </div>
                                     ) : (
-                                        <Card className="rounded-3xl border-slate-200 shadow-sm bg-indigo-600 text-white overflow-hidden relative opacity-100 transition-opacity">
+                                        <Card className="rounded-3xl border-slate-200 -sm bg-indigo-600 text-white overflow-hidden relative opacity-100 transition-opacity">
                                             <div className="absolute top-0 right-0 p-8 opacity-10">
                                                 <Activity className="w-32 h-32" />
                                             </div>

@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { AiOutlineBuild } from 'react-icons/ai'; 
+import { AiOutlineBuild } from 'react-icons/ai';
 import { FiTrendingDown } from 'react-icons/fi';
 import UserProfileNotification from './UserProfileNotification';
 
@@ -12,7 +12,7 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, percentage }) => {
   return (
-    <div className="bg-white rounded-xl card border border-gray-100 w-44 flex flex-col justify-between hover:shadow-md transition-shadow flex-shrink-0">
+    <div className="bg-white rounded-xl card border border-gray-100 w-44 flex flex-col justify-between hover:-md transition- flex-shrink-0">
       <div className="flex items-center gap-2 text-gray-700">
         <AiOutlineBuild className="text-gray-600" size={18} />
         <span className="text-sm font-medium">{title}</span>

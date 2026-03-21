@@ -125,7 +125,7 @@ export default function MessageList({ onSelectConversation }: MessageListProps) 
       </div>
 
       {/* Messages List */}
-      <div className="border rounded-lg shadow bg-white">
+      <div className="border rounded-lg  bg-white">
         <ul>
           {messages.map((msg) => (
             <li

@@ -19,10 +19,10 @@ const LANGUAGES = [
 // Memoized Google icon component - prevents SVG recreation
 const GoogleIcon = React.memo(() => (
   <svg className="w-5 h-5" viewBox="0 0 533.5 544.3" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M533.5 278.4c0-17.5-1.6-34.3-4.7-50.7H272v95.8h146.9c-6.3 34-25 62.8-53.2 82v68h85.8c50.2-46.3 79-114.4 79-195.1z" fill="#4285F4"/>
-    <path d="M272 544.3c71.6 0 131.8-23.7 175.7-64.2l-85.8-68c-23.8 16-54.5 25.5-89.9 25.5-69.1 0-127.6-46.7-148.6-109.2H35.1v68.9C79.3 485.5 170.7 544.3 272 544.3z" fill="#34A853"/>
-    <path d="M123.4 321.3c-10.6-31.7-10.6-65.5 0-97.2V154.9H35.1c-43.1 85.9-43.1 187.9 0 273.8l88.3-68.4z" fill="#FBBC05"/>
-    <path d="M272 107.6c37 0 70.2 12.7 96.4 37.6l72.2-72.2C403.8 29 343.6 5.3 272 5.3 170.7 5.3 79.3 64.1 35.1 154.9l88.3 68.9c21-62.5 79.5-109.2 148.6-109.2z" fill="#EA4335"/>
+    <path d="M533.5 278.4c0-17.5-1.6-34.3-4.7-50.7H272v95.8h146.9c-6.3 34-25 62.8-53.2 82v68h85.8c50.2-46.3 79-114.4 79-195.1z" fill="#4285F4" />
+    <path d="M272 544.3c71.6 0 131.8-23.7 175.7-64.2l-85.8-68c-23.8 16-54.5 25.5-89.9 25.5-69.1 0-127.6-46.7-148.6-109.2H35.1v68.9C79.3 485.5 170.7 544.3 272 544.3z" fill="#34A853" />
+    <path d="M123.4 321.3c-10.6-31.7-10.6-65.5 0-97.2V154.9H35.1c-43.1 85.9-43.1 187.9 0 273.8l88.3-68.4z" fill="#FBBC05" />
+    <path d="M272 107.6c37 0 70.2 12.7 96.4 37.6l72.2-72.2C403.8 29 343.6 5.3 272 5.3 170.7 5.3 79.3 64.1 35.1 154.9l88.3 68.9c21-62.5 79.5-109.2 148.6-109.2z" fill="#EA4335" />
   </svg>
 ));
 GoogleIcon.displayName = 'GoogleIcon';
@@ -93,13 +93,13 @@ function SigninContent() {
 
     try {
       const tokens = await authService.loginWithEmail(emailData.email, emailData.password);
-      
+
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', emailData.email);
       } else {
         localStorage.removeItem('rememberedEmail');
       }
-      
+
       login(tokens);
       setSuccess('Login successful! Redirecting...');
       setTimeout(() => router.push('/dashboard'), 800);
@@ -148,7 +148,7 @@ function SigninContent() {
   }, [isAuthenticated, router, searchParams]);
 
   // Memoized loading state - prevents recalculation on every render
-  const isAnyLoading = useMemo(() => 
+  const isAnyLoading = useMemo(() =>
     isLoading || Object.values(socialLoading).some(loading => loading),
     [isLoading, socialLoading]
   );
@@ -159,24 +159,24 @@ function SigninContent() {
       <div className="absolute lg:fixed hidden top-6 right-6 z-50">
         <button
           onClick={() => setShowLangMenu(!showLangMenu)}
-          className="flex items-center gap-2 bg-white text-gray-700 font-semibold rounded-xl px-4 py-2.5 text-xs border border-gray-200 cursor-pointer hover:shadow-md transition-all duration-200 hover:border-blue-300"
+          className="flex items-center gap-2 bg-white text-gray-700 font-semibold rounded-xl px-4 py-2.5 text-xs border border-gray-200 cursor-pointer hover:-md transition-all duration-200 hover:border-blue-300"
           aria-label="Select language"
           aria-expanded={showLangMenu}
         >
-          <img src={selectedLang.img} alt={selectedLang.code} className="w-5 h-5 rounded-full object-cover shadow-sm" loading="lazy" />
+          <img src={selectedLang.img} alt={selectedLang.code} className="w-5 h-5 rounded-full object-cover -sm" loading="lazy" />
           {selectedLang.code}
           <ChevronDown className="w-3.5 h-3.5" />
         </button>
 
         {showLangMenu && (
-          <div className="absolute right-0 mt-2 bg-white text-black rounded-xl border border-gray-200 shadow-xl py-2 w-44">
+          <div className="absolute right-0 mt-2 bg-white text-black rounded-xl border border-gray-200 -xl py-2 w-44">
             {LANGUAGES.map(lang => (
               <button
                 key={lang.code}
                 onClick={() => handleLangSelect(lang)}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 w-full text-left text-sm font-medium transition-colors duration-150"
               >
-                <img src={lang.img} alt={lang.code} className="w-5 h-5 rounded-full object-cover shadow-sm" loading="lazy" />
+                <img src={lang.img} alt={lang.code} className="w-5 h-5 rounded-full object-cover -sm" loading="lazy" />
                 <span className="text-gray-700">{lang.label}</span>
               </button>
             ))}
@@ -189,7 +189,7 @@ function SigninContent() {
           <div className="mb-8 flex justify-center content-center flex-col items-center">
             <a href="/"><img src="/horohouse.png" alt="HoroHouse" className="h-[130px] w-[130px] mb-2" loading="eager" /></a>
             <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">
-              Welcome Back! 
+              Welcome Back!
             </h1>
             <p className="text-gray-600 md:text-left text-center text-sm">
               Sign in to continue to your account
@@ -287,7 +287,7 @@ function SigninContent() {
                 />
                 <span className="text-sm text-gray-700 font-medium select-none">Remember me</span>
               </label>
-              
+
               <a href="/auth/forgot-password" className="text-sm text-blue-600 font-semibold hover:text-blue-700 hover:underline">
                 Forgot password?
               </a>
@@ -297,9 +297,9 @@ function SigninContent() {
             <button
               type="submit"
               disabled={isAnyLoading}
-              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6
+              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 -sm mt-6
                 ${!isAnyLoading
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:shadow-md active:scale-[0.98]'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98]'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
             >
               {isLoading ? (

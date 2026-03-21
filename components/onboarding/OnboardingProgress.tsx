@@ -22,7 +22,7 @@ export function OnboardingProgress() {
         default: return `Step ${step}`;
       }
     }
- 
+
     if (user?.role === 'agent') {
       switch (step) {
         case 1: return 'Welcome';
@@ -33,7 +33,7 @@ export function OnboardingProgress() {
         default: return `Step ${step}`;
       }
     }
- 
+
     // Default user
     switch (step) {
       case 1: return 'Welcome';
@@ -75,8 +75,8 @@ export function OnboardingProgress() {
                   borderColor: isActive || isCompleted ? '#2563eb' : '#cbd5e1',
                   scale: isActive ? 1 : 1
                 }}
-                className={`w-10 h-10 rounded-full flex items-center justify-center border-[3px] transition-colors duration-300 shadow-sm
-                  ${isActive ? 'ring-4 ring-blue-100 shadow-blue-200' : 'shadow-slate-100'}
+                className={`w-10 h-10 rounded-full flex items-center justify-center border-[3px] transition-colors duration-300 -sm
+                  ${isActive ? 'ring-4 ring-blue-100 -blue-200' : '-slate-100'}
                 `}
               >
                 {isCompleted ? (

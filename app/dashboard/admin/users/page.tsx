@@ -88,7 +88,7 @@ function Avatar({ user }: { user: User }) {
     const seed = encodeURIComponent(user.name);
     const src = user.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=ffdfbf`;
     return (
-        <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white shadow-sm">
+        <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white -sm">
             <img src={src} alt={user.name} className="w-full h-full object-cover" />
         </div>
     );
@@ -96,7 +96,7 @@ function Avatar({ user }: { user: User }) {
 
 function StatCard({ label, value, icon: Icon, color }: { label: string; value: number | string; icon: React.ElementType; color: string }) {
     return (
-        <Card className="border-none shadow-sm ring-1 ring-slate-200/60 hover:shadow-md transition-all duration-300 group">
+        <Card className="border-none -sm ring-1 ring-slate-200/60 hover:-md transition-all duration-300 group">
             <CardContent className="p-5 flex items-center gap-4">
                 <div className={cn('p-3 rounded-xl transition-transform group-hover:scale-110 duration-300', color)}>
                     <Icon className="w-5 h-5" />
@@ -158,7 +158,7 @@ function EditModal({ user, onClose, onSaved }: EditModalProps) {
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
             {/* Panel */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="relative bg-white rounded-2xl -2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
                     <div>
@@ -227,7 +227,7 @@ function EditModal({ user, onClose, onSaved }: EditModalProps) {
                                 type="button"
                                 onClick={() => setForm(p => ({ ...p, [key]: !p[key] }))}
                                 className={cn(
-                                    'flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200 text-xs font-semibold cursor-pointer',
+                                    'flex flex-col items-center gap-1.5 p-3 rounded-xl border-1 transition-all duration-200 text-xs font-semibold cursor-pointer',
                                     form[key]
                                         ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
                                         : 'border-slate-200 bg-slate-50 text-slate-400'
@@ -275,7 +275,7 @@ function DeleteModal({ user, onClose, onDeleted }: { user: User; onClose: () => 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="relative bg-white rounded-2xl -2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
                 <div className="p-6 text-center">
                     <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
                         <AlertTriangle className="w-7 h-7 text-red-600" />
@@ -319,7 +319,7 @@ function ActionMenu({ user, onViewDetails, onEdit, onDelete }: { user: User; onV
                 <MoreVertical className="w-4 h-4" />
             </button>
             {open && (
-                <div className="absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-1 w-40 bg-white rounded-xl -xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
                     <button
                         onClick={() => { setOpen(false); onViewDetails(); }}
                         className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
@@ -463,7 +463,7 @@ export default function AdminUsersPage() {
                                     placeholder="Search name, email, phone…"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
-                                    className="pl-9 bg-white border-slate-200 shadow-sm"
+                                    className="pl-9 bg-white border-slate-200 -sm"
                                 />
                                 {search && (
                                     <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
@@ -473,7 +473,7 @@ export default function AdminUsersPage() {
                             </div>
 
                             <Select value={roleFilter} onValueChange={v => { setRoleFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 shadow-sm">
+                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 -sm">
                                     <Filter className="w-4 h-4 mr-2 text-slate-400" />
                                     <SelectValue placeholder="All Roles" />
                                 </SelectTrigger>
@@ -487,7 +487,7 @@ export default function AdminUsersPage() {
                             </Select>
 
                             <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 shadow-sm">
+                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 -sm">
                                     <SelectValue placeholder="All Status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -498,7 +498,7 @@ export default function AdminUsersPage() {
                             </Select>
 
                             <Select value={String(limit)} onValueChange={v => { setLimit(Number(v)); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[120px] bg-white border-slate-200 shadow-sm">
+                                <SelectTrigger className="w-full sm:w-[120px] bg-white border-slate-200 -sm">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -510,7 +510,7 @@ export default function AdminUsersPage() {
                         </div>
 
                         {/* ── Table ── */}
-                        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                        <div className="bg-white rounded-2xl border border-slate-200/80 -sm overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>

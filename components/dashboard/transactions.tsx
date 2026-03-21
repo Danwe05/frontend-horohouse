@@ -56,25 +56,25 @@ interface RealTransaction {
 
 // ─── Status config ────────────────────────────────────────────────────────────
 const statusConfig: Record<TxStatus, { color: string; icon: React.ElementType }> = {
-  success:   { color: "text-emerald-600 bg-emerald-50", icon: CheckCircle2 },
-  pending:   { color: "text-blue-500 bg-blue-50",       icon: Clock },
-  failed:    { color: "text-red-600 bg-red-50",         icon: AlertCircle },
-  cancelled: { color: "text-slate-500 bg-slate-100",    icon: XCircle },
-  refunded:  { color: "text-amber-600 bg-amber-50",     icon: ArrowUpRight },
+  success: { color: "text-emerald-600 bg-emerald-50", icon: CheckCircle2 },
+  pending: { color: "text-blue-500 bg-blue-50", icon: Clock },
+  failed: { color: "text-red-600 bg-red-50", icon: AlertCircle },
+  cancelled: { color: "text-slate-500 bg-slate-100", icon: XCircle },
+  refunded: { color: "text-amber-600 bg-amber-50", icon: ArrowUpRight },
 };
 
 // ─── Type display labels ──────────────────────────────────────────────────────
 const getTypeLabel = (type: TxType, s: any): string => {
   const typeLabel: Record<TxType, string> = {
-    subscription:      s?.subscription || "Subscription",
-    listing_fee:       s?.listingFee || "Listing Fee",
-    boost_listing:     s?.listingBoost || "Listing Boost",
-    commission:        s?.commission || "Commission",
-    digital_service:   s?.digitalService || "Digital Service",
-    refund:            s?.refund || "Refund",
-    wallet_topup:      s?.walletTopUp || "Wallet Top-up",
+    subscription: s?.subscription || "Subscription",
+    listing_fee: s?.listingFee || "Listing Fee",
+    boost_listing: s?.listingBoost || "Listing Boost",
+    commission: s?.commission || "Commission",
+    digital_service: s?.digitalService || "Digital Service",
+    refund: s?.refund || "Refund",
+    wallet_topup: s?.walletTopUp || "Wallet Top-up",
     wallet_withdrawal: s?.withdrawal || "Withdrawal",
-    booking:           s?.bookingPayment || "Booking Payment",
+    booking: s?.bookingPayment || "Booking Payment",
   };
   return typeLabel[type] || type;
 };
@@ -184,7 +184,7 @@ export default function TransactionList() {
   // ── Skeleton ────────────────────────────────────────────────────────────
   if (authLoading || (loading && transactions.length === 0)) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 -sm overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
           <div>
             <Skeleton className="h-5 w-40 mb-2" />
@@ -216,7 +216,7 @@ export default function TransactionList() {
   // ── Error ────────────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 -sm overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100">
           <h3 className="text-lg font-semibold text-slate-900">{s?.recentTransactions || "Recent Transactions"}</h3>
         </div>
@@ -237,7 +237,7 @@ export default function TransactionList() {
 
   // ── Main render ──────────────────────────────────────────────────────────
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200 -sm overflow-hidden">
       {/* Header */}
       <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
         <div>

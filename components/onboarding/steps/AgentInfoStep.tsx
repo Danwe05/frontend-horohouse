@@ -93,7 +93,7 @@ export function AgentInfoStep() {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-14 h-14 bg-indigo-50/80 rounded-2xl flex items-center justify-center mb-3 shadow-inner border border-indigo-100/50"
+          className="mx-auto w-14 h-14 bg-indigo-50/80 rounded-2xl flex items-center justify-center mb-3 -inner border border-indigo-100/50"
         >
           <Briefcase className="h-7 w-7 text-indigo-600" />
         </motion.div>
@@ -150,7 +150,7 @@ export function AgentInfoStep() {
               <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-indigo-500 rounded-xl h-11">
                 <SelectValue placeholder="Select your experience level" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+              <SelectContent className="rounded-xl border-slate-200 -xl">
                 {EXPERIENCE_RANGES.map((range) => (
                   <SelectItem key={range.value} value={range.value.toString()} className="hover:bg-indigo-50 focus:bg-indigo-50 focus:text-indigo-900 cursor-pointer">
                     {range.label}
@@ -173,7 +173,7 @@ export function AgentInfoStep() {
                     key={specialization}
                     className={`flex items-center space-x-3 p-3 rounded-xl border transition-all cursor-pointer select-none
                       ${isSelected
-                        ? 'border-indigo-300 bg-indigo-50/50 text-indigo-800 shadow-sm shadow-indigo-100/50'
+                        ? 'border-indigo-300 bg-indigo-50/50 text-indigo-800 -sm -indigo-100/50'
                         : 'border-slate-200 bg-white/50 hover:bg-slate-50 hover:border-slate-300 text-slate-600'
                       }`}
                   >
@@ -208,7 +208,7 @@ export function AgentInfoStep() {
         <Button
           onClick={handleNext}
           disabled={isLoading || !isFormValid()}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-6 sm:px-8 shadow-md shadow-indigo-200/50"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-6 sm:px-8 -md -indigo-200/50"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 mr-2 animate-spin" />

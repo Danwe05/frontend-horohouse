@@ -7,10 +7,10 @@ import { NavDash } from '@/components/dashboard/NavDash';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-     Wallet, DollarSign, ArrowUpRight, ArrowDownRight, Activity,
-     Download, Clock, CheckCircle2, Building2, Smartphone,
-     ArrowRight, Landmark, CreditCard, HeartHandshake, FileText, TrendingUp
-   } from 'lucide-react';
+    Wallet, DollarSign, ArrowUpRight, ArrowDownRight, Activity,
+    Download, Clock, CheckCircle2, Building2, Smartphone,
+    ArrowRight, Landmark, CreditCard, HeartHandshake, FileText, TrendingUp
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -42,7 +42,7 @@ const DashboardHeader = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div className="space-y-1">
                 <div className="flex items-center gap-3">
-                    <div className="relative p-2 rounded-xl bg-slate-900 text-white shadow-sm">
+                    <div className="relative p-2 rounded-xl bg-slate-900 text-white -sm">
                         <Wallet className="w-6 h-6" />
                     </div>
                     <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ const KPICard = ({ title, amount, subtext, icon: Icon, colorClass, isCurrency = 
     };
 
     return (
-        <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all duration-300">
+        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden group hover:-md transition-all duration-300">
             <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
                     <div className={`p-3 rounded-2xl ${variants[colorClass]} transition-transform duration-500 group-hover:scale-110`}>
@@ -143,7 +143,7 @@ const EarningsPage = () => {
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                                 {/* Revenue Chart */}
-                                <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden lg:col-span-2">
+                                <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden lg:col-span-2">
                                     <CardHeader className="border-b border-slate-50 pb-4 pt-6 px-6 bg-slate-50/50 flex flex-row items-center justify-between">
                                         <div>
                                             <CardTitle className="text-lg font-bold text-slate-800">{s?.revenueOverview || "Revenue Overview"}</CardTitle>
@@ -167,7 +167,7 @@ const EarningsPage = () => {
                                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
                                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} tickFormatter={(val) => `${val / 1000000}M`} />
                                                     <Tooltip
-                                                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
+                                                        contentStyle={{ borderRadius: '16px', border: 'none', box: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
                                                         formatter={(value: number) => [`${value.toLocaleString()} FCFA`, 'Revenue']}
                                                     />
                                                     <Area type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
@@ -178,13 +178,13 @@ const EarningsPage = () => {
                                 </Card>
 
                                 {/* Request Payout */}
-                                <Card className="rounded-3xl border-slate-200 shadow-sm bg-slate-900 text-white overflow-hidden relative group">
+                                <Card className="rounded-3xl border-slate-200 -sm bg-slate-900 text-white overflow-hidden relative group">
                                     <div className="absolute top-0 right-0 p-6 opacity-10 transition-transform duration-500 group-hover:scale-110">
                                         <Landmark className="w-40 h-40" />
                                     </div>
                                     <CardContent className="p-8 relative z-10 flex flex-col h-full justify-between">
                                         <div>
-                                            <div className="w-12 h-12 rounded-xl bg-blue-500 text-white flex items-center justify-center mb-6 shadow-lg">
+                                            <div className="w-12 h-12 rounded-xl bg-blue-500 text-white flex items-center justify-center mb-6 -lg">
                                                 <ArrowUpRight className="w-6 h-6" />
                                             </div>
                                             <h3 className="text-2xl font-bold mb-2">{s?.requestPayout || "Request Payout"}</h3>
@@ -213,10 +213,10 @@ const EarningsPage = () => {
                                                         <p className="text-xs text-slate-500">+225 ** ** ** 45</p>
                                                     </div>
                                                 </div>
-                                                <div className="w-4 h-4 rounded-full border-2 border-slate-600"></div>
+                                                <div className="w-4 h-4 rounded-full border-1 border-slate-600"></div>
                                             </div>
 
-                                            <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold mt-4 shadow-md transition-all">
+                                            <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold mt-4 -md transition-all">
                                                 {s?.withdrawAmount || "Withdraw 1,250,000 FCFA"}
                                             </Button>
                                         </div>
@@ -225,7 +225,7 @@ const EarningsPage = () => {
                             </div>
 
                             {/* Recent Transactions */}
-                            <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden">
+                            <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
                                 <CardHeader className="border-b border-slate-50 pb-4 pt-6 px-6 bg-slate-50/50 flex flex-row items-center justify-between">
                                     <div className="space-y-1">
                                         <CardTitle className="text-lg font-bold text-slate-800">{s?.recentTransactions || "Recent Transactions"}</CardTitle>

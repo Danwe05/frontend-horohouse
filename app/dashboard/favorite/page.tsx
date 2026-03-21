@@ -217,7 +217,7 @@ const FavoritePage = () => {
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    <div className="hidden sm:flex items-center bg-white border rounded-lg px-3 py-1 shadow-sm">
+                                    <div className="hidden sm:flex items-center bg-white border rounded-lg px-3 py-1 -sm">
                                         <div className="px-3">
                                             <p className="text-[10px] uppercase font-bold text-slate-400">Total Saved</p>
                                             <p className="text-sm font-semibold text-center">{allProperties.length}</p>
@@ -227,7 +227,7 @@ const FavoritePage = () => {
                             </div>
 
                             {/* MODERN FILTER BAR */}
-                            <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 sticky top-4 z-10">
+                            <div className="bg-white p-2 rounded-2xl -sm border border-slate-200 sticky top-4 z-10">
                                 <div className="flex flex-col lg:flex-row gap-3">
                                     {/* Search - Grows to fill space */}
                                     <div className="relative flex-1">
@@ -372,7 +372,7 @@ const FavoritePage = () => {
                                         <p className="text-slate-500 font-medium">Loading your favorites...</p>
                                     </div>
                                 ) : !user ? (
-                                    <div className="bg-white rounded-3xl border-2 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
+                                    <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
                                         <div className="p-6 rounded-full mb-6 bg-slate-100">
                                             <Heart className="w-12 h-12 text-slate-400" />
                                         </div>
@@ -385,7 +385,7 @@ const FavoritePage = () => {
                                         </Button>
                                     </div>
                                 ) : properties.length === 0 ? (
-                                    <div className="bg-white rounded-3xl border-2 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
+                                    <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
                                         <div className={`p-6 rounded-full mb-6 ${pageConfig.color}`}>
                                             <PageIcon className="w-12 h-12" />
                                         </div>

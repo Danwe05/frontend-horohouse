@@ -175,8 +175,8 @@ const SimilarProperties = ({
         </CarouselContent>
 
         {/* Show nav on all breakpoints with sensible positioning */}
-        <CarouselPrevious className="-left-4 lg:-left-12 h-12 w-12 bg-white border-2 border-slate-100 text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
-        <CarouselNext className="-right-4 lg:-right-12 h-12 w-12 bg-white border-2 border-slate-100 text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
+        <CarouselPrevious className="-left-4 lg:-left-12 h-12 w-12 bg-white border-1 border-slate-100 text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
+        <CarouselNext className="-right-4 lg:-right-12 h-12 w-12 bg-white border-1 border-slate-100 text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
       </Carousel>
     </section>
   );

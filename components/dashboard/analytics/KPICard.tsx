@@ -4,7 +4,7 @@ import { Loader2, TrendingUp, TrendingDown } from 'lucide-react';
 import { KPICardProps } from '@/app/dashboard/analytics/types';
 
 export const KPICard = ({ title, value, change, trend, icon: Icon, loading }: KPICardProps) => (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="hover:-lg transition-">
         <CardContent className="p-6">
             {loading ? (
                 <div className="flex items-center justify-center h-24">

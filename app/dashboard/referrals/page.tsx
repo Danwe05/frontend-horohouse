@@ -25,7 +25,7 @@ const DashboardHeader = () => (
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div className="space-y-1">
             <div className="flex items-center gap-3">
-                <div className="relative p-2 rounded-xl bg-slate-900 text-white shadow-sm">
+                <div className="relative p-2 rounded-xl bg-slate-900 text-white -sm">
                     <Network className="w-6 h-6" />
                 </div>
                 <div className="flex items-center gap-2">
@@ -39,7 +39,7 @@ const DashboardHeader = () => (
         </div>
 
         <div className="flex items-center gap-3">
-            <Button variant="default" className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 px-6 shadow-sm">
+            <Button variant="default" className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 px-6 -sm">
                 <Share2 className="w-4 h-4 mr-2" />
                 Invite Agent
             </Button>
@@ -56,7 +56,7 @@ const KPICard = ({ title, amount, subtext, icon: Icon, colorClass, isCurrency = 
     };
 
     return (
-        <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all duration-300">
+        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden group hover:-md transition-all duration-300">
             <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
                     <div className={`p-3 rounded-2xl ${variants[colorClass]} transition-transform duration-500 group-hover:scale-110`}>
@@ -101,7 +101,7 @@ const ReferralsPage = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
                                 {/* Referral Link Card */}
                                 <div className="lg:col-span-12">
-                                    <Card className="rounded-3xl border-slate-200 shadow-sm bg-slate-900 text-white overflow-hidden relative">
+                                    <Card className="rounded-3xl border-slate-200 -sm bg-slate-900 text-white overflow-hidden relative">
                                         <div className="absolute right-0 top-0 w-64 h-full bg-blue-600 transform skew-x-12 translate-x-16 opacity-20"></div>
                                         <CardContent className="p-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                                             <div className="flex items-center gap-4">
@@ -169,7 +169,7 @@ const ReferralsPage = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                                 {/* Network Table */}
                                 <div className="lg:col-span-8">
-                                    <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden h-full">
+                                    <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden h-full">
                                         <CardHeader className="border-b border-slate-50 pb-4 pt-6 px-6 bg-slate-50/50 flex flex-row items-center justify-between">
                                             <CardTitle className="text-lg font-bold text-slate-800">Network Activity</CardTitle>
                                         </CardHeader>
@@ -219,7 +219,7 @@ const ReferralsPage = () => {
 
                                 {/* Information Panel */}
                                 <div className="lg:col-span-4">
-                                    <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden">
+                                    <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
                                         <CardHeader className="border-b border-slate-50 pb-4 pt-6 px-6 bg-slate-50/50">
                                             <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                                                 <Info className="w-5 h-5 text-blue-500" /> How it Works
@@ -228,21 +228,21 @@ const ReferralsPage = () => {
                                         <CardContent className="p-6">
                                             <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-slate-200">
                                                 <div className="relative flex items-start">
-                                                    <div className="bg-blue-600 text-white font-bold w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm z-10">1</div>
+                                                    <div className="bg-blue-600 text-white font-bold w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-4 border-white -sm z-10">1</div>
                                                     <div className="ml-4 pb-6 w-full">
                                                         <h4 className="text-sm font-bold text-slate-800 mb-1">Invite Agents</h4>
                                                         <p className="text-xs text-slate-500">Share your unique personal link.</p>
                                                     </div>
                                                 </div>
                                                 <div className="relative flex items-start">
-                                                    <div className="bg-blue-600 text-white font-bold w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm z-10">2</div>
+                                                    <div className="bg-blue-600 text-white font-bold w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-4 border-white -sm z-10">2</div>
                                                     <div className="ml-4 pb-6 w-full">
                                                         <h4 className="text-sm font-bold text-slate-800 mb-1">They Close Deals</h4>
                                                         <p className="text-xs text-slate-500">Your referred agents use the platform to close property deals.</p>
                                                     </div>
                                                 </div>
                                                 <div className="relative flex items-start">
-                                                    <div className="bg-emerald-500 text-white font-bold w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm z-10">3</div>
+                                                    <div className="bg-emerald-500 text-white font-bold w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-4 border-white -sm z-10">3</div>
                                                     <div className="ml-4 w-full">
                                                         <h4 className="text-sm font-bold text-slate-800 mb-1">You Earn 5%</h4>
                                                         <p className="text-xs text-slate-500">You automatically receive 5% of their commission for their first 3 sales.</p>

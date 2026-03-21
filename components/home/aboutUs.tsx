@@ -32,7 +32,7 @@ const getCards = (t: any) => [
     tag: t.aboutUs?.cards?.[3]?.tag || "EXCELLENCE",
   }
 ];
- 
+
 
 export default function AboutUs() {
   const { t, language } = useLanguage();
@@ -97,7 +97,7 @@ export default function AboutUs() {
 
           {/* LEFT: THE FRAME */}
           <div className="lg:col-span-7 relative group">
-            <div className="relative aspect-[16/10] rounded-[2.5rem] overflow-hidden bg-slate-100 shadow-2xl transition-transform duration-700">
+            <div className="relative aspect-[16/10] rounded-[2.5rem] overflow-hidden bg-slate-100 -2xl transition-transform duration-700">
               <Image
                 src="/AboutUsImage.jpg"
                 alt="Architecture"
@@ -107,7 +107,7 @@ export default function AboutUs() {
               <div className="absolute inset-0 bg-slate-950/10 group-hover:bg-transparent transition-colors duration-500" />
 
               {/* Floating Stat Bar */}
-              <div className="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 bg-white/90 backdrop-blur-xl p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-white/20 shadow-2xl flex justify-between items-center gap-2">
+              <div className="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 bg-white/90 backdrop-blur-xl p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-white/20 -2xl flex justify-between items-center gap-2">
                 <div className="text-center sm:text-left flex-1">
                   <p className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-950">50K+</p>
                   <p className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.aboutUs?.stats?.listings || 'Listings'}</p>
@@ -155,7 +155,7 @@ export default function AboutUs() {
                   </h3>
 
                   <p className="text-slate-500 text-base sm:text-lg leading-relaxed font-medium">
-                      {cards[activeIndex].text}
+                    {cards[activeIndex].text}
                   </p>
 
                   <div className="pt-4 grid grid-cols-1 gap-3">

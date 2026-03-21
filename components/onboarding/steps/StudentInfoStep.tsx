@@ -113,7 +113,7 @@ export function StudentInfoStep() {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-14 h-14 bg-blue-50/80 rounded-2xl flex items-center justify-center mb-3 shadow-inner border border-blue-100/50"
+          className="mx-auto w-14 h-14 bg-blue-50/80 rounded-2xl flex items-center justify-center mb-3 -inner border border-blue-100/50"
         >
           <GraduationCap className="h-7 w-7 text-blue-600" />
         </motion.div>
@@ -148,7 +148,7 @@ export function StudentInfoStep() {
             <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
               <SelectValue placeholder="Select your university" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl border-slate-200 shadow-xl max-h-64">
+            <SelectContent className="rounded-xl border-slate-200 -xl max-h-64">
               {CAMEROON_UNIVERSITIES.map((u) => (
                 <SelectItem key={u} value={u} className="cursor-pointer">
                   {u}
@@ -183,7 +183,7 @@ export function StudentInfoStep() {
               <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
                 <SelectValue placeholder="Select city" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+              <SelectContent className="rounded-xl border-slate-200 -xl">
                 {CAMPUS_CITIES.map((c) => (
                   <SelectItem key={c} value={c} className="cursor-pointer">
                     {c}
@@ -216,7 +216,7 @@ export function StudentInfoStep() {
             <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
               <SelectValue placeholder="Select your faculty (optional)" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl border-slate-200 shadow-xl max-h-64">
+            <SelectContent className="rounded-xl border-slate-200 -xl max-h-64">
               {FACULTIES.map((f) => (
                 <SelectItem key={f} value={f} className="cursor-pointer">
                   {f}
@@ -242,7 +242,7 @@ export function StudentInfoStep() {
               <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
                 <SelectValue placeholder="Select level" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+              <SelectContent className="rounded-xl border-slate-200 -xl">
                 {STUDY_LEVELS.map((l) => (
                   <SelectItem key={l.value} value={l.value} className="cursor-pointer">
                     {l.label}
@@ -263,7 +263,7 @@ export function StudentInfoStep() {
               <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-200 shadow-xl max-h-48">
+              <SelectContent className="rounded-xl border-slate-200 -xl max-h-48">
                 {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((y) => (
                   <SelectItem key={y} value={String(y)} className="cursor-pointer">
                     {y}
@@ -294,7 +294,7 @@ export function StudentInfoStep() {
         <Button
           onClick={handleNext}
           disabled={isLoading || !isValid}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 sm:px-8 shadow-md shadow-blue-200/50"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 sm:px-8 -md -blue-200/50"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 mr-2 animate-spin" />

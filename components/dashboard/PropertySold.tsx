@@ -30,7 +30,7 @@ function lastNMonths(n = 6) {
   return Array.from({ length: n }).map((_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() - (n - 1 - i), 1)
     return {
-      key:   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
       label: d.toLocaleString("default", { month: "short" }),
     }
   })
@@ -49,7 +49,7 @@ function buildDateRange(months = 6) {
   const start = new Date(end.getFullYear(), end.getMonth() - (months - 1), 1)
   return {
     startDate: start.toISOString().split("T")[0],
-    endDate:   end.toISOString().split("T")[0],
+    endDate: end.toISOString().split("T")[0],
   }
 }
 
@@ -80,28 +80,28 @@ async function fetchAdminRows(): Promise<{ rows: ChartRow[]; stats: FooterStats 
 
   const rows: ChartRow[] = Array.isArray(revenuePoints)
     ? revenuePoints.map((p) => ({
-        month:  periodLabel(p.period),
-        active: p.bookingCount ?? 0,
-        closed: 0,
-      }))
+      month: periodLabel(p.period),
+      active: p.bookingCount ?? 0,
+      closed: 0,
+    }))
     : []
 
   const find = (s: string) => (Array.isArray(statusBreakdown)
     ? statusBreakdown.find((b: any) => b.status === s)
     : null)
-  const completed  = find("completed")?.count  ?? 0
-  const cancelled  = find("cancelled")?.count  ?? 0
-  const total      = Array.isArray(statusBreakdown)
+  const completed = find("completed")?.count ?? 0
+  const cancelled = find("cancelled")?.count ?? 0
+  const total = Array.isArray(statusBreakdown)
     ? statusBreakdown.reduce((s: number, b: any) => s + (b.count ?? 0), 0) : 0
-  const cancRate   = total > 0 ? Math.round((cancelled / total) * 100) : 0
+  const cancRate = total > 0 ? Math.round((cancelled / total) * 100) : 0
   const efficiency = total > 0 ? ((completed / total) * 100).toFixed(1) : "0"
 
   return {
     rows,
     stats: {
-      left:  { label: "Total Bookings", value: total },
-      right: { label: "Completed",      value: completed },
-      extra: { label: "Cancellation",   value: `${cancRate}%` },
+      left: { label: "Total Bookings", value: total },
+      right: { label: "Completed", value: completed },
+      extra: { label: "Cancellation", value: `${cancRate}%` },
     },
   }
 }
@@ -123,21 +123,21 @@ async function fetchHostRows(): Promise<{ rows: ChartRow[]; stats: FooterStats }
     else if (["confirmed", "pending"].includes(b.status)) active[key]++
   })
 
-  const total     = bookings.length
+  const total = bookings.length
   const completed = bookings.filter((b) => b.status === "completed").length
   const cancelled = bookings.filter((b) => b.status === "cancelled").length
   const efficiency = total > 0 ? ((completed / total) * 100).toFixed(1) : "0"
 
   return {
     rows: months.map((m) => ({
-      month:  m.label,
+      month: m.label,
       active: active[m.key],
       closed: closed[m.key],
     })),
     stats: {
-      left:  { label: "Total Bookings", value: total },
-      right: { label: "Completed",      value: completed },
-      extra: { label: "Cancelled",      value: cancelled },
+      left: { label: "Total Bookings", value: total },
+      right: { label: "Completed", value: completed },
+      extra: { label: "Cancelled", value: cancelled },
     },
   }
 }
@@ -159,22 +159,22 @@ async function fetchUserRows(): Promise<{ rows: ChartRow[]; stats: FooterStats }
     else if (["confirmed", "pending"].includes(b.status)) active[key]++
   })
 
-  const total     = bookings.length
+  const total = bookings.length
   const completed = bookings.filter((b) => b.status === "completed").length
-  const upcoming  = bookings.filter((b) =>
+  const upcoming = bookings.filter((b) =>
     b.status === "confirmed" && new Date(b.checkIn) > new Date()
   ).length
 
   return {
     rows: months.map((m) => ({
-      month:  m.label,
+      month: m.label,
       active: active[m.key],
       closed: closed[m.key],
     })),
     stats: {
-      left:  { label: "Total Stays",  value: total },
-      right: { label: "Completed",    value: completed },
-      extra: { label: "Upcoming",     value: upcoming },
+      left: { label: "Total Stays", value: total },
+      right: { label: "Completed", value: completed },
+      extra: { label: "Upcoming", value: upcoming },
     },
   }
 }
@@ -195,23 +195,23 @@ function getRoleCfg(role: string): {
     case "agent":
       return {
         title: "My Performance", subtitle: "Bookings on your listings",
-        activeLabel: "Active",    closedLabel: "Completed",
+        activeLabel: "Active", closedLabel: "Completed",
       }
     case "landlord":
       return {
         title: "Property Bookings", subtitle: "Short-term booking activity",
-        activeLabel: "Active",       closedLabel: "Completed",
+        activeLabel: "Active", closedLabel: "Completed",
       }
     default: // user
       return {
-        title: "My Trips",     subtitle: "Booking history as guest",
+        title: "My Trips", subtitle: "Booking history as guest",
         activeLabel: "Booked", closedLabel: "Completed",
       }
   }
 }
 
 const chartConfig = {
-  active: { label: "Active",    color: "#3b82f6" },
+  active: { label: "Active", color: "#3b82f6" },
   closed: { label: "Completed", color: "#10b981" },
 } satisfies ChartConfig
 
@@ -220,12 +220,12 @@ export function PropertySaleChart() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth()
   const role = user?.role ?? "user"
 
-  const [rows, setRows]       = React.useState<ChartRow[]>([])
+  const [rows, setRows] = React.useState<ChartRow[]>([])
   const [footerStats, setFooterStats] = React.useState<FooterStats>({
     left: { label: "", value: 0 }, right: { label: "", value: 0 },
   })
   const [loading, setLoading] = React.useState(true)
-  const [error, setError]     = React.useState<string | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
 
   const cfg = React.useMemo(() => getRoleCfg(role), [role])
 
@@ -234,9 +234,9 @@ export function PropertySaleChart() {
     setLoading(true); setError(null)
     try {
       let result: { rows: ChartRow[]; stats: FooterStats }
-      if      (role === "admin")    result = await fetchAdminRows()
+      if (role === "admin") result = await fetchAdminRows()
       else if (role === "agent" || role === "landlord") result = await fetchHostRows()
-      else                          result = await fetchUserRows()
+      else result = await fetchUserRows()
       setRows(result.rows)
       setFooterStats(result.stats)
     } catch (err: any) {
@@ -249,16 +249,16 @@ export function PropertySaleChart() {
 
   React.useEffect(() => { if (!authLoading) fetchData() }, [authLoading, fetchData])
 
-  const trend   = React.useMemo(() => calcTrend(rows), [rows])
+  const trend = React.useMemo(() => calcTrend(rows), [rows])
   const hasData = rows.some((r) => r.active > 0 || r.closed > 0)
   const totalActive = rows.reduce((s, r) => s + r.active, 0)
   const totalClosed = rows.reduce((s, r) => s + r.closed, 0)
-  const efficiency  = (totalActive + totalClosed) > 0
+  const efficiency = (totalActive + totalClosed) > 0
     ? ((totalClosed / (totalActive + totalClosed)) * 100).toFixed(1)
     : "0"
 
   if (authLoading || loading) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <Skeleton className="h-6 w-40 mb-2" /><Skeleton className="h-4 w-32" />
       </div>
@@ -276,7 +276,7 @@ export function PropertySaleChart() {
   )
 
   if (error) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">{cfg.title}</CardTitle>
       </div>
@@ -295,7 +295,7 @@ export function PropertySaleChart() {
   )
 
   if (!hasData) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">{cfg.title}</CardTitle>
         <CardDescription className="text-slate-500">{cfg.subtitle}</CardDescription>
@@ -315,7 +315,7 @@ export function PropertySaleChart() {
   )
 
   return (
-    <Card className="overflow-hidden border-0 shadow-lg pb-0 bg-white">
+    <Card className="overflow-hidden border-0 -lg pb-0 bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardHeader className="p-0">
           <div className="flex items-start justify-between">

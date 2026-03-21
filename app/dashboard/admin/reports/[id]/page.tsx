@@ -71,10 +71,10 @@ interface Report {
 const STATUS_CONFIG: Record<ReportStatus, {
     label: string; color: string; bg: string; icon: React.ElementType; border: string; dot: string;
 }> = {
-    pending:   { label: 'Pending Review', color: 'text-amber-600',   bg: 'bg-amber-50',    icon: Clock,        border: 'border-amber-200',  dot: 'bg-amber-400'   },
-    reviewed:  { label: 'In Review',      color: 'text-sky-600',     bg: 'bg-sky-50',      icon: Eye,          border: 'border-sky-200',    dot: 'bg-sky-400'     },
-    resolved:  { label: 'Resolved',       color: 'text-emerald-600', bg: 'bg-emerald-50',  icon: CheckCircle2, border: 'border-emerald-200',dot: 'bg-emerald-400' },
-    dismissed: { label: 'Dismissed',      color: 'text-zinc-500',    bg: 'bg-zinc-100',    icon: XCircle,      border: 'border-zinc-200',   dot: 'bg-zinc-400'    },
+    pending: { label: 'Pending Review', color: 'text-amber-600', bg: 'bg-amber-50', icon: Clock, border: 'border-amber-200', dot: 'bg-amber-400' },
+    reviewed: { label: 'In Review', color: 'text-sky-600', bg: 'bg-sky-50', icon: Eye, border: 'border-sky-200', dot: 'bg-sky-400' },
+    resolved: { label: 'Resolved', color: 'text-emerald-600', bg: 'bg-emerald-50', icon: CheckCircle2, border: 'border-emerald-200', dot: 'bg-emerald-400' },
+    dismissed: { label: 'Dismissed', color: 'text-zinc-500', bg: 'bg-zinc-100', icon: XCircle, border: 'border-zinc-200', dot: 'bg-zinc-400' },
 };
 
 const WARNING_TEMPLATES: { label: string; message: string }[] = [
@@ -133,8 +133,8 @@ function DeletePropertyDialog({
                 className="absolute inset-0 bg-black/50 backdrop-blur-md"
                 onClick={onCancel}
             />
-            <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
-                style={{ boxShadow: '0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)' }}>
+            <div className="relative bg-white rounded-3xl -2xl w-full max-w-md overflow-hidden"
+                style={{ box: '0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)' }}>
                 {/* Top accent bar */}
                 <div className="h-1 w-full bg-red-500" />
 
@@ -184,7 +184,7 @@ function DeletePropertyDialog({
                             Cancel
                         </Button>
                         <Button
-                            className="flex-1 h-11 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-sm transition-all"
+                            className="flex-1 h-11 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold -sm transition-all"
                             onClick={onConfirm}
                             disabled={loading}
                         >
@@ -233,8 +233,8 @@ function WarnOwnerDialog({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-md" onClick={onCancel} />
             <div
-                className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col"
-                style={{ boxShadow: '0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)' }}
+                className="relative bg-white rounded-3xl -2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col"
+                style={{ box: '0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)' }}
             >
                 {/* Top accent */}
                 <div className={cn('h-1 w-full flex-shrink-0', severity === 'final_warning' ? 'bg-red-500' : 'bg-amber-400')} />
@@ -268,8 +268,8 @@ function WarnOwnerDialog({
                                         'flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2',
                                         severity === s
                                             ? s === 'final_warning'
-                                                ? 'bg-red-600 text-white shadow-sm'
-                                                : 'bg-amber-400 text-white shadow-sm'
+                                                ? 'bg-red-600 text-white -sm'
+                                                : 'bg-amber-400 text-white -sm'
                                             : 'text-zinc-500 hover:text-zinc-800 hover:bg-white'
                                     )}
                                 >
@@ -352,7 +352,7 @@ function WarnOwnerDialog({
                         </Button>
                         <Button
                             className={cn(
-                                'flex-1 h-11 rounded-xl text-white font-semibold transition-all shadow-sm',
+                                'flex-1 h-11 rounded-xl text-white font-semibold transition-all -sm',
                                 severity === 'final_warning' ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-500 hover:bg-amber-600',
                             )}
                             onClick={handleSubmit}
@@ -569,7 +569,7 @@ export default function AdminReportDetailPage({
                                         onValueChange={(val) => handleUpdateStatus(val as ReportStatus)}
                                         disabled={updating}
                                     >
-                                        <SelectTrigger className="w-[175px] h-9 bg-white border-zinc-200 shadow-sm rounded-xl text-sm font-semibold">
+                                        <SelectTrigger className="w-[175px] h-9 bg-white border-zinc-200 -sm rounded-xl text-sm font-semibold">
                                             <SelectValue placeholder="Update Status" />
                                         </SelectTrigger>
                                         <SelectContent className="rounded-xl">
@@ -583,7 +583,7 @@ export default function AdminReportDetailPage({
                                     <button
                                         onClick={handleSaveNotes}
                                         disabled={updating}
-                                        className="h-9 px-4 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
+                                        className="h-9 px-4 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition-all -sm flex items-center gap-2 disabled:opacity-50"
                                     >
                                         {updating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                                         Save Notes
@@ -592,7 +592,7 @@ export default function AdminReportDetailPage({
                                     {!propertyDeleted && (
                                         <button
                                             onClick={() => setShowWarnDialog(true)}
-                                            className="h-9 px-4 rounded-xl border border-amber-200 bg-amber-50 text-sm font-semibold text-amber-700 hover:bg-amber-100 hover:border-amber-300 transition-all shadow-sm flex items-center gap-2"
+                                            className="h-9 px-4 rounded-xl border border-amber-200 bg-amber-50 text-sm font-semibold text-amber-700 hover:bg-amber-100 hover:border-amber-300 transition-all -sm flex items-center gap-2"
                                         >
                                             <MessageSquareWarning className="w-3.5 h-3.5" />
                                             Warn Owner
@@ -602,7 +602,7 @@ export default function AdminReportDetailPage({
                                     {!propertyDeleted && (
                                         <button
                                             onClick={() => setShowDeleteDialog(true)}
-                                            className="h-9 px-4 rounded-xl border border-red-200 bg-red-50 text-sm font-semibold text-red-600 hover:bg-red-100 hover:border-red-300 transition-all shadow-sm flex items-center gap-2"
+                                            className="h-9 px-4 rounded-xl border border-red-200 bg-red-50 text-sm font-semibold text-red-600 hover:bg-red-100 hover:border-red-300 transition-all -sm flex items-center gap-2"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                             Delete
@@ -612,7 +612,7 @@ export default function AdminReportDetailPage({
                                     {report.property && !propertyDeleted && (
                                         <button
                                             onClick={() => openInNewTab(`/properties/${report.property._id}`)}
-                                            className="h-9 px-4 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-700 transition-all shadow-sm flex items-center gap-2"
+                                            className="h-9 px-4 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-700 transition-all -sm flex items-center gap-2"
                                         >
                                             View Listing <ExternalLink className="w-3.5 h-3.5" />
                                         </button>
@@ -623,7 +623,7 @@ export default function AdminReportDetailPage({
 
                         {/* ── Deleted banner ── */}
                         {propertyDeleted && (
-                            <div className="flex items-center gap-3 bg-white border border-zinc-200 rounded-2xl px-5 py-3.5 text-sm font-medium text-zinc-500 mb-6 shadow-sm">
+                            <div className="flex items-center gap-3 bg-white border border-zinc-200 rounded-2xl px-5 py-3.5 text-sm font-medium text-zinc-500 mb-6 -sm">
                                 <Building2 className="w-4 h-4 text-zinc-400 flex-shrink-0" />
                                 The property associated with this report has been permanently deleted.
                             </div>
@@ -636,7 +636,7 @@ export default function AdminReportDetailPage({
                             <div className="lg:col-span-2 space-y-5">
 
                                 {/* Report reason card */}
-                                <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
+                                <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden -sm">
                                     <div className="flex items-stretch">
                                         {/* Left accent strip */}
                                         <div className="w-1 bg-red-500 flex-shrink-0" />
@@ -667,7 +667,7 @@ export default function AdminReportDetailPage({
                                 </div>
 
                                 {/* Admin notes */}
-                                <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
+                                <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden -sm">
                                     <div className="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
                                         <div className="flex items-center gap-2.5">
                                             <div className="p-1.5 bg-indigo-50 rounded-lg">
@@ -690,7 +690,7 @@ export default function AdminReportDetailPage({
                                 </div>
 
                                 {/* Actions reference */}
-                                <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden">
+                                <div className="bg-white rounded-2xl border border-zinc-200 -sm overflow-hidden">
                                     <div className="px-6 py-5 border-b border-zinc-100">
                                         <SectionLabel>Available Actions</SectionLabel>
                                     </div>
@@ -725,7 +725,7 @@ export default function AdminReportDetailPage({
                             <div className="space-y-5">
 
                                 {/* Reporter card */}
-                                <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden">
+                                <div className="bg-white rounded-2xl border border-zinc-200 -sm overflow-hidden">
                                     <div className="px-5 pt-5 pb-4 border-b border-zinc-100">
                                         <SectionLabel>Reported By</SectionLabel>
                                     </div>
@@ -787,7 +787,7 @@ export default function AdminReportDetailPage({
                                 </div>
 
                                 {/* Property card */}
-                                <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden">
+                                <div className="bg-white rounded-2xl border border-zinc-200 -sm overflow-hidden">
                                     <div className="px-5 pt-5 pb-4 border-b border-zinc-100">
                                         <SectionLabel>Reported Property</SectionLabel>
                                     </div>

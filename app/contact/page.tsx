@@ -85,7 +85,7 @@ export default function ContactPage() {
               </div>
 
               {/* SERVICE CARD */}
-              <div className="p-8 sm:p-10 bg-blue-500 rounded-[2.5rem] sm:rounded-[3rem] text-white shadow-sm shadow-blue-500/20 relative overflow-hidden">
+              <div className="p-8 sm:p-10 bg-blue-500 rounded-[2.5rem] sm:rounded-[3rem] text-white -sm -blue-500/20 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-6 sm:p-8 opacity-20">
                   <ArrowUpRight size={64} />
                 </div>
@@ -100,7 +100,7 @@ export default function ContactPage() {
 
             {/* RIGHT: FORM */}
             <div className="lg:col-span-8">
-              <div className="bg-white rounded-[2.5rem] sm:rounded-[3rem] lg:rounded-[4rem] p-8 sm:p-12 md:p-16 lg:p-20 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.06)] border border-slate-50 relative">
+              <div className="bg-white rounded-[2.5rem] sm:rounded-[3rem] lg:rounded-[4rem] p-8 sm:p-12 md:p-16 lg:p-20 -[0_50px_100px_-20px_rgba(0,0,0,0.06)] border border-slate-50 relative">
                 <AnimatePresence mode="wait">
                   {submitSuccess ? (
                     <motion.div
@@ -177,14 +177,14 @@ export default function ContactPage() {
 
       {/* 3. MAP SECTION */}
       <section className="px-4 sm:px-6 pb-16 sm:pb-20">
-        <div className="max-w-7xl mx-auto h-[380px] sm:h-[480px] md:h-[600px] rounded-[2.5rem] sm:rounded-[3rem] lg:rounded-[4rem] overflow-hidden relative shadow-inner group">
+        <div className="max-w-7xl mx-auto h-[380px] sm:h-[480px] md:h-[600px] rounded-[2.5rem] sm:rounded-[3rem] lg:rounded-[4rem] overflow-hidden relative -inner group">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15923.36449174245!2d11.5121!3d3.848!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x108bcf7a16f6b533%3A0x6a1099661f9d2d8c!2zQXdhw6ksIFlhb3VuZMOp!5e0!3m2!1sen!2scm!4v1700000000000!5m2!1sen!2scm"
             width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy"
             className="grayscale group-hover:grayscale-0 transition-all duration-1000"
           />
           {/* Info card — repositioned on mobile to bottom, desktop stays top-left */}
-          <div className="absolute bottom-4 left-4 sm:top-8 sm:bottom-auto sm:left-8 md:top-10 md:left-10 p-5 sm:p-6 md:p-8 bg-white rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[2.5rem] shadow-2xl max-w-[calc(100%-2rem)] sm:max-w-xs border border-slate-50">
+          <div className="absolute bottom-4 left-4 sm:top-8 sm:bottom-auto sm:left-8 md:top-10 md:left-10 p-5 sm:p-6 md:p-8 bg-white rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[2.5rem] -2xl max-w-[calc(100%-2rem)] sm:max-w-xs border border-slate-50">
             <h4 className="font-black text-blue-500 uppercase tracking-widest text-[10px] sm:text-xs mb-2">Visit Our Studio</h4>
             <p className="text-lg sm:text-xl font-bold leading-tight mb-3 sm:mb-4">Awae, Yaoundé, <br />Cameroon</p>
             <button className="flex items-center gap-2 text-xs sm:text-sm font-bold text-blue-500 hover:text-slate-900 transition-colors">

@@ -201,11 +201,10 @@ export default function WhatWeOffer() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, duration: 0.5 }}
                   whileHover={{ y: -8 }}
-                  className={`snap-center flex-shrink-0 w-72 md:w-80 cursor-pointer transition-all duration-500 rounded-[2.5rem] relative overflow-hidden group ${
-                    isActive
-                      ? "shadow-2xl scale-105"
-                      : "shadow-lg hover:shadow-xl"
-                  }`}
+                  className={`snap-center flex-shrink-0 w-72 md:w-80 cursor-pointer transition-all duration-500 rounded-[2.5rem] relative overflow-hidden group ${isActive
+                      ? "-2xl scale-105"
+                      : "-lg hover:-xl"
+                    }`}
                   onClick={() => setActiveIndex(i)}
                   role="button"
                   aria-label={`${card.title}: ${card.desc}`}
@@ -219,21 +218,20 @@ export default function WhatWeOffer() {
                   }}
                 >
                   {/* Background Image */}
-                  <div 
+                  <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                     style={{ backgroundImage: `url(${card.image})` }}
                     aria-hidden="true"
                   />
-                  
+
                   {/* Black Overlay with gradient accent */}
                   <div
                     className="absolute inset-0 bg-black/40 transition-opacity duration-500"
                     aria-hidden="true"
                   />
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${card.gradient} transition-opacity duration-500 ${
-                      isActive ? "opacity-20" : "opacity-10 group-hover:opacity-15"
-                    }`}
+                    className={`absolute inset-0 bg-gradient-to-br ${card.gradient} transition-opacity duration-500 ${isActive ? "opacity-20" : "opacity-10 group-hover:opacity-15"
+                      }`}
                     aria-hidden="true"
                   />
 
@@ -243,7 +241,7 @@ export default function WhatWeOffer() {
                       <motion.div
                         whileHover={{ rotate: 360, scale: 1.1 }}
                         transition={{ duration: 0.6 }}
-                        className="inline-flex items-center justify-center w-16 h-16 mb-5 rounded-2xl bg-white/15 backdrop-blur-sm text-white shadow-lg border border-white/10"
+                        className="inline-flex items-center justify-center w-16 h-16 mb-5 rounded-2xl bg-white/15 backdrop-blur-sm text-white -lg border border-white/10"
                         aria-hidden="true"
                       >
                         {card.icon}
@@ -265,13 +263,13 @@ export default function WhatWeOffer() {
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="absolute top-6 right-6 w-3 h-3 bg-white rounded-full shadow-lg"
+                        className="absolute top-6 right-6 w-3 h-3 bg-white rounded-full -lg"
                         aria-label="Active card"
                       >
                         <span className="absolute inset-0 rounded-full bg-white animate-ping opacity-75"></span>
                       </motion.div>
                     )}
-                    
+
                     {/* Decorative corner element */}
                     <div className="absolute bottom-0 right-0 w-24 h-24 bg-white/5 rounded-tl-full" aria-hidden="true" />
                   </div>
@@ -289,11 +287,10 @@ export default function WhatWeOffer() {
                 role="tab"
                 aria-selected={i === activeIndex}
                 aria-label={`View ${card.title}`}
-                className={`transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  i === activeIndex
+                className={`transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${i === activeIndex
                     ? "w-8 h-2 bg-blue-600"
                     : "w-2 h-2 bg-blue-200 hover:bg-blue-400"
-                }`}
+                  }`}
               />
             ))}
           </div>

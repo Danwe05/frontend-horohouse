@@ -61,11 +61,10 @@ function ToggleGroup<T extends string>({
             key={o.value}
             type="button"
             onClick={() => onChange(o.value)}
-            className={`p-2.5 rounded-xl border text-left transition-all ${
-              value === o.value
-                ? 'border-blue-500 bg-blue-50 text-blue-800'
-                : 'border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50/30'
-            }`}
+            className={`p-2.5 rounded-xl border text-left transition-all ${value === o.value
+              ? 'border-blue-500 bg-blue-50 text-blue-800'
+              : 'border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50/30'
+              }`}
           >
             <p className="text-xs font-semibold">{o.label}</p>
             {o.desc && <p className="text-[10px] text-slate-400 mt-0.5">{o.desc}</p>}
@@ -89,15 +88,13 @@ function BoolToggle({
     <button
       type="button"
       onClick={() => onChange(!value)}
-      className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${
-        value
-          ? 'border-blue-500 bg-blue-50 text-blue-700'
-          : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
-      }`}
+      className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${value
+        ? 'border-blue-500 bg-blue-50 text-blue-700'
+        : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+        }`}
     >
-      <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-        value ? 'border-blue-500 bg-blue-500' : 'border-slate-300'
-      }`}>
+      <span className={`w-4 h-4 rounded-full border-1 flex items-center justify-center shrink-0 ${value ? 'border-blue-500 bg-blue-500' : 'border-slate-300'
+        }`}>
         {value && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
       </span>
       {label}
@@ -121,22 +118,22 @@ export function RoommateProfileModal({
   const isEdit = !!existingProfile;
 
   const [form, setForm] = useState({
-    mode:                    existingProfile?.mode                    ?? 'need_room' as 'have_room' | 'need_room',
-    campusCity:              existingProfile?.campusCity              ?? campusCity ?? '',
-    preferredNeighborhood:   existingProfile?.preferredNeighborhood   ?? '',
-    budgetPerPersonMax:      existingProfile?.budgetPerPersonMax      ?? 50000,
-    budgetPerPersonMin:      existingProfile?.budgetPerPersonMin      ?? 0,
-    moveInDate:              existingProfile?.moveInDate?.slice(0, 10) ?? '',
-    sleepSchedule:           existingProfile?.sleepSchedule           ?? 'flexible'  as string,
-    cleanlinessLevel:        existingProfile?.cleanlinessLevel        ?? 'neat'      as string,
-    socialHabit:             existingProfile?.socialHabit             ?? 'balanced'  as string,
-    studyHabit:              existingProfile?.studyHabit              ?? 'mixed'     as string,
-    isSmoker:                existingProfile?.isSmoker                ?? false,
-    acceptsSmoker:           existingProfile?.acceptsSmoker           ?? false,
-    hasPet:                  existingProfile?.hasPet                  ?? false,
-    acceptsPet:              existingProfile?.acceptsPet              ?? false,
-    preferredRoommateGender: existingProfile?.preferredRoommateGender ?? 'any'       as string,
-    bio:                     existingProfile?.bio                     ?? '',
+    mode: existingProfile?.mode ?? 'need_room' as 'have_room' | 'need_room',
+    campusCity: existingProfile?.campusCity ?? campusCity ?? '',
+    preferredNeighborhood: existingProfile?.preferredNeighborhood ?? '',
+    budgetPerPersonMax: existingProfile?.budgetPerPersonMax ?? 50000,
+    budgetPerPersonMin: existingProfile?.budgetPerPersonMin ?? 0,
+    moveInDate: existingProfile?.moveInDate?.slice(0, 10) ?? '',
+    sleepSchedule: existingProfile?.sleepSchedule ?? 'flexible' as string,
+    cleanlinessLevel: existingProfile?.cleanlinessLevel ?? 'neat' as string,
+    socialHabit: existingProfile?.socialHabit ?? 'balanced' as string,
+    studyHabit: existingProfile?.studyHabit ?? 'mixed' as string,
+    isSmoker: existingProfile?.isSmoker ?? false,
+    acceptsSmoker: existingProfile?.acceptsSmoker ?? false,
+    hasPet: existingProfile?.hasPet ?? false,
+    acceptsPet: existingProfile?.acceptsPet ?? false,
+    preferredRoommateGender: existingProfile?.preferredRoommateGender ?? 'any' as string,
+    bio: existingProfile?.bio ?? '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -211,11 +208,10 @@ export function RoommateProfileModal({
                   key={o.value}
                   type="button"
                   onClick={() => set('mode')(o.value)}
-                  className={`p-3 rounded-xl border text-left transition-all ${
-                    form.mode === o.value
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-slate-200 bg-white hover:border-blue-200'
-                  }`}
+                  className={`p-3 rounded-xl border text-left transition-all ${form.mode === o.value
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-slate-200 bg-white hover:border-blue-200'
+                    }`}
                 >
                   <p className={`text-sm font-semibold ${form.mode === o.value ? 'text-blue-800' : 'text-slate-700'}`}>
                     {o.label}
@@ -292,8 +288,8 @@ export function RoommateProfileModal({
             onChange={set('sleepSchedule')}
             options={[
               { value: 'early_bird', label: s.earlyBird || 'Early bird', desc: s.earlyBirdDesc || 'Up by 7am' },
-              { value: 'flexible',   label: s.flexible || 'Flexible', desc: s.flexibleDesc || 'Goes with flow' },
-              { value: 'night_owl',  label: s.nightOwl || 'Night owl', desc: s.nightOwlDesc || 'Up past midnight' },
+              { value: 'flexible', label: s.flexible || 'Flexible', desc: s.flexibleDesc || 'Goes with flow' },
+              { value: 'night_owl', label: s.nightOwl || 'Night owl', desc: s.nightOwlDesc || 'Up past midnight' },
             ]}
           />
 
@@ -303,8 +299,8 @@ export function RoommateProfileModal({
             onChange={set('cleanlinessLevel')}
             options={[
               { value: 'very_neat', label: s.veryNeat || 'Very neat', desc: s.veryNeatDesc || 'Always tidy' },
-              { value: 'neat',      label: s.neat || 'Neat', desc: s.neatDesc || 'Weekly clean' },
-              { value: 'relaxed',   label: s.relaxed || 'Relaxed', desc: s.relaxedDesc || 'Some clutter OK' },
+              { value: 'neat', label: s.neat || 'Neat', desc: s.neatDesc || 'Weekly clean' },
+              { value: 'relaxed', label: s.relaxed || 'Relaxed', desc: s.relaxedDesc || 'Some clutter OK' },
             ]}
           />
 
@@ -314,8 +310,8 @@ export function RoommateProfileModal({
             onChange={set('socialHabit')}
             options={[
               { value: 'introverted', label: s.quietHome || 'Quiet home', desc: s.quietHomeDesc || 'Rarely has guests' },
-              { value: 'balanced',    label: s.balanced || 'Balanced', desc: s.balancedDesc || 'Occasional guests' },
-              { value: 'social',      label: s.social || 'Social', desc: s.socialDesc || 'Friends over often' },
+              { value: 'balanced', label: s.balanced || 'Balanced', desc: s.balancedDesc || 'Occasional guests' },
+              { value: 'social', label: s.social || 'Social', desc: s.socialDesc || 'Friends over often' },
             ]}
           />
 
@@ -324,9 +320,9 @@ export function RoommateProfileModal({
             value={form.studyHabit as any}
             onChange={set('studyHabit')}
             options={[
-              { value: 'home_studier',  label: s.studiesHome || 'Studies home', desc: s.studiesHomeDesc || 'Needs quiet' },
-              { value: 'mixed',         label: s.mixed || 'Mixed', desc: s.mixedDesc || 'Flexible' },
-              { value: 'library_goer',  label: s.studiesOut || 'Studies out', desc: s.studiesOutDesc || 'Home is relaxed' },
+              { value: 'home_studier', label: s.studiesHome || 'Studies home', desc: s.studiesHomeDesc || 'Needs quiet' },
+              { value: 'mixed', label: s.mixed || 'Mixed', desc: s.mixedDesc || 'Flexible' },
+              { value: 'library_goer', label: s.studiesOut || 'Studies out', desc: s.studiesOutDesc || 'Home is relaxed' },
             ]}
           />
 
@@ -336,10 +332,10 @@ export function RoommateProfileModal({
               {s.smokingAndPets || 'Smoking & pets'}
             </Label>
             <div className="flex flex-wrap gap-2">
-              <BoolToggle label={s.iSmoke || "I smoke"}         value={form.isSmoker}       onChange={set('isSmoker')} />
-              <BoolToggle label={s.smokersOk || "Smokers OK"}       value={form.acceptsSmoker}  onChange={set('acceptsSmoker')} />
-              <BoolToggle label={s.iHavePet || "I have a pet"}     value={form.hasPet}         onChange={set('hasPet')} />
-              <BoolToggle label={s.petsOk || "Pets OK"}          value={form.acceptsPet}     onChange={set('acceptsPet')} />
+              <BoolToggle label={s.iSmoke || "I smoke"} value={form.isSmoker} onChange={set('isSmoker')} />
+              <BoolToggle label={s.smokersOk || "Smokers OK"} value={form.acceptsSmoker} onChange={set('acceptsSmoker')} />
+              <BoolToggle label={s.iHavePet || "I have a pet"} value={form.hasPet} onChange={set('hasPet')} />
+              <BoolToggle label={s.petsOk || "Pets OK"} value={form.acceptsPet} onChange={set('acceptsPet')} />
             </div>
           </div>
 
@@ -350,19 +346,18 @@ export function RoommateProfileModal({
             </Label>
             <div className="flex gap-2">
               {[
-                { value: 'any',    label: s.noPreference || 'No preference' },
+                { value: 'any', label: s.noPreference || 'No preference' },
                 { value: 'female', label: s.female || 'Female' },
-                { value: 'male',   label: s.male || 'Male' },
+                { value: 'male', label: s.male || 'Male' },
               ].map((o) => (
                 <button
                   key={o.value}
                   type="button"
                   onClick={() => set('preferredRoommateGender')(o.value)}
-                  className={`flex-1 py-2 rounded-xl border text-xs font-semibold transition-all ${
-                    form.preferredRoommateGender === o.value
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-blue-200'
-                  }`}
+                  className={`flex-1 py-2 rounded-xl border text-xs font-semibold transition-all ${form.preferredRoommateGender === o.value
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-blue-200'
+                    }`}
                 >
                   {o.label}
                 </button>
@@ -389,7 +384,7 @@ export function RoommateProfileModal({
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting || !isValid}
-            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-md shadow-blue-200/50"
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold -md -blue-200/50"
           >
             {isSubmitting ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {s.saving || 'Saving…'}</>

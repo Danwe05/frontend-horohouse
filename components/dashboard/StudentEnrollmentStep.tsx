@@ -113,19 +113,17 @@ function ToggleRow({ label, desc, value, onChange }: {
   return (
     <div
       onClick={() => onChange(!value)}
-      className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-        value
-          ? 'border-emerald-300 bg-emerald-50'
-          : 'border-slate-200 bg-slate-50 hover:border-slate-300'
-      }`}
+      className={`flex items-center justify-between p-3.5 rounded-xl border-1 cursor-pointer transition-all duration-200 ${value
+        ? 'border-emerald-300 bg-emerald-50'
+        : 'border-slate-200 bg-slate-50 hover:border-slate-300'
+        }`}
     >
       <div>
         <p className={`text-sm font-semibold ${value ? 'text-emerald-800' : 'text-slate-700'}`}>{label}</p>
         {desc && <p className="text-xs text-slate-400 mt-0.5">{desc}</p>}
       </div>
-      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${
-        value ? 'bg-emerald-500' : 'bg-slate-200'
-      }`}>
+      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${value ? 'bg-emerald-500' : 'bg-slate-200'
+        }`}>
         {value && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
       </div>
     </div>
@@ -143,30 +141,30 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
     onChange({ ...data, [key]: value });
 
   const WATER_OPTIONS = [
-    { value: 'camwater',              label: s.waterOptions?.camwater || 'CAMWATER (municipal)' },
-    { value: 'borehole',              label: s.waterOptions?.borehole || 'Private borehole' },
+    { value: 'camwater', label: s.waterOptions?.camwater || 'CAMWATER (municipal)' },
+    { value: 'borehole', label: s.waterOptions?.borehole || 'Private borehole' },
     { value: 'camwater_and_borehole', label: s.waterOptions?.camwaterAndBorehole || 'CAMWATER + Borehole' },
-    { value: 'well',                  label: s.waterOptions?.well || 'Open well' },
-    { value: 'tanker',                label: s.waterOptions?.tanker || 'Tanker delivery' },
+    { value: 'well', label: s.waterOptions?.well || 'Open well' },
+    { value: 'tanker', label: s.waterOptions?.tanker || 'Tanker delivery' },
   ];
 
   const ELECTRICITY_OPTIONS = [
-    { value: 'none',                label: s.electricityOptions?.none || 'ENEO grid only (no backup)' },
-    { value: 'solar',               label: s.electricityOptions?.solar || 'Solar panels' },
-    { value: 'generator',           label: s.electricityOptions?.generator || 'Generator' },
+    { value: 'none', label: s.electricityOptions?.none || 'ENEO grid only (no backup)' },
+    { value: 'solar', label: s.electricityOptions?.solar || 'Solar panels' },
+    { value: 'generator', label: s.electricityOptions?.generator || 'Generator' },
     { value: 'solar_and_generator', label: s.electricityOptions?.solarAndGenerator || 'Solar + Generator' },
   ];
 
   const FURNISHING_OPTIONS = [
-    { value: 'unfurnished',    label: s.furnishingOptions?.unfurnished || 'Unfurnished' },
+    { value: 'unfurnished', label: s.furnishingOptions?.unfurnished || 'Unfurnished' },
     { value: 'semi_furnished', label: s.furnishingOptions?.semiFurnished || 'Semi-furnished (bed + wardrobe)' },
-    { value: 'furnished',      label: s.furnishingOptions?.furnished || 'Fully furnished' },
+    { value: 'furnished', label: s.furnishingOptions?.furnished || 'Fully furnished' },
   ];
 
   const GENDER_OPTIONS = [
-    { value: 'none',       label: s.genderOptions?.none || 'No restriction' },
+    { value: 'none', label: s.genderOptions?.none || 'No restriction' },
     { value: 'women_only', label: s.genderOptions?.womenOnly || 'Women only' },
-    { value: 'men_only',   label: s.genderOptions?.menOnly || 'Men only' },
+    { value: 'men_only', label: s.genderOptions?.menOnly || 'Men only' },
   ];
 
   return (
@@ -175,16 +173,14 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
       {/* Header opt-in card */}
       <div
         onClick={() => set('enabled', !data.enabled)}
-        className={`relative overflow-hidden rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
-          data.enabled
-            ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50'
-            : 'border-slate-200 bg-slate-50 hover:border-blue-300'
-        }`}
+        className={`relative overflow-hidden rounded-2xl border-1 cursor-pointer transition-all duration-300 ${data.enabled
+          ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50'
+          : 'border-slate-200 bg-slate-50 hover:border-blue-300'
+          }`}
       >
         <div className="p-5 flex items-start gap-4">
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all ${
-            data.enabled ? 'bg-blue-600' : 'bg-slate-200'
-          }`}>
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all ${data.enabled ? 'bg-blue-600' : 'bg-slate-200'
+            }`}>
             <GraduationCap className={`w-6 h-6 ${data.enabled ? 'text-white' : 'text-slate-400'}`} />
           </div>
           <div className="flex-1 min-w-0">
@@ -192,9 +188,8 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
               <p className={`font-bold text-base ${data.enabled ? 'text-blue-900' : 'text-slate-700'}`}>
                 {s.enrollTitle || 'Enroll in Student Housing Programme'}
               </p>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
-                data.enabled ? 'border-blue-500 bg-blue-500' : 'border-slate-300'
-              }`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-1 transition-all ${data.enabled ? 'border-blue-500 bg-blue-500' : 'border-slate-300'
+                }`}>
                 {data.enabled && <CheckCircle2 className="w-4 h-4 text-white" />}
               </div>
             </div>
@@ -237,7 +232,7 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
             <div className="space-y-8 pt-2">
 
               {/* ── 1. Campus distance ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
                 <SectionHeader icon={MapPin} title={s.campusDistanceTitle || "Campus Distance"} color="text-blue-600" bg="bg-blue-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
@@ -274,7 +269,7 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
               </section>
 
               {/* ── 2. Infrastructure ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
                 <SectionHeader icon={Droplets} title={s.infrastructureTitle || "Infrastructure"} color="text-teal-600" bg="bg-teal-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <SelectField
@@ -302,7 +297,7 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
               </section>
 
               {/* ── 3. House rules ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
                 <SectionHeader icon={Clock} title={s.houseRulesTitle || "House Rules"} color="text-amber-600" bg="bg-amber-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <SelectField
@@ -340,7 +335,7 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
               </section>
 
               {/* ── 4. Security ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
                 <SectionHeader icon={ShieldCheck} title={s.securityTitle || "Security"} color="text-emerald-600" bg="bg-emerald-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <ToggleRow
@@ -362,7 +357,7 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
               </section>
 
               {/* ── 5. Rent terms ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
                 <SectionHeader icon={Wallet} title={s.rentTermsTitle || "Rent Terms"} color="text-purple-600" bg="bg-purple-50" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <NumberField
@@ -390,7 +385,7 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
               </section>
 
               {/* ── 6. Colocation ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
                 <SectionHeader icon={BedDouble} title={s.colocationTitle || "Colocation (Shared Housing)"} color="text-pink-600" bg="bg-pink-50" />
                 <p className="text-xs text-slate-400 mb-4 -mt-2">
                   {s.colocationDesc || "Fill this section if multiple students share the same unit."}

@@ -17,16 +17,16 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Loader2, 
-  CreditCard, 
-  Smartphone, 
-  Building, 
-  Lock, 
-  AlertCircle, 
-  CheckCircle, 
-  Shield, 
-  Award 
+import {
+  Loader2,
+  CreditCard,
+  Smartphone,
+  Building,
+  Lock,
+  AlertCircle,
+  CheckCircle,
+  Shield,
+  Award
 } from 'lucide-react';
 import { PaymentMethod, Currency } from '@/types/paiement';
 
@@ -206,17 +206,16 @@ export function PaymentModal({
 
           {/* Saved payment method quick-pay */}
           {savedPaymentMethod && (
-            <div className={`rounded-xl border-2 p-4 cursor-pointer transition-all ${
-              usingSaved
-                ? 'border-emerald-500 bg-emerald-50'
-                : 'border-slate-200 bg-white hover:border-slate-300'
-            }`} onClick={() => {
-              setUsingSaved(true);
-              setPaymentMethod(savedPaymentMethod);
-              setPhone(savedPhone ?? '');
-            }}>
+            <div className={`rounded-xl border-1 p-4 cursor-pointer transition-all ${usingSaved
+              ? 'border-emerald-500 bg-emerald-50'
+              : 'border-slate-200 bg-white hover:border-slate-300'
+              }`} onClick={() => {
+                setUsingSaved(true);
+                setPaymentMethod(savedPaymentMethod);
+                setPhone(savedPhone ?? '');
+              }}>
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${ usingSaved ? 'bg-emerald-100' : 'bg-slate-100' }`}>
+                <div className={`p-2 rounded-lg ${usingSaved ? 'bg-emerald-100' : 'bg-slate-100'}`}>
                   <Smartphone className={`h-5 w-5 ${usingSaved ? 'text-emerald-700' : 'text-slate-500'}`} />
                 </div>
                 <div className="flex-1">
@@ -224,7 +223,7 @@ export function PaymentModal({
                     <span className="font-semibold text-slate-900">
                       {savedProvider === 'MTN' ? 'MTN Mobile Money' : 'Orange Money'}
                     </span>
-                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${ savedProvider === 'MTN' ? 'bg-yellow-400 text-yellow-900' : 'bg-orange-500 text-white' }`}>
+                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${savedProvider === 'MTN' ? 'bg-yellow-400 text-yellow-900' : 'bg-orange-500 text-white'}`}>
                       {savedProvider}
                     </span>
                     <span className="ml-auto text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Saved</span>
@@ -237,7 +236,7 @@ export function PaymentModal({
           )}
 
           {/* Amount Display */}
-          <div className="bg-indigo-600 p-6 rounded-xl border-2 border-indigo-700 text-white">
+          <div className="bg-indigo-600 p-6 rounded-xl border-1 border-indigo-700 text-white">
             <div className="text-center">
               <div className="text-sm font-medium mb-2 text-indigo-200">Total Amount</div>
               <div className="text-4xl font-bold">
@@ -319,26 +318,23 @@ export function PaymentModal({
               if (value !== PaymentMethod.MTN_MOMO && value !== PaymentMethod.ORANGE_MONEY) setPhone('');
             }}>
               {paymentMethods.map((method) => (
-                <div 
-                  key={method.value} 
-                  className={`flex items-start space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:shadow-md ${
-                    paymentMethod === method.value 
-                      ? `${method.borderColor} ${method.bgColor} shadow-md` 
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
+                <div
+                  key={method.value}
+                  className={`flex items-start space-x-3 p-4 rounded-xl border-1 transition-all cursor-pointer hover:-md ${paymentMethod === method.value
+                    ? `${method.borderColor} ${method.bgColor} -md`
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
                 >
                   <RadioGroupItem value={method.value} id={method.value} className="mt-1" />
                   <Label htmlFor={method.value} className="flex items-start space-x-3 flex-1 cursor-pointer">
-                    <div className={`p-2.5 rounded-lg ${
-                      paymentMethod === method.value 
-                        ? `${method.bgColor}` 
-                        : 'bg-gray-100'
-                    }`}>
-                      <method.icon className={`h-5 w-5 ${
-                        paymentMethod === method.value 
-                          ? method.textColor 
-                          : 'text-gray-600'
-                      }`} />
+                    <div className={`p-2.5 rounded-lg ${paymentMethod === method.value
+                      ? `${method.bgColor}`
+                      : 'bg-gray-100'
+                      }`}>
+                      <method.icon className={`h-5 w-5 ${paymentMethod === method.value
+                        ? method.textColor
+                        : 'text-gray-600'
+                        }`} />
                     </div>
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
@@ -381,13 +377,13 @@ export function PaymentModal({
 
           {/* Payment Method Instructions */}
           {selectedMethod && (
-            <Alert className={`${selectedMethod.bgColor} border-2 ${selectedMethod.borderColor}`}>
+            <Alert className={`${selectedMethod.bgColor} border-1 ${selectedMethod.borderColor}`}>
               <AlertDescription className={`text-sm ${selectedMethod.textColor} font-medium`}>
-                {paymentMethod === PaymentMethod.CARD && 
+                {paymentMethod === PaymentMethod.CARD &&
                   'You will be redirected to our secure payment gateway to enter your card details.'}
-                {(paymentMethod === PaymentMethod.MTN_MOMO || paymentMethod === PaymentMethod.ORANGE_MONEY) && 
+                {(paymentMethod === PaymentMethod.MTN_MOMO || paymentMethod === PaymentMethod.ORANGE_MONEY) &&
                   'A payment request will be sent to your phone. Please approve it to complete the transaction.'}
-                {paymentMethod === PaymentMethod.BANK_TRANSFER && 
+                {paymentMethod === PaymentMethod.BANK_TRANSFER &&
                   'Bank transfer details will be provided after confirmation. Payment typically takes 1-3 business days.'}
               </AlertDescription>
             </Alert>
@@ -477,7 +473,7 @@ export function PaymentModal({
           </div>
 
           {/* Security Badge */}
-          <div className="flex items-center justify-center gap-3 p-4 bg-green-50 rounded-lg border-2 border-green-300">
+          <div className="flex items-center justify-center gap-3 p-4 bg-green-50 rounded-lg border-1 border-green-300">
             <div className="p-2 bg-green-100 rounded-lg">
               <Lock className="h-6 w-6 text-green-700" />
             </div>
@@ -498,9 +494,9 @@ export function PaymentModal({
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit} 
-            disabled={loading} 
+          <Button
+            onClick={handleSubmit}
+            disabled={loading}
             className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

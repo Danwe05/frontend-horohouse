@@ -225,7 +225,7 @@ export const PropertyCard = ({
         <Link href={`/properties/${id}`} className="block">
           <Card
             className={cn(
-              "overflow-hidden shadow-none border-1 transition-all duration-200 py-0",
+              "overflow-hidden -none border-1 transition-all duration-200 py-0",
               isDeleting && "opacity-50 pointer-events-none"
             )}
           >
@@ -348,7 +348,7 @@ export const PropertyCard = ({
                   <TooltipTrigger asChild>
                     <button
                       onClick={handleShare}
-                      className="w-8 h-8 flex-shrink-0 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md"
+                      className="w-8 h-8 flex-shrink-0 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform -md"
                     >
                       <Share2 className="h-3.5 w-3.5 text-foreground" />
                     </button>
@@ -362,7 +362,7 @@ export const PropertyCard = ({
                     <button
                       onClick={handleFavoriteToggle}
                       disabled={isTogglingFavorite}
-                      className="w-8 h-8 flex-shrink-0 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md disabled:opacity-50"
+                      className="w-8 h-8 flex-shrink-0 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform -md disabled:opacity-50"
                     >
                       <Heart
                         className={cn(
@@ -383,7 +383,7 @@ export const PropertyCard = ({
                 {isOwner && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="w-8 h-8 flex-shrink-0 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md">
+                      <button className="w-8 h-8 flex-shrink-0 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform -md">
                         <MoreVertical className="w-4 h-4 text-foreground" />
                       </button>
                     </DropdownMenuTrigger>

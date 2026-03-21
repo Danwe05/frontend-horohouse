@@ -105,7 +105,7 @@ function PaymentCallbackContent({ id }: { id: string }) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center space-y-4">
+      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 -sm text-center space-y-4">
 
         {(state === 'verifying' || state === 'polling') && (
           <>

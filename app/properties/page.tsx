@@ -50,7 +50,7 @@ interface CompareBarProps {
 function CompareBar({ items, onRemove, onClear, onCompare }: CompareBarProps) {
   if (items.length === 0) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t shadow-2xl px-6 py-3">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t -2xl px-6 py-3">
       <div className="max-w-screen-xl mx-auto flex items-center gap-4">
         <div className="flex items-center gap-2 flex-1 overflow-x-auto">
           <span className="text-sm font-semibold shrink-0 text-muted-foreground">
@@ -69,7 +69,7 @@ function CompareBar({ items, onRemove, onClear, onCompare }: CompareBarProps) {
           ))}
           {/* Empty slots */}
           {Array.from({ length: MAX_COMPARE - items.length }).map((_, i) => (
-            <div key={`empty-${i}`} className="flex items-center justify-center w-24 h-10 border-2 border-dashed border-muted-foreground/30 rounded-lg shrink-0">
+            <div key={`empty-${i}`} className="flex items-center justify-center w-24 h-10 border-1 border-dashed border-muted-foreground/30 rounded-lg shrink-0">
               <span className="text-xs text-muted-foreground/50">+ Add</span>
             </div>
           ))}
@@ -513,7 +513,7 @@ const IndexContent = () => {
               searchCity={filters.city}
               searchVersion={searchVersion}
             />
-            <Button onClick={() => setMobileMapFullScreen(false)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 shadow-lg z-50" size="lg">
+            <Button onClick={() => setMobileMapFullScreen(false)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 -lg z-50" size="lg">
               <List className="h-5 w-5" /> Show Listings
             </Button>
           </div>
@@ -598,7 +598,7 @@ const IndexContent = () => {
                 </div>
               </div>
             </div>
-            <Button onClick={() => setMobileMapFullScreen(true)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 shadow-lg z-40" size="lg">
+            <Button onClick={() => setMobileMapFullScreen(true)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 -lg z-40" size="lg">
               <Map className="h-5 w-5" /> {t.propertiesPage?.showMap || "Show Map"} ({total})
             </Button>
           </>
@@ -737,7 +737,7 @@ const IndexContent = () => {
           </div>
 
           {/* Show/Hide map FAB */}
-          <Button onClick={() => setShowMap((v) => !v)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 shadow-lg z-40" size="lg">
+          <Button onClick={() => setShowMap((v) => !v)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 -lg z-40" size="lg">
             {showMap ? <><EyeOff className="h-5 w-5" />{t.propertiesPage?.hideMap || "Hide Map"}</> : <><Eye className="h-5 w-5" />{t.propertiesPage?.showMap || "Show Map"}</>}
           </Button>
         </div>

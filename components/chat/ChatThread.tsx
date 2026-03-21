@@ -351,7 +351,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
               <AvatarFallback>{otherUser?.name?.[0] || "U"}</AvatarFallback>
             </Avatar>
             {isOtherUserOnline && (
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-1 border-white rounded-full"></span>
             )}
           </div>
           <div className="flex-1 min-w-0">

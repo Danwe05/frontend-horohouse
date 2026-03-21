@@ -128,7 +128,7 @@ export default function HostBookingDetailPage() {
                         {/* ── Top Navigation & ID ── */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                             <div className="flex items-center gap-4">
-                                <Button variant="ghost" size="icon" className="rounded-2xl bg-white border border-slate-200 shadow-sm" onClick={() => router.push('/dashboard/host/bookings')}>
+                                <Button variant="ghost" size="icon" className="rounded-2xl bg-white border border-slate-200 -sm" onClick={() => router.push('/dashboard/host/bookings')}>
                                     <ArrowLeft className="h-4 w-4" />
                                 </Button>
                                 <div>
@@ -151,7 +151,7 @@ export default function HostBookingDetailPage() {
                             <div className="lg:col-span-2 space-y-8">
 
                                 {/* Guest Card */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm p-8">
+                                <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden -sm p-8">
                                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">Guest Profile</h3>
                                     <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                                         <div className="h-24 w-24 rounded-full bg-indigo-100 flex items-center justify-center text-3xl font-black text-indigo-600 shrink-0">
@@ -190,7 +190,7 @@ export default function HostBookingDetailPage() {
                                 </div>
 
                                 {/* Stay & Property Details */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm">
+                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 -sm">
                                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">Stay Details</h3>
 
                                     <div className="flex items-center gap-4 mb-8 bg-slate-50 rounded-2xl p-4 border border-slate-100">
@@ -231,14 +231,14 @@ export default function HostBookingDetailPage() {
                             <div className="space-y-6 lg:sticky lg:top-8 self-start">
 
                                 {/* Actions Card */}
-                                <div className="bg-white rounded-[2.5rem] border-2 border-slate-900 p-8 shadow-2xl shadow-indigo-100">
+                                <div className="bg-white rounded-[2.5rem] border-1 border-slate-900 p-8 -2xl -indigo-100">
                                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Host Actions</h3>
 
                                     <div className="space-y-3">
                                         {booking.status === BookingStatus.PENDING && (
                                             <>
                                                 <Button
-                                                    className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-100"
+                                                    className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg -xl -indigo-100"
                                                     onClick={() => setActionDialog({ open: true, type: 'confirm' })}
                                                 >
                                                     <CheckCircle2 className="h-5 w-5 mr-2" /> Accept Request
@@ -255,7 +255,7 @@ export default function HostBookingDetailPage() {
 
                                         {booking.status === BookingStatus.CONFIRMED && (
                                             <Button
-                                                className="w-full h-14 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-black text-lg"
+                                                className="w-full h-14 rounded-2xl bg-indigo-50 border-1 border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-black text-lg"
                                                 onClick={handleComplete}
                                             >
                                                 <CheckCircle2 className="h-5 w-5 mr-2" /> Mark Stay Completed
@@ -272,7 +272,7 @@ export default function HostBookingDetailPage() {
                                 </div>
 
                                 {/* Payout Summary */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm">
+                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 -sm">
                                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Expected Payout</h3>
 
                                     <div className="space-y-4 mb-6">
@@ -306,7 +306,7 @@ export default function HostBookingDetailPage() {
 
             {/* ── Action Dialog ── */}
             <Dialog open={actionDialog.open} onOpenChange={(o) => (!o || !actioning) && setActionDialog({ open: false, type: null })}>
-                <DialogContent className="sm:max-w-md rounded-[2rem] border-none p-0 overflow-hidden shadow-2xl">
+                <DialogContent className="sm:max-w-md rounded-[2rem] border-none p-0 overflow-hidden -2xl">
                     <div className="p-8">
                         <DialogHeader className="space-y-4 mb-6 text-left">
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${actionDialog.type === 'confirm' ? 'bg-indigo-50 text-indigo-600' : 'bg-red-50 text-red-600'}`}>
@@ -331,7 +331,7 @@ export default function HostBookingDetailPage() {
                                 placeholder={actionDialog.type === 'confirm' ? 'E.g. "Looking forward to hosting you. Here are some instructions..."' : 'E.g. "Unfortunately, the property is unavailable during these dates..."'}
                                 value={actionNote}
                                 onChange={(e) => setActionNote(e.target.value)}
-                                className="min-h-[120px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all resize-none shadow-sm"
+                                className="min-h-[120px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all resize-none -sm"
                             />
                         </div>
 
@@ -340,7 +340,7 @@ export default function HostBookingDetailPage() {
                                 Cancel
                             </Button>
                             <Button
-                                className={`rounded-xl h-12 w-full sm:w-1/2 font-semibold shadow-md ${actionDialog.type === 'confirm' ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100 text-white' : 'bg-red-600 hover:bg-red-700 shadow-red-100 text-white'}`}
+                                className={`rounded-xl h-12 w-full sm:w-1/2 font-semibold -md ${actionDialog.type === 'confirm' ? 'bg-indigo-600 hover:bg-indigo-700 -indigo-100 text-white' : 'bg-red-600 hover:bg-red-700 -red-100 text-white'}`}
                                 onClick={handleAction}
                                 disabled={actioning}
                             >

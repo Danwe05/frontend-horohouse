@@ -61,7 +61,7 @@ export function StudentCompletionStep() {
           (studentModeCtx as any).toggleStudentMode();
         }
       } else {
-        try { localStorage.setItem('horohouse_student_mode', 'true'); } catch {}
+        try { localStorage.setItem('horohouse_student_mode', 'true'); } catch { }
       }
 
       // 4. Refresh the student profile in context if the method is available
@@ -78,7 +78,7 @@ export function StudentCompletionStep() {
         if (typeof (studentModeCtx as any).enableStudentMode === 'function') {
           (studentModeCtx as any).enableStudentMode();
         } else {
-          try { localStorage.setItem('horohouse_student_mode', 'true'); } catch {}
+          try { localStorage.setItem('horohouse_student_mode', 'true'); } catch { }
         }
         setIsCreated(true);
       } else {
@@ -120,7 +120,7 @@ export function StudentCompletionStep() {
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        className="w-24 h-24 rounded-[2rem] flex items-center justify-center shadow-xl mb-8 bg-gradient-to-br from-blue-500 to-indigo-600"
+        className="w-24 h-24 rounded-[2rem] flex items-center justify-center -xl mb-8 bg-gradient-to-br from-blue-500 to-indigo-600"
       >
         <GraduationCap className="h-12 w-12 text-white" />
       </motion.div>
@@ -148,11 +148,10 @@ export function StudentCompletionStep() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8 ${
-            idUploaded
+          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8 ${idUploaded
               ? 'bg-amber-50 text-amber-700 border border-amber-200'
               : 'bg-slate-100 text-slate-600 border border-slate-200'
-          }`}
+            }`}
         >
           {idUploaded ? (
             <>
@@ -173,7 +172,7 @@ export function StudentCompletionStep() {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.25 }}
-        className="w-full bg-white/60 backdrop-blur-sm border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm mb-8"
+        className="w-full bg-white/60 backdrop-blur-sm border border-slate-100 rounded-3xl p-6 sm:p-8 -sm mb-8"
       >
         <h3 className="font-semibold text-slate-800 mb-4 flex items-center">
           <CheckCircle2 className="w-5 h-5 mr-2 text-blue-500" />
@@ -208,7 +207,7 @@ export function StudentCompletionStep() {
           <Button
             onClick={handleComplete}
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 text-base font-semibold shadow-lg shadow-blue-200 transition-all group"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 text-base font-semibold -lg -blue-200 transition-all group"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -223,7 +222,7 @@ export function StudentCompletionStep() {
           <>
             <Button
               onClick={goToStudentSearch}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-12 font-semibold shadow-md shadow-blue-200 group"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-12 font-semibold -md -blue-200 group"
             >
               <span className="flex items-center justify-center">
                 Browse student housing

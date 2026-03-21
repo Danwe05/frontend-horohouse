@@ -78,9 +78,9 @@ function safeDate(iso: string | undefined | null, fmt: string): string {
 
 // ─── Status badge colours ─────────────────────────────────────────────────────
 const STATUS_COLORS: Record<string, string> = {
-  pending:   'bg-amber-100 text-amber-700 border-amber-200',
+  pending: 'bg-amber-100 text-amber-700 border-amber-200',
   confirmed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-  rejected:  'bg-red-100 text-red-700 border-red-200',
+  rejected: 'bg-red-100 text-red-700 border-red-200',
   cancelled: 'bg-slate-100 text-slate-600 border-slate-200',
   completed: 'bg-blue-100 text-blue-700 border-blue-200',
 }
@@ -144,18 +144,18 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
         const safe: Booking[] = raw
           .filter((b) => b && typeof b === 'object' && typeof b._id === 'string')
           .map((b) => ({
-            _id:           b._id,
-            status:        typeof b.status === 'string' ? b.status : 'unknown',
-            checkIn:       typeof b.checkIn === 'string' ? b.checkIn : '',
-            checkOut:      typeof b.checkOut === 'string' ? b.checkOut : '',
-            createdAt:     typeof b.createdAt === 'string' ? b.createdAt : '',
-            nights:        typeof b.nights === 'number' ? b.nights : undefined,
+            _id: b._id,
+            status: typeof b.status === 'string' ? b.status : 'unknown',
+            checkIn: typeof b.checkIn === 'string' ? b.checkIn : '',
+            checkOut: typeof b.checkOut === 'string' ? b.checkOut : '',
+            createdAt: typeof b.createdAt === 'string' ? b.createdAt : '',
+            nights: typeof b.nights === 'number' ? b.nights : undefined,
             priceBreakdown: b.priceBreakdown ?? undefined,
-            currency:      typeof b.currency === 'string' ? b.currency : 'XAF',
+            currency: typeof b.currency === 'string' ? b.currency : 'XAF',
             // Keep populated objects but only if they are actually objects
-            propertyId:    b.propertyId && typeof b.propertyId === 'object' ? b.propertyId : null,
-            guestId:       b.guestId    && typeof b.guestId    === 'object' ? b.guestId    : null,
-            hostId:        b.hostId     && typeof b.hostId     === 'object' ? b.hostId     : null,
+            propertyId: b.propertyId && typeof b.propertyId === 'object' ? b.propertyId : null,
+            guestId: b.guestId && typeof b.guestId === 'object' ? b.guestId : null,
+            hostId: b.hostId && typeof b.hostId === 'object' ? b.hostId : null,
           }))
 
         setBookings(safe)
@@ -174,7 +174,7 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
   // ── Loading skeleton ────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <Card className="shadow-none border h-full">
+      <Card className="-none border h-full">
         <CardHeader className="pb-3 px-6 pt-6">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Calendar className="h-5 w-5 text-blue-500" />
@@ -200,7 +200,7 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
 
   // ─── Main render ─────────────────────────────────────────────────────────────
   return (
-    <Card className="border-0 shadow-lg h-full flex flex-col">
+    <Card className="border-0 -lg h-full flex flex-col">
       <CardHeader className="pb-3 px-6 pt-6 flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Calendar className="h-5 w-5 text-blue-500" />
@@ -227,12 +227,12 @@ export const BookingSummaryWidget: React.FC<BookingSummaryWidgetProps> = ({
             bookings.map((booking) => {
               const propertyTitle = getPropertyTitle(booking.propertyId)
               const propertyImage = getPropertyImage(booking.propertyId)
-              const personName    = role === 'host'
+              const personName = role === 'host'
                 ? getUserName(booking.guestId)
                 : getUserName(booking.hostId)
-              const statusColor   = STATUS_COLORS[booking.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'
-              const checkInStr    = safeDate(booking.checkIn,  'MMM d')
-              const checkOutStr   = safeDate(booking.checkOut, 'MMM d')
+              const statusColor = STATUS_COLORS[booking.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'
+              const checkInStr = safeDate(booking.checkIn, 'MMM d')
+              const checkOutStr = safeDate(booking.checkOut, 'MMM d')
 
               return (
                 <div

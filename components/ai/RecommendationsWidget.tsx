@@ -32,7 +32,7 @@ export default function RecommendationsWidget() {
     try {
       setLoading(true);
       const response = await apiClient.getFlaskMLRecommendations({ limit: 6 });
-      
+
       if (response.success) {
         setRecommendations(response.data.recommendations);
       }
@@ -97,7 +97,7 @@ export default function RecommendationsWidget() {
             return (
               <div key={rec.propertyId || index} className="relative group">
                 {/* Match Badge */}
-                <div className="absolute top-2 left-2 z-10 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                <div className="absolute top-2 left-2 z-10 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold -lg">
                   {Math.round(rec.finalScore * 100)}% Match
                 </div>
 

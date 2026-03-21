@@ -39,7 +39,7 @@ const DashboardHeader = ({ onNewCampaign }: { onNewCampaign: () => void }) => (
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div className="space-y-1">
             <div className="flex items-center gap-3">
-                <div className="relative p-2 rounded-xl bg-slate-900 text-white shadow-sm">
+                <div className="relative p-2 rounded-xl bg-slate-900 text-white -sm">
                     <Megaphone className="w-6 h-6" />
                 </div>
                 <div className="flex items-center gap-2">
@@ -50,7 +50,7 @@ const DashboardHeader = ({ onNewCampaign }: { onNewCampaign: () => void }) => (
         </div>
 
         <div className="flex items-center gap-3">
-            <Button variant="default" onClick={onNewCampaign} className="rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold h-11 px-6 shadow-sm">
+            <Button variant="default" onClick={onNewCampaign} className="rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold h-11 px-6 -sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Campaign
             </Button>
@@ -66,7 +66,7 @@ const KPICard = ({ title, amount, subtext, icon: Icon, colorClass, isCurrency = 
     };
 
     return (
-        <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all duration-300">
+        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden group hover:-md transition-all duration-300">
             <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
                     <div className={`p-3 rounded-2xl ${variants[colorClass]} transition-transform duration-500 group-hover:scale-110`}>
@@ -172,7 +172,7 @@ const PromotionsPage = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
                                 {/* Active Campaigns Table */}
                                 <div className="lg:col-span-8">
-                                    <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden h-full">
+                                    <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden h-full">
                                         <CardHeader className="border-b border-slate-50 pb-4 pt-6 px-6 bg-slate-50/50 flex flex-row items-center justify-between">
                                             <CardTitle className="text-lg font-bold text-slate-800">Your Campaigns</CardTitle>
                                         </CardHeader>
@@ -229,7 +229,7 @@ const PromotionsPage = () => {
                                 {/* Recommendations Panel */}
                                 <div className="lg:col-span-4">
                                     <div className="space-y-6">
-                                        <Card className="rounded-3xl border-slate-200 shadow-sm bg-blue-500 text-white overflow-hidden relative group">
+                                        <Card className="rounded-3xl border-slate-200 -sm bg-blue-500 text-white overflow-hidden relative group">
                                             <div className="absolute top-0 right-0 p-6 opacity-10 transition-transform duration-500 group-hover:scale-110">
                                                 <Megaphone className="w-32 h-32" />
                                             </div>
@@ -239,13 +239,13 @@ const PromotionsPage = () => {
                                                     <h3 className="text-xl font-bold leading-tight mb-2">Boost your listings to close faster.</h3>
                                                     <p className="text-blue-100 text-sm">Promoted properties get up to 4x more leads within the first 48 hours.</p>
                                                 </div>
-                                                <Button onClick={() => setIsSheetOpen(true)} className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold shadow-sm transition-all h-11 rounded-xl">
+                                                <Button onClick={() => setIsSheetOpen(true)} className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold -sm transition-all h-11 rounded-xl">
                                                     Start New Promotion
                                                 </Button>
                                             </CardContent>
                                         </Card>
 
-                                        <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden">
+                                        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
                                             <CardHeader className="border-b border-slate-50 pb-3 pt-5 px-5 bg-slate-50/50">
                                                 <CardTitle className="text-lg font-bold text-slate-800">Recommendations</CardTitle>
                                             </CardHeader>
@@ -276,7 +276,7 @@ const PromotionsPage = () => {
 
                 {/* Campaign Creation Slide-out Panel */}
                 <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                    <SheetContent className="w-full sm:max-w-xl md:max-w-xl p-0 border-l border-slate-200 bg-white shadow-2xl flex flex-col">
+                    <SheetContent className="w-full sm:max-w-xl md:max-w-xl p-0 border-l border-slate-200 bg-white -2xl flex flex-col">
                         <SheetHeader className="px-6 py-5 border-b border-slate-100 bg-slate-50/50">
                             <SheetTitle className="text-xl font-bold text-slate-900">Create Campaign</SheetTitle>
                             <SheetDescription>Configure a new marketing boost for your property.</SheetDescription>
@@ -303,7 +303,7 @@ const PromotionsPage = () => {
                                             <div
                                                 key={prop.id}
                                                 onClick={() => setSelectedProperty(prop.id)}
-                                                className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-4 ${selectedProperty === prop.id ? 'border-blue-600 bg-blue-50/50' : 'border-slate-100 bg-white hover:border-slate-200'}`}
+                                                className={`p-4 rounded-2xl border-1 cursor-pointer transition-all flex items-center gap-4 ${selectedProperty === prop.id ? 'border-blue-600 bg-blue-50/50' : 'border-slate-100 bg-white hover:border-slate-200'}`}
                                             >
                                                 <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
                                                     <Building2 className={`w-6 h-6 ${selectedProperty === prop.id ? 'text-blue-600' : 'text-slate-400'}`} />
@@ -312,7 +312,7 @@ const PromotionsPage = () => {
                                                     <h4 className={`font-bold ${selectedProperty === prop.id ? 'text-slate-900' : 'text-slate-700'}`}>{prop.name}</h4>
                                                     <p className="text-sm text-slate-500">{prop.price}</p>
                                                 </div>
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedProperty === prop.id ? 'border-blue-600' : 'border-slate-300'}`}>
+                                                <div className={`w-5 h-5 rounded-full border-1 flex items-center justify-center ${selectedProperty === prop.id ? 'border-blue-600' : 'border-slate-300'}`}>
                                                     {selectedProperty === prop.id && <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />}
                                                 </div>
                                             </div>
@@ -336,7 +336,7 @@ const PromotionsPage = () => {
                                             <div
                                                 key={goal.id}
                                                 onClick={() => setSelectedGoal(goal.id)}
-                                                className={`p-5 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-4 ${selectedGoal === goal.id ? 'border-blue-600 bg-blue-50/50' : 'border-slate-100 bg-white hover:border-slate-200'}`}
+                                                className={`p-5 rounded-2xl border-1 cursor-pointer transition-all flex items-start gap-4 ${selectedGoal === goal.id ? 'border-blue-600 bg-blue-50/50' : 'border-slate-100 bg-white hover:border-slate-200'}`}
                                             >
                                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${selectedGoal === goal.id ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
                                                     <goal.icon className="w-5 h-5" />
@@ -375,7 +375,7 @@ const PromotionsPage = () => {
                                             </div>
                                         </div>
 
-                                        <Card className="rounded-2xl border-slate-100 bg-slate-50 mt-6 shadow-none">
+                                        <Card className="rounded-2xl border-slate-100 bg-slate-50 mt-6 -none">
                                             <CardContent className="p-5 space-y-3 text-sm">
                                                 <div className="flex justify-between font-medium text-slate-600">
                                                     <span>Est. Daily Impressions</span>
@@ -407,7 +407,7 @@ const PromotionsPage = () => {
                             </Button>
                             <Button
                                 onClick={currentStep === 3 ? handleLaunch : handleNext}
-                                className="h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 font-bold text-white shadow-sm"
+                                className="h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 font-bold text-white -sm"
                                 disabled={isSubmitting || (currentStep === 1 && !selectedProperty) || (currentStep === 2 && !selectedGoal) || (currentStep === 3 && !budget)}
                             >
                                 {isSubmitting ? (

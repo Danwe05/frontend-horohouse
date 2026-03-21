@@ -116,7 +116,7 @@ export function StudentIdUploadStep() {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-14 h-14 bg-indigo-50/80 rounded-2xl flex items-center justify-center mb-3 shadow-inner border border-indigo-100/50"
+          className="mx-auto w-14 h-14 bg-indigo-50/80 rounded-2xl flex items-center justify-center mb-3 -inner border border-indigo-100/50"
         >
           <ShieldCheck className="h-7 w-7 text-indigo-600" />
         </motion.div>
@@ -170,7 +170,7 @@ export function StudentIdUploadStep() {
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
               className={`
-                relative cursor-pointer rounded-2xl border-2 border-dashed p-10
+                relative cursor-pointer rounded-2xl border-1 border-dashed p-10
                 flex flex-col items-center justify-center gap-3 text-center
                 transition-colors duration-200
                 ${isDragging
@@ -212,14 +212,14 @@ export function StudentIdUploadStep() {
               {/* Overlay badges */}
               <div className="absolute top-3 right-3 flex gap-2">
                 {uploaded && (
-                  <span className="flex items-center gap-1 bg-emerald-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow">
+                  <span className="flex items-center gap-1 bg-emerald-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full ">
                     <CheckCircle2 className="w-3 h-3" />
                     Uploaded
                   </span>
                 )}
                 <button
                   onClick={clearFile}
-                  className="bg-white/90 hover:bg-white rounded-full p-1.5 shadow transition-colors"
+                  className="bg-white/90 hover:bg-white rounded-full p-1.5  transition-colors"
                 >
                   <X className="w-4 h-4 text-slate-600" />
                 </button>
@@ -263,7 +263,7 @@ export function StudentIdUploadStep() {
               <Button
                 onClick={handleUpload}
                 disabled={isUploading}
-                className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md shadow-indigo-200/50 font-semibold"
+                className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl -md -indigo-200/50 font-semibold"
               >
                 {isUploading ? (
                   <>
@@ -306,7 +306,7 @@ export function StudentIdUploadStep() {
 
         <Button
           onClick={nextStep}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 sm:px-8 shadow-md shadow-blue-200/50"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 sm:px-8 -md -blue-200/50"
         >
           <span className="flex items-center font-medium">
             {uploaded ? 'Continue' : 'Skip for now'}

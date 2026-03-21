@@ -117,7 +117,7 @@ export default function BlockedDatesPage() {
                         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-200 pb-8">
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
-                                    <div className="p-2.5 bg-emerald-600 rounded-xl shadow-lg shadow-emerald-200">
+                                    <div className="p-2.5 bg-emerald-600 rounded-xl -lg -emerald-200">
                                         <CalendarIcon className="w-5 h-5 text-white" />
                                     </div>
                                     <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Availability</h1>
@@ -136,13 +136,13 @@ export default function BlockedDatesPage() {
                             <div className="space-y-8 lg:col-span-4">
                                 <section className="space-y-3">
                                     <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 ml-1">Select Property</label>
-                                    <Card className="border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
+                                    <Card className="border-zinc-200 -sm rounded-2xl overflow-hidden">
                                         <CardContent className="p-4">
                                             {loadingProperties ? (
                                                 <div className="flex justify-center py-2"><Loader2 className="h-5 w-5 animate-spin text-emerald-600" /></div>
                                             ) : (
                                                 <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
-                                                    <SelectTrigger className="w-full border-none bg-zinc-50 hover:bg-zinc-100 transition-colors focus:ring-0 shadow-none h-12">
+                                                    <SelectTrigger className="w-full border-none bg-zinc-50 hover:bg-zinc-100 transition-colors focus:ring-0 -none h-12">
                                                         <SelectValue placeholder="Choose a property" />
                                                     </SelectTrigger>
                                                     <SelectContent className="rounded-xl border-zinc-200">
@@ -160,7 +160,7 @@ export default function BlockedDatesPage() {
 
                                 <section className="space-y-3">
                                     <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 ml-1">Current Restrictions</label>
-                                    <Card className="border-zinc-200 shadow-sm rounded-2xl overflow-hidden bg-white">
+                                    <Card className="border-zinc-200 -sm rounded-2xl overflow-hidden bg-white">
                                         <CardContent className="p-0">
                                             {loadingRanges ? (
                                                 <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-zinc-300" /></div>
@@ -205,7 +205,7 @@ export default function BlockedDatesPage() {
 
                             {/* Main Content: Calendar Area (8 cols) */}
                             <div className="lg:col-span-8 space-y-6">
-                                <Card className="border-zinc-200 shadow-xl shadow-zinc-200/50 rounded-[2rem] bg-white overflow-hidden">
+                                <Card className="border-zinc-200 -xl -zinc-200/50 rounded-[2rem] bg-white overflow-hidden">
                                     <CardHeader className="bg-zinc-50/50 border-b border-zinc-100 p-8">
                                         <div className="flex items-center justify-between">
                                             <CardTitle className="text-xl font-bold text-zinc-800">Availability Grid</CardTitle>
@@ -225,7 +225,7 @@ export default function BlockedDatesPage() {
                                                 </div>
 
                                                 {selection && (
-                                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 rounded-[1.5rem] bg-zinc-900 text-white shadow-2xl animate-in zoom-in-95 duration-300">
+                                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 rounded-[1.5rem] bg-zinc-900 text-white -2xl animate-in zoom-in-95 duration-300">
                                                         <div className="flex items-center gap-4">
                                                             <div className="h-12 w-12 rounded-xl bg-emerald-500 flex items-center justify-center">
                                                                 <Plus className="h-6 w-6 text-white" />
@@ -240,7 +240,7 @@ export default function BlockedDatesPage() {
                                                         <div className="flex items-center gap-3 w-full sm:w-auto">
                                                             <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-white/10" onClick={() => setSelection(null)}>Discard</Button>
                                                             <Button
-                                                                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 rounded-xl h-12 shadow-lg shadow-emerald-900/20"
+                                                                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 rounded-xl h-12 -lg -emerald-900/20"
                                                                 onClick={() => setBlockDialogOpen(true)}
                                                             >
                                                                 Restrict Dates
@@ -277,7 +277,7 @@ export default function BlockedDatesPage() {
                                             <h3 className="text-sm font-bold text-zinc-900">Syncing</h3>
                                         </div>
                                         <p className="text-xs text-zinc-600 leading-relaxed font-medium">
-                                            Blocked dates are immediately removed from your public listing. 
+                                            Blocked dates are immediately removed from your public listing.
                                             Existing confirmed guest bookings take priority and cannot be manually blocked.
                                         </p>
                                     </div>
@@ -290,7 +290,7 @@ export default function BlockedDatesPage() {
 
             {/* ── Block Dialog: Polished ── */}
             <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
-                <DialogContent className="sm:max-w-md rounded-[2rem] p-8 border-none shadow-2xl">
+                <DialogContent className="sm:max-w-md rounded-[2rem] p-8 border-none -2xl">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold">Add Note</DialogTitle>
                         <DialogDescription className="text-zinc-500">

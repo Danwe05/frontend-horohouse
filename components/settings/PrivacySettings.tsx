@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Eye, 
-  EyeOff, 
-  Shield, 
-  Users, 
+import {
+  Eye,
+  EyeOff,
+  Shield,
+  Users,
   Globe,
   Lock,
   Database,
@@ -52,7 +52,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const { t } = useLanguage();
   const s = (t as any)?.settings || {};
-  
+
   const [privacySettings, setPrivacySettings] = useState<PrivacySetting[]>([
     // Profile Privacy
     {
@@ -82,7 +82,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
       category: 'profile',
       level: 'public'
     },
-    
+
     // Activity Privacy
     {
       id: 'activity_tracking',
@@ -111,7 +111,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
       category: 'activity',
       level: 'public'
     },
-    
+
     // Data Privacy
     {
       id: 'analytics_participation',
@@ -131,7 +131,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
       category: 'data',
       level: 'private'
     },
-    
+
     // Communication Privacy
     {
       id: 'direct_messages',
@@ -154,13 +154,13 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   ]);
 
   const handleSettingChange = (id: string, enabled: boolean) => {
-    setPrivacySettings(prev => prev.map(setting => 
+    setPrivacySettings(prev => prev.map(setting =>
       setting.id === id ? { ...setting, enabled } : setting
     ));
   };
 
   const handleLevelChange = (id: string, level: PrivacySetting['level']) => {
-    setPrivacySettings(prev => prev.map(setting => 
+    setPrivacySettings(prev => prev.map(setting =>
       setting.id === id ? { ...setting, level } : setting
     ));
   };
@@ -196,7 +196,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   const handleDataExport = async () => {
     try {
       setIsLoading(true);
-      
+
       const response = await apiClient.request({
         method: 'POST',
         url: '/users/me/export-data',
@@ -226,7 +226,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   const handleDeleteAccount = async () => {
     try {
       setIsLoading(true);
-      
+
       await apiClient.request({
         method: 'DELETE',
         url: '/users/me/account'
@@ -325,7 +325,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                           {getLevelBadge(setting.level)}
                         </div>
                         <p className="text-xs sm:text-sm text-gray-500 mb-3">{setting.description}</p>
-                        
+
                         {(setting.category === 'profile' || setting.category === 'communication') && (
                           <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                             <Label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{s?.visibility || "Visibility:"}</Label>
@@ -344,7 +344,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                         )}
                       </div>
                     </div>
-                    
+
                     <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto sm:ml-4">
                       <input
                         type="checkbox"
@@ -464,12 +464,12 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900">{s?.deleteAccountModalTitle || "Delete Account"}</h3>
             </div>
-            
+
             <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
               <p className="text-sm text-gray-600">
                 {s?.deleteAccountModalDesc || "This action cannot be undone. This will permanently delete your account and remove all your data from our servers."}
               </p>
-              
+
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-800 font-medium">{s?.whatWillBeDeleted || "What will be deleted:"}</p>
                 <ul className="text-xs sm:text-sm text-red-700 mt-2 space-y-1">
@@ -480,7 +480,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <Button
                 onClick={handleDeleteAccount}
@@ -510,11 +510,10 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
 
       {/* Message Display */}
       {message && (
-        <div className={`p-3 sm:p-4 rounded-md ${
-          message.type === 'success' 
-            ? 'bg-green-50 border border-green-200 text-green-800' 
+        <div className={`p-3 sm:p-4 rounded-md ${message.type === 'success'
+            ? 'bg-green-50 border border-green-200 text-green-800'
             : 'bg-red-50 border border-red-200 text-red-800'
-        }`}>
+          }`}>
           <div className="flex items-center space-x-2">
             {message.type === 'success' ? (
               <Check className="h-4 w-4 flex-shrink-0" />
@@ -527,7 +526,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
       )}
 
       {/* Save Button */}
-      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg shadow-lg sm:shadow-none sm:bg-transparent sm:p-0 sm:static">
+      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg -lg sm:-none sm:bg-transparent sm:p-0 sm:static">
         <Button
           onClick={handleSave}
           disabled={isLoading}

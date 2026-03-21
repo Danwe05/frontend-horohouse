@@ -57,7 +57,7 @@ export default function Footer() {
 
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white py-10 px-6 md:px-12" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <footer className="bg-blue-900 text-white rounded-3xl shadow-2xl overflow-hidden relative">
+      <footer className="bg-blue-900 text-white rounded-3xl -2xl overflow-hidden relative">
         {/* Decorative background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
@@ -158,7 +158,7 @@ export default function Footer() {
                 />
                 <motion.button
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-2 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-lg"
+                  className="px-8 py-2 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 -lg"
                 >
                   {_t.footer?.subscribe || "Subscribe"}
                 </motion.button>

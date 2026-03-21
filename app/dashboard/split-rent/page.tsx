@@ -120,7 +120,7 @@ function RentCalculator() {
     };
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 -sm overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5">
                 <div className="flex items-center gap-3">
@@ -160,7 +160,7 @@ function RentCalculator() {
                         </button>
                         <div className="flex-1 flex items-center justify-center gap-2">
                             {Array.from({ length: tenantCount }).map((_, i) => (
-                                <div key={i} className="w-9 h-9 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
+                                <div key={i} className="w-9 h-9 rounded-full bg-emerald-50 border-1 border-emerald-200 flex items-center justify-center">
                                     <Users className="w-4 h-4 text-emerald-600" />
                                 </div>
                             ))}
@@ -229,7 +229,7 @@ function RentCalculator() {
                 <Button
                     onClick={handleCalculate}
                     disabled={loading || !totalRent}
-                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-sm"
+                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold -sm"
                 >
                     {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Calculating…</> : 'Calculate Split'}
                 </Button>
@@ -285,7 +285,7 @@ function CycleCard({ cycle, currentUserId }: { cycle: PaymentCycle; currentUserI
     const progress = cycle.totalRent > 0 ? (cycle.totalCollected / cycle.totalRent) * 100 : 0;
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 -sm overflow-hidden">
             {/* Header */}
             <button
                 onClick={() => setExpanded(!expanded)}
@@ -444,7 +444,7 @@ function SplitRentContent() {
             </motion.div>
 
             {/* Tabs */}
-            <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit shadow-sm">
+            <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit -sm">
                 {[
                     { key: 'calculator', label: 'Calculator', icon: Calculator },
                     { key: 'my-payments', label: 'My Payments', icon: Wallet },
@@ -460,7 +460,7 @@ function SplitRentContent() {
                         className={cn(
                             'flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all',
                             tab === t.key
-                                ? 'bg-emerald-600 text-white shadow-sm'
+                                ? 'bg-emerald-600 text-white -sm'
                                 : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                         )}
                     >

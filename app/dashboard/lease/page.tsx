@@ -109,26 +109,26 @@ export default function MyLeasePage() {
 
                             {/* Status Banner */}
                             <div className={`rounded-xl p-4 border flex items-center justify-between ${isActive ? "bg-emerald-50 border-emerald-200" :
-                                    isPending ? "bg-amber-50 border-amber-200" :
-                                        "bg-gray-50 border-gray-200"
+                                isPending ? "bg-amber-50 border-amber-200" :
+                                    "bg-gray-50 border-gray-200"
                                 }`}>
                                 <div className="flex items-center gap-3">
                                     <div className={`p-2 rounded-full ${isActive ? "bg-emerald-100 text-emerald-600" :
-                                            isPending ? "bg-amber-100 text-amber-600" :
-                                                "bg-gray-200 text-gray-500"
+                                        isPending ? "bg-amber-100 text-amber-600" :
+                                            "bg-gray-200 text-gray-500"
                                         }`}>
                                         <FileText className="w-5 h-5" />
                                     </div>
                                     <div>
                                         <h3 className={`font-semibold ${isActive ? "text-emerald-800" :
-                                                isPending ? "text-amber-800" :
-                                                    "text-gray-700"
+                                            isPending ? "text-amber-800" :
+                                                "text-gray-700"
                                             }`}>
                                             {isActive ? "Lease Active" : isPending ? "Pending Landlord Approval" : "Lease Ended"}
                                         </h3>
                                         <p className={`text-sm ${isActive ? "text-emerald-600" :
-                                                isPending ? "text-amber-600" :
-                                                    "text-gray-500"
+                                            isPending ? "text-amber-600" :
+                                                "text-gray-500"
                                             }`}>
                                             Valid from {format(new Date(leaseInfo.leaseStart), "MMM d, yyyy")} to {format(new Date(leaseInfo.leaseEnd), "MMM d, yyyy")}
                                         </p>
@@ -150,7 +150,7 @@ export default function MyLeasePage() {
                                 <div className="md:col-span-2 space-y-6">
 
                                     {/* Property Details Card */}
-                                    <Card className="border-border/50 shadow-sm overflow-hidden">
+                                    <Card className="border-border/50 -sm overflow-hidden">
                                         {leaseInfo.property?.image && (
                                             <div className="h-48 w-full relative">
                                                 <img
@@ -199,7 +199,7 @@ export default function MyLeasePage() {
                                     </Card>
 
                                     {/* Financials Card */}
-                                    <Card className="border-border/50 shadow-sm">
+                                    <Card className="border-border/50 -sm">
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-2">
                                                 <CircleDollarSign className="w-5 h-5 text-blue-500" />
@@ -238,12 +238,12 @@ export default function MyLeasePage() {
                                 <div className="space-y-6">
 
                                     {/* Landlord Contact Card */}
-                                    <Card className="border-border/50 shadow-sm">
+                                    <Card className="border-border/50 -sm">
                                         <CardHeader>
                                             <CardTitle className="text-lg">Your Landlord</CardTitle>
                                         </CardHeader>
                                         <CardContent className="flex flex-col items-center text-center pb-6">
-                                            <div className="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden mb-4 shadow-inner">
+                                            <div className="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden mb-4 -inner">
                                                 {leaseInfo.landlord.profilePicture ? (
                                                     <img src={leaseInfo.landlord.profilePicture} alt={leaseInfo.landlord.name} className="w-full h-full object-cover" />
                                                 ) : (
@@ -272,7 +272,7 @@ export default function MyLeasePage() {
                                     </Card>
 
                                     {/* Important Dates */}
-                                    <Card className="border-border/50 shadow-sm bg-blue-50/50">
+                                    <Card className="border-border/50 -sm bg-blue-50/50">
                                         <CardHeader>
                                             <CardTitle className="text-lg flex items-center gap-2">
                                                 <CalendarDays className="w-5 h-5 text-blue-500" /> Key Dates

@@ -17,14 +17,14 @@ interface Property {
 }
 
 const PropertyCard: React.FC<Property> = ({ title, price, location, bedrooms, bathrooms, area, image }) => (
-  <div className="bg-white rounded-xl shadow-md overflow-hidden w-[300px]">
+  <div className="bg-white rounded-xl -md overflow-hidden w-[300px]">
     <div className="relative">
       <img
-        src={image || 'https://via.placeholder.com/300x180'} 
+        src={image || 'https://via.placeholder.com/300x180'}
         alt={title}
         className="w-full h-44 object-cover"
       />
-      <span className="absolute top-2 left-2 bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full shadow">
+      <span className="absolute top-2 left-2 bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full ">
         Added today
       </span>
     </div>
@@ -71,7 +71,7 @@ const AddProperty: React.FC = () => {
       {/* Bouton Add Property */}
       <button
         className="px-5 py-3 mt-7 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 cursor-pointer"
-        onClick={() => router.push('/dashboard/propertyForm')} 
+        onClick={() => router.push('/dashboard/propertyForm')}
       >
         + Add Property
       </button>

@@ -143,7 +143,7 @@ export default function AvailabilityCalendar({ propertyId, onRangeSelect, value 
     const months = [viewing, addMonths(viewing, 1)];
 
     return (
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 -sm">
             {/* Navigation */}
             <div className="mb-4 flex items-center justify-between">
                 <button

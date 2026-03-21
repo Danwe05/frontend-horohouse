@@ -72,7 +72,7 @@ export function CompletionStep() {
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className={`w-24 h-24 rounded-[2rem] flex items-center justify-center shadow-xl mb-8 bg-gradient-to-br ${data.color}`}
+        className={`w-24 h-24 rounded-[2rem] flex items-center justify-center -xl mb-8 bg-gradient-to-br ${data.color}`}
       >
         {data.icon}
       </motion.div>
@@ -95,7 +95,7 @@ export function CompletionStep() {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="w-full max-w-md bg-white/60 backdrop-blur-sm border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm mb-10"
+        className="w-full max-w-md bg-white/60 backdrop-blur-sm border border-slate-100 rounded-3xl p-6 sm:p-8 -sm mb-10"
       >
         <h3 className="font-semibold text-slate-800 mb-4 flex items-center">
           <CheckCircle2 className="w-5 h-5 mr-2 text-blue-500" />
@@ -128,7 +128,7 @@ export function CompletionStep() {
         <Button
           onClick={handleComplete}
           disabled={isLoading}
-          className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-2xl h-14 text-lg font-semibold shadow-lg shadow-slate-300 transition-all group"
+          className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-2xl h-14 text-lg font-semibold -lg -slate-300 transition-all group"
         >
           {isLoading ? (
             <Loader2 className="w-6 h-6 animate-spin mx-auto" />

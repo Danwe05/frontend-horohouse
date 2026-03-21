@@ -42,16 +42,16 @@ const tourTypes = [
   { id: "virtual", label: "Virtual Tour", icon: CalendarIcon, description: "Video call tour" },
 ];
 
-export default function ScheduleTourModal({ 
-  open, 
-  onOpenChange, 
-  propertyId, 
+export default function ScheduleTourModal({
+  open,
+  onOpenChange,
+  propertyId,
   propertyTitle,
   propertyAddress,
-  agentId, 
+  agentId,
   agentName,
-  initialDate, 
-  onScheduled 
+  initialDate,
+  onScheduled
 }: Props) {
   const { user, isAuthenticated } = useAuth();
   const [step, setStep] = useState<"type" | "datetime" | "details">("type");
@@ -110,18 +110,18 @@ export default function ScheduleTourModal({
       await apiClient.scheduleTour(payload as any);
 
       setSuccess(true);
-      toast.success("Tour scheduled successfully!", { 
-        description: "The agent will contact you to confirm." 
+      toast.success("Tour scheduled successfully!", {
+        description: "The agent will contact you to confirm."
       });
-      
+
       setTimeout(() => {
         onOpenChange(false);
         onScheduled?.();
       }, 2000);
     } catch (err: any) {
       console.error('Schedule tour error:', err);
-      toast.error("Failed to schedule tour", { 
-        description: err?.response?.data?.message || "Please try again later." 
+      toast.error("Failed to schedule tour", {
+        description: err?.response?.data?.message || "Please try again later."
       });
     } finally {
       setLoading(false);
@@ -198,11 +198,10 @@ export default function ScheduleTourModal({
             {["type", "datetime", "details"].map((s, idx) => (
               <React.Fragment key={s}>
                 <div className="flex items-center gap-2 flex-1">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                    step === s ? "bg-primary text-white" : 
-                    ["type", "datetime"].indexOf(step) > idx ? "bg-green-500 text-white" : 
-                    "bg-gray-200 text-gray-500"
-                  }`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${step === s ? "bg-primary text-white" :
+                    ["type", "datetime"].indexOf(step) > idx ? "bg-green-500 text-white" :
+                      "bg-gray-200 text-gray-500"
+                    }`}>
                     {["type", "datetime"].indexOf(step) > idx ? "✓" : idx + 1}
                   </div>
                   <span className={`text-xs font-medium ${step === s ? "text-gray-900" : "text-gray-500"}`}>
@@ -210,9 +209,8 @@ export default function ScheduleTourModal({
                   </span>
                 </div>
                 {idx < 2 && (
-                  <div className={`h-px flex-1 transition-colors ${
-                    ["type", "datetime"].indexOf(step) > idx ? "bg-green-500" : "bg-gray-200"
-                  }`} />
+                  <div className={`h-px flex-1 transition-colors ${["type", "datetime"].indexOf(step) > idx ? "bg-green-500" : "bg-gray-200"
+                    }`} />
                 )}
               </React.Fragment>
             ))}
@@ -230,18 +228,15 @@ export default function ScheduleTourModal({
                     key={type.id}
                     type="button"
                     onClick={() => setTourType(type.id)}
-                    className={`relative flex items-start gap-4 p-4 rounded-lg border-2 transition-all text-left ${
-                      tourType === type.id
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
+                    className={`relative flex items-start gap-4 p-4 rounded-lg border-1 transition-all text-left ${tourType === type.id
+                      ? "border-primary bg-primary/5 -sm"
+                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                      }`}
                   >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      tourType === type.id ? "bg-primary/10" : "bg-gray-100"
-                    }`}>
-                      <type.icon className={`w-5 h-5 ${
-                        tourType === type.id ? "text-primary" : "text-gray-600"
-                      }`} />
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tourType === type.id ? "bg-primary/10" : "bg-gray-100"
+                      }`}>
+                      <type.icon className={`w-5 h-5 ${tourType === type.id ? "text-primary" : "text-gray-600"
+                        }`} />
                     </div>
                     <div className="flex-1">
                       <div className="font-semibold text-sm text-gray-900">{type.label}</div>
@@ -262,10 +257,10 @@ export default function ScheduleTourModal({
               <div>
                 <Label className="text-base font-semibold mb-3 block">Select Date</Label>
                 <div className="border rounded-lg p-2 bg-white">
-                  <Calendar 
-                    mode="single" 
-                    selected={date} 
-                    onSelect={setDate} 
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
                     disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
                     className="rounded-md w-full border-0"
                   />
@@ -286,11 +281,10 @@ export default function ScheduleTourModal({
                       type="button"
                       key={slot.time}
                       onClick={() => setTime(slot.time)}
-                      className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition-all ${
-                        slot.time === time
-                          ? "border-primary bg-primary text-white shadow-sm"
-                          : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                      className={`px-4 py-3 rounded-lg text-sm font-medium border-1 transition-all ${slot.time === time
+                        ? "border-primary bg-primary text-white -sm"
+                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                        }`}
                     >
                       <div className="flex flex-col items-center">
                         <Clock className="w-4 h-4 mb-1" />
@@ -312,11 +306,11 @@ export default function ScheduleTourModal({
                     <User className="w-4 h-4 text-gray-500" />
                     Full Name *
                   </Label>
-                  <Input 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
+                  <Input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
-                    required 
+                    required
                     className="h-11"
                   />
                 </div>
@@ -325,11 +319,11 @@ export default function ScheduleTourModal({
                     <Phone className="w-4 h-4 text-gray-500" />
                     Phone Number *
                   </Label>
-                  <Input 
-                    value={phone} 
-                    onChange={(e) => setPhone(e.target.value)} 
+                  <Input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     placeholder="+1 234 567 8900"
-                    required 
+                    required
                     className="h-11"
                   />
                 </div>
@@ -340,12 +334,12 @@ export default function ScheduleTourModal({
                   <Mail className="w-4 h-4 text-gray-500" />
                   Email Address *
                 </Label>
-                <Input 
-                  type="email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="john@example.com"
-                  required 
+                  required
                   className="h-11"
                 />
               </div>
@@ -355,9 +349,9 @@ export default function ScheduleTourModal({
                   <MessageSquare className="w-4 h-4 text-gray-500" />
                   Additional Message (Optional)
                 </Label>
-                <Textarea 
-                  value={message} 
-                  onChange={(e) => setMessage(e.target.value)} 
+                <Textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   placeholder="Any specific requirements or questions..."
                   rows={3}
                   className="resize-none"
@@ -395,9 +389,9 @@ export default function ScheduleTourModal({
         {/* Footer Actions */}
         <div className="flex gap-3 pt-4 border-t">
           {step !== "type" && (
-            <Button 
+            <Button
               type="button"
-              variant="outline" 
+              variant="outline"
               onClick={() => {
                 if (step === "details") setStep("datetime");
                 else if (step === "datetime") setStep("type");
@@ -408,9 +402,9 @@ export default function ScheduleTourModal({
               Back
             </Button>
           )}
-          
+
           {step === "type" && (
-            <Button 
+            <Button
               type="button"
               onClick={() => setStep("datetime")}
               disabled={!canProceedToDateTime}
@@ -421,7 +415,7 @@ export default function ScheduleTourModal({
           )}
 
           {step === "datetime" && (
-            <Button 
+            <Button
               type="button"
               onClick={() => setStep("details")}
               disabled={!canProceedToDetails}
@@ -432,7 +426,7 @@ export default function ScheduleTourModal({
           )}
 
           {step === "details" && (
-            <Button 
+            <Button
               type="submit"
               onClick={handleSubmit}
               className="flex-1 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"

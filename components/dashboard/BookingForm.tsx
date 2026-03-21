@@ -254,7 +254,7 @@ export default function BookingForm({ property }: Props) {
 
   return (
     <>
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 -sm space-y-5">
 
         {/* Price header */}
         <div className="flex items-baseline justify-between">
@@ -287,7 +287,7 @@ export default function BookingForm({ property }: Props) {
                         <BedDouble className="h-4 w-4 text-slate-400" />
                         <div className="flex flex-col text-left">
                           <span className="font-semibold text-slate-900">{room.name} {room.roomNumber && `(#${room.roomNumber})`}</span>
-                           <span className="text-xs text-slate-500">{ROOM_TYPE_LABELS[room.roomType]} • Max {room.maxGuests} {s.guests || 'guests'} {room.price ? `• ${formatMoney(room.price)}/${s.night || 'night'}` : ''}</span>
+                          <span className="text-xs text-slate-500">{ROOM_TYPE_LABELS[room.roomType]} • Max {room.maxGuests} {s.guests || 'guests'} {room.price ? `• ${formatMoney(room.price)}/${s.night || 'night'}` : ''}</span>
                         </div>
                       </div>
                     </SelectItem>

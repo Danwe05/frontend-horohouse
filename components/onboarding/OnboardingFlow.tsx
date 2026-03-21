@@ -76,15 +76,15 @@ export function OnboardingFlow() {
         </div>
       );
     }
- 
+
     // ── Student flow (4 steps) ──────────────────────────────────────────────
     if (user?.role === 'student') {
       let StepComponent;
       switch (state.currentStep) {
-        case 1:  StepComponent = <WelcomeStep />;            break;
-        case 2:  StepComponent = <StudentInfoStep />;        break;
-        case 3:  StepComponent = <StudentIdUploadStep />;    break;
-        default: StepComponent = <StudentCompletionStep />;  break;
+        case 1: StepComponent = <WelcomeStep />; break;
+        case 2: StepComponent = <StudentInfoStep />; break;
+        case 3: StepComponent = <StudentIdUploadStep />; break;
+        default: StepComponent = <StudentCompletionStep />; break;
       }
       return (
         <motion.div
@@ -100,19 +100,19 @@ export function OnboardingFlow() {
         </motion.div>
       );
     }
- 
+
     // ── Agent flow (6 steps, unchanged) ────────────────────────────────────
     // ── Default user flow (5 steps, unchanged) ─────────────────────────────
     let StepComponent;
     switch (state.currentStep) {
-      case 1:  StepComponent = <WelcomeStep />;              break;
-      case 2:  StepComponent = user?.role === 'agent' ? <AgentInfoStep />         : <PropertyPreferencesStep />; break;
-      case 3:  StepComponent = user?.role === 'agent' ? <PropertyPreferencesStep /> : <LocationStep />;           break;
-      case 4:  StepComponent = user?.role === 'agent' ? <LocationStep />          : <BudgetStep />;               break;
-      case 5:  StepComponent = user?.role === 'agent' ? <BudgetStep />            : <CompletionStep />;           break;
-      default: StepComponent = <CompletionStep />;           break;
+      case 1: StepComponent = <WelcomeStep />; break;
+      case 2: StepComponent = user?.role === 'agent' ? <AgentInfoStep /> : <PropertyPreferencesStep />; break;
+      case 3: StepComponent = user?.role === 'agent' ? <PropertyPreferencesStep /> : <LocationStep />; break;
+      case 4: StepComponent = user?.role === 'agent' ? <LocationStep /> : <BudgetStep />; break;
+      case 5: StepComponent = user?.role === 'agent' ? <BudgetStep /> : <CompletionStep />; break;
+      default: StepComponent = <CompletionStep />; break;
     }
- 
+
     return (
       <motion.div
         key={state.currentStep}
@@ -131,7 +131,7 @@ export function OnboardingFlow() {
   if (state.error) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center max-w-sm p-8 bg-white rounded-3xl shadow-xl border border-red-50">
+        <div className="text-center max-w-sm p-8 bg-white rounded-3xl -xl border border-red-50">
           <div className="text-red-500 mb-6 bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
             <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -165,7 +165,7 @@ export function OnboardingFlow() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 min-h-0 bg-white/70 backdrop-blur-2xl border border-white shadow-2xl shadow-slate-200/50 rounded-[2rem] overflow-hidden flex flex-col relative">
+        <div className="flex-1 min-h-0 bg-white/70 backdrop-blur-2xl border border-white -2xl -slate-200/50 rounded-[2rem] overflow-hidden flex flex-col relative">
           <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/10 pointer-events-none" />
           <div className="flex-1 overflow-y-auto px-6 py-8 sm:px-12 sm:py-10 z-10 custom-scrollbar">
             <AnimatePresence mode="wait">

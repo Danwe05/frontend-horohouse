@@ -88,11 +88,10 @@ function MatchRow({
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 8 }}
-      className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${
-        isMatched
+      className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isMatched
           ? 'bg-emerald-50/60 border-emerald-200'
           : 'bg-white border-slate-100 hover:border-slate-200'
-      }`}
+        }`}
     >
       {/* Avatar */}
       <img
@@ -138,7 +137,7 @@ function MatchRow({
               className="h-8 w-8 p-0 rounded-xl border-red-200 text-red-500 hover:bg-red-50"
             >
               {acting === 'reject' ? (
-                <span className="w-3 h-3 border-2 border-red-300 border-t-red-500 rounded-full animate-spin" />
+                <span className="w-3 h-3 border-1 border-red-300 border-t-red-500 rounded-full animate-spin" />
               ) : (
                 <X className="w-3.5 h-3.5" />
               )}
@@ -150,7 +149,7 @@ function MatchRow({
               className="h-8 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
             >
               {acting === 'accept' ? (
-                <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <span className="w-3 h-3 border-1 border-white/40 border-t-white rounded-full animate-spin" />
               ) : (
                 <><Check className="w-3.5 h-3.5 mr-1" />{s.accept || 'Accept'}</>
               )}

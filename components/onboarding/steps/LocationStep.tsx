@@ -120,7 +120,7 @@ export function LocationStep() {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-14 h-14 bg-teal-50/80 rounded-2xl flex items-center justify-center mb-3 shadow-inner border border-teal-100/50"
+          className="mx-auto w-14 h-14 bg-teal-50/80 rounded-2xl flex items-center justify-center mb-3 -inner border border-teal-100/50"
         >
           <MapPin className="h-7 w-7 text-teal-600" />
         </motion.div>
@@ -146,7 +146,7 @@ export function LocationStep() {
                 onChange={(e) => setLocationInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={stepData.placeholder}
-                className="flex-1 bg-white/70 border-slate-200 focus-visible:ring-teal-500 h-12 rounded-xl text-base shadow-sm"
+                className="flex-1 bg-white/70 border-slate-200 focus-visible:ring-teal-500 h-12 rounded-xl text-base -sm"
               />
               <Button
                 type="button"
@@ -163,7 +163,7 @@ export function LocationStep() {
           </motion.div>
 
           <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <div className="min-h-[120px] p-4 rounded-2xl border-2 border-dashed border-slate-200 bg-white/30 backdrop-blur-sm">
+            <div className="min-h-[120px] p-4 rounded-2xl border-1 border-dashed border-slate-200 bg-white/30 backdrop-blur-sm">
               <AnimatePresence>
                 {locations.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
@@ -173,7 +173,7 @@ export function LocationStep() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                        className="inline-flex items-center px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-100/50 text-teal-800 text-sm font-medium shadow-sm"
+                        className="inline-flex items-center px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-100/50 text-teal-800 text-sm font-medium -sm"
                       >
                         <MapPin className="w-3.5 h-3.5 mr-1.5 text-teal-500" />
                         {loc}
@@ -235,7 +235,7 @@ export function LocationStep() {
         <Button
           onClick={handleNext}
           disabled={isLoading || !isFormValid()}
-          className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl px-6 sm:px-8 shadow-md shadow-teal-200/50"
+          className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl px-6 sm:px-8 -md -teal-200/50"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 mr-2 animate-spin" />

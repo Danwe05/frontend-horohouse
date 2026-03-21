@@ -47,7 +47,7 @@ function SearchResults() {
       status: "For Sale"
     },
     {
-      id: "2", 
+      id: "2",
       title: "Suburban Family House",
       description: "5 bedroom house with garden and pool",
       location: "California, Beverly Hills",
@@ -74,7 +74,7 @@ function SearchResults() {
     },
     {
       id: "2",
-      title: "Sarah Williams", 
+      title: "Sarah Williams",
       description: "Great, thank so much for the quick response!",
       unread: 0,
       date: "1 day ago"
@@ -124,7 +124,7 @@ function SearchResults() {
     }
 
     setIsLoading(true);
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -234,8 +234,8 @@ function SearchResults() {
     router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery)}`);
   };
 
-  const filteredResults = activeFilter === "all" 
-    ? results 
+  const filteredResults = activeFilter === "all"
+    ? results
     : results.filter(result => result.type === activeFilter);
 
   const getTypeColor = (type: SearchResult["type"]) => {
@@ -332,7 +332,7 @@ function SearchResults() {
             {filteredResults.map((result) => {
               const Icon = result.icon;
               return (
-                <Card key={result.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card key={result.id} className="hover:-md transition- cursor-pointer">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">

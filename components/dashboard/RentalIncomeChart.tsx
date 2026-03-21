@@ -34,7 +34,7 @@ interface SummaryConfig {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (v: number) => {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M XAF`
-  if (v >= 1_000)     return `${(v / 1_000).toFixed(0)}K XAF`
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K XAF`
   return `${v.toLocaleString()} XAF`
 }
 
@@ -43,7 +43,7 @@ function lastNMonths(n = 6) {
   return Array.from({ length: n }).map((_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() - (n - 1 - i), 1)
     return {
-      key:   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
       label: d.toLocaleString("default", { month: "short" }),
     }
   })
@@ -63,7 +63,7 @@ function buildDateRange(months = 6) {
   const start = new Date(end.getFullYear(), end.getMonth() - (months - 1), 1)
   return {
     startDate: start.toISOString().split("T")[0],
-    endDate:   end.toISOString().split("T")[0],
+    endDate: end.toISOString().split("T")[0],
   }
 }
 
@@ -87,8 +87,8 @@ async function fetchAdmin(): Promise<ChartRow[]> {
   })
   if (!Array.isArray(points)) return []
   return points.map((p) => ({
-    month:     periodLabel(p.period),
-    primary:   p.grossRevenue ?? 0,
+    month: periodLabel(p.period),
+    primary: p.grossRevenue ?? 0,
     secondary: p.platformFees ?? 0,
   }))
 }
@@ -120,15 +120,15 @@ async function fetchAgent(): Promise<ChartRow[]> {
   } catch { /* non-critical */ }
 
   return months.map((m) => ({
-    month:     m.label,
-    primary:   map[m.key].primary,
+    month: m.label,
+    primary: map[m.key].primary,
     secondary: map[m.key].secondary,
   }))
 }
 
 async function fetchLandlord(): Promise<ChartRow[]> {
   const months = lastNMonths(6)
-  const expected: Record<string, number>  = {}
+  const expected: Record<string, number> = {}
   const collected: Record<string, number> = {}
   months.forEach((m) => { expected[m.key] = 0; collected[m.key] = 0 })
 
@@ -141,7 +141,7 @@ async function fetchLandlord(): Promise<ChartRow[]> {
       if (!(key in expected)) return
       const shares: any[] = cycle.tenantShares ?? []
       shares.forEach((ts: any) => {
-        expected[key]  += ts.amountDue ?? 0
+        expected[key] += ts.amountDue ?? 0
         if (ts.status === "paid") collected[key] += ts.amountPaid ?? ts.amountDue ?? 0
       })
     })
@@ -162,8 +162,8 @@ async function fetchLandlord(): Promise<ChartRow[]> {
   } catch { /* non-critical */ }
 
   return months.map((m) => ({
-    month:     m.label,
-    primary:   collected[m.key],  // collected = green bar
+    month: m.label,
+    primary: collected[m.key],  // collected = green bar
     secondary: expected[m.key],   // expected = blue ghost
   }))
 }
@@ -184,8 +184,8 @@ async function fetchUser(): Promise<ChartRow[]> {
   } catch { /* non-critical */ }
 
   return months.map((m) => ({
-    month:     m.label,
-    primary:   map[m.key],
+    month: m.label,
+    primary: map[m.key],
     secondary: 0,
   }))
 }
@@ -206,7 +206,7 @@ function getRoleCfg(role: string): {
         primaryColor: "#10b981", secondaryColor: "#3b82f6",
         labels: (rows) => ({
           primaryLabel: "Gross Revenue", secondaryLabel: "Platform Fees",
-          primaryTotal:   rows.reduce((s, r) => s + r.primary, 0),
+          primaryTotal: rows.reduce((s, r) => s + r.primary, 0),
           secondaryTotal: rows.reduce((s, r) => s + r.secondary, 0),
         }),
       }
@@ -217,7 +217,7 @@ function getRoleCfg(role: string): {
         primaryColor: "#6366f1", secondaryColor: "#f59e0b",
         labels: (rows) => ({
           primaryLabel: "Hosting Revenue", secondaryLabel: "Commissions",
-          primaryTotal:   rows.reduce((s, r) => s + r.primary, 0),
+          primaryTotal: rows.reduce((s, r) => s + r.primary, 0),
           secondaryTotal: rows.reduce((s, r) => s + r.secondary, 0),
         }),
       }
@@ -244,7 +244,7 @@ function getRoleCfg(role: string): {
         primaryColor: "#8b5cf6", secondaryColor: "transparent",
         labels: (rows) => ({
           primaryLabel: "Total Spent", secondaryLabel: "",
-          primaryTotal:   rows.reduce((s, r) => s + r.primary, 0),
+          primaryTotal: rows.reduce((s, r) => s + r.primary, 0),
           secondaryTotal: 0,
         }),
       }
@@ -256,9 +256,9 @@ export function RentalIncomeChart() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth()
   const role = user?.role ?? "user"
 
-  const [rows, setRows]       = React.useState<ChartRow[]>([])
+  const [rows, setRows] = React.useState<ChartRow[]>([])
   const [loading, setLoading] = React.useState(true)
-  const [error, setError]     = React.useState<string | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
 
   const cfg = React.useMemo(() => getRoleCfg(role), [role])
 
@@ -267,10 +267,10 @@ export function RentalIncomeChart() {
     setLoading(true); setError(null)
     try {
       let data: ChartRow[] = []
-      if (role === "admin")         data = await fetchAdmin()
-      else if (role === "agent")    data = await fetchAgent()
+      if (role === "admin") data = await fetchAdmin()
+      else if (role === "agent") data = await fetchAgent()
       else if (role === "landlord") data = await fetchLandlord()
-      else                          data = await fetchUser()
+      else data = await fetchUser()
       setRows(data)
     } catch (err: any) {
       const raw = err?.response?.data?.message ?? err?.message ?? "Failed to load data"
@@ -282,17 +282,17 @@ export function RentalIncomeChart() {
 
   React.useEffect(() => { if (!authLoading) fetchData() }, [authLoading, fetchData])
 
-  const trend   = React.useMemo(() => calcTrend(rows), [rows])
+  const trend = React.useMemo(() => calcTrend(rows), [rows])
   const summary = React.useMemo(() => cfg.labels(rows), [cfg, rows])
   const hasData = rows.some((r) => r.primary > 0 || r.secondary > 0)
 
   const chartConfig: ChartConfig = React.useMemo(() => ({
-    primary:   { label: summary.primaryLabel,   color: cfg.primaryColor },
+    primary: { label: summary.primaryLabel, color: cfg.primaryColor },
     secondary: { label: summary.secondaryLabel, color: cfg.secondaryColor },
   }), [summary, cfg])
 
   if (authLoading || loading) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <Skeleton className="h-6 w-44 mb-2" /><Skeleton className="h-4 w-56" />
       </div>
@@ -310,7 +310,7 @@ export function RentalIncomeChart() {
   )
 
   if (error) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">{cfg.title}</CardTitle>
       </div>
@@ -329,7 +329,7 @@ export function RentalIncomeChart() {
   )
 
   if (!hasData) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">{cfg.title}</CardTitle>
         <CardDescription className="text-slate-500">{cfg.subtitle}</CardDescription>
@@ -349,7 +349,7 @@ export function RentalIncomeChart() {
   )
 
   return (
-    <Card className="overflow-hidden border-0 shadow-lg pb-0 bg-white">
+    <Card className="overflow-hidden border-0 -lg pb-0 bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardHeader className="p-0">
           <div className="flex items-start justify-between">
@@ -430,9 +430,9 @@ export function RentalIncomeChart() {
                 <span className="text-xs font-bold text-slate-500">{summary.extraLabel}</span>
               </div>
               <span className={cn("text-lg font-bold pl-4",
-                summary.extraValue && Number(summary.extraValue.replace("%","")) >= 80
+                summary.extraValue && Number(summary.extraValue.replace("%", "")) >= 80
                   ? "text-emerald-600"
-                  : summary.extraValue && Number(summary.extraValue.replace("%","")) >= 60
+                  : summary.extraValue && Number(summary.extraValue.replace("%", "")) >= 60
                     ? "text-amber-600" : "text-rose-600"
               )}>
                 {summary.extraValue}

@@ -6,12 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Home, 
-  MapPin, 
-  DollarSign, 
-  Eye, 
-  Heart, 
+import {
+  Home,
+  MapPin,
+  DollarSign,
+  Eye,
+  Heart,
   MessageSquare,
   Calendar,
   Star,
@@ -91,12 +91,12 @@ const PropertyCardSkeleton: React.FC = () => (
   </Card>
 );
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ 
-  property, 
-  onAction, 
+const PropertyCard: React.FC<PropertyCardProps> = ({
+  property,
+  onAction,
   showActions = true,
   isOwner = false,
-  isLoading = false 
+  isLoading = false
 }) => {
   const { formatMoney } = useCurrency();
   const { t } = useLanguage();
@@ -109,7 +109,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 
   const getStatusColor = (status: Property['status']) => {
     if (!status) return 'bg-gray-100 text-gray-800';
-    
+
     switch (status) {
       case 'active':
         return 'bg-green-100 text-green-800';
@@ -133,7 +133,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:-lg transition-">
       <div className="relative">
         <img
           src={(property.images && property.images[0]) || '/placeholder-property.jpg'}
@@ -157,7 +157,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           </div>
         )}
       </div>
-      
+
       <CardContent className="p-4">
         <div className="space-y-3">
           <div>
@@ -171,7 +171,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               </span>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-1">
               <DollarSign className="h-4 w-4 text-green-600" />
@@ -181,7 +181,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             </div>
             <Badge variant="outline">{property.type}</Badge>
           </div>
-          
+
           {(property.bedrooms || property.bathrooms || property.area) && (
             <div className="flex items-center space-x-4 text-sm text-gray-600">
               {property.bedrooms && (
@@ -204,7 +204,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               )}
             </div>
           )}
-          
+
           <div className="flex items-center justify-between text-sm text-gray-500">
             <div className="flex items-center space-x-3">
               <div className="flex items-center space-x-1">
@@ -220,7 +220,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
                 <span>{property.inquiries || 0}</span>
               </div>
             </div>
-            
+
             {property.rating && (
               <div className="flex items-center space-x-1">
                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
@@ -228,11 +228,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               </div>
             )}
           </div>
-          
+
           <div className="text-xs text-gray-500">
             {s.listed || "Listed"}: {property.listedDate ? formatDate(property.listedDate) : (s.unknown || 'Unknown')}
           </div>
-          
+
           {showActions && (
             <div className="flex space-x-2 pt-2">
               <Button
@@ -273,9 +273,9 @@ interface FavoritePropertiesProps {
   maxItems?: number;
 }
 
-export const FavoriteProperties: React.FC<FavoritePropertiesProps> = ({ 
+export const FavoriteProperties: React.FC<FavoritePropertiesProps> = ({
   onAction,
-  maxItems = 6 
+  maxItems = 6
 }) => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -326,7 +326,7 @@ export const FavoriteProperties: React.FC<FavoritePropertiesProps> = ({
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        
+
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: maxItems }, (_, i) => (
@@ -337,9 +337,9 @@ export const FavoriteProperties: React.FC<FavoritePropertiesProps> = ({
           <div className="text-center py-8 text-gray-500">
             <Heart className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>{s.noFavoritesYet || "No favorite properties yet"}</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="mt-2"
               onClick={() => onAction('search', '')}
             >
@@ -368,9 +368,9 @@ interface AgentListingsProps {
   maxItems?: number;
 }
 
-export const AgentListings: React.FC<AgentListingsProps> = ({ 
+export const AgentListings: React.FC<AgentListingsProps> = ({
   onAction,
-  maxItems = 6 
+  maxItems = 6
 }) => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -389,7 +389,7 @@ export const AgentListings: React.FC<AgentListingsProps> = ({
         const data = await apiClient.getMyProperties();
         const propertyList = data.properties || data || [];
         setProperties(propertyList);
-        
+
         // Calculate stats
         setActiveProperties(propertyList.filter((p: Property) => p.status === 'active').length);
         setSoldProperties(propertyList.filter((p: Property) => p.status === 'sold').length);
@@ -404,7 +404,7 @@ export const AgentListings: React.FC<AgentListingsProps> = ({
     fetchMyProperties();
   }, []);
 
-const displayProperties = Array.isArray(properties) ? properties.slice(0, maxItems) : [];
+  const displayProperties = Array.isArray(properties) ? properties.slice(0, maxItems) : [];
 
 
   return (
@@ -437,7 +437,7 @@ const displayProperties = Array.isArray(properties) ? properties.slice(0, maxIte
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        
+
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: maxItems }, (_, i) => (
@@ -448,9 +448,9 @@ const displayProperties = Array.isArray(properties) ? properties.slice(0, maxIte
           <div className="text-center py-8 text-gray-500">
             <Home className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>{s.noPropertiesListed || "No properties listed yet"}</p>
-            <Button 
-              variant="default" 
-              size="sm" 
+            <Button
+              variant="default"
+              size="sm"
               className="mt-2"
               onClick={() => onAction('add-listing', '')}
             >
@@ -480,9 +480,9 @@ interface RecentlyViewedProps {
   maxItems?: number;
 }
 
-export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ 
+export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
   onAction,
-  maxItems = 4 
+  maxItems = 4
 }) => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -534,7 +534,7 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        
+
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {Array.from({ length: maxItems }, (_, i) => (
@@ -573,9 +573,9 @@ export const useFavoriteActions = () => {
       await apiClient.addToFavorites(propertyId);
       return { success: true };
     } catch (error: any) {
-      return { 
-        success: false, 
-        error: error?.response?.data?.message || 'Failed to add to favorites' 
+      return {
+        success: false,
+        error: error?.response?.data?.message || 'Failed to add to favorites'
       };
     } finally {
       setLoading(false);
@@ -588,9 +588,9 @@ export const useFavoriteActions = () => {
       await apiClient.removeFromFavorites(propertyId);
       return { success: true };
     } catch (error: any) {
-      return { 
-        success: false, 
-        error: error?.response?.data?.message || 'Failed to remove from favorites' 
+      return {
+        success: false,
+        error: error?.response?.data?.message || 'Failed to remove from favorites'
       };
     } finally {
       setLoading(false);

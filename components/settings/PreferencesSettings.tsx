@@ -251,14 +251,14 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
   // Render
   // ─────────────────────────────────────────────────────────────────────────
 
-  const chipBase = 'px-3 py-1.5 rounded-xl border-2 text-sm font-medium transition-all cursor-pointer select-none';
-  const chipOn = 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm shadow-blue-100';
+  const chipBase = 'px-3 py-1.5 rounded-xl border-1 text-sm font-medium transition-all cursor-pointer select-none';
+  const chipOn = 'border-blue-500 bg-blue-50 text-blue-700 -sm -blue-100';
   const chipOff = 'border-slate-200 bg-white/50 text-slate-600 hover:border-blue-200 hover:bg-slate-50';
 
-  const agentChipOn = 'border-indigo-400 bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100';
+  const agentChipOn = 'border-indigo-400 bg-indigo-50 text-indigo-700 -sm -indigo-100';
   const agentChipOff = 'border-slate-200 bg-white/50 text-slate-600 hover:border-indigo-200 hover:bg-slate-50';
 
-  const emeraldChipOn = 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm';
+  const emeraldChipOn = 'border-emerald-500 bg-emerald-50 text-emerald-700 -sm';
   const emeraldChipOff = 'border-slate-200 bg-white/50 text-slate-600 hover:bg-slate-50';
 
   const priceCurrency = prefs.currency ?? 'XAF';
@@ -268,7 +268,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
     <div className="space-y-5">
 
       {/* ── Location ───────────────────────────────────────────────────────── */}
-      <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+      <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
         <CardHeader className="pb-4 border-b border-gray-50/50">
           <CardTitle className="flex items-center gap-2 text-gray-800">
             <MapPin className="h-5 w-5 text-gray-400" />
@@ -331,7 +331,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
       </Card>
 
       {/* ── Property Types ─────────────────────────────────────────────────── */}
-      <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+      <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
         <CardHeader className="pb-4 border-b border-gray-50/50">
           <CardTitle className="flex items-center gap-2 text-gray-800">
             <Home className="h-5 w-5 text-gray-400" />
@@ -357,7 +357,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
       </Card>
 
       {/* ── Bedrooms & Bathrooms ───────────────────────────────────────────── */}
-      <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+      <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
         <CardHeader className="pb-4 border-b border-gray-50/50">
           <CardTitle className="flex items-center gap-2 text-gray-800">
             <Bed className="h-5 w-5 text-gray-400" />
@@ -374,7 +374,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                   <button
                     key={n}
                     onClick={() => toggleBedroom(n)}
-                    className={`flex items-center justify-center w-12 h-12 rounded-xl border-2 font-semibold transition-all cursor-pointer ${on ? chipOn : chipOff}`}
+                    className={`flex items-center justify-center w-12 h-12 rounded-xl border-1 font-semibold transition-all cursor-pointer ${on ? chipOn : chipOff}`}
                   >
                     {n}+
                   </button>
@@ -392,7 +392,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                   <button
                     key={n}
                     onClick={() => toggleBathroom(n)}
-                    className={`flex items-center justify-center w-12 h-12 rounded-xl border-2 font-semibold transition-all cursor-pointer ${on ? chipOn : chipOff}`}
+                    className={`flex items-center justify-center w-12 h-12 rounded-xl border-1 font-semibold transition-all cursor-pointer ${on ? chipOn : chipOff}`}
                   >
                     {n}+
                   </button>
@@ -404,7 +404,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
       </Card>
 
       {/* ── Features / Amenities ───────────────────────────────────────────── */}
-      <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+      <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
         <CardHeader className="pb-4 border-b border-gray-50/50">
           <CardTitle className="flex items-center gap-2 text-gray-800">
             <Palette className="h-5 w-5 text-gray-400" />
@@ -431,7 +431,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
 
       {/* ── Budget (buyer) ─────────────────────────────────────────────────── */}
       {!isAgent && (
-        <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+        <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
           <CardHeader className="pb-4 border-b border-gray-50/50">
             <CardTitle className="flex items-center gap-2 text-gray-800">
               <DollarSign className="h-5 w-5 text-gray-400" />
@@ -449,7 +449,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                 <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-emerald-500 h-11 rounded-xl font-medium">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+                <SelectContent className="rounded-xl border-slate-200 -xl">
                   {CURRENCIES.map(c => (
                     <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                   ))}
@@ -525,7 +525,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
 
       {/* ── Agent: Professional Preferences ───────────────────────────────── */}
       {isAgent && (
-        <Card className="rounded-2xl border-indigo-100 shadow-sm overflow-hidden">
+        <Card className="rounded-2xl border-indigo-100 -sm overflow-hidden">
           <CardHeader className="pb-4 border-b border-indigo-50">
             <CardTitle className="flex items-center gap-2 text-indigo-800">
               <Briefcase className="h-5 w-5 text-indigo-500" />
@@ -572,7 +572,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                 <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-indigo-500 rounded-xl h-11">
                   <SelectValue placeholder={s?.selectExperience || 'Select experience…'} />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+                <SelectContent className="rounded-xl border-slate-200 -xl">
                   {EXPERIENCE_RANGES.map(r => (
                     <SelectItem key={r.value} value={r.value.toString()} className="cursor-pointer">
                       {r.label}
@@ -648,7 +648,7 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
                 <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-indigo-500 h-11 rounded-xl font-medium">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+                <SelectContent className="rounded-xl border-slate-200 -xl">
                   {CURRENCIES.map(c => (
                     <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                   ))}
@@ -703,8 +703,8 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
       {/* ── Message ────────────────────────────────────────────────────────── */}
       {message && (
         <div className={`p-4 rounded-xl flex items-center gap-2 text-sm ${message.type === 'success'
-            ? 'bg-green-50 border border-green-200 text-green-800'
-            : 'bg-red-50 border border-red-200 text-red-800'
+          ? 'bg-green-50 border border-green-200 text-green-800'
+          : 'bg-red-50 border border-red-200 text-red-800'
           }`}>
           {message.type === 'success'
             ? <Check className="h-4 w-4 flex-shrink-0" />
@@ -714,12 +714,12 @@ export const PreferencesSettings: React.FC<PreferencesSettingsProps> = ({ user }
       )}
 
       {/* ── Save ───────────────────────────────────────────────────────────── */}
-      <div className="flex justify-end sticky bottom-4 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg sm:shadow-none sm:bg-transparent sm:p-0 sm:static border border-gray-100 sm:border-none">
+      <div className="flex justify-end sticky bottom-4 bg-white/80 backdrop-blur-md p-4 rounded-2xl -lg sm:-none sm:bg-transparent sm:p-0 sm:static border border-gray-100 sm:border-none">
         <Button
           onClick={handleSave}
           disabled={isLoading}
           size="lg"
-          className="w-full sm:w-auto min-w-36 rounded-xl shadow-sm hover:shadow-md transition-all"
+          className="w-full sm:w-auto min-w-36 rounded-xl -sm hover:-md transition-all"
         >
           {isLoading
             ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />

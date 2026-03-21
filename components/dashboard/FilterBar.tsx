@@ -35,7 +35,7 @@ export const FilterBar = ({
     onClear,
 }: FilterBarProps) => {
     return (
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 space-y-3">
+        <div className="bg-white border border-slate-200 rounded-2xl -sm p-4 space-y-3">
             <div className="flex flex-col sm:flex-row gap-3">
                 {/* Search */}
                 <div className="relative flex-1">

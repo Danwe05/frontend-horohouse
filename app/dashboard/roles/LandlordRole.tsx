@@ -53,7 +53,7 @@ export default function LandlordRole({ properties, loadingProperties, sortBy, se
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Property Portfolio */}
                 <div className="lg:col-span-2">
-                    <div className="bg-card rounded-lg border shadow-none p-3 lg:p-6">
+                    <div className="bg-card rounded-lg border -none p-3 lg:p-6">
                         <div className="flex items-center flex-wrap justify-between mb-6">
                             <div className="flex items-center gap-3">
                                 <h2 className="text-lg font-semibold">My Properties</h2>

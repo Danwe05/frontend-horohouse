@@ -159,7 +159,7 @@ export function BudgetStep() {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-14 h-14 bg-emerald-50/80 rounded-2xl flex items-center justify-center mb-3 shadow-inner border border-emerald-100/50"
+          className="mx-auto w-14 h-14 bg-emerald-50/80 rounded-2xl flex items-center justify-center mb-3 -inner border border-emerald-100/50"
         >
           <DollarSign className="h-7 w-7 text-emerald-600" />
         </motion.div>
@@ -182,10 +182,10 @@ export function BudgetStep() {
               value={budget.currency}
               onValueChange={(value) => setBudget(prev => ({ ...prev, currency: value }))}
             >
-              <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-emerald-500 h-12 rounded-xl text-base shadow-sm font-medium">
+              <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-emerald-500 h-12 rounded-xl text-base -sm font-medium">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+              <SelectContent className="rounded-xl border-slate-200 -xl">
                 {CURRENCIES.map((currency) => (
                   <SelectItem key={currency.value} value={currency.value} className="cursor-pointer">
                     {currency.label}
@@ -210,7 +210,7 @@ export function BudgetStep() {
                       onClick={() => setCommissionRate(range.min)}
                       className={`py-2 px-3 text-xs sm:text-sm border rounded-lg transition-colors font-medium
                         ${isActive
-                          ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm'
+                          ? 'border-emerald-500 bg-emerald-50 text-emerald-700 -sm'
                           : 'border-slate-200 bg-white/50 text-slate-600 hover:bg-slate-50'
                         }`}
                     >
@@ -251,7 +251,7 @@ export function BudgetStep() {
                     onClick={() => handlePresetSelect(preset)}
                     className={`py-2.5 px-2 text-xs sm:text-sm border rounded-xl transition-colors font-medium
                       ${isActive
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm'
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 -sm'
                         : 'border-slate-200 bg-white/50 text-slate-600 hover:bg-slate-50'
                       }`}
                   >
@@ -303,7 +303,7 @@ export function BudgetStep() {
         <Button
           onClick={handleNext}
           disabled={isLoading || !isFormValid()}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 sm:px-8 shadow-md shadow-emerald-200/50"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 sm:px-8 -md -emerald-200/50"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 mr-2 animate-spin" />

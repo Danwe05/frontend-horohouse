@@ -79,23 +79,23 @@ type LeadStats = {
 const STATUS_CONFIG: Record<LeadStatus, {
   label: string; bg: string; text: string; dot: string; border: string; hoverBg: string;
 }> = {
-  new:       { label: 'New',       bg: 'bg-blue-50',    text: 'text-blue-700',   dot: 'bg-blue-400',   border: 'border-blue-200',   hoverBg: 'hover:bg-blue-100' },
-  contacted: { label: 'Contacted', bg: 'bg-amber-50',   text: 'text-amber-700',  dot: 'bg-amber-400',  border: 'border-amber-200',  hoverBg: 'hover:bg-amber-100' },
-  qualified: { label: 'Qualified', bg: 'bg-emerald-50', text: 'text-emerald-700',dot: 'bg-emerald-500',border: 'border-emerald-200',hoverBg: 'hover:bg-emerald-100' },
-  lost:      { label: 'Lost',      bg: 'bg-slate-50',   text: 'text-slate-600',  dot: 'bg-slate-400',  border: 'border-slate-200',  hoverBg: 'hover:bg-slate-100' },
+  new: { label: 'New', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-400', border: 'border-blue-200', hoverBg: 'hover:bg-blue-100' },
+  contacted: { label: 'Contacted', bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400', border: 'border-amber-200', hoverBg: 'hover:bg-amber-100' },
+  qualified: { label: 'Qualified', bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', border: 'border-emerald-200', hoverBg: 'hover:bg-emerald-100' },
+  lost: { label: 'Lost', bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-200', hoverBg: 'hover:bg-slate-100' },
 };
 
 const PRIORITY_CONFIG: Record<LeadPriority, { label: string; bg: string; text: string; dot: string }> = {
-  high:   { label: 'High',   bg: 'bg-red-50',    text: 'text-red-600',    dot: 'bg-red-400' },
+  high: { label: 'High', bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-400' },
   medium: { label: 'Medium', bg: 'bg-yellow-50', text: 'text-yellow-700', dot: 'bg-yellow-400' },
-  low:    { label: 'Low',    bg: 'bg-slate-50',  text: 'text-slate-500',  dot: 'bg-slate-300' },
+  low: { label: 'Low', bg: 'bg-slate-50', text: 'text-slate-500', dot: 'bg-slate-300' },
 };
 
 const SOURCE_CONFIG: Record<LeadSource, { label: string; bg: string; text: string }> = {
-  website:  { label: 'Website',  bg: 'bg-indigo-50', text: 'text-indigo-700' },
+  website: { label: 'Website', bg: 'bg-indigo-50', text: 'text-indigo-700' },
   referral: { label: 'Referral', bg: 'bg-violet-50', text: 'text-violet-700' },
-  message:  { label: 'Message',  bg: 'bg-pink-50',   text: 'text-pink-700' },
-  campaign: { label: 'Campaign', bg: 'bg-cyan-50',   text: 'text-cyan-700' },
+  message: { label: 'Message', bg: 'bg-pink-50', text: 'text-pink-700' },
+  campaign: { label: 'Campaign', bg: 'bg-cyan-50', text: 'text-cyan-700' },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -104,12 +104,12 @@ function formatRelative(iso?: string) {
   if (!iso) return '—';
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1)   return 'just now';
-  if (mins < 60)  return `${mins}m ago`;
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24)   return `${hrs}h ago`;
+  if (hrs < 24) return `${hrs}h ago`;
   const days = Math.floor(hrs / 24);
-  if (days < 7)   return `${days}d ago`;
+  if (days < 7) return `${days}d ago`;
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
@@ -163,7 +163,7 @@ function AvatarBubble({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' 
   const sizeClass = { sm: 'w-7 h-7 text-[10px]', md: 'w-9 h-9 text-xs', lg: 'w-11 h-11 text-sm' }[size];
   return (
     <div className={cn(
-      'rounded-full bg-gradient-to-br flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0',
+      'rounded-full bg-gradient-to-br flex items-center justify-center font-bold text-white -sm flex-shrink-0',
       sizeClass, gradient
     )}>
       {getInitials(name)}
@@ -190,7 +190,7 @@ function LeadCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.25, delay: idx * 0.04 }}
-      className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden cursor-pointer"
+      className="group bg-white rounded-2xl border border-slate-200 -sm hover:-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden cursor-pointer"
       onClick={() => onNavigate(lead)}
     >
       {/* Status accent bar */}
@@ -219,7 +219,7 @@ function LeadCard({
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40 rounded-xl shadow-lg border-slate-100">
+              <DropdownMenuContent align="end" className="w-40 rounded-xl -lg border-slate-100">
                 <DropdownMenuItem onClick={() => onEdit(lead)} className="gap-2 cursor-pointer font-medium p-2.5">
                   <Pencil className="w-4 h-4 text-blue-500" /> Edit Lead
                 </DropdownMenuItem>
@@ -588,10 +588,10 @@ export default function LeadsPage() {
   // ─── Stats cards ─────────────────────────────────────────────────────────────
 
   const statsCards = [
-    { title: 'Total Leads',    value: stats?.total ?? 0,           icon: Users,        gradient: 'from-blue-50d0 to-indigo-600',    bg: 'bg-blue-50',    text: 'text-blue-600' },
-    { title: 'New This Week',  value: stats?.newThisWeek ?? 0,     icon: UserPlus,     gradient: 'from-amber-400 to-orange-500',   bg: 'bg-amber-50',   text: 'text-amber-600' },
-    { title: 'Qualified',      value: stats?.qualified ?? 0,       icon: CheckCircle2, gradient: 'from-emerald-500 to-teal-600',   bg: 'bg-emerald-50', text: 'text-emerald-600' },
-    { title: 'Conversion',     value: `${stats?.conversionRate ?? 0}%`, icon: TrendingUp, gradient: 'from-violet-500 to-purple-600', bg: 'bg-violet-50',  text: 'text-violet-600' },
+    { title: 'Total Leads', value: stats?.total ?? 0, icon: Users, gradient: 'from-blue-50d0 to-indigo-600', bg: 'bg-blue-50', text: 'text-blue-600' },
+    { title: 'New This Week', value: stats?.newThisWeek ?? 0, icon: UserPlus, gradient: 'from-amber-400 to-orange-500', bg: 'bg-amber-50', text: 'text-amber-600' },
+    { title: 'Qualified', value: stats?.qualified ?? 0, icon: CheckCircle2, gradient: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-50', text: 'text-emerald-600' },
+    { title: 'Conversion', value: `${stats?.conversionRate ?? 0}%`, icon: TrendingUp, gradient: 'from-violet-500 to-purple-600', bg: 'bg-violet-50', text: 'text-violet-600' },
   ];
 
   const hasFilters = query || statusFilter !== 'all' || priorityFilter !== 'all';
@@ -628,7 +628,7 @@ export default function LeadsPage() {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => setView('list')}
-                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'list' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-700')}
+                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'list' ? 'bg-white -sm text-slate-900' : 'text-slate-400 hover:text-slate-700')}
                           >
                             <List className="w-4 h-4" />
                           </button>
@@ -639,7 +639,7 @@ export default function LeadsPage() {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => setView('grid')}
-                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'grid' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-700')}
+                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'grid' ? 'bg-white -sm text-slate-900' : 'text-slate-400 hover:text-slate-700')}
                           >
                             <LayoutGrid className="w-4 h-4" />
                           </button>
@@ -658,7 +658,7 @@ export default function LeadsPage() {
                     </Button>
 
                     <Button
-                      className="rounded-full px-5 bg-blue-600 hover:bg-blue-700 shadow-sm gap-2"
+                      className="rounded-full px-5 bg-blue-600 hover:bg-blue-700 -sm gap-2"
                       onClick={() => { setNewLead({ ...emptyLead }); setIsAddOpen(true); }}
                     >
                       <Plus className="w-4 h-4" />
@@ -671,7 +671,7 @@ export default function LeadsPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {isStatsLoading
                     ? Array.from({ length: 4 }).map((_, i) => (
-                      <Card key={i} className="rounded-2xl border-slate-200 shadow-sm">
+                      <Card key={i} className="rounded-2xl border-slate-200 -sm">
                         <CardContent className="p-5"><Skeleton className="h-4 w-24 mb-3" /><Skeleton className="h-8 w-16" /></CardContent>
                       </Card>
                     ))
@@ -682,7 +682,7 @@ export default function LeadsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.07 }}
                       >
-                        <Card className="rounded-2xl border-none shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden relative">
+                        <Card className="rounded-2xl border-none -sm hover:-md transition-all duration-300 overflow-hidden relative">
                           <div className={cn('absolute top-0 left-0 w-1 h-full')} />
                           <CardContent className="p-5 flex items-center gap-4">
                             <div className={cn('p-3 rounded-2xl', card.bg)}>
@@ -700,7 +700,7 @@ export default function LeadsPage() {
                 </div>
 
                 {/* ── Filters ── */}
-                <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                <div className="bg-white p-3 rounded-2xl -sm border border-slate-200 space-y-3">
                   <div className="flex flex-col lg:flex-row gap-3">
                     {/* Search */}
                     <div className="relative flex-1">
@@ -793,7 +793,7 @@ export default function LeadsPage() {
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                      <div className="bg-white rounded-2xl -sm border border-slate-200 overflow-hidden">
                         <div className="overflow-x-auto">
                           <Table>
                             <TableHeader className="bg-slate-50/50 border-b">
@@ -951,7 +951,7 @@ export default function LeadsPage() {
 
       {/* ── Add Lead Dialog ── */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+        <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none -2xl rounded-2xl">
           <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-7 text-white relative overflow-hidden">
             <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
             <div className="absolute -bottom-12 -left-8 w-32 h-32 bg-white/5 rounded-full blur-xl" />
@@ -979,7 +979,7 @@ export default function LeadsPage() {
             <Button
               onClick={handleAdd}
               disabled={!newLead.name || isSaving}
-              className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 shadow-md shadow-blue-500/20 gap-2"
+              className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 -md -blue-500/20 gap-2"
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
               {isSaving ? 'Registering…' : 'Register Lead'}
@@ -990,7 +990,7 @@ export default function LeadsPage() {
 
       {/* ── Edit Lead Dialog ── */}
       <Dialog open={isEditOpen} onOpenChange={o => { setIsEditOpen(o); if (!o) setEditLead(null); }}>
-        <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+        <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none -2xl rounded-2xl">
           <div className="bg-gradient-to-br from-violet-600 to-indigo-700 p-7 text-white relative overflow-hidden">
             <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
             <DialogHeader className="relative z-10">
@@ -1023,7 +1023,7 @@ export default function LeadsPage() {
             <Button
               onClick={handleEdit}
               disabled={!editLead?.name || isUpdating}
-              className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold px-7 shadow-md shadow-violet-500/20 gap-2"
+              className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold px-7 -md -violet-500/20 gap-2"
             >
               {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
               {isUpdating ? 'Saving…' : 'Save Changes'}
@@ -1034,7 +1034,7 @@ export default function LeadsPage() {
 
       {/* ── Delete Confirm ── */}
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <AlertDialogContent className="rounded-2xl border-none shadow-2xl">
+        <AlertDialogContent className="rounded-2xl border-none -2xl">
           <AlertDialogHeader>
             <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mb-3">
               <Trash2 className="w-6 h-6 text-red-500" />
@@ -1051,7 +1051,7 @@ export default function LeadsPage() {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
-              className="rounded-xl bg-red-600 hover:bg-red-700 font-bold shadow-md shadow-red-500/20 gap-2"
+              className="rounded-xl bg-red-600 hover:bg-red-700 font-bold -md -red-500/20 gap-2"
             >
               {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
               {isDeleting ? 'Deleting…' : 'Delete Lead'}

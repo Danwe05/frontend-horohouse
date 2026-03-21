@@ -33,7 +33,7 @@ const AccountPage = () => {
           <div className="flex-1 flex flex-col lg:flex-row min-h-screen pt-14 lg:pt-0">
             {/* Property Form Section */}
             <div className="flex-1 p-2 lg:p-4 bg-white lg:bg-transparent">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 lg:border-none lg:shadow-none lg:rounded-none">
+              <div className="bg-white rounded-xl -sm border border-gray-100 lg:border-none lg:-none lg:rounded-none">
                 <ProfileCard
                   name={userProfile.name}
                   phone={userProfile.phone}

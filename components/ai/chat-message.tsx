@@ -44,7 +44,7 @@ export function ChatMessage({ message, isSpeaking }: ChatMessageProps) {
       )}
     >
       {!isUser && (
-        <div className="shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shadow-md">
+        <div className="shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center -md">
           <Bot className="h-4 w-4 text-white" />
         </div>
       )}
@@ -73,11 +73,11 @@ export function ChatMessage({ message, isSpeaking }: ChatMessageProps) {
       </div>
 
       {isUser && (
-        <div className="shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md overflow-hidden">
+        <div className="shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center -md overflow-hidden">
           {user?.profilePicture ? (
-            <img 
-              src={user.profilePicture} 
-              alt={user.name || "User"} 
+            <img
+              src={user.profilePicture}
+              alt={user.name || "User"}
               className="w-full h-full object-cover"
             />
           ) : (

@@ -130,7 +130,7 @@ function CalendarView({ appointments, onSelect }: { appointments: Appointment[];
   const cells = Array.from({ length: firstDayOfWeek + daysInMonth }, (_, i) => i < firstDayOfWeek ? null : i - firstDayOfWeek + 1);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200 -sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
         <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors">
@@ -499,7 +499,7 @@ export default function AppointmentsPage() {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => setView('list')}
-                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'list' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700')}
+                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'list' ? 'bg-white -sm text-slate-900' : 'text-slate-500 hover:text-slate-700')}
                           >
                             <List className="w-4 h-4" />
                           </button>
@@ -510,7 +510,7 @@ export default function AppointmentsPage() {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => setView('calendar')}
-                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'calendar' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700')}
+                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'calendar' ? 'bg-white -sm text-slate-900' : 'text-slate-500 hover:text-slate-700')}
                           >
                             <CalendarDays className="w-4 h-4" />
                           </button>
@@ -519,7 +519,7 @@ export default function AppointmentsPage() {
                       </Tooltip>
                     </div>
                     <Button
-                      className="rounded-full px-5 bg-blue-600 hover:bg-blue-700 shadow-sm"
+                      className="rounded-full px-5 bg-blue-600 hover:bg-blue-700 -sm"
                       onClick={() => { setConflictErr(''); setNewAppt({ ...emptyAppt }); setAddOpen(true); }}
                     >
                       <Plus className="w-4 h-4 mr-1.5" /> New Appointment
@@ -531,7 +531,7 @@ export default function AppointmentsPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {statsLoading
                     ? Array.from({ length: 4 }).map((_, i) => (
-                      <Card key={i} className="rounded-2xl border-slate-200 shadow-sm">
+                      <Card key={i} className="rounded-2xl border-slate-200 -sm">
                         <CardContent className="p-4"><Skeleton className="h-4 w-24 mb-2" /><Skeleton className="h-8 w-16" /></CardContent>
                       </Card>
                     ))
@@ -542,7 +542,7 @@ export default function AppointmentsPage() {
                         animate={{ opacity: 1, overflow: 'visible', height: 'auto', scale: 1 }}
                         transition={{ delay: idx * 0.05, duration: 0.3 }}
                       >
-                        <Card className="rounded-2xl border-slate-200 shadow-sm hover:shadow-md transition-all h-full">
+                        <Card className="rounded-2xl border-slate-200 -sm hover:-md transition-all h-full">
                           <CardContent className="p-5 flex items-center gap-4 h-full">
                             <div className={cn('p-3 rounded-2xl', card.bg)}>
                               <card.icon className={cn('w-6 h-6', card.color)} />
@@ -559,7 +559,7 @@ export default function AppointmentsPage() {
                 </div>
 
                 {/* ── Filters ── */}
-                <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                <div className="bg-white p-3 rounded-2xl -sm border border-slate-200 space-y-3">
                   <div className="flex flex-col lg:flex-row gap-3">
                     {/* Search */}
                     <div className="relative flex-1">
@@ -659,7 +659,7 @@ export default function AppointmentsPage() {
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                      <div className="bg-white rounded-2xl -sm border border-slate-200 overflow-hidden">
                         <div className="overflow-x-auto">
                           <Table>
                             <TableHeader className="bg-slate-50/50 border-b">
@@ -828,7 +828,7 @@ export default function AppointmentsPage() {
             <Button
               onClick={handleAdd}
               disabled={!newAppt.title || !newAppt.clientName || !newAppt.date || saving}
-              className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-md"
+              className="rounded-full bg-blue-600 hover:bg-blue-700 -md"
             >
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
               Save Appointment
@@ -850,7 +850,7 @@ export default function AppointmentsPage() {
             <Button
               onClick={handleEdit}
               disabled={!editAppt?.title || !editAppt?.clientName || updating}
-              className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-md"
+              className="rounded-full bg-blue-600 hover:bg-blue-700 -md"
             >
               {updating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
               Save Changes
@@ -873,7 +873,7 @@ export default function AppointmentsPage() {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleting}
-              className="rounded-full bg-red-600 hover:bg-red-700 shadow-md font-semibold"
+              className="rounded-full bg-red-600 hover:bg-red-700 -md font-semibold"
             >
               {deleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
               Delete

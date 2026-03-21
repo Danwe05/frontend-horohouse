@@ -25,7 +25,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
   } = useChatContext();
   const { t } = useLanguage();
   const s = (t as any)?.messages || {};
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<'general' | 'archive'>('general');
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +34,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
   useEffect(() => {
     console.log('MessagesList: Component mounted');
     console.log('Conversations from context:', conversations.length);
-    
+
     // Just set loading to false after a short delay
     // ChatContext handles loading on mount now
     const timer = setTimeout(() => {
@@ -60,7 +60,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
 
       // Filter by search query
       if (searchQuery) {
-        const otherUser = conv.otherUser || 
+        const otherUser = conv.otherUser ||
           conv.participants.find(p => p.userId._id !== user?.id)?.userId;
         const searchLower = searchQuery.toLowerCase();
         return (
@@ -96,7 +96,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
     }
   };
 
-  const archivedCount = conversations.filter(conv => 
+  const archivedCount = conversations.filter(conv =>
     conv.archivedBy?.includes(user?.id || '')
   ).length;
 
@@ -105,7 +105,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
       {/* Header */}
       <div className="p-6 border-b border-border">
         <h1 className="text-2xl font-bold mb-4">{s.messagesTitle || 'Messages'}</h1>
-        
+
         {/* Connection Status */}
         {!isConnected && (
           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
@@ -113,10 +113,10 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
             <span className="text-sm text-yellow-700">{s.connectingMsg || 'Connecting to chat server...'}</span>
           </div>
         )}
-        
+
         {/* Tabs */}
         <div className="flex gap-2 mb-4">
-          <button 
+          <button
             onClick={() => setFilter('general')}
             className={cn(
               "px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors",
@@ -126,14 +126,14 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
             )}
           >
             <Inbox className="w-4 h-4" />
-            {s.general || 'General'} 
+            {s.general || 'General'}
             {unreadCount > 0 && (
               <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">
                 {unreadCount}
               </span>
             )}
           </button>
-          <button 
+          <button
             onClick={() => setFilter('archive')}
             className={cn(
               "px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors",
@@ -143,7 +143,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
             )}
           >
             <Archive className="w-4 h-4" />
-            {s.archive || 'Archive'} 
+            {s.archive || 'Archive'}
             {archivedCount > 0 && (
               <span className="bg-foreground/10 px-2 py-0.5 rounded-full text-xs">
                 {archivedCount}
@@ -185,18 +185,18 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
               )}
             </div>
             <h3 className="font-semibold text-lg mb-2">
-              {searchQuery 
-                ? (s.noConversationsFound || "No conversations found") 
+              {searchQuery
+                ? (s.noConversationsFound || "No conversations found")
                 : filter === 'archive'
-                ? (s.noArchivedConversations || "No archived conversations")
-                : (s.noConversationsYet || "No conversations yet")}
+                  ? (s.noArchivedConversations || "No archived conversations")
+                  : (s.noConversationsYet || "No conversations yet")}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {searchQuery 
-                ? (s.tryDifferentSearch || "Try a different search term") 
+              {searchQuery
+                ? (s.tryDifferentSearch || "Try a different search term")
                 : filter === 'archive'
-                ? (s.archivedAppearHere || "Archived conversations will appear here")
-                : (s.startConversationDesc || "Start a conversation by contacting a property owner")}
+                  ? (s.archivedAppearHere || "Archived conversations will appear here")
+                  : (s.startConversationDesc || "Start a conversation by contacting a property owner")}
             </p>
             {!searchQuery && filter === 'general' && (
               <button
@@ -210,7 +210,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
         ) : (
           // Conversations
           filteredConversations.map((conv) => {
-            const otherUser = conv.otherUser || 
+            const otherUser = conv.otherUser ||
               conv.participants.find(p => p.userId._id !== user?.id)?.userId;
             const isOnline = otherUser && onlineUsers.has(otherUser._id);
             const isActive = activeConversation?._id === conv._id;
@@ -231,10 +231,10 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
                     <AvatarFallback>{otherUser?.name?.[0] || "U"}</AvatarFallback>
                   </Avatar>
                   {isOnline && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-1 border-white rounded-full"></span>
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="font-semibold text-sm flex items-center gap-1 truncate">

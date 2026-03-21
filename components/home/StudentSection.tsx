@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { 
-  ArrowRight, ShieldCheck, Wifi, 
+import {
+  ArrowRight, ShieldCheck, Wifi,
   MapPin, BedDouble, Bath, CheckCircle2, Star, MoveRight,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -23,9 +23,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 function formatDistance(meters: number | undefined, _t: any): string | null {
   if (!meters) return null;
-  return meters < 1000 
-      ? (_t?.studentSection?.metersToCampus?.replace('{{meters}}', String(meters)) || `${meters}m to campus`)
-      : (_t?.studentSection?.kmToCampus?.replace('{{km}}', (meters / 1000).toFixed(1)) || `${(meters / 1000).toFixed(1)}km to campus`);
+  return meters < 1000
+    ? (_t?.studentSection?.metersToCampus?.replace('{{meters}}', String(meters)) || `${meters}m to campus`)
+    : (_t?.studentSection?.kmToCampus?.replace('{{km}}', (meters / 1000).toFixed(1)) || `${(meters / 1000).toFixed(1)}km to campus`);
 }
 
 function getImageSrc(img: { url: string } | string): string {
@@ -116,9 +116,8 @@ function ImageCarousel({
           {images.map((_, i) => (
             <span
               key={i}
-              className={`block rounded-full transition-all duration-200 ${
-                i === activeIndex ? 'w-2 h-2 bg-white' : 'w-1.5 h-1.5 bg-white/50'
-              }`}
+              className={`block rounded-full transition-all duration-200 ${i === activeIndex ? 'w-2 h-2 bg-white' : 'w-1.5 h-1.5 bg-white/50'
+                }`}
             />
           ))}
         </div>
@@ -187,8 +186,8 @@ export default function StudentSection() {
         const fallbackProps = Array.isArray(fallback?.properties)
           ? fallback.properties
           : Array.isArray(fallback?.data)
-          ? fallback.data
-          : [];
+            ? fallback.data
+            : [];
         setProperties(fallbackProps);
       } catch (err) {
         console.error('Failed to fetch student properties:', err);
@@ -204,28 +203,28 @@ export default function StudentSection() {
   return (
     <section className="relative py-20 px-5 md:px-10 bg-white" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
-        
+
         {/* Left-Aligned Header with Action */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 border-b border-gray-100 pb-10">
           <div className="max-w-2xl">
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">
-              {_t.studentSection?.titlePrefix || 'Find your '} 
-              <span className="text-blue-600">{_t.studentSection?.titleHighlight || 'perfect'}</span> 
+              {_t.studentSection?.titlePrefix || 'Find your '}
+              <span className="text-blue-600">{_t.studentSection?.titleHighlight || 'perfect'}</span>
               {_t.studentSection?.titleSuffix || ' space.'}
             </h2>
             <p className="text-lg text-gray-500 font-medium">
               {_t.studentSection?.subtitle || 'Verified properties, transparent pricing, and zero hassle.'}
             </p>
           </div>
-          
+
           <Link href="/students" className="flex items-center gap-2 text-gray-900 font-bold hover:text-blue-600 transition-colors group pb-2">
-            {_t.studentSection?.exploreAll || 'Explore All Properties'} 
+            {_t.studentSection?.exploreAll || 'Explore All Properties'}
             <MoveRight className={`w-5 h-5 group-hover:translate-x-1 transition-transform ${language === 'ar' ? 'rotate-180' : ''}`} />
           </Link>
         </div>
 
         <div className="grid lg:grid-cols-12 gap-12">
-          
+
           {/* Left Column: Horizontal Property Cards (Span 7) */}
           <div className="lg:col-span-7 flex flex-col gap-6">
             {loading ? (
@@ -257,7 +256,7 @@ export default function StudentSection() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="group flex flex-col sm:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-all cursor-pointer"
+                    className="group flex flex-col sm:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:-md transition-all cursor-pointer"
                   >
                     <Link href={`/properties/${p._id || p.id}`} className="contents">
                       {/* Image carousel */}
@@ -269,7 +268,7 @@ export default function StudentSection() {
                         _t={_t}
                         language={language}
                       />
-                      
+
                       {/* Details Section */}
                       <div className="p-6 flex-1 flex flex-col justify-between">
                         <div>
@@ -339,18 +338,18 @@ export default function StudentSection() {
 
           {/* Right Column: Sticky Bento Box CTA & Benefits (Span 5) */}
           <div className="lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-24 self-start">
-            
+
             {/* Primary Action Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="bg-blue-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-900/20 flex-1"
+              className="bg-blue-600 rounded-3xl p-8 text-white relative overflow-hidden -2xl -blue-900/20 flex-1"
             >
               {/* Decorative circle */}
               <div className="absolute top-0 right-0 -mr-8 -mt-8 w-40 h-40 bg-blue-500 rounded-full blur-2xl opacity-50 pointer-events-none"></div>
-              
+
               <h4 className="text-3xl font-bold mb-3 relative z-10">{_t.studentSection?.skipWaitlist || 'Skip the waitlist.'}</h4>
               <p className="text-blue-100 mb-8 font-medium relative z-10">
                 {_t.studentSection?.joinStudents || 'Join 5,000+ students who found their home with us. Tour today, sign tomorrow.'}

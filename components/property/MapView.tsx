@@ -289,7 +289,7 @@ const MapView = ({
     el.innerHTML = `
       <div class="relative">
         <div class="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-75" style="width:20px;height:20px"></div>
-        <div class="relative bg-blue-600 rounded-full border-4 border-white shadow-lg" style="width:20px;height:20px"></div>
+        <div class="relative bg-blue-600 rounded-full border-4 border-white -lg" style="width:20px;height:20px"></div>
       </div>`;
     userLocationMarker.current = new maplibregl.Marker({ element: el, anchor: "center" })
       .setLngLat([lng, lat])
@@ -300,7 +300,7 @@ const MapView = ({
     if (!map.current) return;
     selectedMarker.current?.remove();
     const el = document.createElement("div");
-    el.className = "rounded-full bg-red-600 w-4 h-4 border-2 border-white shadow-lg";
+    el.className = "rounded-full bg-red-600 w-4 h-4 border-1 border-white -lg";
     selectedMarker.current = new maplibregl.Marker({ element: el })
       .setLngLat([lng, lat])
       .addTo(map.current);
@@ -383,7 +383,7 @@ const MapView = ({
 
     const el = document.createElement("div");
     el.innerHTML = `
-      <div class="${category.color} text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform cursor-pointer">
+      <div class="${category.color} text-white p-2 rounded-full -lg hover:scale-110 transition-transform cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           ${POI_SVG_PATHS[category.id] ?? POI_SVG_PATHS.schools}
         </svg>
@@ -567,7 +567,7 @@ const MapView = ({
     setMeasurementPoints(newPoints);
 
     const el = document.createElement("div");
-    el.innerHTML = `<div class="w-3 h-3 bg-blue-600 border-2 border-white rounded-full shadow-lg"></div>`;
+    el.innerHTML = `<div class="w-3 h-3 bg-blue-600 border-1 border-white rounded-full -lg"></div>`;
     measurementMarkers.current.push(
       new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map.current!)
     );
@@ -691,7 +691,7 @@ const MapView = ({
     el.setAttribute("aria-label", `${property.title}, ${priceLabel} XAF — ${ariaLabel}`);
     el.dataset.propertyId = property.id;
     el.innerHTML = `
-    <div class="${bgClass} text-white px-2.5 py-1 rounded-full text-xs font-bold shadow-lg hover:scale-110 transition-transform cursor-pointer flex items-center gap-1 whitespace-nowrap ${scaleClass}" style="${ringStyle}">
+    <div class="${bgClass} text-white px-2.5 py-1 rounded-full text-xs font-bold -lg hover:scale-110 transition-transform cursor-pointer flex items-center gap-1 whitespace-nowrap ${scaleClass}" style="${ringStyle}">
       <span>${priceLabel}</span>
     </div>`;
 
@@ -724,7 +724,7 @@ const MapView = ({
     el.setAttribute("role", "button");
     el.setAttribute("aria-label", `Cluster of ${count} properties`);
     el.innerHTML = `
-      <div class="bg-purple-600 text-white ${sizeClass} rounded-full flex items-center justify-center font-bold shadow-lg hover:scale-110 transition-transform cursor-pointer border-4 border-white">
+      <div class="bg-purple-600 text-white ${sizeClass} rounded-full flex items-center justify-center font-bold -lg hover:scale-110 transition-transform cursor-pointer border-4 border-white">
         ${count > 99 ? "99+" : count}
       </div>`;
 
@@ -1238,7 +1238,7 @@ const MapView = ({
             <button
               onClick={() => setSelectedProperty(null)}
               aria-label="Close preview"
-              className="absolute top-2 right-2 z-30 w-7 h-7 bg-background/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-background shadow-md transition-colors"
+              className="absolute top-2 right-2 z-30 w-7 h-7 bg-background/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-background -md transition-colors"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -1263,7 +1263,7 @@ const MapView = ({
         {!isDrawing && !drawnPolygon && (
           <button
             onClick={startDrawing}
-            className="flex items-center gap-2 bg-white text-gray-700 text-sm font-semibold px-4 py-2 rounded-full shadow-lg hover:shadow-xl hover:bg-blue-50 hover:text-blue-700 transition-all"
+            className="flex items-center gap-2 bg-white text-gray-700 text-sm font-semibold px-4 py-2 rounded-full -lg hover:-xl hover:bg-blue-50 hover:text-blue-700 transition-all"
             title="Draw a polygon to filter results to that area"
           >
             <Pencil className="w-4 h-4" />
@@ -1272,18 +1272,18 @@ const MapView = ({
         )}
         {isDrawing && (
           <div className="flex items-center gap-2">
-            <span className="bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow">
+            <span className="bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full ">
               Click to add points
             </span>
             <button
               onClick={finishDrawing}
-              className="flex items-center gap-2 bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-green-700 transition-colors"
+              className="flex items-center gap-2 bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-full -lg hover:bg-green-700 transition-colors"
             >
               ✓ Finish
             </button>
             <button
               onClick={finishDrawing}
-              className="flex items-center gap-2 bg-white text-gray-600 text-sm font-medium px-3 py-2 rounded-full shadow hover:bg-red-50 hover:text-red-600 transition-colors"
+              className="flex items-center gap-2 bg-white text-gray-600 text-sm font-medium px-3 py-2 rounded-full  hover:bg-red-50 hover:text-red-600 transition-colors"
               title="Cancel drawing"
             >
               <X className="w-4 h-4" />
@@ -1292,12 +1292,12 @@ const MapView = ({
         )}
         {drawnPolygon && !isDrawing && (
           <div className="flex items-center gap-2">
-            <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow border border-blue-200">
+            <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full  border border-blue-200">
               Boundary active
             </span>
             <button
               onClick={clearDrawing}
-              className="flex items-center gap-2 bg-white text-red-600 text-sm font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-red-50 transition-colors"
+              className="flex items-center gap-2 bg-white text-red-600 text-sm font-semibold px-4 py-2 rounded-full -lg hover:bg-red-50 transition-colors"
             >
               <Trash2 className="w-4 h-4" /> Clear boundary
             </button>
@@ -1311,7 +1311,7 @@ const MapView = ({
           <DialogTrigger asChild>
             <button
               aria-label="Open map settings"
-              className="bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow"
+              className="bg-white rounded-full p-3 -lg hover:-xl transition-"
             >
               <Settings className="w-5 h-5 text-gray-700" />
             </button>
@@ -1341,10 +1341,10 @@ const MapView = ({
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">Display Options</h3>
                 <div className="space-y-2">
                   {[
-                    { label: "Clustering", icon: <MapPin className="w-5 h-5" />, active: showClusters, toggle: () => setShowClusters((v) => !v), activeColor: "bg-blue-600", activeBg: "bg-blue-50 text-blue-700 border-2 border-blue-200" },
-                    { label: "Heatmap", icon: <Layers className="w-5 h-5" />, active: showHeatmap, toggle: () => setShowHeatmap((v) => !v), activeColor: "bg-red-600", activeBg: "bg-red-50 text-red-700 border-2 border-red-200" },
-                    { label: "Transit Lines", icon: <Bus className="w-5 h-5" />, active: showTransit, toggle: toggleTransitLayer, activeColor: "bg-blue-600", activeBg: "bg-blue-50 text-blue-700 border-2 border-blue-200" },
-                    { label: "Traffic", icon: <div className="w-5 h-5 flex items-center justify-center"><div className="w-4 h-4 border-2 border-current rounded-full border-t-transparent animate-spin" style={{ animationDuration: "3s" }} /></div>, active: showTraffic, toggle: toggleTrafficLayer, activeColor: "bg-orange-600", activeBg: "bg-orange-50 text-orange-700 border-2 border-orange-200" },
+                    { label: "Clustering", icon: <MapPin className="w-5 h-5" />, active: showClusters, toggle: () => setShowClusters((v) => !v), activeColor: "bg-blue-600", activeBg: "bg-blue-50 text-blue-700 border-1 border-blue-200" },
+                    { label: "Heatmap", icon: <Layers className="w-5 h-5" />, active: showHeatmap, toggle: () => setShowHeatmap((v) => !v), activeColor: "bg-red-600", activeBg: "bg-red-50 text-red-700 border-1 border-red-200" },
+                    { label: "Transit Lines", icon: <Bus className="w-5 h-5" />, active: showTransit, toggle: toggleTransitLayer, activeColor: "bg-blue-600", activeBg: "bg-blue-50 text-blue-700 border-1 border-blue-200" },
+                    { label: "Traffic", icon: <div className="w-5 h-5 flex items-center justify-center"><div className="w-4 h-4 border-1 border-current rounded-full border-t-transparent animate-spin" style={{ animationDuration: "3s" }} /></div>, active: showTraffic, toggle: toggleTrafficLayer, activeColor: "bg-orange-600", activeBg: "bg-orange-50 text-orange-700 border-1 border-orange-200" },
                   ].map(({ label, icon, active, toggle, activeColor, activeBg }) => (
                     <button key={label} onClick={toggle}
                       className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors ${active ? activeBg : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}
@@ -1365,7 +1365,7 @@ const MapView = ({
                     const isActive = activePOICategories.has(cat.id);
                     return (
                       <button key={cat.id} onClick={() => togglePOICategory(cat.id)}
-                        className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${isActive ? `${cat.color.replace("bg-", "bg-opacity-10 bg-")} ${cat.color.replace("bg-", "text-")} border-2 ${cat.color.replace("bg-", "border-")}` : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}
+                        className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${isActive ? `${cat.color.replace("bg-", "bg-opacity-10 bg-")} ${cat.color.replace("bg-", "text-")} border-1 ${cat.color.replace("bg-", "border-")}` : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}
                       >
                         <div className="flex items-center gap-3"><Icon className="w-4 h-4" /><span>{cat.name}</span></div>
                         <Toggle active={isActive} color={cat.color} />
@@ -1391,7 +1391,7 @@ const MapView = ({
                     </button>
                   )}
                   {isDrawing && (
-                    <button onClick={finishDrawing} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium bg-green-50 text-green-700 border-2 border-green-200 rounded-lg">
+                    <button onClick={finishDrawing} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium bg-green-50 text-green-700 border-1 border-green-200 rounded-lg">
                       <Pencil className="w-5 h-5" /> Finish Drawing
                     </button>
                   )}
@@ -1423,7 +1423,7 @@ const MapView = ({
                   )}
                   <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-lg">
                     <span className="text-sm text-gray-600">Units</span>
-                    <div className="flex bg-white rounded-md shadow-sm p-1">
+                    <div className="flex bg-white rounded-md -sm p-1">
                       {(["metric", "imperial"] as const).map((u) => (
                         <button key={u} onClick={() => setMeasurementUnit(u)}
                           className={`px-3 py-1 text-xs font-medium rounded capitalize ${measurementUnit === u ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-50"}`}
@@ -1441,7 +1441,7 @@ const MapView = ({
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">Performance & Offline</h3>
                 <div className="space-y-2">
                   <button onClick={() => toggleAutoRefresh(!autoRefreshEnabled)}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors ${autoRefreshEnabled ? "bg-green-50 text-green-700 border-2 border-green-200" : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors ${autoRefreshEnabled ? "bg-green-50 text-green-700 border-1 border-green-200" : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}
                   >
                     <div className="flex items-center gap-3">
                       <RefreshCw className={`w-5 h-5 ${autoRefreshEnabled ? "animate-spin" : ""}`} />
@@ -1451,7 +1451,7 @@ const MapView = ({
                   </button>
 
                   <button onClick={() => toggleOfflineMode(!offlineModeEnabled)}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors ${offlineModeEnabled ? "bg-purple-50 text-purple-700 border-2 border-purple-200" : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors ${offlineModeEnabled ? "bg-purple-50 text-purple-700 border-1 border-purple-200" : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}
                   >
                     <div className="flex items-center gap-3">
                       {offlineModeEnabled ? <WifiOff className="w-5 h-5" /> : <Wifi className="w-5 h-5" />}
@@ -1500,7 +1500,7 @@ const MapView = ({
 
       {/* Measurement result panel */}
       {measurementMode && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white rounded-lg shadow-lg p-4 z-20 min-w-[200px]">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white rounded-lg -lg p-4 z-20 min-w-[200px]">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-bold text-gray-800">
               {measurementMode === "distance" ? "Distance" : "Area"} Measurement
@@ -1531,7 +1531,7 @@ const MapView = ({
 
       {/* Drawing indicator */}
       {isDrawing && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium z-10">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg -lg text-sm font-medium z-10">
           Click on the map to draw points. Press "Finish Drawing" when done.
         </div>
       )}

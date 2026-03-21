@@ -111,14 +111,14 @@ export default function PremiumNotificationDropdown() {
   const panel = (
     <div
       ref={panelRef}
-      className="overflow-hidden rounded-3xl border border-zinc-200 bg-white/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col"
+      className="overflow-hidden rounded-3xl border border-zinc-200 bg-white/95 backdrop-blur-xl -[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col"
     >
       {/* Header */}
       <div className="px-6 py-5 border-b border-zinc-100/80 bg-zinc-50/50 flex items-center justify-between flex-shrink-0">
         <div>
           <h3 className="text-sm font-bold text-zinc-900 tracking-tight uppercase">Notifications</h3>
           <div className="flex items-center gap-1.5 mt-1">
-            <div className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300'}`} />
+            <div className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 -[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300'}`} />
             <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">
               {isConnected ? 'Real-time' : 'Reconnecting'}
             </span>
@@ -166,9 +166,8 @@ export default function PremiumNotificationDropdown() {
                 <div
                   key={n._id}
                   onClick={() => handleNotificationClick(n)}
-                  className={`group relative px-5 py-4 flex gap-4 transition-all duration-300 hover:bg-zinc-50/80 cursor-pointer active:bg-zinc-100 ${
-                    !n.read ? 'bg-violet-50/30' : ''
-                  }`}
+                  className={`group relative px-5 py-4 flex gap-4 transition-all duration-300 hover:bg-zinc-50/80 cursor-pointer active:bg-zinc-100 ${!n.read ? 'bg-violet-50/30' : ''
+                    }`}
                 >
                   {!n.read && (
                     <div className="absolute left-0 top-6 bottom-6 w-1 bg-violet-600 rounded-r-full" />
@@ -234,11 +233,10 @@ export default function PremiumNotificationDropdown() {
           updatePosition();
           setIsOpen((prev) => !prev);
         }}
-        className={`group relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
-          isOpen
+        className={`group relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${isOpen
             ? 'bg-zinc-900 text-white ring-4 ring-zinc-900/10'
-            : 'bg-white text-zinc-600 border border-zinc-200 hover:border-zinc-300 hover:shadow-md'
-        }`}
+            : 'bg-white text-zinc-600 border border-zinc-200 hover:border-zinc-300 hover:-md'
+          }`}
       >
         <Bell className={`w-5 h-5 transition-transform duration-500 ${isOpen ? 'rotate-[15deg]' : 'group-hover:scale-110'}`} />
         {unreadCount > 0 && (
@@ -259,7 +257,7 @@ export default function PremiumNotificationDropdown() {
             <div style={{
               position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999,
               borderRadius: '1.5rem 1.5rem 0 0', overflow: 'hidden',
-              boxShadow: '0 -8px 40px rgba(0,0,0,0.2)',
+              box: '0 -8px 40px rgba(0,0,0,0.2)',
             }}>
               {/* Drag handle */}
               <div style={{

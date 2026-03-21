@@ -5,8 +5,8 @@ import React from 'react';
 
 const DashboardAgentUpgradeYourPlan = () => {
   return (
-    <div className="relative bg-[#007AFF] rounded-lg p-6 flex flex-col md:flex-row items-center justify-between overflow-hidden text-white shadow-md w-[470px] max-w-2xl h-[220px]">
-      
+    <div className="relative bg-[#007AFF] rounded-lg p-6 flex flex-col md:flex-row items-center justify-between overflow-hidden text-white -md w-[470px] max-w-2xl h-[220px]">
+
       {/* Flèche en haut à gauche */}
       <div className="absolute top-3 left-5 bg-white/20 rounded-full p-2">
         <ArrowUpRight className="text-white w-5 h-5" />
@@ -28,7 +28,7 @@ const DashboardAgentUpgradeYourPlan = () => {
           src="/DashboardAgentUpgradeYourPlan/DashboardAgentUpgradeYourPlanImage.svg"
           alt="Pro Badge"
           fill
-          className="object-contain drop-shadow-lg"
+          className="object-contain drop--lg"
         />
       </div>
 

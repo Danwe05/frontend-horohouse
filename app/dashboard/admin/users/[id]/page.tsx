@@ -173,7 +173,7 @@ export default function UserDetailPage() {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden relative"
+                            className="bg-white rounded-3xl -sm border border-slate-200/60 overflow-hidden relative"
                         >
                             <div className="h-32 md:h-48 bg-gradient-to-r from-blue-600 to-indigo-600 relative overflow-hidden">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -181,7 +181,7 @@ export default function UserDetailPage() {
 
                             <div className="px-6 md:px-10 pb-8 relative">
                                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-end -mt-16 md:-mt-20 mb-6 relative z-20">
-                                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-xl bg-white overflow-hidden flex-shrink-0">
+                                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white -xl bg-white overflow-hidden flex-shrink-0">
                                         <img src={avatarSrc} alt={user.name} className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex-1 pb-2">
@@ -210,7 +210,7 @@ export default function UserDetailPage() {
                                 transition={{ delay: 0.1 }}
                                 className="lg:col-span-1 space-y-6"
                             >
-                                <Card className="border-slate-200/60 shadow-sm rounded-2xl overflow-hidden">
+                                <Card className="border-slate-200/60 -sm rounded-2xl overflow-hidden">
                                     <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
                                         <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                                             <UserCog className="w-5 h-5 text-blue-600" /> Contact Details
@@ -252,7 +252,7 @@ export default function UserDetailPage() {
                                     </CardContent>
                                 </Card>
 
-                                <Card className="border-slate-200/60 shadow-sm rounded-2xl overflow-hidden">
+                                <Card className="border-slate-200/60 -sm rounded-2xl overflow-hidden">
                                     <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
                                         <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                                             <Shield className="w-5 h-5 text-indigo-600" /> Security & Verification
@@ -279,7 +279,7 @@ export default function UserDetailPage() {
                                 className="lg:col-span-2 space-y-6"
                             >
                                 {user.role === 'agent' ? (
-                                    <Card className="border-slate-200/60 shadow-sm rounded-2xl h-full flex flex-col">
+                                    <Card className="border-slate-200/60 -sm rounded-2xl h-full flex flex-col">
                                         <CardHeader className="pb-2">
                                             <CardTitle className="text-xl font-bold text-slate-800 flex items-center gap-2">
                                                 <Building2 className="w-5 h-5 text-blue-600" /> Agent Profile
@@ -323,8 +323,8 @@ export default function UserDetailPage() {
                                         </CardContent>
                                     </Card>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center h-full min-h-[300px] border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 p-8 text-center transition-colors hover:bg-slate-50">
-                                        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4 ring-4 ring-white shadow-sm">
+                                    <div className="flex flex-col items-center justify-center h-full min-h-[300px] border-1 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 p-8 text-center transition-colors hover:bg-slate-50">
+                                        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4 ring-4 ring-white -sm">
                                             <AlertTriangle className="w-8 h-8 text-slate-400" />
                                         </div>
                                         <h3 className="text-lg font-bold text-slate-800 mb-2">No Performance Data Available</h3>

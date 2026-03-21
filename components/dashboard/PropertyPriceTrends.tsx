@@ -144,7 +144,7 @@ export function PropertyPriceTrends() {
     }, [])
 
     return (
-        <Card className="overflow-hidden border-0 shadow-lg pb-0 bg-white">
+        <Card className="overflow-hidden border-0 -lg pb-0 bg-white">
             {/* Header */}
             <div className="p-6 border-b border-slate-100">
                 <CardHeader className="p-0">

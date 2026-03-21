@@ -1,4 +1,4 @@
-'use client'; 
+'use client';
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react"; // import icônes
 import { useRouter } from "next/navigation";
@@ -7,14 +7,14 @@ import { FaBed, FaMapMarkerAlt } from "react-icons/fa";
 import { TbRulerMeasure } from "react-icons/tb";
 
 interface PropertyPreviewProps {
-  
+
   description: string;
   location: string;
   images: string[];
   bedrooms: number;
   bathrooms: number;
   price?: string;
-  surface?: number; 
+  surface?: number;
 }
 
 const PropertyPreview: React.FC = () => {
@@ -38,7 +38,7 @@ const PropertyPreview: React.FC = () => {
 
   if (!data) return <p className="text-center mt-10">Loading preview...</p>;
 
-  const {  description, location, images, bedrooms, bathrooms, price, surface  } = data;
+  const { description, location, images, bedrooms, bathrooms, price, surface } = data;
 
   const prevImage = () => {
     setCurrentIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
@@ -94,13 +94,13 @@ const PropertyPreview: React.FC = () => {
           <>
             <button
               onClick={prevImage}
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow hover:bg-gray-200"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2  hover:bg-gray-200"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow hover:bg-gray-200"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2  hover:bg-gray-200"
             >
               <ArrowRight className="w-5 h-5" />
             </button>
@@ -113,9 +113,8 @@ const PropertyPreview: React.FC = () => {
         {images.map((img, idx) => (
           <div
             key={idx}
-            className={`w-37 h-37 rounded-lg overflow-hidden cursor-pointer border-2 ${
-              currentIndex === idx ? "border-blue-600" : "border-transparent"
-            }`}
+            className={`w-37 h-37 rounded-lg overflow-hidden cursor-pointer border-1 ${currentIndex === idx ? "border-blue-600" : "border-transparent"
+              }`}
             onClick={() => {
               setCurrentIndex(idx);
               setPosition({ x: 0, y: 0 });
@@ -127,37 +126,37 @@ const PropertyPreview: React.FC = () => {
       </div>
 
       {/* Property details - tout aligné horizontalement */}
-<div className="flex items-center gap-11 text-gray-500 text-sm pt-4">
-  {/* Titre */}
-  <h3 className="text-black text-lg font-semibold">Buy with the price</h3>
+      <div className="flex items-center gap-11 text-gray-500 text-sm pt-4">
+        {/* Titre */}
+        <h3 className="text-black text-lg font-semibold">Buy with the price</h3>
 
-  {/* Price */}
-  <p className="text-blue-600 font-bold text-lg">{price} $</p>
+        {/* Price */}
+        <p className="text-blue-600 font-bold text-lg">{price} $</p>
 
-  {/* Bedrooms */}
-  <div className="flex items-center gap-1">
-    <FaMapMarkerAlt className="w-5 h-5 text-gray-600" />
-    <span>{location}</span>
-  </div>
+        {/* Bedrooms */}
+        <div className="flex items-center gap-1">
+          <FaMapMarkerAlt className="w-5 h-5 text-gray-600" />
+          <span>{location}</span>
+        </div>
 
-  {/* Bedrooms */}
-  <div className="flex items-center gap-1">
-    <FaBed className="w-5 h-5 text-gray-600" />
-    <span>{bedrooms}</span>
-  </div>
+        {/* Bedrooms */}
+        <div className="flex items-center gap-1">
+          <FaBed className="w-5 h-5 text-gray-600" />
+          <span>{bedrooms}</span>
+        </div>
 
-  {/* Bathrooms */}
-  <div className="flex items-center gap-1">
-    <MdBathtub className="w-5 h-5 text-gray-600" />
-    <span>{bathrooms}</span>
-  </div>
+        {/* Bathrooms */}
+        <div className="flex items-center gap-1">
+          <MdBathtub className="w-5 h-5 text-gray-600" />
+          <span>{bathrooms}</span>
+        </div>
 
-  {/* Surface */}
-  <div className="flex items-center gap-1">
-    <TbRulerMeasure className="w-5 h-5 text-gray-600" />
-    <span>{surface ?? '—'} m²</span>
-  </div>
-</div>
+        {/* Surface */}
+        <div className="flex items-center gap-1">
+          <TbRulerMeasure className="w-5 h-5 text-gray-600" />
+          <span>{surface ?? '—'} m²</span>
+        </div>
+      </div>
 
     </div>
   );
@@ -188,7 +187,7 @@ const PropertyPreview: React.FC = () => {
       {/* Modal de confirmation avant publication */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-md shadow-lg p-10 max-w-xs w-full text-center space-y-5">
+          <div className="bg-white rounded-md -lg p-10 max-w-xs w-full text-center space-y-5">
             <h2 className="text-lg font-bold text-gray-800 mb-4">Confirm Publication</h2>
             <p className="text-gray-600 mb-6 text-sm">
               Are you sure you want to publish this property?
@@ -217,10 +216,10 @@ const PropertyPreview: React.FC = () => {
       {/* Modal "Property Published" avec carte et icône */}
       {isPublishedModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-auto p-4">
-          <div className="bg-white rounded-md shadow-lg p-10 max-w-xs w-full text-center space-y-5">
+          <div className="bg-white rounded-md -lg p-10 max-w-xs w-full text-center space-y-5">
             <CheckCircle className="w-12 h-12 mx-auto text-black" />
             <p className="text-sm font-bold text-gray-600">Property published successfully</p>
-            
+
             <div className="mt-6">
               <button
                 onClick={() => setIsPublishedModalOpen(false)}

@@ -124,7 +124,7 @@ export function UpcomingTours() {
     }
 
     return (
-        <Card className="overflow-hidden border-0 shadow-lg bg-white">
+        <Card className="overflow-hidden border-0 -lg bg-white">
             {/* Header */}
             <div className="p-6 border-b border-slate-100">
                 <CardHeader className="p-0">

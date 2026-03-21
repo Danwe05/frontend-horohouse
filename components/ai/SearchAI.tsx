@@ -193,7 +193,7 @@ export default function SearchAI() {
   return (
     <div className="w-full max-w-3xl mx-auto p-4 mt-20">
       <form onSubmit={handleSubmit} className="relative">
-        <div className="flex items-center gap-3 bg-white shadow-sm rounded-2xl p-2 border border-slate-200">
+        <div className="flex items-center gap-3 bg-white -sm rounded-2xl p-2 border border-slate-200">
           <div className="px-3">
             <IconSearch />
           </div>
@@ -248,7 +248,7 @@ export default function SearchAI() {
       {/* Suggestions */}
       <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
         {suggestions.map((s) => (
-          <Card key={s} onClick={() => handleSuggestionClick(s)} className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card key={s} onClick={() => handleSuggestionClick(s)} className="cursor-pointer hover:-md transition-">
             <CardContent className="flex items-center justify-between gap-3">
               <div className="text-sm font-medium truncate">{s}</div>
               <Badge variant="secondary">IA</Badge>
@@ -267,7 +267,7 @@ export default function SearchAI() {
 
         <div className="mt-4 space-y-3">
           {results.map((r) => (
-            <motion.div key={r.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-4 rounded-2xl shadow-sm border">
+            <motion.div key={r.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-4 rounded-2xl -sm border">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="text-lg font-semibold">{r.title}</div>

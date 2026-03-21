@@ -28,7 +28,7 @@ export default function SplitRentCalculator({ initialRent = 100000 }: SplitRentC
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200"
+      className="bg-white rounded-2xl p-6 -sm border border-gray-200"
     >
       <div className="flex items-center gap-2 mb-6 text-blue-800">
         <Calculator className="h-6 w-6" />
@@ -91,7 +91,7 @@ export default function SplitRentCalculator({ initialRent = 100000 }: SplitRentC
 
       <button
         onClick={() => router.push('/dashboard/split-rent?tab=my-payments')}
-        className="w-full bg-[#ffcc00] hover:bg-[#ffdb4d] text-gray-900 font-bold py-3.5 px-4 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2"
+        className="w-full bg-[#ffcc00] hover:bg-[#ffdb4d] text-gray-900 font-bold py-3.5 px-4 rounded-xl transition-colors -sm flex items-center justify-center gap-2"
       >
         <Smartphone className="h-5 w-5" />
         View My Payment Cycles

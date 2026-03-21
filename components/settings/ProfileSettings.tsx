@@ -172,7 +172,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
     <div className="space-y-6 lg:p-0">
       {/* Profile Picture Section */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+        <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
           <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
             <CardTitle className="flex items-center space-x-2 text-gray-800">
               <Camera className="h-5 w-5 text-gray-400" />
@@ -232,7 +232,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
 
       {/* Basic Information */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+        <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
           <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
             <CardTitle className="flex items-center space-x-2 text-gray-800">
               <User className="h-5 w-5 text-gray-400" />
@@ -332,7 +332,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
 
       {/* Location Information */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+        <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
           <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
             <CardTitle className="flex items-center space-x-2 text-gray-800">
               <MapPin className="h-5 w-5 text-gray-400" />
@@ -381,7 +381,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
       {/* Professional Information (for agents) */}
       {user.role === 'agent' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-          <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+          <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
             <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
               <CardTitle className="flex items-center space-x-2 text-gray-800">
                 <Briefcase className="h-5 w-5 text-gray-400" />
@@ -419,7 +419,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
 
       {/* Account Information */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: user.role === 'agent' ? 0.3 : 0.25 }}>
-        <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden bg-gray-50/30">
+        <Card className="rounded-2xl border-gray-100 -sm overflow-hidden bg-gray-50/30">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center space-x-2 text-gray-800">
               <Calendar className="h-5 w-5 text-gray-400" />
@@ -449,7 +449,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                   {user.role !== 'admin' && (
                     <Button
                       variant={user.role === 'agent' ? "outline" : "default"}
-                      className={`h-9 px-4 text-sm font-semibold transition-all flex items-center gap-2 shadow-sm hover:shadow-md rounded-lg ${user.role === 'agent' ? 'border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                      className={`h-9 px-4 text-sm font-semibold transition-all flex items-center gap-2 -sm hover:-md rounded-lg ${user.role === 'agent' ? 'border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
                       onClick={handleToggleRole}
                       disabled={isLoading}
                     >
@@ -493,7 +493,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, height: 0 }}
-            className={`p-4 rounded-xl shadow-sm ${message.type === 'success'
+            className={`p-4 rounded-xl -sm ${message.type === 'success'
               ? 'bg-green-50 border border-green-200 text-green-800'
               : 'bg-red-50 border border-red-200 text-red-800'
               }`}>
@@ -514,12 +514,12 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="flex justify-end sticky bottom-4 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg sm:shadow-none sm:bg-transparent sm:p-0 sm:static border border-gray-100 sm:border-none"
+        className="flex justify-end sticky bottom-4 bg-white/80 backdrop-blur-md p-4 rounded-2xl -lg sm:-none sm:bg-transparent sm:p-0 sm:static border border-gray-100 sm:border-none"
       >
         <Button
           onClick={handleSave}
           disabled={isLoading}
-          className="min-w-32 w-full sm:w-auto rounded-xl shadow-sm hover:shadow-md transition-all"
+          className="min-w-32 w-full sm:w-auto rounded-xl -sm hover:-md transition-all"
           size="lg"
         >
           {isLoading ? (

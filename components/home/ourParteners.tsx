@@ -85,42 +85,16 @@ export default function OurPartners() {
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
         {/* Scrolling Row 1 - Left to Right */}
-        <div className="flex mb-8">
+        <div className="flex mb-8 overflow-hidden">
           <motion.div
-            className="flex gap-12 items-center"
-            animate={{ x: [0, -1920] }}
-            transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 40, ease: "linear" } }}
+            className="flex gap-12 items-center w-max pr-12"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 40 }}
           >
             {duplicatedPartners.map((partner, index) => (
               <div
                 key={`row1-${index}`}
-                className="flex-shrink-0 w-48 h-24 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex items-center justify-center p-6 group border border-gray-100"
-              >
-                <img
-                  src={partner.logo}
-                  alt={partner.name}
-                  className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-60 group-hover:opacity-100"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = `<span class="text-sm font-bold text-gray-400 text-center">${partner.name}</span>`;
-                    }
-                  }}
-                />
-              </div>
-            ))}
-          </motion.div>
-          <motion.div
-            className="flex gap-12 items-center ml-12"
-            animate={{ x: [0, -1920] }}
-            transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 40, ease: "linear" } }}
-          >
-            {duplicatedPartners.map((partner, index) => (
-              <div
-                key={`row1-duplicate-${index}`}
-                className="flex-shrink-0 w-48 h-24 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex items-center justify-center p-6 group border border-gray-100"
+                className="flex-shrink-0 w-48 h-24 bg-white rounded-2xl -md hover:-xl transition-all duration-300 flex items-center justify-center p-6 group border border-gray-100"
               >
                 <img
                   src={partner.logo}
@@ -141,42 +115,16 @@ export default function OurPartners() {
         </div>
 
         {/* Scrolling Row 2 - Right to Left */}
-        <div className="flex">
+        <div className="flex overflow-hidden">
           <motion.div
-            className="flex gap-12 items-center"
-            animate={{ x: [-1920, 0] }}
-            transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 40, ease: "linear" } }}
+            className="flex gap-12 items-center w-max pr-12"
+            animate={{ x: ["-50%", "0%"] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 40 }}
           >
             {duplicatedPartners.map((partner, index) => (
               <div
                 key={`row2-${index}`}
-                className="flex-shrink-0 w-48 h-24 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex items-center justify-center p-6 group border border-gray-100"
-              >
-                <img
-                  src={partner.logo}
-                  alt={partner.name}
-                  className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-60 group-hover:opacity-100"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = `<span class="text-sm font-bold text-gray-400 text-center">${partner.name}</span>`;
-                    }
-                  }}
-                />
-              </div>
-            ))}
-          </motion.div>
-          <motion.div
-            className="flex gap-12 items-center ml-12"
-            animate={{ x: [-1920, 0] }}
-            transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 40, ease: "linear" } }}
-          >
-            {duplicatedPartners.map((partner, index) => (
-              <div
-                key={`row2-duplicate-${index}`}
-                className="flex-shrink-0 w-48 h-24 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex items-center justify-center p-6 group border border-gray-100"
+                className="flex-shrink-0 w-48 h-24 bg-white rounded-2xl -md hover:-xl transition-all duration-300 flex items-center justify-center p-6 group border border-gray-100"
               >
                 <img
                   src={partner.logo}

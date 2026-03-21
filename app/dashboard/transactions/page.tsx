@@ -22,7 +22,7 @@ function TransactionsContent() {
     <main className="flex-1 bg-gray-50">
       <div className="lg:p-6 space-y-6 p-4">
         {selectedTxId && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-4">
+          <div className="bg-white rounded-2xl border border-slate-200 -sm px-6 py-4">
             <div className="text-sm font-semibold text-slate-900">{s?.selectedTransaction || "Selected transaction"}</div>
             <div className="text-sm text-slate-600">{selectedTxId}</div>
           </div>

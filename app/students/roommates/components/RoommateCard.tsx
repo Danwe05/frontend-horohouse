@@ -72,27 +72,27 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
   const _t = t as any;
   const s = _t.students?.roommates?.card || {};
   const SLEEP_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-    early_bird: { label: s.earlyBird || 'Early bird',  icon: <Sun className="w-3 h-3" />,     color: 'bg-amber-50 text-amber-700 border-amber-200' },
-    night_owl:  { label: s.nightOwl || 'Night owl',   icon: <Moon className="w-3 h-3" />,    color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-    flexible:   { label: s.flexible || 'Flexible',    icon: <Sparkles className="w-3 h-3" />, color: 'bg-slate-100 text-slate-600 border-slate-200' },
+    early_bird: { label: s.earlyBird || 'Early bird', icon: <Sun className="w-3 h-3" />, color: 'bg-amber-50 text-amber-700 border-amber-200' },
+    night_owl: { label: s.nightOwl || 'Night owl', icon: <Moon className="w-3 h-3" />, color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    flexible: { label: s.flexible || 'Flexible', icon: <Sparkles className="w-3 h-3" />, color: 'bg-slate-100 text-slate-600 border-slate-200' },
   };
 
   const CLEAN_LABELS: Record<string, { label: string; color: string }> = {
-    very_neat: { label: s.veryNeat || 'Very neat',  color: 'bg-teal-50 text-teal-700 border-teal-200' },
-    neat:      { label: s.neat || 'Neat',       color: 'bg-teal-50 text-teal-700 border-teal-200' },
-    relaxed:   { label: s.relaxed || 'Relaxed',    color: 'bg-slate-100 text-slate-600 border-slate-200' },
+    very_neat: { label: s.veryNeat || 'Very neat', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+    neat: { label: s.neat || 'Neat', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+    relaxed: { label: s.relaxed || 'Relaxed', color: 'bg-slate-100 text-slate-600 border-slate-200' },
   };
 
   const SOCIAL_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
     introverted: { label: s.introverted || 'Introverted', icon: <UserCheck className="w-3 h-3" /> },
-    balanced:    { label: s.balanced || 'Balanced',    icon: <Users className="w-3 h-3" /> },
-    social:      { label: s.social || 'Social',      icon: <Users className="w-3 h-3" /> },
+    balanced: { label: s.balanced || 'Balanced', icon: <Users className="w-3 h-3" /> },
+    social: { label: s.social || 'Social', icon: <Users className="w-3 h-3" /> },
   };
 
   const STUDY_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
-    home_studier:  { label: s.studiesHome || 'Studies at home',    icon: <BookOpen className="w-3 h-3" /> },
-    library_goer:  { label: s.studiesLibrary || 'Studies at library', icon: <Library className="w-3 h-3" /> },
-    mixed:         { label: s.mixedStudy || 'Mixed study',         icon: <BookOpen className="w-3 h-3" /> },
+    home_studier: { label: s.studiesHome || 'Studies at home', icon: <BookOpen className="w-3 h-3" /> },
+    library_goer: { label: s.studiesLibrary || 'Studies at library', icon: <Library className="w-3 h-3" /> },
+    mixed: { label: s.mixedStudy || 'Mixed study', icon: <BookOpen className="w-3 h-3" /> },
   };
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -102,10 +102,10 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
   const avatar = profile.userId?.profilePicture ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4`;
 
-  const sleep  = SLEEP_LABELS[profile.sleepSchedule]  || { label: profile.sleepSchedule,  icon: null, color: 'bg-slate-100 text-slate-600 border-slate-200' };
-  const clean  = CLEAN_LABELS[profile.cleanlinessLevel] || { label: profile.cleanlinessLevel, color: 'bg-slate-100 text-slate-600 border-slate-200' };
-  const social = SOCIAL_LABELS[profile.socialHabit]   || { label: profile.socialHabit,    icon: null };
-  const study  = STUDY_LABELS[profile.studyHabit]     || { label: profile.studyHabit,     icon: null };
+  const sleep = SLEEP_LABELS[profile.sleepSchedule] || { label: profile.sleepSchedule, icon: null, color: 'bg-slate-100 text-slate-600 border-slate-200' };
+  const clean = CLEAN_LABELS[profile.cleanlinessLevel] || { label: profile.cleanlinessLevel, color: 'bg-slate-100 text-slate-600 border-slate-200' };
+  const social = SOCIAL_LABELS[profile.socialHabit] || { label: profile.socialHabit, icon: null };
+  const study = STUDY_LABELS[profile.studyHabit] || { label: profile.studyHabit, icon: null };
 
   const handleInterest = async () => {
     if (!userId || sent || sending) return;
@@ -145,11 +145,10 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
             />
           </div>
           {/* Flat Mode Badge */}
-          <span className={`absolute -bottom-2 -right-2 text-[8px] font-black px-2.5 py-1 rounded-full border-2 border-white uppercase tracking-widest shadow-lg ${
-            profile.mode === 'have_room'
-              ? 'bg-emerald-500 text-white'
-              : 'bg-blue-600 text-white'
-          }`}>
+          <span className={`absolute -bottom-2 -right-2 text-[8px] font-black px-2.5 py-1 rounded-full border-1 border-white uppercase tracking-widest -lg ${profile.mode === 'have_room'
+            ? 'bg-emerald-500 text-white'
+            : 'bg-blue-600 text-white'
+            }`}>
             {profile.mode === 'have_room' ? (s.owner || 'Owner') : (s.seeker || 'Seeker')}
           </span>
         </div>
@@ -207,19 +206,19 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
         <div className="mx-8 mt-4 mb-2 p-4 rounded-2xl bg-blue-50/50 border border-blue-100/50 flex items-center justify-between group/prop transition-all hover:bg-blue-50">
           <div className="flex items-center gap-3 min-w-0">
             {profile.propertyId.images?.[0]?.url ? (
-               <img
-                 src={profile.propertyId.images[0].url}
-                 alt={profile.propertyId.title}
-                 className="w-10 h-10 rounded-xl object-cover grayscale-[0.5] group-hover/prop:grayscale-0 transition-all"
-               />
+              <img
+                src={profile.propertyId.images[0].url}
+                alt={profile.propertyId.title}
+                className="w-10 h-10 rounded-xl object-cover grayscale-[0.5] group-hover/prop:grayscale-0 transition-all"
+              />
             ) : (
-               <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-400">
-                 <BedDouble className="w-5 h-5" />
-               </div>
+              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-400">
+                <BedDouble className="w-5 h-5" />
+              </div>
             )}
             <div className="min-w-0">
-               <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight truncate">{profile.propertyId.title}</p>
-               <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest">{s.featuredResidence || 'Featured Residence'}</p>
+              <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight truncate">{profile.propertyId.title}</p>
+              <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest">{s.featuredResidence || 'Featured Residence'}</p>
             </div>
           </div>
           <ArrowRight className="w-4 h-4 text-blue-300 group-hover/prop:text-blue-600 transition-colors" />
@@ -244,11 +243,10 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
         <Button
           onClick={handleInterest}
           disabled={sent || sending}
-          className={`rounded-2xl h-12 px-6 text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 ${
-            sent
-              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95'
-          }`}
+          className={`rounded-2xl h-12 px-6 text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 ${sent
+            ? 'bg-emerald-500 text-white -lg -emerald-500/20'
+            : 'bg-blue-600 hover:bg-blue-700 text-white -xl -blue-600/20 hover:scale-105 active:scale-95'
+            }`}
         >
           {sent ? (
             <span className="flex items-center gap-2">
@@ -257,7 +255,7 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
             </span>
           ) : sending ? (
             <span className="flex items-center gap-2">
-              <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              <span className="w-3 h-3 border-1 border-white/40 border-t-white rounded-full animate-spin" />
               Wait
             </span>
           ) : (

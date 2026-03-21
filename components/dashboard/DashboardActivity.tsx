@@ -23,7 +23,7 @@ const SingleBarChart = () => {
       data = labels.map(() => Math.floor(Math.random() * 100));
     } else if (period === 'week') {
       labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      data = labels.map((_:any, i:any) =>
+      data = labels.map((_: any, i: any) =>
         rawSeries.reduce((sum, series) => {
           const val = series[i];
           return sum + (typeof val === 'number' ? val : 0);
@@ -53,7 +53,7 @@ const SingleBarChart = () => {
   const { labels, seriesData } = getChartData();
 
   const option = {
-    tooltip: { 
+    tooltip: {
       trigger: 'axis',
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#E5E7EB',
@@ -96,7 +96,7 @@ const SingleBarChart = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
       <div className="max-w-5xl mx-auto">
-        
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -108,7 +108,7 @@ const SingleBarChart = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl -sm border border-slate-200 p-6 hover:-md transition-">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-500 text-sm font-medium mb-1">Total Saved</p>
@@ -120,7 +120,7 @@ const SingleBarChart = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl -sm border border-slate-200 p-6 hover:-md transition-">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-500 text-sm font-medium mb-1">Total Liked</p>
@@ -134,20 +134,19 @@ const SingleBarChart = () => {
         </div>
 
         {/* Chart Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-2xl -sm border border-slate-200 p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <h2 className="text-xl font-bold text-slate-800">Activity Overview</h2>
-            
+
             <div className="flex gap-1 bg-slate-100 p-1 rounded-xl">
               {(['day', 'week', 'month', 'year'] as const).map(p => (
                 <button
                   key={p}
                   onClick={() => setPeriod(p)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    period === p
-                      ? 'bg-white text-blue-600 shadow-sm'
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${period === p
+                      ? 'bg-white text-blue-600 -sm'
                       : 'text-slate-600 hover:text-slate-900'
-                  }`}
+                    }`}
                 >
                   {p.charAt(0).toUpperCase() + p.slice(1)}
                 </button>

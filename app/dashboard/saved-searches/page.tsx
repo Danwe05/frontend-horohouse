@@ -211,7 +211,7 @@ export default function SavedSearchesPage() {
 
     if (criteria.city) {
       pills.push(
-        <div key="city" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="city" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <MapPin className="w-3 h-3 text-indigo-500" />
           {criteria.city}
         </div>
@@ -219,7 +219,7 @@ export default function SavedSearchesPage() {
     }
     if (criteria.listingType) {
       pills.push(
-        <div key="type" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="type" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <HomeIcon className="w-3 h-3 text-indigo-500" />
           {criteria.listingType === 'sale' ? 'Buy' : 'Rent'}
         </div>
@@ -227,7 +227,7 @@ export default function SavedSearchesPage() {
     }
     if (criteria.propertyType) {
       pills.push(
-        <div key="ptype" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="ptype" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <Home className="w-3 h-3 text-indigo-500" />
           {criteria.propertyType}
         </div>
@@ -235,7 +235,7 @@ export default function SavedSearchesPage() {
     }
     if (criteria.minPrice || criteria.maxPrice) {
       pills.push(
-        <div key="price" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="price" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <Banknote className="w-3 h-3 text-emerald-500" />
           {formatPrice(criteria.minPrice)} - {formatPrice(criteria.maxPrice)}
         </div>
@@ -243,7 +243,7 @@ export default function SavedSearchesPage() {
     }
     if (criteria.bedrooms) {
       pills.push(
-        <div key="beds" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="beds" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <Bed className="w-3 h-3 text-blue-500" />
           {criteria.bedrooms}+ Beds
         </div>
@@ -251,7 +251,7 @@ export default function SavedSearchesPage() {
     }
     if (criteria.bathrooms) {
       pills.push(
-        <div key="baths" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="baths" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <Bath className="w-3 h-3 text-cyan-500" />
           {criteria.bathrooms}+ Baths
         </div>
@@ -289,7 +289,7 @@ export default function SavedSearchesPage() {
                 {/* Statistics Cards Skeleton */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start gap-4">
+                    <div key={i} className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4">
                       <Skeleton className="w-12 h-12 rounded-xl" />
                       <div className="space-y-2 flex-1 mt-1">
                         <Skeleton className="h-3 w-24 rounded-md" />
@@ -304,7 +304,7 @@ export default function SavedSearchesPage() {
                 <div className="mt-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
-                      <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[260px]">
+                      <div key={i} className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex flex-col h-[260px]">
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex items-center gap-3 w-full">
                             <Skeleton className="w-10 h-10 rounded-xl flex-shrink-0" />
@@ -371,7 +371,7 @@ export default function SavedSearchesPage() {
                   <p className="text-slate-500 pl-11">Manage your property search alerts and get notified of new matches</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Button onClick={() => router.push('/')} className="shadow-md bg-indigo-600 hover:bg-indigo-700 transition-all">
+                  <Button onClick={() => router.push('/')} className="-md bg-indigo-600 hover:bg-indigo-700 transition-all">
                     <Plus className="w-4 h-4 mr-2" /> New Alert
                   </Button>
                 </div>
@@ -380,7 +380,7 @@ export default function SavedSearchesPage() {
               {/* Statistics Cards */}
               {statistics && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start gap-4 transition-all hover:shadow-md">
+                  <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
                     <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
                       <Search className="w-6 h-6" />
                     </div>
@@ -391,7 +391,7 @@ export default function SavedSearchesPage() {
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start gap-4 transition-all hover:shadow-md">
+                  <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
                     <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
                       <TrendingUp className="w-6 h-6" />
                     </div>
@@ -402,7 +402,7 @@ export default function SavedSearchesPage() {
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start gap-4 transition-all hover:shadow-md">
+                  <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
                     <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
                       <HomeIcon className="w-6 h-6" />
                     </div>
@@ -413,7 +413,7 @@ export default function SavedSearchesPage() {
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start gap-4 transition-all hover:shadow-md">
+                  <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
                     <div className="p-3 bg-orange-50 text-orange-600 rounded-xl">
                       <Bell className="w-6 h-6" />
                     </div>
@@ -431,7 +431,7 @@ export default function SavedSearchesPage() {
               {/* Saved Searches Grid */}
               <div className="mt-8">
                 {searches.length === 0 ? (
-                  <div className="bg-white rounded-3xl border-2 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
+                  <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
                     <div className="p-6 bg-indigo-50 text-indigo-600 rounded-full mb-6">
                       <Search className="w-12 h-12" />
                     </div>
@@ -447,7 +447,7 @@ export default function SavedSearchesPage() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {searches.map(search => (
-                      <div key={search._id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
+                      <div key={search._id} className="bg-white rounded-2xl p-6 -sm border border-slate-100 hover:-md transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
 
                         {/* Card Header */}
                         <div className="flex justify-between items-start mb-4 z-10">

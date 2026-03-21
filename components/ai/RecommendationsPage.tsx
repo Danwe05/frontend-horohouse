@@ -77,7 +77,7 @@ export default function RecommendationsPage() {
   const fetchRecommendations = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await apiClient.getRecommendations({
         algorithm: selectedAlgorithm,
@@ -162,18 +162,16 @@ export default function RecommendationsPage() {
 
         {/* ML Status Banner */}
         {mlStatus && (
-          <div className={`mb-6 p-4 rounded-lg ${
-            mlStatus.flaskService.healthy 
-              ? 'bg-green-50 border border-green-200' 
-              : 'bg-yellow-50 border border-yellow-200'
-          }`}>
+          <div className={`mb-6 p-4 rounded-lg ${mlStatus.flaskService.healthy
+            ? 'bg-green-50 border border-green-200'
+            : 'bg-yellow-50 border border-yellow-200'
+            }`}>
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${
-                mlStatus.flaskService.healthy ? 'bg-green-500' : 'bg-yellow-500'
-              }`} />
+              <div className={`w-2 h-2 rounded-full ${mlStatus.flaskService.healthy ? 'bg-green-500' : 'bg-yellow-500'
+                }`} />
               <span className="text-sm font-medium">
-                {mlStatus.flaskService.healthy 
-                  ? '🤖 AI Recommendations Active' 
+                {mlStatus.flaskService.healthy
+                  ? '🤖 AI Recommendations Active'
                   : '⚠️ AI Service Unavailable - Using Internal Algorithms'}
               </span>
             </div>
@@ -185,20 +183,18 @@ export default function RecommendationsPage() {
           {algorithms.map((algo) => {
             const Icon = algo.icon;
             const isSelected = selectedAlgorithm === algo.id;
-            
+
             return (
               <button
                 key={algo.id}
                 onClick={() => setSelectedAlgorithm(algo.id)}
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  isSelected
-                    ? `border-${algo.color}-500 bg-${algo.color}-50`
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
+                className={`p-4 rounded-lg border-1 transition-all ${isSelected
+                  ? `border-${algo.color}-500 bg-${algo.color}-50`
+                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
               >
-                <Icon className={`w-6 h-6 mb-2 ${
-                  isSelected ? `text-${algo.color}-600` : 'text-gray-600'
-                }`} />
+                <Icon className={`w-6 h-6 mb-2 ${isSelected ? `text-${algo.color}-600` : 'text-gray-600'
+                  }`} />
                 <div className="text-left">
                   <h3 className="font-semibold text-sm">{algo.name}</h3>
                   <p className="text-xs text-gray-500 mt-1">{algo.description}</p>
@@ -211,14 +207,14 @@ export default function RecommendationsPage() {
         {/* Stats Cards */}
         {stats && (
           <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <div className="bg-white p-4 rounded-lg -sm border">
               <h3 className="text-sm text-gray-600 mb-1">Profile Strength</h3>
               <div className="flex items-end gap-2">
                 <span className="text-2xl font-bold">
                   {Math.round(stats.profileStrength * 100)}%
                 </span>
                 <div className="flex-1 bg-gray-200 rounded-full h-2 mb-1">
-                  <div 
+                  <div
                     className="bg-blue-600 h-2 rounded-full"
                     style={{ width: `${stats.profileStrength * 100}%` }}
                   />
@@ -226,12 +222,12 @@ export default function RecommendationsPage() {
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <div className="bg-white p-4 rounded-lg -sm border">
               <h3 className="text-sm text-gray-600 mb-1">Similar Users</h3>
               <span className="text-2xl font-bold">{stats.similarUsersCount}</span>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <div className="bg-white p-4 rounded-lg -sm border">
               <h3 className="text-sm text-gray-600 mb-1">Available Properties</h3>
               <span className="text-2xl font-bold">{stats.recommendationCandidates}</span>
             </div>
@@ -249,7 +245,7 @@ export default function RecommendationsPage() {
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <p className="text-red-800">{error}</p>
-            <button 
+            <button
               onClick={fetchRecommendations}
               className="mt-2 text-red-600 hover:text-red-800 font-medium"
             >
@@ -294,7 +290,7 @@ export default function RecommendationsPage() {
                 return (
                   <div key={rec.propertyId || index} className="relative">
                     {/* Recommendation Badge */}
-                    <div className="absolute top-2 left-2 z-10 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+                    <div className="absolute top-2 left-2 z-10 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium -lg">
                       {Math.round(rec.finalScore * 100)}% Match
                     </div>
 
@@ -349,7 +345,7 @@ export default function RecommendationsPage() {
             <p className="text-gray-600 mb-4">
               Start browsing properties to get personalized recommendations
             </p>
-            <a 
+            <a
               href="/properties"
               className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
             >

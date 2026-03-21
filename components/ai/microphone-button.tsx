@@ -29,7 +29,7 @@ export function MicrophoneButton({ isListening, onClick }: MicrophoneButtonProps
               onClick={onClick}
               disabled={isListening}
               className={cn(
-                "relative h-12 w-12 rounded-full shadow-lg transition-all duration-300",
+                "relative h-12 w-12 rounded-full -lg transition-all duration-300",
                 isListening
                   ? "bg-accent text-accent-foreground scale-110"
                   : "bg-accent text-accent-foreground hover:bg-accent/90 hover:scale-105",

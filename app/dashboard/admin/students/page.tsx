@@ -64,10 +64,10 @@ const STATUS_CFG: Record<VerificationStatus, {
   label: string; icon: React.ElementType;
   badge: string; row: string;
 }> = {
-  unverified: { label: 'Unverified', icon: XCircle,      badge: 'bg-slate-100 text-slate-500',   row: '' },
-  pending:    { label: 'Pending',    icon: Clock,         badge: 'bg-amber-100 text-amber-700',   row: 'bg-amber-50/30' },
-  verified:   { label: 'Verified',   icon: CheckCircle2,  badge: 'bg-emerald-100 text-emerald-700', row: '' },
-  rejected:   { label: 'Rejected',   icon: XCircle,       badge: 'bg-red-100 text-red-600',       row: 'bg-red-50/20' },
+  unverified: { label: 'Unverified', icon: XCircle, badge: 'bg-slate-100 text-slate-500', row: '' },
+  pending: { label: 'Pending', icon: Clock, badge: 'bg-amber-100 text-amber-700', row: 'bg-amber-50/30' },
+  verified: { label: 'Verified', icon: CheckCircle2, badge: 'bg-emerald-100 text-emerald-700', row: '' },
+  rejected: { label: 'Rejected', icon: XCircle, badge: 'bg-red-100 text-red-600', row: 'bg-red-50/20' },
 };
 
 function StatusBadge({ status }: { status: VerificationStatus }) {
@@ -85,7 +85,7 @@ function StatCard({ label, value, icon: Icon, color }: {
   label: string; value: number | string; icon: React.ElementType; color: string;
 }) {
   return (
-    <Card className="border-none shadow-sm ring-1 ring-slate-200/60 hover:shadow-md transition-all duration-300 group">
+    <Card className="border-none -sm ring-1 ring-slate-200/60 hover:-md transition-all duration-300 group">
       <CardContent className="p-5 flex items-center gap-4">
         <div className={cn('p-3 rounded-xl transition-transform group-hover:scale-110 duration-300', color)}>
           <Icon className="w-5 h-5" />
@@ -105,7 +105,7 @@ function IdImageModal({ url, name, onClose }: { url: string; name: string; onClo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden max-w-lg w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="relative bg-white rounded-2xl -2xl overflow-hidden max-w-lg w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div>
             <h2 className="text-base font-bold text-slate-900">Student ID</h2>
@@ -169,7 +169,7 @@ function ReviewModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="relative bg-white rounded-2xl -2xl w-full max-w-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
             <div>
@@ -190,7 +190,7 @@ function ReviewModal({
 
             {/* Student info */}
             <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-white shadow-sm flex-shrink-0 bg-slate-200">
+              <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-white -sm flex-shrink-0 bg-slate-200">
                 {user?.profilePicture ? (
                   <img src={user.profilePicture} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
@@ -210,9 +210,9 @@ function ReviewModal({
             <div className="grid grid-cols-2 gap-3">
               {[
                 { icon: GraduationCap, label: 'University', value: profile.universityName },
-                { icon: MapPin,        label: 'City',       value: profile.campusCity },
-                { icon: BookOpen,      label: 'Faculty',    value: profile.faculty || '—' },
-                { icon: Award,         label: 'Level',      value: profile.studyLevel || '—' },
+                { icon: MapPin, label: 'City', value: profile.campusCity },
+                { icon: BookOpen, label: 'Faculty', value: profile.faculty || '—' },
+                { icon: Award, label: 'Level', value: profile.studyLevel || '—' },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                   <div className="flex items-center gap-1.5 mb-1">
@@ -236,7 +236,7 @@ function ReviewModal({
             {profile.studentIdUrl ? (
               <button
                 onClick={() => setShowId(true)}
-                className="w-full flex items-center justify-center gap-2 p-3.5 border-2 border-dashed border-slate-300 rounded-xl text-sm font-semibold text-slate-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50/30 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 p-3.5 border-1 border-dashed border-slate-300 rounded-xl text-sm font-semibold text-slate-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50/30 transition-all cursor-pointer"
               >
                 <ImageIcon className="w-4 h-4" />
                 View Student ID Photo
@@ -253,7 +253,7 @@ function ReviewModal({
               <button
                 onClick={() => setDecision('verified')}
                 className={cn(
-                  'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer',
+                  'flex flex-col items-center gap-2 p-4 rounded-xl border-1 transition-all duration-200 cursor-pointer',
                   decision === 'verified'
                     ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
                     : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-emerald-300 hover:bg-emerald-50/40'
@@ -268,7 +268,7 @@ function ReviewModal({
               <button
                 onClick={() => setDecision('rejected')}
                 className={cn(
-                  'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer',
+                  'flex flex-col items-center gap-2 p-4 rounded-xl border-1 transition-all duration-200 cursor-pointer',
                   decision === 'rejected'
                     ? 'border-red-400 bg-red-50 text-red-700'
                     : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-red-300 hover:bg-red-50/40'
@@ -364,7 +364,7 @@ function ActionMenu({ profile, onReview, onViewId }: {
         <MoreVertical className="w-4 h-4" />
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl -xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
           {profile.studentIdUrl && (
             <button
               onClick={() => { setOpen(false); onViewId(); }}
@@ -514,7 +514,7 @@ export default function AdminStudentsPage() {
                   placeholder="Search by campus city…"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="pl-9 bg-white border-slate-200 shadow-sm"
+                  className="pl-9 bg-white border-slate-200 -sm"
                 />
                 {search && (
                   <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
@@ -524,7 +524,7 @@ export default function AdminStudentsPage() {
               </div>
 
               <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1); }}>
-                <SelectTrigger className="w-full sm:w-[180px] bg-white border-slate-200 shadow-sm">
+                <SelectTrigger className="w-full sm:w-[180px] bg-white border-slate-200 -sm">
                   <Filter className="w-4 h-4 mr-2 text-slate-400" />
                   <SelectValue placeholder="Filter status" />
                 </SelectTrigger>
@@ -539,7 +539,7 @@ export default function AdminStudentsPage() {
             </div>
 
             {/* ── Table ── */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-slate-200/80 -sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -576,7 +576,7 @@ export default function AdminStudentsPage() {
                           {/* Student */}
                           <td className="px-4 py-3.5">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white shadow-sm">
+                              <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white -sm">
                                 <img src={avatarSrc} alt={user?.name} className="w-full h-full object-cover" />
                               </div>
                               <div className="min-w-0">

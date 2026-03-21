@@ -59,7 +59,7 @@ export default function TourPreview({
     // ── No tour at all ───────────────────────────────────────────────────────
     if (effectiveTourType === "none") {
         return (
-            <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-6 text-center space-y-4">
+            <div className="rounded-2xl border-1 border-dashed border-slate-200 bg-slate-50 p-6 text-center space-y-4">
                 <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mx-auto">
                     <ImageIcon className="h-6 w-6 text-slate-400" />
                 </div>
@@ -126,7 +126,7 @@ export default function TourPreview({
 
                 {/* Play button centre */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/40 flex items-center justify-center group-hover:scale-110 group-hover:bg-white/30 transition-all duration-300">
+                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border-1 border-white/40 flex items-center justify-center group-hover:scale-110 group-hover:bg-white/30 transition-all duration-300">
                         <Play className="h-7 w-7 text-white fill-white ml-1" />
                     </div>
                 </div>
@@ -134,7 +134,7 @@ export default function TourPreview({
                 {/* Label bottom */}
                 <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
                     <meta.Icon className="h-5 w-5 text-white/80" />
-                    <span className="text-white font-semibold text-sm drop-shadow">
+                    <span className="text-white font-semibold text-sm drop-">
                         {meta.label}
                     </span>
                 </div>
@@ -152,7 +152,7 @@ export default function TourPreview({
                 <Button
                     onClick={onScheduleVisit}
                     variant="outline"
-                    className="flex-1 border-2 border-slate-200 text-slate-700 rounded-xl h-12 font-bold hover:bg-slate-50"
+                    className="flex-1 border-1 border-slate-200 text-slate-700 rounded-xl h-12 font-bold hover:bg-slate-50"
                 >
                     <CalendarClock className="h-4 w-4 mr-2" />
                     Schedule Visit

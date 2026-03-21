@@ -22,7 +22,7 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
   const [autoSendCountdown, setAutoSendCountdown] = useState<number | null>(null)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [interimText, setInterimText] = useState("")
-  
+
   const recognitionRef = useRef<any>(null)
   const finalTranscriptRef = useRef("")
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -32,25 +32,25 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
   // Play sound feedback
   const playSound = useCallback((frequency: number, duration: number) => {
     if (!soundEnabled) return
-    
+
     try {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
       }
-      
+
       const ctx = audioContextRef.current
       const oscillator = ctx.createOscillator()
       const gainNode = ctx.createGain()
-      
+
       oscillator.connect(gainNode)
       gainNode.connect(ctx.destination)
-      
+
       oscillator.frequency.value = frequency
       oscillator.type = 'sine'
-      
+
       gainNode.gain.setValueAtTime(0.1, ctx.currentTime)
       gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration)
-      
+
       oscillator.start(ctx.currentTime)
       oscillator.stop(ctx.currentTime + duration)
     } catch (error) {
@@ -140,17 +140,17 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
 
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error)
-      
+
       // Don't show error for no-speech if we already have transcript
       if (event.error === 'no-speech' && finalTranscriptRef.current.trim()) {
         return
       }
-      
+
       // Ignore these errors silently
       if (['aborted', 'no-speech'].includes(event.error) && finalTranscriptRef.current.trim()) {
         return
       }
-      
+
       switch (event.error) {
         case 'not-allowed':
         case 'permission-denied':
@@ -177,13 +177,13 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
             playSound(300, 0.2)
           }
       }
-      
+
       setIsListening(false)
     }
 
     recognition.onend = () => {
       setIsListening(false)
-      
+
       // Auto-restart if we were listening and no error occurred
       if (isListening && !error && isOpen && !isProcessing) {
         try {
@@ -211,12 +211,12 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
   const startAutoSendCountdown = useCallback(() => {
     setAutoSendCountdown(3)
     playSound(700, 0.1) // Countdown start sound
-    
+
     let count = 3
     countdownIntervalRef.current = setInterval(() => {
       count--
       setAutoSendCountdown(count)
-      
+
       if (count > 0) {
         playSound(700, 0.05) // Tick sound
       } else {
@@ -235,7 +235,7 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
       setIsProcessing(true)
       stopListening()
       playSound(1000, 0.15) // Success sound
-      
+
       setTimeout(() => {
         onSendMessage(finalText)
         onClose()
@@ -258,7 +258,7 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
       setError(null)
       setAutoSendCountdown(null)
       finalTranscriptRef.current = ""
-      
+
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current)
       }
@@ -300,7 +300,7 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
       }
     }
     setIsListening(false)
-    
+
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current)
     }
@@ -323,7 +323,7 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
       setIsProcessing(true)
       stopListening()
       playSound(1000, 0.15) // Success sound
-      
+
       setTimeout(() => {
         onSendMessage(finalText)
         onClose()
@@ -406,9 +406,9 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center overflow-hidden ring-2 ring-primary-foreground/20">
                 {user.profilePicture ? (
-                  <img 
-                    src={user.profilePicture} 
-                    alt={user.name} 
+                  <img
+                    src={user.profilePicture}
+                    alt={user.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -428,13 +428,13 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
         </div>
         <div className="flex flex-col items-center">
           <span className="text-sm font-medium text-primary-foreground/80">
-            {isProcessing 
-              ? "Envoi en cours..." 
-              : autoSendCountdown !== null 
-              ? `Envoi dans ${autoSendCountdown}s...` 
-              : isListening 
-              ? "Écoute en cours..." 
-              : "Prêt à écouter"}
+            {isProcessing
+              ? "Envoi en cours..."
+              : autoSendCountdown !== null
+                ? `Envoi dans ${autoSendCountdown}s...`
+                : isListening
+                  ? "Écoute en cours..."
+                  : "Prêt à écouter"}
           </span>
           {error && (
             <span className="text-xs text-red-300 mt-1 max-w-xs text-center">
@@ -501,14 +501,14 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
           <div
             className={cn(
               "absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full",
-              "border-2 border-primary-foreground/10 transition-all duration-500",
+              "border-1 border-primary-foreground/10 transition-all duration-500",
               isListening && "animate-[ping_2s_ease-out_infinite] opacity-30",
             )}
           />
           <div
             className={cn(
               "absolute left-1/2 top-1/2 h-36 w-36 -translate-x-1/2 -translate-y-1/2 rounded-full",
-              "border-2 border-primary-foreground/20 transition-all duration-500",
+              "border-1 border-primary-foreground/20 transition-all duration-500",
               isListening && "animate-[ping_2s_ease-out_0.5s_infinite] opacity-40",
             )}
           />
@@ -517,7 +517,7 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
           <div
             className={cn(
               "relative flex h-28 w-28 items-center justify-center rounded-full",
-              "bg-gradient-to-br from-accent to-accent/80 shadow-2xl",
+              "bg-gradient-to-br from-accent to-accent/80 -2xl",
               "transition-all duration-300 ring-4 ring-primary-foreground/10",
               isListening ? "scale-100" : "scale-95",
               error && "bg-destructive/80",
@@ -601,15 +601,15 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
             onClick={autoSendCountdown !== null ? cancelAutoSend : toggleListening}
             disabled={isProcessing || !!error}
             className={cn(
-              "h-20 w-20 rounded-full shadow-xl transition-all duration-300",
+              "h-20 w-20 rounded-full -xl transition-all duration-300",
               "hover:scale-105 active:scale-95",
               autoSendCountdown !== null
                 ? "bg-amber-500 text-amber-50 hover:bg-amber-600"
                 : isListening
-                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 scale-105"
-                : error
-                ? "bg-destructive/80 text-destructive-foreground hover:bg-destructive/90"
-                : "bg-primary-foreground text-primary hover:bg-primary-foreground/90",
+                  ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 scale-105"
+                  : error
+                    ? "bg-destructive/80 text-destructive-foreground hover:bg-destructive/90"
+                    : "bg-primary-foreground text-primary hover:bg-primary-foreground/90",
             )}
           >
             {autoSendCountdown !== null ? (
@@ -622,13 +622,13 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
               <Mic className="h-8 w-8" />
             )}
             <span className="sr-only">
-              {autoSendCountdown !== null 
+              {autoSendCountdown !== null
                 ? "Annuler l'envoi automatique"
-                : isListening 
-                ? "Arrêter l'écoute" 
-                : error 
-                ? "Microphone désactivé" 
-                : "Commencer l'écoute"}
+                : isListening
+                  ? "Arrêter l'écoute"
+                  : error
+                    ? "Microphone désactivé"
+                    : "Commencer l'écoute"}
             </span>
           </Button>
 
@@ -642,7 +642,7 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
               "h-14 w-14 rounded-full transition-all duration-200",
               "hover:scale-105 active:scale-95",
               transcript.trim() && !error && autoSendCountdown === null
-                ? "bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg"
+                ? "bg-accent text-accent-foreground hover:bg-accent/90 -lg"
                 : "bg-primary-foreground/10 text-primary-foreground/40",
             )}
           >
@@ -653,13 +653,13 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
 
         {/* Hint text */}
         <p className="mt-6 text-center text-sm text-primary-foreground/50">
-          {error 
+          {error
             ? "Vérifiez les permissions du microphone"
             : autoSendCountdown !== null
-            ? "Appuyez sur le micro pour annuler l'envoi automatique"
-            : isListening 
-            ? "Parlez maintenant... (envoi auto après 3s de silence)" 
-            : "Appuyez sur le micro pour commencer"
+              ? "Appuyez sur le micro pour annuler l'envoi automatique"
+              : isListening
+                ? "Parlez maintenant... (envoi auto après 3s de silence)"
+                : "Appuyez sur le micro pour commencer"
           }
         </p>
       </footer>

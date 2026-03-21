@@ -515,7 +515,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
             </Button>
             <Button
               variant="outline"
-              className="w-full h-14 text-base font-bold rounded-xl border-2 border-slate-200 text-slate-700 hover:bg-slate-50"
+              className="w-full h-14 text-base font-bold rounded-xl border-1 border-slate-200 text-slate-700 hover:bg-slate-50"
               size="lg"
               onClick={() => setIsScheduleOpen(true)}
             >
@@ -545,7 +545,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
             </div>
 
             <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16 border-2 border-white">
+              <Avatar className="h-16 w-16 border-1 border-white">
                 {agent.profilePicture && (
                   <AvatarImage src={agent.profilePicture} alt={agent.name} />
                 )}
@@ -710,7 +710,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
       </div>
 
       {/* ── Mobile Sticky Bottom Bar ── */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 border-t border-border/50 p-4 shadow-2xl z-50 backdrop-blur-sm">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 border-t border-border/50 p-4 -2xl z-50 backdrop-blur-sm">
         <div className="flex items-center gap-3 max-w-screen-xl mx-auto">
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline gap-1">

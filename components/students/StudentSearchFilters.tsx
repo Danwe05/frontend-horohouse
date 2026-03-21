@@ -81,11 +81,10 @@ function FilterChip({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 text-[11px] font-black uppercase tracking-wider px-4 py-2 rounded-full border transition-all ${
-        active
-          ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
+      className={`flex items-center gap-2 text-[11px] font-black uppercase tracking-wider px-4 py-2 rounded-full border transition-all ${active
+          ? 'bg-blue-600 text-white border-blue-600 -md -blue-500/20'
           : 'bg-white text-slate-500 border-slate-100 hover:border-blue-200 hover:bg-slate-50'
-      }`}
+        }`}
     >
       {icon}
       {label}
@@ -123,10 +122,10 @@ export function StudentSearchFilters({
   ];
 
   const SORT_OPTIONS = [
-    { value: 'campusProximityMeters-asc',   label: s.sortClosest || 'Closest to campus' },
-    { value: 'pricePerPersonMonthly-asc',   label: s.sortPriceUp || 'Price per person ↑' },
-    { value: 'pricePerPersonMonthly-desc',  label: s.sortPriceDown || 'Price per person ↓' },
-    { value: 'createdAt-desc',              label: s.sortNewest || 'Newest listings' },
+    { value: 'campusProximityMeters-asc', label: s.sortClosest || 'Closest to campus' },
+    { value: 'pricePerPersonMonthly-asc', label: s.sortPriceUp || 'Price per person ↑' },
+    { value: 'pricePerPersonMonthly-desc', label: s.sortPriceDown || 'Price per person ↓' },
+    { value: 'createdAt-desc', label: s.sortNewest || 'Newest listings' },
   ];
 
   const set = (key: keyof StudentFilters, value: any) =>
@@ -165,38 +164,38 @@ export function StudentSearchFilters({
           {activeCount > 0 && <div className="h-4 w-px bg-slate-100 mx-2 shrink-0" />}
 
           {filters.city && (
-             <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
-               <MapPin className="w-3 h-3" />
-               {filters.city}
-               <button onClick={() => set('city', '')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
-             </div>
+            <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
+              <MapPin className="w-3 h-3" />
+              {filters.city}
+              <button onClick={() => set('city', '')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
+            </div>
           )}
           {filters.maxCampusProximityMeters && (
-             <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
-               {(filters.maxCampusProximityMeters/1000).toFixed(1)}km
-               <button onClick={() => set('maxCampusProximityMeters', undefined)} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
-             </div>
+            <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
+              {(filters.maxCampusProximityMeters / 1000).toFixed(1)}km
+              <button onClick={() => set('maxCampusProximityMeters', undefined)} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
+            </div>
           )}
           {filters.waterSource && (
-             <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
-               <Droplets className="w-3 h-3" />
-               {filters.waterSource.split('_').pop()}
-               <button onClick={() => set('waterSource', '')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
-             </div>
+            <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
+              <Droplets className="w-3 h-3" />
+              {filters.waterSource.split('_').pop()}
+              <button onClick={() => set('waterSource', '')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
+            </div>
           )}
           {filters.electricityBackup && (
-             <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
-               <Zap className="w-3 h-3" />
-               {filters.electricityBackup.split('_').pop()}
-               <button onClick={() => set('electricityBackup', '')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
-             </div>
+            <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
+              <Zap className="w-3 h-3" />
+              {filters.electricityBackup.split('_').pop()}
+              <button onClick={() => set('electricityBackup', '')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
+            </div>
           )}
         </div>
 
         {/* Mobile Filter */}
         <button
           onClick={() => setIsDrawerOpen(true)}
-          className="lg:hidden flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-slate-900/30 shrink-0"
+          className="lg:hidden flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest -xl -slate-900/30 shrink-0"
         >
           <SlidersHorizontal className="w-4 h-4" />
           {s.moreFilters || 'More Filters'}
@@ -219,7 +218,7 @@ export function StudentSearchFilters({
           )}
 
           <div className="hidden sm:block h-6 w-px bg-slate-100" />
-          
+
           <Select value={currentSort} onValueChange={handleSortChange}>
             <SelectTrigger className="w-44 h-11 rounded-full border-slate-50 bg-slate-50 text-[11px] font-bold uppercase tracking-wide px-5 focus:ring-blue-100">
               <SelectValue />
@@ -257,8 +256,8 @@ export function StudentSearchFilters({
                   <button
                     key={c}
                     onClick={() => set('city', c)}
-                    className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border ${filters.city === c || (!c && !filters.city) 
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20' 
+                    className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border ${filters.city === c || (!c && !filters.city)
+                      ? 'bg-blue-600 text-white border-blue-600 -lg -blue-500/20'
                       : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'}`}
                   >
                     {c || s.anyCity || 'Any City'}
@@ -271,7 +270,7 @@ export function StudentSearchFilters({
               <div className="flex justify-between items-center mb-6">
                 <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{s.campusProx || 'Campus Proximity'}</Label>
                 <span className="text-xs font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter">
-                  {filters.maxCampusProximityMeters ? `${s.max || 'Max'} ${(filters.maxCampusProximityMeters/1000).toFixed(1)}km` : s.anyDist || 'Any Distance'}
+                  {filters.maxCampusProximityMeters ? `${s.max || 'Max'} ${(filters.maxCampusProximityMeters / 1000).toFixed(1)}km` : s.anyDist || 'Any Distance'}
                 </span>
               </div>
               <Slider
@@ -288,63 +287,63 @@ export function StudentSearchFilters({
             </section>
 
             <section>
-               <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.waterPower || 'Water & Power'}</Label>
-               <div className="grid grid-cols-1 gap-3">
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{s.waterSrc || 'Water Source'}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {WATER_OPTIONS.map(opt => (
-                        <button
-                          key={opt.value}
-                          onClick={() => set('waterSource', opt.value)}
-                          className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase border transition-all ${filters.waterSource === opt.value || (!opt.value && !filters.waterSource)
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-slate-500 border-slate-100 hover:border-blue-100'}`}
-                        >
-                          {opt.label.split(' (')[0]}
-                        </button>
-                      ))}
-                    </div>
+              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.waterPower || 'Water & Power'}</Label>
+              <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{s.waterSrc || 'Water Source'}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {WATER_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => set('waterSource', opt.value)}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase border transition-all ${filters.waterSource === opt.value || (!opt.value && !filters.waterSource)
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-slate-500 border-slate-100 hover:border-blue-100'}`}
+                      >
+                        {opt.label.split(' (')[0]}
+                      </button>
+                    ))}
                   </div>
+                </div>
 
-                  <div className="space-y-3 mt-4">
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{s.elecBackup || 'Electricity Backup'}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {ELECTRICITY_OPTIONS.map(opt => (
-                        <button
-                          key={opt.value}
-                          onClick={() => set('electricityBackup', opt.value)}
-                          className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase border transition-all ${filters.electricityBackup === opt.value || (!opt.value && !filters.electricityBackup)
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-slate-500 border-slate-100 hover:border-blue-100'}`}
-                        >
-                          {opt.label.split(' (')[0]}
-                        </button>
-                      ))}
-                    </div>
+                <div className="space-y-3 mt-4">
+                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{s.elecBackup || 'Electricity Backup'}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {ELECTRICITY_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => set('electricityBackup', opt.value)}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase border transition-all ${filters.electricityBackup === opt.value || (!opt.value && !filters.electricityBackup)
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-slate-500 border-slate-100 hover:border-blue-100'}`}
+                      >
+                        {opt.label.split(' (')[0]}
+                      </button>
+                    ))}
                   </div>
-               </div>
+                </div>
+              </div>
             </section>
 
             <section>
-               <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.livingRules || 'Living Rules'}</Label>
-               <div className="flex flex-wrap gap-2">
-                 <FilterChip label={s.noCurfew || "No Curfew"} active={!!filters.noCurfew} onClick={() => toggleBool('noCurfew')} />
-                 <FilterChip label={s.visAllowed || "Visitors Allowed"} active={!!filters.visitorsAllowed} onClick={() => toggleBool('visitorsAllowed')} />
-               </div>
+              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.livingRules || 'Living Rules'}</Label>
+              <div className="flex flex-wrap gap-2">
+                <FilterChip label={s.noCurfew || "No Curfew"} active={!!filters.noCurfew} onClick={() => toggleBool('noCurfew')} />
+                <FilterChip label={s.visAllowed || "Visitors Allowed"} active={!!filters.visitorsAllowed} onClick={() => toggleBool('visitorsAllowed')} />
+              </div>
             </section>
 
             <section>
-               <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.propSecurity || 'Property Security'}</Label>
-               <div className="flex flex-wrap gap-2">
-                 <FilterChip label={s.gated || "Gated Compound"} active={!!filters.hasGatedCompound} onClick={() => toggleBool('hasGatedCompound')} />
-                 <FilterChip label={s.nightMan || "Night Watchman"} active={!!filters.hasNightWatchman} onClick={() => toggleBool('hasNightWatchman')} />
-               </div>
+              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.propSecurity || 'Property Security'}</Label>
+              <div className="flex flex-wrap gap-2">
+                <FilterChip label={s.gated || "Gated Compound"} active={!!filters.hasGatedCompound} onClick={() => toggleBool('hasGatedCompound')} />
+                <FilterChip label={s.nightMan || "Night Watchman"} active={!!filters.hasNightWatchman} onClick={() => toggleBool('hasNightWatchman')} />
+              </div>
             </section>
           </div>
 
           <div className="p-6 border-t border-slate-100 bg-slate-50 sticky bottom-0 z-10">
-            <Button 
+            <Button
               onClick={() => setIsDrawerOpen(false)}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 text-sm font-black uppercase tracking-widest"
             >

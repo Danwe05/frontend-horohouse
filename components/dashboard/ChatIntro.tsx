@@ -23,7 +23,7 @@ export default function ChatIntro() {
         Connect Instantly, Find Your Perfect Home
       </p>
 
-      <button className="px-6 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition relative z-10 cursor-pointer">
+      <button className="px-6 py-2 bg-blue-500 text-white rounded-lg  hover:bg-blue-600 transition relative z-10 cursor-pointer">
         New Message
       </button>
     </div>

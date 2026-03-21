@@ -49,7 +49,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ className }) => {
       status: "For Sale"
     },
     {
-      id: "2", 
+      id: "2",
       title: "Suburban Family House",
       description: "5 bedroom house with garden",
       location: "California",
@@ -68,7 +68,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ className }) => {
     },
     {
       id: "2",
-      title: "Sarah Williams", 
+      title: "Sarah Williams",
       description: "Great, thank so much!",
       unread: 0,
       date: "1 day ago"
@@ -103,7 +103,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ className }) => {
     }
 
     setIsLoading(true);
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -270,7 +270,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ className }) => {
       </div>
 
       {isOpen && (query || results.length > 0) && (
-        <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto shadow-xl">
+        <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto -xl">
           <CardContent className="p-0">
             {isLoading ? (
               <div className="p-4 text-center text-muted-foreground">

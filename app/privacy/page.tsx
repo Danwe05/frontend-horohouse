@@ -178,7 +178,7 @@ export default function PrivacyPolicyPage() {
                             Trusted Real Estate. <br /> Guaranteed Privacy.
                         </h2>
                         <div className="flex flex-wrap justify-center gap-4">
-                            <a href="/properties" className="px-8 py-4 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
+                            <a href="/properties" className="px-8 py-4 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all -lg -blue-600/20">
                                 Explore Properties
                             </a>
                             <a href="/terms" className="px-8 py-4 rounded-full bg-slate-100 text-slate-900 font-bold hover:bg-slate-200 transition-all">
@@ -189,7 +189,7 @@ export default function PrivacyPolicyPage() {
                 </div>
             </section>
 
-            
+
         </main>
     );
 }

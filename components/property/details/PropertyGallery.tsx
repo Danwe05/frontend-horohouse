@@ -141,7 +141,7 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
             )}
             <div className={`absolute inset-0 bg-gradient-to-b ${tourMeta.color} opacity-80 group-hover:opacity-90 transition-opacity`} />
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3">
-              <div className="w-12 h-12 rounded-full border-2 border-white/60 flex items-center justify-center group-hover:scale-110 group-hover:border-white transition-all duration-300 bg-white/10 backdrop-blur-sm">
+              <div className="w-12 h-12 rounded-full border-1 border-white/60 flex items-center justify-center group-hover:scale-110 group-hover:border-white transition-all duration-300 bg-white/10 backdrop-blur-sm">
                 <Play className="h-5 w-5 text-white fill-white ml-0.5" />
               </div>
               <div className="text-center">
@@ -201,7 +201,7 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
         <div className="fixed inset-0 z-[9999] bg-black flex flex-col" style={{ width: "100vw", height: "100vh", top: 0, left: 0 }}>
           <div className="flex-none flex items-center justify-between px-6 py-4 bg-gradient-to-b from-black/90 to-transparent absolute top-0 left-0 right-0 z-10">
             <div className="text-white">
-              <h3 className="font-bold text-lg leading-tight drop-shadow">{property.title}</h3>
+              <h3 className="font-bold text-lg leading-tight drop-">{property.title}</h3>
               {images[activeImage]?.caption && (
                 <p className="text-sm text-white/70 mt-0.5">{images[activeImage].caption}</p>
               )}
@@ -255,7 +255,7 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
               <div className="flex gap-2 justify-start sm:justify-center overflow-x-auto px-6 pb-1 scrollbar-hide">
                 {imageUrls.map((img, idx) => (
                   <button key={idx} onClick={() => { setActiveImage(idx); setZoom(1); }}
-                    className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 ${idx === activeImage ? "border-white w-20 h-14 sm:w-24 sm:h-16 shadow-lg scale-105" : "border-white/20 opacity-50 hover:opacity-90 w-16 h-12 sm:w-20 sm:h-14"}`}>
+                    className={`flex-shrink-0 rounded-lg overflow-hidden border-1 transition-all duration-200 ${idx === activeImage ? "border-white w-20 h-14 sm:w-24 sm:h-16 -lg scale-105" : "border-white/20 opacity-50 hover:opacity-90 w-16 h-12 sm:w-20 sm:h-14"}`}>
                     <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
                   </button>
                 ))}

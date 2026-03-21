@@ -99,7 +99,7 @@ function StatCard({
 }) {
     return (
         <Card className={cn(
-            'border-none shadow-sm ring-1 ring-slate-200/60 hover:shadow-md transition-all duration-300 group',
+            'border-none -sm ring-1 ring-slate-200/60 hover:-md transition-all duration-300 group',
             highlight && 'ring-amber-300/70 bg-amber-50/50'
         )}>
             <CardContent className="p-5 flex items-center gap-4">
@@ -161,7 +161,7 @@ function RejectModal({ property, onClose, onRejected }: RejectModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="relative bg-white rounded-2xl -2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
                     <div>
                         <h2 className="text-lg font-bold text-slate-900">Reject Listing</h2>
@@ -236,7 +236,7 @@ function DeleteModal({ property, onClose, onDeleted }: { property: Property; onC
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="relative bg-white rounded-2xl -2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
                 <div className="p-6 text-center">
                     <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
                         <AlertTriangle className="w-7 h-7 text-red-600" />
@@ -311,7 +311,7 @@ function ActionMenu({ property, onApprove, onReject, onDelete, approving }: Acti
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-1 top-full w-44 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-1 top-full w-44 bg-white rounded-xl -xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
                     {property.approvalStatus !== 'approved' && (
                         <button
                             onClick={() => { setOpen(false); onApprove(); }}
@@ -484,7 +484,7 @@ export default function AdminPropertiesPage() {
                                     placeholder="Search title, city, address…"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
-                                    className="pl-9 bg-white border-slate-200 shadow-sm"
+                                    className="pl-9 bg-white border-slate-200 -sm"
                                 />
                                 {search && (
                                     <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
@@ -494,7 +494,7 @@ export default function AdminPropertiesPage() {
                             </div>
 
                             <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[170px] bg-white border-slate-200 shadow-sm">
+                                <SelectTrigger className="w-full sm:w-[170px] bg-white border-slate-200 -sm">
                                     <Filter className="w-4 h-4 mr-2 text-slate-400" />
                                     <SelectValue placeholder="All Status" />
                                 </SelectTrigger>
@@ -507,7 +507,7 @@ export default function AdminPropertiesPage() {
                             </Select>
 
                             <Select value={typeFilter} onValueChange={v => { setTypeFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[155px] bg-white border-slate-200 shadow-sm">
+                                <SelectTrigger className="w-full sm:w-[155px] bg-white border-slate-200 -sm">
                                     <SelectValue placeholder="All Types" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -527,7 +527,7 @@ export default function AdminPropertiesPage() {
                             </Select>
 
                             <Select value={listingFilter} onValueChange={v => { setListingFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[140px] bg-white border-slate-200 shadow-sm">
+                                <SelectTrigger className="w-full sm:w-[140px] bg-white border-slate-200 -sm">
                                     <SelectValue placeholder="Sale / Rent" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -538,7 +538,7 @@ export default function AdminPropertiesPage() {
                             </Select>
 
                             <Select value={String(limit)} onValueChange={v => { setLimit(Number(v)); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[120px] bg-white border-slate-200 shadow-sm">
+                                <SelectTrigger className="w-full sm:w-[120px] bg-white border-slate-200 -sm">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -550,7 +550,7 @@ export default function AdminPropertiesPage() {
                         </div>
 
                         {/* ── Table ── */}
-                        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                        <div className="bg-white rounded-2xl border border-slate-200/80 -sm overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>

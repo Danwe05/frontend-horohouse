@@ -80,16 +80,16 @@ function useBannerConfig(): BannerConfig {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const STYLES: Record<Variant, string> = {
-  info:        'bg-slate-900 border-slate-800 text-white',
-  warning:     'bg-amber-500 border-amber-400 text-white',
-  success:     'bg-emerald-500 border-emerald-400 text-white',
+  info: 'bg-slate-900 border-slate-800 text-white',
+  warning: 'bg-amber-500 border-amber-400 text-white',
+  success: 'bg-emerald-500 border-emerald-400 text-white',
   destructive: 'bg-red-500 border-red-400 text-white',
 };
 
 const ICONS: Record<Variant, React.ReactNode> = {
-  info:        <ShieldCheck className="w-5 h-5 shrink-0 text-blue-400" />,
-  warning:     <Clock className="w-5 h-5 shrink-0" />,
-  success:     <ShieldCheck className="w-5 h-5 shrink-0" />,
+  info: <ShieldCheck className="w-5 h-5 shrink-0 text-blue-400" />,
+  warning: <Clock className="w-5 h-5 shrink-0" />,
+  success: <ShieldCheck className="w-5 h-5 shrink-0" />,
   destructive: <AlertCircle className="w-5 h-5 shrink-0" />,
 };
 
@@ -110,7 +110,7 @@ export function StudentVerificationBanner() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className={`flex items-center gap-4 px-6 py-4 rounded-3xl border shadow-xl shadow-slate-900/10 ${STYLES[config.variant]}`}
+        className={`flex items-center gap-4 px-6 py-4 rounded-3xl border -xl -slate-900/10 ${STYLES[config.variant]}`}
       >
         <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
           {ICONS[config.variant]}

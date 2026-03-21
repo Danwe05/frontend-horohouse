@@ -15,10 +15,10 @@ export default function StudentFeaturesPanel({ property }: StudentFeaturesPanelP
   if (!isStudentMode) return null;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-blue-50/50 rounded-3xl p-6 sm:p-8 shadow-inner border border-blue-100 space-y-8 mt-10"
+      className="bg-blue-50/50 rounded-3xl p-6 sm:p-8 -inner border border-blue-100 space-y-8 mt-10"
     >
       <div className="flex items-center gap-3 mb-2">
         <div className="bg-blue-600 text-white p-2 rounded-lg">
@@ -35,11 +35,11 @@ export default function StudentFeaturesPanel({ property }: StudentFeaturesPanelP
         <div>
           <SplitRentCalculator initialRent={property.price} />
         </div>
-        
+
         {/* Right Column: Trust & Virtual Features */}
         <div className="space-y-6">
-          
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+
+          <div className="bg-white p-5 rounded-2xl border border-gray-100 -sm">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-emerald-100 text-emerald-700 p-2 rounded-lg">
                 <FileSignature className="h-5 w-5" />
@@ -54,7 +54,7 @@ export default function StudentFeaturesPanel({ property }: StudentFeaturesPanelP
             </button>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+          <div className="bg-white p-5 rounded-2xl border border-gray-100 -sm">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-purple-100 text-purple-700 p-2 rounded-lg">
                 <Video className="h-5 w-5" />
@@ -66,9 +66,9 @@ export default function StudentFeaturesPanel({ property }: StudentFeaturesPanelP
                 <p className="text-gray-600 text-sm mb-4">
                   Explore this property remotely before visiting to avoid scams and wasted viewing fees.
                 </p>
-                <a 
-                  href={property.virtualTourUrl || property.videoUrl} 
-                  target="_blank" 
+                <a
+                  href={property.virtualTourUrl || property.videoUrl}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition-colors"
                 >
@@ -76,9 +76,9 @@ export default function StudentFeaturesPanel({ property }: StudentFeaturesPanelP
                 </a>
               </div>
             ) : (
-               <p className="text-gray-500 text-sm">
-                 The landlord hasn't uploaded a virtual tour yet. Request one to avoid unnecessary viewing trips.
-               </p>
+              <p className="text-gray-500 text-sm">
+                The landlord hasn't uploaded a virtual tour yet. Request one to avoid unnecessary viewing trips.
+              </p>
             )}
           </div>
 

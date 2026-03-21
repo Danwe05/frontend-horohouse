@@ -120,7 +120,7 @@ export function VideoCallOverlay({
 
         {/* Local Video Preview */}
         {isCameraEnabled && (
-          <div className="absolute bottom-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden border-2 border-white shadow-lg">
+          <div className="absolute bottom-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden border-1 border-white -lg">
             <video
               ref={localVideoRef}
               autoPlay
@@ -159,8 +159,8 @@ export function VideoCallOverlay({
           <Button
             onClick={handleToggleMic}
             className={`rounded-full w-14 h-14 transition-all ${isMicEnabled
-                ? 'bg-gray-700 hover:bg-gray-600'
-                : 'bg-red-500 hover:bg-red-600'
+              ? 'bg-gray-700 hover:bg-gray-600'
+              : 'bg-red-500 hover:bg-red-600'
               }`}
             title={isMicEnabled ? 'Mute microphone' : 'Unmute microphone'}
           >
@@ -170,8 +170,8 @@ export function VideoCallOverlay({
           <Button
             onClick={handleToggleCamera}
             className={`rounded-full w-14 h-14 transition-all ${isCameraEnabled
-                ? 'bg-gray-700 hover:bg-gray-600'
-                : 'bg-red-500 hover:bg-red-600'
+              ? 'bg-gray-700 hover:bg-gray-600'
+              : 'bg-red-500 hover:bg-red-600'
               }`}
             title={isCameraEnabled ? 'Turn off camera' : 'Turn on camera'}
           >

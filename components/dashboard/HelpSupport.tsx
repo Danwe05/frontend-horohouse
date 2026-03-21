@@ -87,7 +87,7 @@ const HelpSupport = () => {
         </div>
 
         <Tabs defaultValue="center" className="w-full mt-6">
-          <TabsList className="w-full md:w-fit bg-white border border-slate-200 shadow-sm">
+          <TabsList className="w-full md:w-fit bg-white border border-slate-200 -sm">
             <TabsTrigger value="center" className="gap-2">
               <LifeBuoy className="h-4 w-4" />
               {s?.helpCenter || "Help Center"}
@@ -140,7 +140,7 @@ const HelpSupport = () => {
                         return (
                           <button
                             key={item.title}
-                            className="w-full text-left rounded-xl border border-slate-200 bg-white p-4 hover:bg-slate-50 hover:shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                            className="w-full text-left rounded-xl border border-slate-200 bg-white p-4 hover:bg-slate-50 hover:-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                             type="button"
                           >
                             <div className="flex items-start gap-3">

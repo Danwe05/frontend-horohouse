@@ -42,7 +42,7 @@ function buildDateRange(months = 3) {
   const start = new Date(end.getFullYear(), end.getMonth() - (months - 1), 1)
   return {
     startDate: start.toISOString().split("T")[0],
-    endDate:   end.toISOString().split("T")[0],
+    endDate: end.toISOString().split("T")[0],
   }
 }
 
@@ -61,9 +61,9 @@ async function fetchAdminData(): Promise<RoleData> {
     return emptyData("Occupancy Rate", "No short-term data")
   }
 
-  const totalBooked    = points.reduce((s, p) => s + (p.nightsBooked    ?? 0), 0)
+  const totalBooked = points.reduce((s, p) => s + (p.nightsBooked ?? 0), 0)
   const totalAvailable = points.reduce((s, p) => s + (p.nightsAvailable ?? 0), 0)
-  const propertyCount  = points[points.length - 1]?.propertyCount ?? 0
+  const propertyCount = points[points.length - 1]?.propertyCount ?? 0
   const rate = totalAvailable > 0
     ? Math.min(100, Math.round((totalBooked / totalAvailable) * 100))
     : 0
@@ -73,13 +73,13 @@ async function fetchAdminData(): Promise<RoleData> {
     centerRate: rate, centerLabel: "Occupancy",
     subtitle: `${propertyCount} active short-term ${propertyCount === 1 ? "property" : "properties"} · last 3 months`,
     slices: [
-      ...(totalBooked > 0 ? [{ name: "a", value: totalBooked,    fill: "#10b981" }] : []),
-      ...(vacant      > 0 ? [{ name: "b", value: vacant,         fill: "#f59e0b" }] : []),
+      ...(totalBooked > 0 ? [{ name: "a", value: totalBooked, fill: "#10b981" }] : []),
+      ...(vacant > 0 ? [{ name: "b", value: vacant, fill: "#f59e0b" }] : []),
     ],
     legend: [
-      { label: "Booked",      value: totalBooked,    color: "#10b981", bg: "bg-emerald-50", text: "text-emerald-700" },
-      { label: "Available",   value: totalAvailable, color: "#f59e0b", bg: "bg-amber-50",   text: "text-amber-700" },
-      { label: "Properties",  value: propertyCount,  color: "#6366f1", bg: "bg-indigo-50",  text: "text-indigo-700" },
+      { label: "Booked", value: totalBooked, color: "#10b981", bg: "bg-emerald-50", text: "text-emerald-700" },
+      { label: "Available", value: totalAvailable, color: "#f59e0b", bg: "bg-amber-50", text: "text-amber-700" },
+      { label: "Properties", value: propertyCount, color: "#6366f1", bg: "bg-indigo-50", text: "text-indigo-700" },
     ],
   }
 }
@@ -93,8 +93,8 @@ async function fetchLandlordData(): Promise<RoleData> {
   ])
 
   const properties: any[] = propertiesRes?.properties ?? propertiesRes?.data ?? []
-  const tenants: any[]    = tenantsRes?.tenants ?? tenantsRes?.data ?? tenantsRes ?? []
-  const bookings: any[]   = hostBookingsRes?.bookings ?? hostBookingsRes?.data ?? []
+  const tenants: any[] = tenantsRes?.tenants ?? tenantsRes?.data ?? tenantsRes ?? []
+  const bookings: any[] = hostBookingsRes?.bookings ?? hostBookingsRes?.data ?? []
 
   // Short-term properties
   const shortTerm = properties.filter((p) =>
@@ -110,20 +110,20 @@ async function fetchLandlordData(): Promise<RoleData> {
   const shortTermOccupied = shortTerm.filter((p) =>
     bookings.some((b) =>
       b.propertyId?._id === p._id || b.propertyId === p._id
-      ? ["confirmed", "completed"].includes(b.status) &&
+        ? ["confirmed", "completed"].includes(b.status) &&
         new Date(b.checkIn) <= today && new Date(b.checkOut) >= today
-      : false
+        : false
     )
   ).length
   const shortTermVacant = Math.max(0, shortTerm.length - shortTermOccupied)
 
   // Long-term: occupied = has an active tenant
-  const activeTenants   = tenants.filter((t: any) => t.status === "active").length
+  const activeTenants = tenants.filter((t: any) => t.status === "active").length
   const longTermOccupied = Math.min(activeTenants, longTerm.length)
-  const longTermVacant  = Math.max(0, longTerm.length - longTermOccupied)
+  const longTermVacant = Math.max(0, longTerm.length - longTermOccupied)
 
   const totalProperties = properties.length
-  const totalOccupied   = shortTermOccupied + longTermOccupied
+  const totalOccupied = shortTermOccupied + longTermOccupied
   const rate = totalProperties > 0
     ? Math.round((totalOccupied / totalProperties) * 100)
     : 0
@@ -133,15 +133,15 @@ async function fetchLandlordData(): Promise<RoleData> {
     subtitle: `${totalProperties} total properties (${shortTerm.length} short-term, ${longTerm.length} long-term)`,
     slices: [
       ...(shortTermOccupied > 0 ? [{ name: "a", value: shortTermOccupied, fill: "#10b981" }] : []),
-      ...(longTermOccupied  > 0 ? [{ name: "b", value: longTermOccupied,  fill: "#6366f1" }] : []),
+      ...(longTermOccupied > 0 ? [{ name: "b", value: longTermOccupied, fill: "#6366f1" }] : []),
       ...(shortTermVacant + longTermVacant > 0
         ? [{ name: "c", value: shortTermVacant + longTermVacant, fill: "#f59e0b" }]
         : []),
     ],
     legend: [
       { label: "Short-term occ.", value: shortTermOccupied, color: "#10b981", bg: "bg-emerald-50", text: "text-emerald-700" },
-      { label: "Long-term occ.",  value: longTermOccupied,  color: "#6366f1", bg: "bg-indigo-50",  text: "text-indigo-700" },
-      { label: "Vacant",          value: shortTermVacant + longTermVacant, color: "#f59e0b", bg: "bg-amber-50", text: "text-amber-700" },
+      { label: "Long-term occ.", value: longTermOccupied, color: "#6366f1", bg: "bg-indigo-50", text: "text-indigo-700" },
+      { label: "Vacant", value: shortTermVacant + longTermVacant, color: "#f59e0b", bg: "bg-amber-50", text: "text-amber-700" },
     ],
   }
 }
@@ -154,23 +154,23 @@ async function fetchAgentData(): Promise<RoleData> {
   const confirmed = bookings.filter((b) => b.status === "confirmed").length
   const completed = bookings.filter((b) => b.status === "completed").length
   const cancelled = bookings.filter((b) => b.status === "cancelled").length
-  const pending   = bookings.filter((b) => b.status === "pending").length
-  const total     = bookings.length
-  const convRate  = total > 0 ? Math.round(((confirmed + completed) / total) * 100) : 0
+  const pending = bookings.filter((b) => b.status === "pending").length
+  const total = bookings.length
+  const convRate = total > 0 ? Math.round(((confirmed + completed) / total) * 100) : 0
 
   return {
     centerRate: convRate, centerLabel: "Conversion",
     subtitle: `${total} bookings on your listings`,
     slices: [
-      ...(completed  > 0 ? [{ name: "a", value: completed,  fill: "#10b981" }] : []),
-      ...(confirmed  > 0 ? [{ name: "b", value: confirmed,  fill: "#3b82f6" }] : []),
-      ...(pending    > 0 ? [{ name: "c", value: pending,    fill: "#f59e0b" }] : []),
-      ...(cancelled  > 0 ? [{ name: "c", value: cancelled,  fill: "#f43f5e" }] : []),
+      ...(completed > 0 ? [{ name: "a", value: completed, fill: "#10b981" }] : []),
+      ...(confirmed > 0 ? [{ name: "b", value: confirmed, fill: "#3b82f6" }] : []),
+      ...(pending > 0 ? [{ name: "c", value: pending, fill: "#f59e0b" }] : []),
+      ...(cancelled > 0 ? [{ name: "c", value: cancelled, fill: "#f43f5e" }] : []),
     ],
     legend: [
       { label: "Completed", value: completed, color: "#10b981", bg: "bg-emerald-50", text: "text-emerald-700" },
-      { label: "Confirmed", value: confirmed, color: "#3b82f6", bg: "bg-blue-50",    text: "text-blue-700"    },
-      { label: "Pending",   value: pending,   color: "#f59e0b", bg: "bg-amber-50",   text: "text-amber-700"  },
+      { label: "Confirmed", value: confirmed, color: "#3b82f6", bg: "bg-blue-50", text: "text-blue-700" },
+      { label: "Pending", value: pending, color: "#f59e0b", bg: "bg-amber-50", text: "text-amber-700" },
     ],
   }
 }
@@ -183,14 +183,14 @@ async function fetchUserData(): Promise<RoleData> {
   ])
 
   const inquiries: any[] = inquiriesRes?.inquiries ?? inquiriesRes?.data ?? inquiriesRes ?? []
-  const bookings: any[]  = bookingsRes?.bookings   ?? bookingsRes?.data   ?? []
+  const bookings: any[] = bookingsRes?.bookings ?? bookingsRes?.data ?? []
 
-  const pending    = inquiries.filter((i) => i.status === "pending").length
-  const responded  = inquiries.filter((i) => i.status === "responded").length
-  const closed     = inquiries.filter((i) => i.status === "closed").length
+  const pending = inquiries.filter((i) => i.status === "pending").length
+  const responded = inquiries.filter((i) => i.status === "responded").length
+  const closed = inquiries.filter((i) => i.status === "closed").length
   const confirmedB = bookings.filter((b) => ["confirmed", "completed"].includes(b.status)).length
-  const total      = inquiries.length + bookings.length
-  const engRate    = total > 0
+  const total = inquiries.length + bookings.length
+  const engRate = total > 0
     ? Math.round(((responded + closed + confirmedB) / total) * 100)
     : 0
 
@@ -199,13 +199,13 @@ async function fetchUserData(): Promise<RoleData> {
     subtitle: `${inquiries.length} inquiries · ${bookings.length} bookings`,
     slices: [
       ...(confirmedB > 0 ? [{ name: "a", value: confirmedB, fill: "#10b981" }] : []),
-      ...(responded  > 0 ? [{ name: "b", value: responded,  fill: "#3b82f6" }] : []),
-      ...(pending    > 0 ? [{ name: "c", value: pending,    fill: "#f59e0b" }] : []),
+      ...(responded > 0 ? [{ name: "b", value: responded, fill: "#3b82f6" }] : []),
+      ...(pending > 0 ? [{ name: "c", value: pending, fill: "#f59e0b" }] : []),
     ],
     legend: [
-      { label: "Bookings",    value: confirmedB, color: "#10b981", bg: "bg-emerald-50", text: "text-emerald-700" },
-      { label: "Responded",   value: responded,  color: "#3b82f6", bg: "bg-blue-50",    text: "text-blue-700"   },
-      { label: "Pending inq", value: pending,    color: "#f59e0b", bg: "bg-amber-50",   text: "text-amber-700"  },
+      { label: "Bookings", value: confirmedB, color: "#10b981", bg: "bg-emerald-50", text: "text-emerald-700" },
+      { label: "Responded", value: responded, color: "#3b82f6", bg: "bg-blue-50", text: "text-blue-700" },
+      { label: "Pending inq", value: pending, color: "#f59e0b", bg: "bg-amber-50", text: "text-amber-700" },
     ],
   }
 }
@@ -220,10 +220,10 @@ function emptyData(label: string, sub: string): RoleData {
 
 // ─── Chart titles per role ────────────────────────────────────────────────────
 const ROLE_TITLE: Record<string, string> = {
-  admin:    "Occupancy Rate",
+  admin: "Occupancy Rate",
   landlord: "Portfolio Occupancy",
-  agent:    "Booking Conversion",
-  user:     "Engagement Rate",
+  agent: "Booking Conversion",
+  user: "Engagement Rate",
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -231,19 +231,19 @@ export function OccupancyRateChart() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth()
   const role = user?.role ?? "user"
 
-  const [data, setData]       = React.useState<RoleData | null>(null)
+  const [data, setData] = React.useState<RoleData | null>(null)
   const [loading, setLoading] = React.useState(true)
-  const [error, setError]     = React.useState<string | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
 
   const fetchData = React.useCallback(async () => {
     if (!isAuthenticated) { setLoading(false); return }
     setLoading(true); setError(null)
     try {
       let result: RoleData
-      if      (role === "admin")    result = await fetchAdminData()
+      if (role === "admin") result = await fetchAdminData()
       else if (role === "landlord") result = await fetchLandlordData()
-      else if (role === "agent")    result = await fetchAgentData()
-      else                          result = await fetchUserData()
+      else if (role === "agent") result = await fetchAgentData()
+      else result = await fetchUserData()
       setData(result)
     } catch (err: any) {
       const raw = err?.response?.data?.message ?? err?.message ?? "Failed to load data"
@@ -259,7 +259,7 @@ export function OccupancyRateChart() {
 
   // ── Loading ────────────────────────────────────────────────────────────
   if (authLoading || loading) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <Skeleton className="h-6 w-40 mb-2" /><Skeleton className="h-4 w-52" />
       </div>
@@ -284,7 +284,7 @@ export function OccupancyRateChart() {
 
   // ── Error ──────────────────────────────────────────────────────────────
   if (error) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">{title}</CardTitle>
       </div>
@@ -304,7 +304,7 @@ export function OccupancyRateChart() {
 
   // ── Empty ──────────────────────────────────────────────────────────────
   if (!data || (data.legend.length === 0 && data.centerRate === 0)) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">{title}</CardTitle>
         <CardDescription className="text-slate-500">Nothing to display yet</CardDescription>
@@ -332,7 +332,7 @@ export function OccupancyRateChart() {
       : "bg-rose-50 border-rose-200 text-rose-700"
 
   return (
-    <Card className="overflow-hidden border-0 shadow-lg pb-0 bg-white">
+    <Card className="overflow-hidden border-0 -lg pb-0 bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardHeader className="p-0">
           <div className="flex items-start justify-between">

@@ -42,13 +42,13 @@ function buildDateRange(months = 6) {
   const start = new Date(end.getFullYear(), end.getMonth() - (months - 1), 1)
   return {
     startDate: start.toISOString().split("T")[0],
-    endDate:   end.toISOString().split("T")[0],
+    endDate: end.toISOString().split("T")[0],
   }
 }
 
 function fmtCurrency(v: number) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M XAF`
-  if (v >= 1_000)     return `${(v / 1_000).toFixed(0)}K XAF`
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K XAF`
   return `${v.toLocaleString()} XAF`
 }
 
@@ -76,10 +76,10 @@ async function fetchAdminSlices(): Promise<SliceRow[]> {
   })
   if (!Array.isArray(breakdown)) return []
   return breakdown.map((b, i) => ({
-    type:  b.type ?? "unknown",
+    type: b.type ?? "unknown",
     count: b.bookingCount ?? 0,
-    fill:  COLORS[i % COLORS.length],
-    meta:  fmtCurrency(b.revenue ?? 0),
+    fill: COLORS[i % COLORS.length],
+    meta: fmtCurrency(b.revenue ?? 0),
   }))
 }
 
@@ -109,7 +109,7 @@ async function fetchUserSlices(): Promise<SliceRow[]> {
   ])
 
   const favorites: any[] = favRes?.favorites ?? favRes?.data ?? favRes ?? []
-  const viewed: any[]    = historyRes?.properties ?? historyRes?.data ?? historyRes ?? []
+  const viewed: any[] = historyRes?.properties ?? historyRes?.data ?? historyRes ?? []
 
   const counts: Record<string, { saved: number; viewed: number }> = {}
 
@@ -137,13 +137,13 @@ async function fetchUserSlices(): Promise<SliceRow[]> {
 function getRoleCfg(role: string): { title: string; subtitle: string; centerUnit: string } {
   switch (role) {
     case "admin":
-      return { title: "Market Demand",   subtitle: "Bookings by property type — last 6 months", centerUnit: "Bookings" }
+      return { title: "Market Demand", subtitle: "Bookings by property type — last 6 months", centerUnit: "Bookings" }
     case "agent":
-      return { title: "Rental Reach",    subtitle: "Your listings by type",                      centerUnit: "Listings" }
+      return { title: "Rental Reach", subtitle: "Your listings by type", centerUnit: "Listings" }
     case "landlord":
-      return { title: "Portfolio Mix",   subtitle: "Your properties by type",                    centerUnit: "Properties" }
+      return { title: "Portfolio Mix", subtitle: "Your properties by type", centerUnit: "Properties" }
     default:
-      return { title: "Interests",       subtitle: "Properties you've saved & viewed by type",   centerUnit: "Items" }
+      return { title: "Interests", subtitle: "Properties you've saved & viewed by type", centerUnit: "Items" }
   }
 }
 
@@ -153,9 +153,9 @@ export function PropertyRentChart() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth()
   const role = user?.role ?? "user"
 
-  const [slices, setSlices]   = React.useState<SliceRow[]>([])
+  const [slices, setSlices] = React.useState<SliceRow[]>([])
   const [loading, setLoading] = React.useState(true)
-  const [error, setError]     = React.useState<string | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
   const [activeType, setActiveType] = React.useState<string>("")
   const [chartConfig, setChartConfig] = React.useState<ChartConfig>({ properties: { label: "Properties" } })
 
@@ -166,9 +166,9 @@ export function PropertyRentChart() {
     setLoading(true); setError(null)
     try {
       let data: SliceRow[] = []
-      if      (role === "admin")    data = await fetchAdminSlices()
+      if (role === "admin") data = await fetchAdminSlices()
       else if (role === "agent" || role === "landlord") data = await fetchHostSlices()
-      else                          data = await fetchUserSlices()
+      else data = await fetchUserSlices()
 
       setSlices(data)
       setChartConfig(buildConfig(data.map((s) => s.type)))
@@ -191,7 +191,7 @@ export function PropertyRentChart() {
   const activeSlice = slices[activeIndex]
 
   if (authLoading || loading) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <Skeleton className="h-6 w-40 mb-2" /><Skeleton className="h-4 w-52" />
       </div>
@@ -207,7 +207,7 @@ export function PropertyRentChart() {
   )
 
   if (error) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">{cfg.title}</CardTitle>
       </div>
@@ -226,7 +226,7 @@ export function PropertyRentChart() {
   )
 
   if (slices.length === 0 || totalCount === 0) return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white">
+    <Card className="overflow-hidden border-0 -lg bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">{cfg.title}</CardTitle>
         <CardDescription className="text-slate-500">{cfg.subtitle}</CardDescription>
@@ -246,7 +246,7 @@ export function PropertyRentChart() {
   )
 
   return (
-    <Card className="overflow-hidden border-0 shadow-lg pb-0 bg-white">
+    <Card className="overflow-hidden border-0 -lg pb-0 bg-white">
       <div className="p-6 border-b border-slate-100">
         <CardHeader className="p-0">
           <div className="flex items-start justify-between">
@@ -258,7 +258,7 @@ export function PropertyRentChart() {
               <SelectTrigger className="w-[130px] bg-slate-50 border-slate-200 text-slate-700 rounded-xl">
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border border-slate-100 shadow-xl">
+              <SelectContent className="rounded-xl border border-slate-100 -xl">
                 {slices.map((s) => (
                   <SelectItem key={s.type} value={s.type} className="focus:bg-indigo-50">
                     <div className="flex items-center gap-2">
@@ -337,7 +337,7 @@ export function PropertyRentChart() {
                 className={cn(
                   "flex flex-col p-3 rounded-2xl border transition-all text-left",
                   isActive
-                    ? "bg-white border-indigo-200 shadow-sm ring-1 ring-indigo-100"
+                    ? "bg-white border-indigo-200 -sm ring-1 ring-indigo-100"
                     : "bg-transparent border-transparent hover:bg-white/50",
                 )}>
                 <div className="flex items-center gap-2 mb-2">

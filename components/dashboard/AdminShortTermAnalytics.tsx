@@ -125,7 +125,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Revenue Trends */}
-                <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+                <Card className="rounded-3xl border-slate-200 -sm overflow-hidden">
                     <CardHeader className="bg-white border-b border-slate-50">
                         <CardTitle className="text-lg font-bold">{s?.revenueGrowth || "Revenue Growth"}</CardTitle>
                     </CardHeader>
@@ -142,7 +142,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
                                 <Tooltip
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                    contentStyle={{ borderRadius: '12px', border: 'none', box: '0 4px 12px rgba(0,0,0,0.1)' }}
                                     formatter={(val: number) => [analyticsService.formatCurrency(val), s?.revenue || 'Revenue']}
                                 />
                                 <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
@@ -152,7 +152,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                 </Card>
 
                 {/* Occupancy Chart */}
-                <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+                <Card className="rounded-3xl border-slate-200 -sm overflow-hidden">
                     <CardHeader className="bg-white border-b border-slate-50">
                         <CardTitle className="text-lg font-bold">{s?.occupancyRate || "Occupancy Rate (%)"}</CardTitle>
                     </CardHeader>
@@ -162,7 +162,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', box: '0 4px 12px rgba(0,0,0,0.1)' }} />
                                 <Bar dataKey="occupancy" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
@@ -172,7 +172,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* City Performance */}
-                <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+                <Card className="rounded-3xl border-slate-200 -sm overflow-hidden">
                     <CardHeader className="bg-white border-b border-slate-50">
                         <CardTitle className="text-lg font-bold">{s?.cityPerformance || "City Performance"}</CardTitle>
                     </CardHeader>
@@ -201,7 +201,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                 </Card>
 
                 {/* Top Properties */}
-                <Card className="lg:col-span-2 rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+                <Card className="lg:col-span-2 rounded-3xl border-slate-200 -sm overflow-hidden">
                     <CardHeader className="bg-white border-b border-slate-50">
                         <CardTitle className="text-lg font-bold">{s?.topStProperties || "Top Short-Term Properties"}</CardTitle>
                     </CardHeader>
@@ -233,7 +233,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
             </div>
 
             {/* Top Hosts */}
-            <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+            <Card className="rounded-3xl border-slate-200 -sm overflow-hidden">
                 <CardHeader className="bg-white border-b border-slate-50">
                     <CardTitle className="text-lg font-bold">{s?.topPerformingHosts || "Top Performing Hosts"}</CardTitle>
                 </CardHeader>
@@ -241,7 +241,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 divide-x divide-slate-100">
                         {data.hosts.map((host: any) => (
                             <div key={host._id} className="p-6 text-center space-y-3 hover:bg-slate-50 transition-colors">
-                                <div className="w-16 h-16 rounded-full bg-blue-100 mx-auto flex items-center justify-center border-4 border-white shadow-sm overflow-hidden">
+                                <div className="w-16 h-16 rounded-full bg-blue-100 mx-auto flex items-center justify-center border-4 border-white -sm overflow-hidden">
                                     {host.avatar ? <img src={host.avatar} className="w-full h-full object-cover" /> : <UserCheck className="h-8 w-8 text-blue-500" />}
                                 </div>
                                 <div>
@@ -266,7 +266,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
 function KPICard({ title, value, change, icon: Icon, color }: any) {
     const isPositive = change > 0;
     return (
-        <Card className="rounded-2xl border-slate-200 shadow-sm">
+        <Card className="rounded-2xl border-slate-200 -sm">
             <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                     <div className={`p-2 rounded-xl bg-${color}-50 text-${color}-600`}>

@@ -63,7 +63,7 @@ export default function SubscriptionsPage() {
         const momo = w?.mobileMoneyAccount;
         if (momo?.phoneNumber) setSavedPhone(momo.phoneNumber);
         if (momo?.provider) setSavedProvider(momo.provider as 'MTN' | 'ORANGE');
-      }).catch(() => {});
+      }).catch(() => { });
     });
   }, []);
 
@@ -165,7 +165,7 @@ export default function SubscriptionsPage() {
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">
-                    <div className="relative p-2 rounded-xl bg-slate-900 text-white shadow-sm">
+                    <div className="relative p-2 rounded-xl bg-slate-900 text-white -sm">
                       <CreditCard className="w-6 h-6" />
                     </div>
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Subscription</h1>
@@ -224,8 +224,8 @@ export default function SubscriptionsPage() {
               <Tabs defaultValue="plans" className="w-full">
                 <div className="flex justify-center mb-8">
                   <TabsList className="bg-slate-100/50 p-1 rounded-2xl border border-slate-200">
-                    <TabsTrigger value="plans" className="rounded-xl px-8 data-[state=active]:bg-white data-[state=active]:shadow-sm">Available Plans</TabsTrigger>
-                    <TabsTrigger value="current" className="rounded-xl px-8 data-[state=active]:bg-white data-[state=active]:shadow-sm">My Subscription</TabsTrigger>
+                    <TabsTrigger value="plans" className="rounded-xl px-8 data-[state=active]:bg-white data-[state=active]:-sm">Available Plans</TabsTrigger>
+                    <TabsTrigger value="current" className="rounded-xl px-8 data-[state=active]:bg-white data-[state=active]:-sm">My Subscription</TabsTrigger>
                   </TabsList>
                 </div>
 
@@ -252,7 +252,7 @@ export default function SubscriptionsPage() {
 
                       {/* Left: Plan Summary & Usage */}
                       <div className="lg:col-span-8 space-y-6">
-                        <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden">
+                        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
                           <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 pt-6 px-6">
                             <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                               <CreditCard className="h-5 w-5 text-blue-500" />
@@ -340,7 +340,7 @@ export default function SubscriptionsPage() {
 
                         {/* Usage Card */}
                         {usage && (
-                          <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden">
+                          <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 pt-6 px-6">
                               <CardTitle className="text-lg font-bold text-slate-800">Resource Usage</CardTitle>
                               <CardDescription className="text-slate-500">Track your current consumption vs limits.</CardDescription>
@@ -363,7 +363,7 @@ export default function SubscriptionsPage() {
 
                       {/* Right: Features Sidebar */}
                       <div className="lg:col-span-4">
-                        <Card className="rounded-3xl border-slate-200 shadow-sm bg-slate-900 text-white overflow-hidden h-fit sticky top-4">
+                        <Card className="rounded-3xl border-slate-200 -sm bg-slate-900 text-white overflow-hidden h-fit sticky top-4">
                           <div className="absolute top-0 right-0 p-6 opacity-5">
                             <Zap className="w-32 h-32" />
                           </div>
@@ -401,7 +401,7 @@ export default function SubscriptionsPage() {
                       </div>
                     </div>
                   ) : (
-                    <Card className="rounded-3xl border-dashed border-2 border-slate-200 bg-white/50 overflow-hidden">
+                    <Card className="rounded-3xl border-dashed border-1 border-slate-200 bg-white/50 overflow-hidden">
                       <CardContent className="p-16 text-center">
                         <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
                           <CalendarIcon className="h-10 w-10 text-slate-400" />
@@ -415,7 +415,7 @@ export default function SubscriptionsPage() {
                             const el = document.querySelector('[data-value="plans"]');
                             if (el instanceof HTMLElement) el.click();
                           }}
-                          className="px-10 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/20"
+                          className="px-10 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl -lg -blue-500/20"
                         >
                           Browse Plans
                         </Button>
@@ -457,7 +457,7 @@ const KPICard = ({ title, amount, subtext, icon: Icon, colorClass, isCurrency = 
   };
 
   return (
-    <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all duration-300">
+    <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden group hover:-md transition-all duration-300">
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className={`p-3 rounded-2xl ${variants[colorClass]} transition-transform duration-500 group-hover:scale-110`}>
@@ -544,7 +544,7 @@ function SubscriptionCardsSkeleton() {
       </div>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
         {[0, 1, 2].map((i) => (
-          <div key={i} className={`rounded-[32px] p-8 space-y-6 ${i === 1 ? 'bg-slate-900' : 'bg-white ring-1 ring-slate-100 shadow-xl shadow-slate-200/50'}`}>
+          <div key={i} className={`rounded-[32px] p-8 space-y-6 ${i === 1 ? 'bg-slate-900' : 'bg-white ring-1 ring-slate-100 -xl -slate-200/50'}`}>
             <Skeleton className={`h-12 w-12 rounded-2xl ${i === 1 ? 'bg-slate-700' : 'bg-slate-100'}`} />
             <Skeleton className={`h-7 w-28 ${i === 1 ? 'bg-slate-700' : 'bg-slate-100'}`} />
             <Skeleton className={`h-12 w-44 ${i === 1 ? 'bg-slate-700' : 'bg-slate-100'}`} />
@@ -568,7 +568,7 @@ function CurrentSubscriptionSkeleton() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div className="lg:col-span-8 space-y-6">
-        <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden">
+        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
           <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 pt-6 px-6">
             <Skeleton className="h-6 w-40 bg-slate-200" />
           </CardHeader>
@@ -585,7 +585,7 @@ function CurrentSubscriptionSkeleton() {
             ))}
           </CardContent>
         </Card>
-        <Card className="rounded-3xl border-slate-200 shadow-sm bg-white overflow-hidden">
+        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
           <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 pt-6 px-6">
             <Skeleton className="h-6 w-32 bg-slate-200" />
           </CardHeader>
@@ -603,7 +603,7 @@ function CurrentSubscriptionSkeleton() {
         </Card>
       </div>
       <div className="lg:col-span-4">
-        <Card className="rounded-3xl bg-slate-900 h-64 shadow-xl shadow-slate-900/20">
+        <Card className="rounded-3xl bg-slate-900 h-64 -xl -slate-900/20">
           <CardContent className="p-8 space-y-4">
             <Skeleton className="h-6 w-36 bg-slate-800" />
             {[1, 2, 3, 4, 5].map((i) => (

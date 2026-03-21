@@ -268,7 +268,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-8 shadow-none">
+    <div className="space-y-8 -none">
       {/* Header */}
       <div className="space-y-5">
         <div className="flex flex-wrap items-center gap-3">
@@ -341,7 +341,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
                     {group.items.map((item, itemIndex) => (
                       <div
                         key={itemIndex}
-                        className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border-2 border-transparent transition-colors group"
+                        className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border-1 border-transparent transition-colors group"
                       >
                         <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white text-blue-600 transition-transform">
                           <item.icon className="h-6 w-6" aria-hidden />
@@ -396,7 +396,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
       </div>
 
       {!contact && (
-        <div className="p-4 bg-amber-50 border-2 border-amber-100 rounded-2xl flex gap-3">
+        <div className="p-4 bg-amber-50 border-1 border-amber-100 rounded-2xl flex gap-3">
           <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" aria-hidden />
           <p className="text-sm font-medium text-amber-800 leading-relaxed">
             {pd?.contactUnavailable || "Contact information is not available for this property. The owner may need to complete their profile setup."}

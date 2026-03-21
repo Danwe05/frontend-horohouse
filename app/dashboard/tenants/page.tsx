@@ -265,7 +265,7 @@ export default function TenantsPage() {
                             <Button
                                 onClick={() => { resetForm(); setShowAddModal(true); }}
                                 disabled={!!permissionError}
-                                className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 rounded-xl px-5 h-11 gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="bg-blue-600 hover:bg-blue-700 text-white -md -blue-500/20 rounded-xl px-5 h-11 gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Plus className="w-4 h-4" />
                                 <span className="font-semibold">Add Tenant</span>
@@ -274,7 +274,7 @@ export default function TenantsPage() {
 
                         {/* Summary Metrics */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                            <div className="bg-white rounded-2xl p-5 border border-slate-100 -sm hover:-md transition-all">
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
                                         <Users className="w-5 h-5" />
@@ -284,7 +284,7 @@ export default function TenantsPage() {
                                 <div className="text-3xl font-black text-slate-900">{metrics.total}</div>
                             </div>
 
-                            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                            <div className="bg-white rounded-2xl p-5 border border-slate-100 -sm hover:-md transition-all">
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
                                         <CheckCircle2 className="w-5 h-5" />
@@ -299,7 +299,7 @@ export default function TenantsPage() {
                                 </div>
                             </div>
 
-                            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                            <div className="bg-white rounded-2xl p-5 border border-slate-100 -sm hover:-md transition-all">
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
                                         <Clock className="w-5 h-5" />
@@ -309,7 +309,7 @@ export default function TenantsPage() {
                                 <div className="text-3xl font-black text-slate-900">{metrics.pendingCount}</div>
                             </div>
 
-                            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+                            <div className="bg-white rounded-2xl p-5 border border-slate-100 -sm hover:-md transition-all relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-full -z-10 opacity-50" />
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
@@ -324,14 +324,14 @@ export default function TenantsPage() {
                         </div>
 
                         {/* Controls (Search & Filters) */}
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-white p-2 rounded-2xl border border-slate-100 -sm">
                             <div className="relative w-full sm:max-w-md">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <Input
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search by name or email..."
-                                    className="pl-11 h-11 bg-transparent border-0 focus-visible:ring-0 shadow-none text-base"
+                                    className="pl-11 h-11 bg-transparent border-0 focus-visible:ring-0 -none text-base"
                                 />
                             </div>
 
@@ -348,7 +348,7 @@ export default function TenantsPage() {
                                         className={cn(
                                             "px-4 py-2 text-sm font-semibold rounded-lg transition-all whitespace-nowrap",
                                             statusFilter === tab.id
-                                                ? "bg-white text-slate-900 shadow-sm"
+                                                ? "bg-white text-slate-900 -sm"
                                                 : "text-slate-500 hover:text-slate-700 hover:bg-slate-100/50"
                                         )}
                                     >
@@ -443,12 +443,12 @@ export default function TenantsPage() {
                                     return (
                                         <div
                                             key={tenant._id}
-                                            className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full"
+                                            className="bg-white border border-slate-200 rounded-2xl p-6 hover:-xl hover:-slate-200/40 hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full"
                                         >
                                             {/* Card Header: Avatar & Status */}
                                             <div className="flex items-start justify-between mb-5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-teal-50 flex items-center justify-center border border-blue-100 text-blue-700 font-bold text-lg shadow-sm">
+                                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-teal-50 flex items-center justify-center border border-blue-100 text-blue-700 font-bold text-lg -sm">
                                                         {tenant.tenantName.charAt(0).toUpperCase()}
                                                     </div>
                                                     <div>
@@ -466,7 +466,7 @@ export default function TenantsPage() {
                                                             <MoreVertical className="w-4 h-4" />
                                                         </Button>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="w-40 rounded-xl shadow-lg border-slate-100">
+                                                    <DropdownMenuContent align="end" className="w-40 rounded-xl -lg border-slate-100">
                                                         <DropdownMenuItem onClick={() => openEditModal(tenant)} className="gap-2 cursor-pointer font-medium p-2.5 hover:bg-slate-50">
                                                             <Pencil className="w-4 h-4 text-blue-500" />
                                                             Edit Details
@@ -557,7 +557,7 @@ export default function TenantsPage() {
 
             {/* Modals with Apple-like / Premium aesthetic */}
             <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-                <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden border-0 shadow-2xl rounded-2xl">
+                <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden border-0 -2xl rounded-2xl">
                     <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100">
                         <DialogTitle className="text-xl font-bold text-slate-900">New Tenant Record</DialogTitle>
                         <DialogDescription className="mt-1 text-slate-500">
@@ -574,7 +574,7 @@ export default function TenantsPage() {
                         <Button
                             onClick={handleAddTenant}
                             disabled={saving || !formData.tenantName || !formData.propertyId || !formData.leaseStart || !formData.leaseEnd || !formData.monthlyRent}
-                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold px-6 shadow-sm shadow-blue-500/20"
+                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold px-6 -sm -blue-500/20"
                         >
                             {saving ? "Processing..." : "Create Record"}
                         </Button>
@@ -583,7 +583,7 @@ export default function TenantsPage() {
             </Dialog>
 
             <Dialog open={!!editingTenant} onOpenChange={(open) => !open && setEditingTenant(null)}>
-                <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden border-0 shadow-2xl rounded-2xl">
+                <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden border-0 -2xl rounded-2xl">
                     <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100">
                         <DialogTitle className="text-xl font-bold text-slate-900">Edit Tenant Details</DialogTitle>
                         <DialogDescription className="mt-1 text-slate-500">
@@ -600,7 +600,7 @@ export default function TenantsPage() {
                         <Button
                             onClick={handleUpdateTenant}
                             disabled={saving || !formData.tenantName || !formData.propertyId || !formData.leaseStart || !formData.leaseEnd}
-                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold px-6 shadow-sm shadow-blue-500/20"
+                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold px-6 -sm -blue-500/20"
                         >
                             {saving ? "Saving Changes..." : "Save Changes"}
                         </Button>

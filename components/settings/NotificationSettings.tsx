@@ -4,10 +4,10 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { 
-  Bell, 
-  Mail, 
-  Smartphone, 
+import {
+  Bell,
+  Mail,
+  Smartphone,
   MessageSquare,
   Home,
   DollarSign,
@@ -51,7 +51,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const { t } = useLanguage();
   const s = (t as any)?.settings || {};
-  
+
   const [preferences, setPreferences] = useState<NotificationPreference[]>([
     // General Notifications
     {
@@ -74,7 +74,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       push: true,
       category: 'account'
     },
-    
+
     // Property Notifications (for users)
     ...(user.role === 'registered_user' ? [
       {
@@ -108,7 +108,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         category: 'property' as const
       }
     ] : []),
-    
+
     // Agent Notifications
     ...(user.role === 'agent' ? [
       {
@@ -142,7 +142,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         category: 'property' as const
       }
     ] : []),
-    
+
     // Marketing Notifications
     {
       id: 'newsletter',
@@ -173,14 +173,14 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
   });
 
   const handlePreferenceChange = (id: string, type: 'email' | 'sms' | 'push', value: boolean) => {
-    setPreferences(prev => prev.map(pref => 
+    setPreferences(prev => prev.map(pref =>
       pref.id === id ? { ...pref, [type]: value } : pref
     ));
   };
 
   const handleGlobalSettingChange = (type: 'email' | 'sms' | 'push', value: boolean) => {
     setGlobalSettings(prev => ({ ...prev, [type]: value }));
-    
+
     // If disabling globally, disable all individual preferences
     if (!value) {
       setPreferences(prev => prev.map(pref => ({ ...pref, [type]: false })));
@@ -342,7 +342,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                       <p className="text-xs sm:text-sm text-gray-500">{pref.description}</p>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 xs:grid-cols-3 gap-3 sm:gap-4 ml-0 sm:ml-11">
                     <div className="flex items-center space-x-2">
                       <input
@@ -353,14 +353,14 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                         disabled={!globalSettings.email}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                       />
-                      <Label 
-                        htmlFor={`${pref.id}-email`} 
+                      <Label
+                        htmlFor={`${pref.id}-email`}
                         className={`text-xs sm:text-sm ${!globalSettings.email ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         Email
                       </Label>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
@@ -370,14 +370,14 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                         disabled={!globalSettings.sms}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                       />
-                      <Label 
-                        htmlFor={`${pref.id}-sms`} 
+                      <Label
+                        htmlFor={`${pref.id}-sms`}
                         className={`text-xs sm:text-sm ${!globalSettings.sms ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         SMS
                       </Label>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
@@ -387,8 +387,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
                         disabled={!globalSettings.push}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                       />
-                      <Label 
-                        htmlFor={`${pref.id}-push`} 
+                      <Label
+                        htmlFor={`${pref.id}-push`}
                         className={`text-xs sm:text-sm ${!globalSettings.push ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         Push
@@ -459,11 +459,10 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
 
       {/* Message Display */}
       {message && (
-        <div className={`p-3 sm:p-4 rounded-md ${
-          message.type === 'success' 
-            ? 'bg-green-50 border border-green-200 text-green-800' 
+        <div className={`p-3 sm:p-4 rounded-md ${message.type === 'success'
+            ? 'bg-green-50 border border-green-200 text-green-800'
             : 'bg-red-50 border border-red-200 text-red-800'
-        }`}>
+          }`}>
           <div className="flex items-center space-x-2">
             {message.type === 'success' ? (
               <Check className="h-4 w-4 flex-shrink-0" />
@@ -476,7 +475,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       )}
 
       {/* Save Button */}
-      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg shadow-lg sm:shadow-none sm:bg-transparent sm:p-0 sm:static">
+      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg -lg sm:-none sm:bg-transparent sm:p-0 sm:static">
         <Button
           onClick={handleSave}
           disabled={isLoading}

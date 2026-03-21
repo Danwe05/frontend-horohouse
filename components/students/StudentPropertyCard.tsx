@@ -174,30 +174,30 @@ export function StudentPropertyCard({
   // ── Derived values ────────────────────────────────────────────────────────
 
   const WATER_LABELS: Record<string, string> = {
-    camwater:              s.camwater || 'CAMWATER',
-    borehole:              s.borehole || 'Borehole',
+    camwater: s.camwater || 'CAMWATER',
+    borehole: s.borehole || 'Borehole',
     camwater_and_borehole: s.dualWater || 'Dual water',
-    well:                  s.well || 'Well',
-    tanker:                s.tanker || 'Tanker',
+    well: s.well || 'Well',
+    tanker: s.tanker || 'Tanker',
   };
 
   const ELECTRICITY_LABELS: Record<string, string> = {
-    none:                s.eneoOnly || 'ENEO only',
-    solar:               s.solar || 'Solar',
-    generator:           s.generator || 'Generator',
+    none: s.eneoOnly || 'ENEO only',
+    solar: s.solar || 'Solar',
+    generator: s.generator || 'Generator',
     solar_and_generator: s.solarGen || 'Solar + Gen',
   };
 
-  const distance  = formatDistance(sd?.campusProximityMeters);
+  const distance = formatDistance(sd?.campusProximityMeters);
   const perPerson = sd?.pricePerPersonMonthly;
-  const beds      = property.amenities?.bedrooms;
-  const baths     = property.amenities?.bathrooms;
-  const sqft      = property.area;
+  const beds = property.amenities?.bedrooms;
+  const baths = property.amenities?.bathrooms;
+  const sqft = property.area;
 
-  const waterLabel       = sd?.waterSource ? WATER_LABELS[sd.waterSource] : null;
+  const waterLabel = sd?.waterSource ? WATER_LABELS[sd.waterSource] : null;
   const electricityLabel = sd?.electricityBackup ? ELECTRICITY_LABELS[sd.electricityBackup] : null;
-  const hasGoodWater     = sd?.waterSource && sd.waterSource !== 'well' && sd.waterSource !== 'tanker';
-  const hasBackup        = sd?.electricityBackup && sd.electricityBackup !== 'none';
+  const hasGoodWater = sd?.waterSource && sd.waterSource !== 'well' && sd.waterSource !== 'tanker';
+  const hasBackup = sd?.electricityBackup && sd.electricityBackup !== 'none';
 
   return (
     <>
@@ -212,7 +212,7 @@ export function StudentPropertyCard({
         onMouseLeave={onMouseLeave}
       >
         <Link href={`/properties/${id}`}>
-          <Card className="overflow-hidden shadow-none py-1-slate-200 transition-all duration-200 hover:shadow-md hover py-1-slate-300 py-0">
+          <Card className="overflow-hidden -none py-1-slate-200 transition-all duration-200 hover:-md hover py-1-slate-300 py-0">
 
             {/* ── Image carousel ─────────────────────────────────────────── */}
             <div className="relative overflow-hidden">
@@ -307,7 +307,7 @@ export function StudentPropertyCard({
                     <button
                       onClick={handleShare}
                       aria-label={s.share || 'Share'}
-                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center transition-transform shadow-md"
+                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center transition-transform -md"
                     >
                       <Share2 className="h-3.5 w-3.5 text-foreground" />
                     </button>
@@ -321,7 +321,7 @@ export function StudentPropertyCard({
                       onClick={handleToggleFavorite}
                       disabled={isTogglingFavorite}
                       aria-label={localFavorite ? (s.unfavorite || 'Remove from favorites') : (s.favorite || 'Add to favorites')}
-                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md disabled:opacity-50"
+                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform -md disabled:opacity-50"
                     >
                       <Heart className={cn(
                         'h-4 w-4 transition-colors',
@@ -435,22 +435,22 @@ export function StudentPropertyCard({
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center gap-3">
                   {sqft !== undefined && sqft > 0 && (
-                     <div className="flex items-center gap-1">
-                       <Ruler className="h-3.5 w-3.5" />
-                       <span>{sqft} m²</span>
-                     </div>
+                    <div className="flex items-center gap-1">
+                      <Ruler className="h-3.5 w-3.5" />
+                      <span>{sqft} m²</span>
+                    </div>
                   )}
                   {beds !== undefined && beds > 0 && (
-                     <div className="flex items-center gap-1">
-                       <Bed className="h-3.5 w-3.5" />
-                       <span>{beds}</span>
-                     </div>
+                    <div className="flex items-center gap-1">
+                      <Bed className="h-3.5 w-3.5" />
+                      <span>{beds}</span>
+                    </div>
                   )}
                   {baths !== undefined && baths > 0 && (
-                     <div className="flex items-center gap-1">
-                       <Bath className="h-3.5 w-3.5" />
-                       <span>{baths}</span>
-                     </div>
+                    <div className="flex items-center gap-1">
+                      <Bath className="h-3.5 w-3.5" />
+                      <span>{baths}</span>
+                    </div>
                   )}
                 </div>
 

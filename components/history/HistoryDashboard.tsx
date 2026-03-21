@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Eye, 
-  Search, 
-  MapPin, 
+import {
+  BarChart3,
+  TrendingUp,
+  Eye,
+  Search,
+  MapPin,
   Calendar,
   Activity,
   Users,
@@ -74,7 +74,7 @@ const HistoryDashboard = () => {
   const [timeframe, setTimeframe] = useState(30);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'trends' | 'properties'>('overview');
-  
+
   // Data state
   const [userActivity, setUserActivity] = useState<UserActivity | null>(null);
   const [popularCities, setPopularCities] = useState<CityData[]>([]);
@@ -97,10 +97,10 @@ const HistoryDashboard = () => {
       if (isAgent) {
         promises.push(
           apiClient.getSearchTrends(timeframe, 10),
-          apiClient.request({ 
+          apiClient.request({
             url: '/history/most-viewed-properties',
             params: { limit: 5, timeframe },
-            skipAuth: true 
+            skipAuth: true
           } as any)
         );
       }
@@ -110,15 +110,15 @@ const HistoryDashboard = () => {
       }
 
       const results = await Promise.all(promises);
-      
+
       setUserActivity(results[0]);
       setPopularCities(results[1]);
-      
+
       if (isAgent) {
         setSearchTrends(results[2]);
         setMostViewed(results[3]);
       }
-      
+
       if (isAdmin && results[4]) {
         setDashboardStats(results[4]);
       }
@@ -185,18 +185,17 @@ const HistoryDashboard = () => {
           <h2 className="text-2xl font-bold text-gray-900">Activity Analytics</h2>
           <p className="text-gray-600 mt-1">Track your platform engagement and insights</p>
         </div>
-        
+
         {/* Timeframe Selector */}
         <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
           {[7, 30, 90].map((days) => (
             <button
               key={days}
               onClick={() => setTimeframe(days)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                timeframe === days
-                  ? 'bg-white text-blue-600 shadow-sm'
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${timeframe === days
+                  ? 'bg-white text-blue-600 -sm'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               {days} days
             </button>
@@ -211,11 +210,10 @@ const HistoryDashboard = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === tab
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -228,7 +226,7 @@ const HistoryDashboard = () => {
         <div className="space-y-6">
           {/* Admin Dashboard Stats */}
           {isAdmin && dashboardStats && (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-sm border border-blue-200 p-6">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg -sm border border-blue-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-blue-600" />
                 Platform Overview
@@ -263,7 +261,7 @@ const HistoryDashboard = () => {
           )}
 
           {/* Activity Summary Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg -sm border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Activity className="h-5 w-5 text-blue-600" />
@@ -329,7 +327,7 @@ const HistoryDashboard = () => {
           </div>
 
           {/* Popular Cities Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg -sm border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-blue-600" />
@@ -383,8 +381,8 @@ const HistoryDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
+                            <div
+                              className="bg-blue-600 h-2 rounded-full"
                               style={{ width: `${Math.min((city.count / popularCities[0].count) * 100, 100)}%` }}
                             ></div>
                           </div>
@@ -406,7 +404,7 @@ const HistoryDashboard = () => {
       {activeTab === 'trends' && isAgent && (
         <div className="space-y-6">
           {/* Search Trends Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg -sm border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Search className="h-5 w-5 text-blue-600" />
@@ -450,13 +448,12 @@ const HistoryDashboard = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          trend.clickThroughRate > 0.5 
-                            ? 'bg-green-100 text-green-800' 
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${trend.clickThroughRate > 0.5
+                            ? 'bg-green-100 text-green-800'
                             : trend.clickThroughRate > 0.3
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
                           {(trend.clickThroughRate * 100).toFixed(1)}%
                         </span>
                       </td>
@@ -485,7 +482,7 @@ const HistoryDashboard = () => {
       {activeTab === 'properties' && isAgent && (
         <div className="space-y-6">
           {/* Most Viewed Properties Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg -sm border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Eye className="h-5 w-5 text-blue-600" />
@@ -590,7 +587,7 @@ const HistoryDashboard = () => {
 
       {/* Empty State */}
       {!loading && userActivity?.totalActivity === 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+        <div className="bg-white rounded-lg -sm border border-gray-200 p-12 text-center">
           <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activity Yet</h3>
           <p className="text-gray-600">Start exploring properties to see your activity here.</p>

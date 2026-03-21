@@ -107,7 +107,7 @@ export function Sidebar({
         <div className="px-4 py-4 shrink-0">
           <Button
             onClick={onNewChat}
-            className="w-full justify-center gap-2 rounded-xl bg-blue-600 py-5 text-sm font-medium text-white transition-all hover:bg-blue-700 hover:shadow-xl"
+            className="w-full justify-center gap-2 rounded-xl bg-blue-600 py-5 text-sm font-medium text-white transition-all hover:bg-blue-700 hover:-xl"
           >
             <BadgePlus className="h-4 w-4" />
             Nouvelle conversation

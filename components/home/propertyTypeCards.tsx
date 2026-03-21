@@ -87,8 +87,7 @@ export default function PropertyBentoGrid() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-                className={`relative group overflow-hidden rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer ${type.gridClass}`}
+                className={`relative group overflow-hidden rounded-[2rem] -sm hover:-translate-y-2 hover:-2xl transition-all duration-500 cursor-pointer ${type.gridClass}`}
               >
                 {/* Background Image with Zoom on Hover */}
                 <div className="absolute inset-0 z-0">
@@ -123,7 +122,7 @@ export default function PropertyBentoGrid() {
                 </div>
 
                 {/* Blue Border Glow on Hover */}
-                <div className="absolute inset-0 border-2 border-blue-600/0 group-hover:border-blue-600/50 rounded-[2rem] transition-all duration-500 pointer-events-none" />
+                <div className="absolute inset-0 border-1 border-blue-600/0 group-hover:border-blue-600/50 rounded-[2rem] transition-all duration-500 pointer-events-none" />
               </motion.div>
             );
           })}

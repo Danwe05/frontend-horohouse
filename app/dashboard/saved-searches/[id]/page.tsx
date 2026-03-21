@@ -175,7 +175,7 @@ export default function SavedSearchDetailPage() {
 
     if (criteria.city) {
       pills.push(
-        <div key="city" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="city" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <MapPin className="w-3 h-3 text-indigo-500" />
           {criteria.city}
         </div>
@@ -183,7 +183,7 @@ export default function SavedSearchDetailPage() {
     }
     if (criteria.listingType) {
       pills.push(
-        <div key="type" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="type" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <HomeIcon className="w-3 h-3 text-indigo-500" />
           {criteria.listingType === 'sale' ? 'Buy' : 'Rent'}
         </div>
@@ -191,7 +191,7 @@ export default function SavedSearchDetailPage() {
     }
     if (criteria.propertyType) {
       pills.push(
-        <div key="ptype" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="ptype" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <Home className="w-3 h-3 text-indigo-500" />
           {criteria.propertyType}
         </div>
@@ -199,7 +199,7 @@ export default function SavedSearchDetailPage() {
     }
     if (criteria.minPrice || criteria.maxPrice) {
       pills.push(
-        <div key="price" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="price" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <Banknote className="w-3 h-3 text-emerald-500" />
           {criteria.minPrice ? formatPrice(criteria.minPrice) : 'Any'} - {criteria.maxPrice ? formatPrice(criteria.maxPrice) : 'Any'}
         </div>
@@ -207,7 +207,7 @@ export default function SavedSearchDetailPage() {
     }
     if (criteria.bedrooms) {
       pills.push(
-        <div key="beds" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="beds" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <Bed className="w-3 h-3 text-blue-500" />
           {criteria.bedrooms}+ Beds
         </div>
@@ -215,7 +215,7 @@ export default function SavedSearchDetailPage() {
     }
     if (criteria.bathrooms) {
       pills.push(
-        <div key="baths" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md shadow-sm">
+        <div key="baths" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
           <Bath className="w-3 h-3 text-cyan-500" />
           {criteria.bathrooms}+ Baths
         </div>
@@ -280,7 +280,7 @@ export default function SavedSearchDetailPage() {
                 {/* Statistics Cards Skeleton */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start gap-4">
+                    <div key={i} className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4">
                       <Skeleton className="w-12 h-12 rounded-xl" />
                       <div className="space-y-2 flex-1 mt-1">
                         <Skeleton className="h-3 w-24 rounded-md" />
@@ -314,7 +314,7 @@ export default function SavedSearchDetailPage() {
           <AppSidebar />
           <SidebarInset>
             <NavDash />
-            <div className="bg-white rounded-3xl border-2 border-dashed border-slate-200 py-24 mx-4 lg:mx-8 my-8 flex flex-col items-center text-center px-4">
+            <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 mx-4 lg:mx-8 my-8 flex flex-col items-center text-center px-4">
               <div className="p-6 bg-slate-100 text-slate-400 rounded-full mb-6">
                 <Search className="w-12 h-12" />
               </div>
@@ -371,7 +371,7 @@ export default function SavedSearchDetailPage() {
                 </div>
 
                 <div className="flex items-center gap-3 md:mt-12">
-                  <Button onClick={() => setShowEditModal(true)} variant="outline" className="shadow-sm border-slate-200 hover:bg-slate-50 transition-all">
+                  <Button onClick={() => setShowEditModal(true)} variant="outline" className="-sm border-slate-200 hover:bg-slate-50 transition-all">
                     <Edit className="w-4 h-4 mr-2" /> Edit Search
                   </Button>
                 </div>
@@ -379,7 +379,7 @@ export default function SavedSearchDetailPage() {
 
               {/* Statistics Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start gap-4 transition-all hover:shadow-md">
+                <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
                   <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
                     <Home className="w-6 h-6" />
                   </div>
@@ -390,7 +390,7 @@ export default function SavedSearchDetailPage() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start gap-4 transition-all hover:shadow-md">
+                <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
                   <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
                     <TrendingUp className="w-6 h-6" />
                   </div>
@@ -401,7 +401,7 @@ export default function SavedSearchDetailPage() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start gap-4 transition-all hover:shadow-md">
+                <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
                   <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
                     <Bell className="w-6 h-6" />
                   </div>
@@ -428,7 +428,7 @@ export default function SavedSearchDetailPage() {
                     ))}
                   </div>
                 ) : properties.length === 0 ? (
-                  <div className="bg-white rounded-3xl border-2 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
+                  <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
                     <div className="p-6 bg-slate-50 text-slate-400 rounded-full mb-6">
                       <HomeIcon className="w-12 h-12" />
                     </div>
@@ -452,7 +452,7 @@ export default function SavedSearchDetailPage() {
                           {/* New Match Badge Overlay */}
                           {search.newMatchingProperties.includes(property._id) && (
                             <div className="absolute top-4 left-4 z-20 pointer-events-none">
-                              <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white shadow-md border-2 border-white font-bold px-3 py-1">
+                              <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white -md border-1 border-white font-bold px-3 py-1">
                                 NEW MATCH
                               </Badge>
                             </div>
@@ -463,7 +463,7 @@ export default function SavedSearchDetailPage() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="flex items-center justify-center gap-4 mt-12 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 w-fit mx-auto">
+                      <div className="flex items-center justify-center gap-4 mt-12 bg-white p-4 rounded-2xl -sm border border-slate-100 w-fit mx-auto">
                         <Button
                           variant="outline"
                           onClick={() => setPage(p => Math.max(1, p - 1))}

@@ -300,73 +300,73 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
   };
 
   const fetchPlaceSuggestions = async (query: string) => {
-  if (!query || query.length < 2) { setSuggestions([]); return; }
-  const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
-  if (!apiKey) return;
-  try {
-    setIsLoadingSuggestions(true);
+    if (!query || query.length < 2) { setSuggestions([]); return; }
+    const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
+    if (!apiKey) return;
+    try {
+      setIsLoadingSuggestions(true);
 
-    // Normalize the query so "yaounde" hits "Yaoundé" etc.
-    const normalizedQuery = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      // Normalize the query so "yaounde" hits "Yaoundé" etc.
+      const normalizedQuery = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    // Try both the raw query and the normalized one for best coverage
-    const queries = query === normalizedQuery ? [query] : [query, normalizedQuery];
-    const allFeatures: any[] = [];
+      // Try both the raw query and the normalized one for best coverage
+      const queries = query === normalizedQuery ? [query] : [query, normalizedQuery];
+      const allFeatures: any[] = [];
 
-    await Promise.all(
-      queries.map(async (q) => {
-        const response = await fetch(
-          `https://api.maptiler.com/geocoding/${encodeURIComponent(q)}.json?key=${apiKey}&limit=10&autocomplete=true`
-        );
-        const data = await response.json();
-        if (data.features) allFeatures.push(...data.features);
-      })
-    );
+      await Promise.all(
+        queries.map(async (q) => {
+          const response = await fetch(
+            `https://api.maptiler.com/geocoding/${encodeURIComponent(q)}.json?key=${apiKey}&limit=10&autocomplete=true`
+          );
+          const data = await response.json();
+          if (data.features) allFeatures.push(...data.features);
+        })
+      );
 
-    // Filter to city-level place types
-    const cityTypes = ["place", "municipality", "region", "district", "locality", "neighborhood"];
-    const cityFeatures = allFeatures.filter((f: any) =>
-      (f.place_type || []).some((t: string) => cityTypes.includes(t))
-    );
+      // Filter to city-level place types
+      const cityTypes = ["place", "municipality", "region", "district", "locality", "neighborhood"];
+      const cityFeatures = allFeatures.filter((f: any) =>
+        (f.place_type || []).some((t: string) => cityTypes.includes(t))
+      );
 
-    // Deduplicate: strip roman numerals + ordinal suffixes and collapse duplicates.
-    // "Yaoundé I", "Yaoundé II", "Yaoundé III" → all collapse to "Yaoundé"
-    const seen = new Map<string, PlaceSuggestion>();
-    for (const f of cityFeatures) {
-      const rawText: string = f.text || "";
-      // Strip trailing roman numerals and Arabic ordinals (e.g. "Maroua I", "Arrondissement 3")
-      const baseText = rawText
-        .replace(/\s+(I{1,3}|IV|VI{0,3}|IX|X{0,3}|[0-9]+)(e?r?e?me?)?\s*$/i, "")
-        .replace(/\s+arrondissement\s*$/i, "")
-        .trim();
+      // Deduplicate: strip roman numerals + ordinal suffixes and collapse duplicates.
+      // "Yaoundé I", "Yaoundé II", "Yaoundé III" → all collapse to "Yaoundé"
+      const seen = new Map<string, PlaceSuggestion>();
+      for (const f of cityFeatures) {
+        const rawText: string = f.text || "";
+        // Strip trailing roman numerals and Arabic ordinals (e.g. "Maroua I", "Arrondissement 3")
+        const baseText = rawText
+          .replace(/\s+(I{1,3}|IV|VI{0,3}|IX|X{0,3}|[0-9]+)(e?r?e?me?)?\s*$/i, "")
+          .replace(/\s+arrondissement\s*$/i, "")
+          .trim();
 
-      const key = normalizeDiacritics(baseText);
-      if (!seen.has(key)) {
-        seen.set(key, {
-          // Use the cleaned base name as the display text
-          text: baseText,
-          // Use the full place_name from the first match for the subtitle
-          place_name: f.place_name,
-          place_type: f.place_type || [],
-        });
+        const key = normalizeDiacritics(baseText);
+        if (!seen.has(key)) {
+          seen.set(key, {
+            // Use the cleaned base name as the display text
+            text: baseText,
+            // Use the full place_name from the first match for the subtitle
+            place_name: f.place_name,
+            place_type: f.place_type || [],
+          });
+        }
       }
+
+      // Sort: exact prefix matches first, then alphabetical
+      const nq = normalizeDiacritics(query);
+      const results = Array.from(seen.values()).sort((a, b) => {
+        const aStarts = normalizeDiacritics(a.text).startsWith(nq);
+        const bStarts = normalizeDiacritics(b.text).startsWith(nq);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return a.text.localeCompare(b.text);
+      });
+
+      setSuggestions(results.slice(0, 6));
+    } catch { /* ignore */ } finally {
+      setIsLoadingSuggestions(false);
     }
-
-    // Sort: exact prefix matches first, then alphabetical
-    const nq = normalizeDiacritics(query);
-    const results = Array.from(seen.values()).sort((a, b) => {
-      const aStarts = normalizeDiacritics(a.text).startsWith(nq);
-      const bStarts = normalizeDiacritics(b.text).startsWith(nq);
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
-      return a.text.localeCompare(b.text);
-    });
-
-    setSuggestions(results.slice(0, 6));
-  } catch { /* ignore */ } finally {
-    setIsLoadingSuggestions(false);
-  }
-};
+  };
 
   const handleCityChange = (value: string) => {
     setCity(value);
@@ -413,18 +413,18 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
   }, []);
 
   const handleSearch = () => {
-  // Attempt to match the typed city against a known suggestion text (accent-insensitive)
-  const typedNorm = normalizeDiacritics(city);
-  const matched = suggestions.find((s) => normalizeDiacritics(s.text) === typedNorm);
-  const resolvedCity = matched ? matched.text : city;
+    // Attempt to match the typed city against a known suggestion text (accent-insensitive)
+    const typedNorm = normalizeDiacritics(city);
+    const matched = suggestions.find((s) => normalizeDiacritics(s.text) === typedNorm);
+    const resolvedCity = matched ? matched.text : city;
 
-  if (resolvedCity) addToRecentSearches(resolvedCity);
-  setHasSearched(true);
-  const f = getCurrentFilters();
-  f.city = resolvedCity || undefined;
-  onSearch?.(f);
-  setShowSuggestions(false);
-};
+    if (resolvedCity) addToRecentSearches(resolvedCity);
+    setHasSearched(true);
+    const f = getCurrentFilters();
+    f.city = resolvedCity || undefined;
+    onSearch?.(f);
+    setShowSuggestions(false);
+  };
 
   // Auto-search when non-city filters change
   useEffect(() => {
@@ -458,7 +458,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
 
         {/* Row 2: Premium Full-Width Search Pill */}
         <div className="flex justify-center relative z-20 w-full">
-          <div className="flex items-center bg-white border border-slate-200 shadow-[0_8px_20px_-8px_rgba(37,99,235,0.1)] hover:shadow-[0_12px_24px_-8px_rgba(37,99,235,0.15)] transition-all duration-300 rounded-full pl-6 pr-2 py-2 w-full max-w-5xl mx-auto divide-x divide-slate-200">
+          <div className="flex items-center bg-white border border-slate-200 -[0_8px_20px_-8px_rgba(37,99,235,0.1)] hover:-[0_12px_24px_-8px_rgba(37,99,235,0.15)] transition-all duration-300 rounded-full pl-6 pr-2 py-2 w-full max-w-5xl mx-auto divide-x divide-slate-200">
 
             {/* Location */}
             <div className="flex flex-col relative flex-[1.5] pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors" ref={suggestionsRef} onClick={() => cityInputRef.current?.focus()}>
@@ -470,12 +470,12 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 onKeyDown={handleKeyDown}
                 onFocus={() => setShowSuggestions(true)}
                 placeholder={t.quickSearchExtras.searchDestinations}
-                className="border-none bg-transparent shadow-none focus-visible:ring-0 p-0 h-auto text-[15px] font-medium placeholder:text-slate-400 placeholder:font-normal truncate"
+                className="border-none bg-transparent -none focus-visible:ring-0 p-0 h-auto text-[15px] font-medium placeholder:text-slate-400 placeholder:font-normal truncate"
                 autoComplete="off"
               />
               {/* Desktop Suggestions Dropdown */}
               {showSuggestions && (recentSearches.length > 0 || suggestions.length > 0) && (
-                <div className="absolute top-[calc(100%+16px)] left-0 w-[350px] bg-white border border-slate-100 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-50 max-h-[400px] overflow-y-auto py-3">
+                <div className="absolute top-[calc(100%+16px)] left-0 w-[350px] bg-white border border-slate-100 rounded-3xl -[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-50 max-h-[400px] overflow-y-auto py-3">
                   {recentSearches.length > 0 && (
                     <div className="px-2 pb-2 mb-2 border-b border-slate-50">
                       <div className="flex items-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
@@ -526,7 +526,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                       </div>
                     </div>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 rounded-2xl border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)]" align="start">
+                  <PopoverContent className="w-auto p-0 rounded-2xl border-slate-100 -[0_8px_30px_rgb(0,0,0,0.12)]" align="start">
                     <CalendarComponent mode="single" selected={checkIn} onSelect={setCheckIn} initialFocus disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))} />
                   </PopoverContent>
                 </Popover>
@@ -540,7 +540,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                       </div>
                     </div>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 rounded-2xl border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)]" align="start">
+                  <PopoverContent className="w-auto p-0 rounded-2xl border-slate-100 -[0_8px_30px_rgb(0,0,0,0.12)]" align="start">
                     <CalendarComponent mode="single" selected={checkOut} onSelect={setCheckOut} initialFocus disabled={(date) => date < (checkIn || new Date(new Date().setHours(0, 0, 0, 0)))} />
                   </PopoverContent>
                 </Popover>
@@ -548,10 +548,10 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 <div className="flex flex-col flex-1 pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
                   <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.who}</label>
                   <Select value={guests} onValueChange={setGuests}>
-                    <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
+                    <SelectTrigger className="border-none bg-transparent -none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
                       <SelectValue placeholder={t.quickSearchExtras.addGuests} />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[150px]">
+                    <SelectContent className="rounded-2xl -xl border-slate-100 min-w-[150px]">
                       <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">{t.quickSearchExtras.any}</SelectItem>
                       {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => <SelectItem key={n} value={String(n)} className="font-medium rounded-xl cursor-pointer">{n}+ {t.quickSearchExtras.guests}</SelectItem>)}
                     </SelectContent>
@@ -564,10 +564,10 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 <div className="flex flex-col flex-1 px-6 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
                   <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.beds}</label>
                   <Select value={bedrooms} onValueChange={setBedrooms}>
-                    <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
+                    <SelectTrigger className="border-none bg-transparent -none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
                       <SelectValue placeholder={t.quickSearchExtras.addBeds} />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[150px]">
+                    <SelectContent className="rounded-2xl -xl border-slate-100 min-w-[150px]">
                       <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">{t.quickSearchExtras.anyBeds}</SelectItem>
                       {["1", "2", "3", "4"].map((n) => <SelectItem key={n} value={n} className="font-medium rounded-xl cursor-pointer">{n} {t.quickSearchExtras.beds}</SelectItem>)}
                     </SelectContent>
@@ -576,10 +576,10 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 <div className="flex flex-col flex-1 pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
                   <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.baths}</label>
                   <Select value={bathrooms} onValueChange={setBathrooms}>
-                    <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
+                    <SelectTrigger className="border-none bg-transparent -none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
                       <SelectValue placeholder={t.quickSearchExtras.addBaths} />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[150px]">
+                    <SelectContent className="rounded-2xl -xl border-slate-100 min-w-[150px]">
                       <SelectItem value="any" className="font-medium rounded-xl cursor-pointer">{t.quickSearchExtras.anyBaths}</SelectItem>
                       {["1", "2", "3"].map((n) => <SelectItem key={n} value={n} className="font-medium rounded-xl cursor-pointer">{n} {t.quickSearchExtras.baths}</SelectItem>)}
                     </SelectContent>
@@ -591,10 +591,10 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
             <div className="flex flex-col flex-1 pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors">
               <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.maxPrice}</label>
               <Select value={maxBudget} onValueChange={setMaxBudget}>
-                <SelectTrigger className="border-none bg-transparent shadow-none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
+                <SelectTrigger className="border-none bg-transparent -none focus:ring-0 p-0 h-auto text-[15px] font-medium text-slate-600 data-[placeholder]:text-slate-400 [&>svg]:opacity-30 hover:[&>svg]:opacity-100">
                   <SelectValue placeholder={t.quickSearchExtras.addMaxPrice} />
                 </SelectTrigger>
-                <SelectContent className="rounded-2xl shadow-xl border-slate-100 min-w-[160px]">
+                <SelectContent className="rounded-2xl -xl border-slate-100 min-w-[160px]">
                   {priceOptions.map((o) => <SelectItem key={o.value} value={o.value} className="font-medium rounded-xl cursor-pointer">{o.value === "any" ? "No max" : o.shortLabel}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -607,7 +607,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                   <X className="h-4 w-4" />
                 </Button>
               )}
-              <Button className="rounded-full h-[52px] px-6 bg-blue-600 hover:bg-blue-700 hover:shadow-[0_8px_20px_-8px_rgba(37,99,235,0.6)] active:scale-95 transition-all duration-300 text-white border-0" onClick={handleSearch} disabled={isSearching}>
+              <Button className="rounded-full h-[52px] px-6 bg-blue-600 hover:bg-blue-700 hover:-[0_8px_20px_-8px_rgba(37,99,235,0.6)] active:scale-95 transition-all duration-300 text-white border-0" onClick={handleSearch} disabled={isSearching}>
                 {isSearching ? <Loader2 className="h-5 w-5 animate-spin transition-transform" /> : <Search className="h-5 w-5 mr-1.5 transition-transform stroke-[2.5px]" />}
                 <span className="font-bold text-[16px]">{t.quickSearchExtras.search}</span>
               </Button>
@@ -631,7 +631,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
           // ── Mobile Default Floating Pill ── 
           <div
             onClick={() => setIsMobileExpanded(true)}
-            className="flex items-center gap-4 bg-white rounded-full p-3 pl-5 shadow-[0_8px_20px_-8px_rgba(0,0,0,0.12)] border border-slate-200/80 cursor-pointer active:scale-[0.98] transition-all hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)] max-w-[90%] mx-auto mt-2"
+            className="flex items-center gap-4 bg-white rounded-full p-3 pl-5 -[0_8px_20px_-8px_rgba(0,0,0,0.12)] border border-slate-200/80 cursor-pointer active:scale-[0.98] transition-all hover:-[0_12px_24px_-8px_rgba(0,0,0,0.15)] max-w-[90%] mx-auto mt-2"
           >
             <Search className="h-5 w-5 text-slate-800 shrink-0" strokeWidth={2.5} />
             <div className="flex flex-col truncate">
@@ -656,7 +656,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
 
             {/* Scrollable Body */}
             <div className="flex-1 overflow-y-auto px-4 pt-6 pb-28">
-              <div className="bg-white border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-[2rem] p-4 space-y-3 mb-6">
+              <div className="bg-white border border-slate-200/80 -[0_8px_30px_rgb(0,0,0,0.06)] rounded-[2rem] p-4 space-y-3 mb-6">
                 {/* Location */}
                 <div className="relative" ref={suggestionsRef}>
                   <div className="relative">
@@ -670,13 +670,13 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                       onKeyDown={handleKeyDown}
                       onFocus={() => setShowSuggestions(true)}
                       placeholder={t.quickSearchExtras.whereTo}
-                      className="w-full pl-12 pr-4 h-14 text-[16px] font-semibold bg-slate-50 border-transparent focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:bg-white rounded-2xl transition-all shadow-none"
+                      className="w-full pl-12 pr-4 h-14 text-[16px] font-semibold bg-slate-50 border-transparent focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:bg-white rounded-2xl transition-all -none"
                       autoComplete="off"
                     />
                   </div>
                   {/* Mobile suggestions dropdown */}
                   {showSuggestions && (recentSearches.length > 0 || suggestions.length > 0) && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-[1.5rem] shadow-xl z-50 max-h-[250px] overflow-y-auto py-2">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-[1.5rem] -xl z-50 max-h-[250px] overflow-y-auto py-2">
                       {recentSearches.length > 0 && (
                         <div className="px-2 pb-2 mb-2 border-b border-slate-50">
                           <div className="px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest"><Clock className="h-3.5 w-3.5 inline mr-1 -mt-0.5" />Recent</div>
@@ -714,7 +714,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                           </div>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[calc(100vw-2rem)] mx-4 p-0 rounded-2xl border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-[150]" align="center">
+                      <PopoverContent className="w-[calc(100vw-2rem)] mx-4 p-0 rounded-2xl border-slate-100 -[0_8px_30px_rgb(0,0,0,0.12)] z-[150]" align="center">
                         <CalendarComponent mode="single" selected={checkIn} onSelect={setCheckIn} initialFocus disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))} className="p-3 w-full flex justify-center" />
                       </PopoverContent>
                     </Popover>
@@ -728,7 +728,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                           </div>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[calc(100vw-2rem)] mx-4 p-0 rounded-2xl border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-[150]" align="center">
+                      <PopoverContent className="w-[calc(100vw-2rem)] mx-4 p-0 rounded-2xl border-slate-100 -[0_8px_30px_rgb(0,0,0,0.12)] z-[150]" align="center">
                         <CalendarComponent mode="single" selected={checkOut} onSelect={setCheckOut} initialFocus disabled={(date) => date < (checkIn || new Date(new Date().setHours(0, 0, 0, 0)))} className="p-3 w-full flex justify-center" />
                       </PopoverContent>
                     </Popover>
@@ -781,7 +781,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 pb-8 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.04)]">
+            <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 pb-8 flex items-center justify-between -[0_-10px_30px_rgba(0,0,0,0.04)]">
               <button
                 onClick={(e) => { e.preventDefault(); clearAllFilters(); }}
                 className="text-[15px] font-bold text-slate-800 underline underline-offset-4 decoration-2 decoration-slate-300 hover:decoration-slate-800 transition-colors ml-2"

@@ -162,7 +162,7 @@ const PropertyDetailSkeleton = () => (
           <Skeleton className="h-[420px] w-full rounded-3xl" />
 
           {/* Property info card */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-5">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 -sm border border-slate-100 space-y-5">
             <div className="flex gap-2">
               <Skeleton className="h-7 w-20 rounded-lg" />
               <Skeleton className="h-7 w-24 rounded-lg" />
@@ -178,7 +178,7 @@ const PropertyDetailSkeleton = () => (
           </div>
 
           {/* Property details */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-5">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 -sm border border-slate-100 space-y-5">
             <Skeleton className="h-7 w-40" />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[...Array(4)].map((_, i) => (
@@ -244,7 +244,7 @@ export default function PropertyDetailClient() {
           <ChevronLeft className="h-4 w-4 mr-2" />
           {t.propertyDetails?.goBack || "Go Back"}
         </Button>
-        <Alert className="border-red-200 bg-red-50 rounded-2xl shadow-sm">
+        <Alert className="border-red-200 bg-red-50 rounded-2xl -sm">
           <AlertCircle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-600 font-medium">
             {error || t.propertyDetails?.propertyNotFound || "Property not found"}
@@ -279,7 +279,7 @@ export default function PropertyDetailClient() {
           <div className="lg:col-span-8 space-y-10">
             <PropertyGallery property={property} />
 
-            <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 -sm border border-slate-100">
               <PropertyInfo property={property} />
             </div>
 

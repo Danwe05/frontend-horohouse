@@ -1,13 +1,13 @@
 'use client';
 import React from 'react';
-import Link from 'next/link'; 
+import Link from 'next/link';
 import { TbRulerMeasure } from 'react-icons/tb';
 import { FaBed, FaMapMarkerAlt } from "react-icons/fa";
 
 interface TopRealEstateItem {
   image: string;
-  type: string; 
-  status: string; 
+  type: string;
+  status: string;
   price: string;
   bedrooms: number;
   location: string;
@@ -34,7 +34,7 @@ const PropertyCard: React.FC<TopRealEstateItem> = ({
   agentPhoto,
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-xl overflow-hidden w-[280px]">
+    <div className="bg-white rounded-xl -xl overflow-hidden w-[280px]">
       <img src={image} className="w-full h-40 object-cover" />
       <div className="p-4">
         <div className="flex justify-between items-center mb-2">
@@ -77,8 +77,8 @@ const TopRealEstate: React.FC<TopRealEstateProps> = ({ properties }) => {
       <div className="flex gap-x-83 items-center mb-4">
         <h2 className="text-2xl font-bold text-black">Top Real Estate</h2>
         {/* Bouton View All avec hover bleu */}
-        <Link 
-          href="/ViewAllDashboard" 
+        <Link
+          href="/ViewAllDashboard"
           className="text-[#808080] text-sm font-medium transition-colors hover:text-blue-600"
         >
           View All

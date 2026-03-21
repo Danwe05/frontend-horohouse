@@ -298,7 +298,7 @@ const PropertyEditPage = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="bg-white rounded-xl -sm border border-slate-100 overflow-hidden">
                 <Tabs defaultValue="details" className="w-full">
 
                   {['hotel', 'motel', 'hostel', 'guesthouse'].includes(initialData.type?.toLowerCase()) ? (
@@ -306,13 +306,13 @@ const PropertyEditPage = () => {
                       <TabsList className="bg-transparent h-12 gap-6 p-0">
                         <TabsTrigger
                           value="details"
-                          className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-12 px-2 gap-2 text-slate-600 data-[state=active]:text-blue-700 font-semibold"
+                          className="data-[state=active]:bg-transparent data-[state=active]:-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-12 px-2 gap-2 text-slate-600 data-[state=active]:text-blue-700 font-semibold"
                         >
                           <Building2 className="w-4 h-4" /> Property Details
                         </TabsTrigger>
                         <TabsTrigger
                           value="rooms"
-                          className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-12 px-2 gap-2 text-slate-600 data-[state=active]:text-blue-700 font-semibold"
+                          className="data-[state=active]:bg-transparent data-[state=active]:-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-12 px-2 gap-2 text-slate-600 data-[state=active]:text-blue-700 font-semibold"
                         >
                           <BedDouble className="w-4 h-4" /> Manage Rooms
                         </TabsTrigger>

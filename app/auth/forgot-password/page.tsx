@@ -9,7 +9,7 @@ import { Loader2, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 export default function ForgotPassword() {
   const router = useRouter();
   const emailInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -87,18 +87,18 @@ export default function ForgotPassword() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
                 <CheckCircle2 className="w-8 h-8 text-green-600" aria-hidden="true" />
               </div>
-              
+
               <h1 className="text-3xl font-bold text-gray-900 mb-3">
                 Check Your Email
               </h1>
-              
+
               <p className="text-gray-600 text-sm mb-2">
                 We've sent a password reset link to:
               </p>
               <p className="text-blue-600 font-semibold mb-6">
                 {email}
               </p>
-              
+
               <p className="text-gray-500 text-xs mb-8">
                 Click the link in the email to reset your password. The link will expire in 1 hour.
               </p>
@@ -106,7 +106,7 @@ export default function ForgotPassword() {
               <div className="space-y-3">
                 <button
                   onClick={() => router.push('/auth/login')}
-                  className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 -sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 >
                   Back to Sign In
                 </button>
@@ -160,7 +160,7 @@ export default function ForgotPassword() {
           </div>
 
           {error && (
-            <div 
+            <div
               className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg text-sm flex items-start gap-3"
               role="alert"
             >
@@ -212,9 +212,9 @@ export default function ForgotPassword() {
               type="button"
               onClick={handleSubmit}
               disabled={isLoading}
-              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
+              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 -sm mt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
                 ${!isLoading
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:shadow-md active:scale-[0.98]'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98]'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
             >
               {isLoading ? (

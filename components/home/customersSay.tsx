@@ -100,7 +100,7 @@ export default function CustomersSay() {
 
     const handleInfiniteScroll = () => {
       const { scrollLeft, scrollWidth, offsetWidth } = container;
-      
+
       if (scrollLeft <= 0) {
         container.scrollTo({
           left: scrollLeft + (scrollWidth / 3),
@@ -168,7 +168,7 @@ export default function CustomersSay() {
           </div>
         </div>
 
-        <div 
+        <div
           className="relative"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
@@ -176,10 +176,10 @@ export default function CustomersSay() {
           <div
             ref={containerRef}
             className="flex gap-6 overflow-x-auto scrollbar-hide px-4"
-            style={{ 
-                scrollSnapType: 'x mandatory',
-                paddingLeft: 'calc(50% - 13rem)',
-                paddingRight: 'calc(50% - 13rem)' 
+            style={{
+              scrollSnapType: 'x mandatory',
+              paddingLeft: 'calc(50% - 13rem)',
+              paddingRight: 'calc(50% - 13rem)'
             }}
           >
             {duplicatedCustomers.map((customer, idx) => {
@@ -188,14 +188,12 @@ export default function CustomersSay() {
               return (
                 <div
                   key={idx}
-                  className={`relative w-[22rem] md:w-[26rem] flex-shrink-0 snap-center transition-all duration-700 ease-in-out ${
-                    isCenter ? 'scale-100 opacity-100' : 'scale-90 opacity-40 blur-[0.5px]'
-                  }`}
+                  className={`relative w-[22rem] md:w-[26rem] flex-shrink-0 snap-center transition-all duration-700 ease-in-out ${isCenter ? 'scale-100 opacity-100' : 'scale-90 opacity-40 blur-[0.5px]'
+                    }`}
                   onClick={() => scrollToIndex(idx)}
                 >
-                  <div className={`relative h-full rounded-2xl p-8 border cursor-pointer transition-colors ${
-                    isCenter ? 'bg-white border-gray-200 shadow-xl' : 'bg-gray-50 border-transparent'
-                  }`}>
+                  <div className={`relative h-full rounded-2xl p-8 border cursor-pointer transition-colors ${isCenter ? 'bg-white border-gray-200 -xl' : 'bg-gray-50 border-transparent'
+                    }`}>
                     <div className="flex flex-col h-full">
                       <div className="flex items-center gap-4 mb-6">
                         <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-200 border flex-shrink-0">
@@ -237,11 +235,10 @@ export default function CustomersSay() {
                 const currentSet = Math.floor(centerIndex / customers.length);
                 scrollToIndex(idx + (currentSet * customers.length));
               }}
-              className={`transition-all duration-300 rounded-full ${
-                (centerIndex % customers.length) === idx
+              className={`transition-all duration-300 rounded-full ${(centerIndex % customers.length) === idx
                   ? 'w-8 h-2 bg-blue-600'
                   : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
-              }`}
+                }`}
             />
           ))}
         </div>

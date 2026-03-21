@@ -229,7 +229,7 @@ export default function SystemLogsPage() {
                                 <Button
                                     onClick={fetchLogs}
                                     disabled={isLoading}
-                                    className="rounded-xl bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-100"
+                                    className="rounded-xl bg-blue-600 hover:bg-blue-700 -md -blue-100"
                                 >
                                     <RefreshCw className={cn("w-4 h-4 mr-2", isLoading && "animate-spin")} />
                                     Refresh
@@ -238,7 +238,7 @@ export default function SystemLogsPage() {
                         </div>
 
                         {/* Filters */}
-                        <Card className="border-none shadow-sm bg-white/50 backdrop-blur-md rounded-3xl">
+                        <Card className="border-none -sm bg-white/50 backdrop-blur-md rounded-3xl">
                             <CardContent className="p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div className="space-y-2">
@@ -246,7 +246,7 @@ export default function SystemLogsPage() {
                                         <select
                                             value={activityType}
                                             onChange={(e) => setActivityType(e.target.value)}
-                                            className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm"
+                                            className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 -sm text-sm"
                                         >
                                             <option value="">All Activities</option>
                                             <option value="login">Login</option>
@@ -309,7 +309,7 @@ export default function SystemLogsPage() {
                         </Card>
 
                         {/* Logs Table */}
-                        <Card className="border-none shadow-xl shadow-slate-200/50 bg-white rounded-3xl overflow-hidden">
+                        <Card className="border-none -xl -slate-200/50 bg-white rounded-3xl overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
                                 <div className="flex items-center justify-between">
                                     <div>
@@ -366,7 +366,7 @@ export default function SystemLogsPage() {
                                                             </div>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <Badge variant="outline" className={cn("rounded-full px-2.5 py-0.5 border text-[11px] font-bold shadow-sm whitespace-nowrap", getActivityBadge(log.activityType))}>
+                                                            <Badge variant="outline" className={cn("rounded-full px-2.5 py-0.5 border text-[11px] font-bold -sm whitespace-nowrap", getActivityBadge(log.activityType))}>
                                                                 {getActivityLabel(log.activityType)}
                                                             </Badge>
                                                             {log.propertyId && (
@@ -474,7 +474,7 @@ export default function SystemLogsPage() {
                                                     size="sm"
                                                     className={cn(
                                                         "w-9 h-9 p-0 rounded-xl",
-                                                        page === pageNum ? "bg-blue-600 shadow-md shadow-blue-100" : "border-slate-200"
+                                                        page === pageNum ? "bg-blue-600 -md -blue-100" : "border-slate-200"
                                                     )}
                                                     onClick={() => setPage(pageNum)}
                                                 >

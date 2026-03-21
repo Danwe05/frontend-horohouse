@@ -61,10 +61,10 @@ export default function SystemHealthPage() {
     const [apiMetrics, setApiMetrics] = useState<HealthData | null>(null);
 
     const [services, setServices] = useState<ServiceStatus[]>([
-        { name: "Main API",                  status: "checking", icon: Server,        endpoint: "localhost:4000/health" },
-        { name: "Database (MongoDB)",        status: "checking", icon: Database,      endpoint: "localhost:4000/health" },
-        { name: "ML Recommendation Service", status: "checking", icon: Brain,         endpoint: "localhost:5001/health" },
-        { name: "WhatsApp Bot",              status: "checking", icon: MessageSquare, endpoint: "localhost:3000/api/health" },
+        { name: "Main API", status: "checking", icon: Server, endpoint: "localhost:4000/health" },
+        { name: "Database (MongoDB)", status: "checking", icon: Database, endpoint: "localhost:4000/health" },
+        { name: "ML Recommendation Service", status: "checking", icon: Brain, endpoint: "localhost:5001/health" },
+        { name: "WhatsApp Bot", status: "checking", icon: MessageSquare, endpoint: "localhost:3000/api/health" },
     ]);
 
     const fetchHealth = async () => {
@@ -128,30 +128,30 @@ export default function SystemHealthPage() {
     }, [user, authLoading]);
 
     // Derived display values — all based on exact API field shapes
-    const memPercent  = parseFloat(apiMetrics?.system?.memory?.usagePercent ?? "0"); // strips the "%" char
+    const memPercent = parseFloat(apiMetrics?.system?.memory?.usagePercent ?? "0"); // strips the "%" char
     const uptimeHours = apiMetrics ? Math.floor(apiMetrics.system.uptime / 3600) : 0;
-    const uptimeMins  = apiMetrics ? Math.floor((apiMetrics.system.uptime % 3600) / 60) : 0;
-    const loadAvg1m   = apiMetrics?.system?.loadAvg?.[0]?.toFixed(2) ?? "—";
-    const anyDown     = services.some(s => s.status === "down");
+    const uptimeMins = apiMetrics ? Math.floor((apiMetrics.system.uptime % 3600) / 60) : 0;
+    const loadAvg1m = apiMetrics?.system?.loadAvg?.[0]?.toFixed(2) ?? "—";
+    const anyDown = services.some(s => s.status === "down");
     const overallLabel = services.some(s => s.status === "checking")
         ? "Checking..."
         : anyDown ? "Degraded" : "Operational";
 
     const getStatusColor = (status: Status) => {
         switch (status) {
-            case "healthy":  return "text-emerald-500 bg-emerald-50 border-emerald-100";
+            case "healthy": return "text-emerald-500 bg-emerald-50 border-emerald-100";
             case "degraded": return "text-amber-500 bg-amber-50 border-amber-100";
-            case "down":     return "text-red-500 bg-red-50 border-red-100";
-            default:         return "text-slate-400 bg-slate-50 border-slate-100";
+            case "down": return "text-red-500 bg-red-50 border-red-100";
+            default: return "text-slate-400 bg-slate-50 border-slate-100";
         }
     };
 
     const getStatusIcon = (status: Status) => {
         switch (status) {
-            case "healthy":  return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
-            case "degraded": return <AlertCircle  className="w-5 h-5 text-amber-500" />;
-            case "down":     return <AlertCircle  className="w-5 h-5 text-red-500" />;
-            default:         return <RefreshCw    className="w-5 h-5 text-slate-400 animate-spin" />;
+            case "healthy": return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
+            case "degraded": return <AlertCircle className="w-5 h-5 text-amber-500" />;
+            case "down": return <AlertCircle className="w-5 h-5 text-red-500" />;
+            default: return <RefreshCw className="w-5 h-5 text-slate-400 animate-spin" />;
         }
     };
 
@@ -171,7 +171,7 @@ export default function SystemHealthPage() {
                                 <Skeleton className="h-10 w-32" />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {[1,2,3,4].map(i => <Skeleton key={i} className="h-32 rounded-3xl" />)}
+                                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-3xl" />)}
                             </div>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <Skeleton className="h-[400px] rounded-3xl" />
@@ -229,7 +229,7 @@ export default function SystemHealthPage() {
                         {/* Overview Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <Card className={cn(
-                                "border-none shadow-sm text-white overflow-hidden relative",
+                                "border-none -sm text-white overflow-hidden relative",
                                 anyDown
                                     ? "bg-gradient-to-br from-red-500 to-red-600"
                                     : "bg-gradient-to-br from-blue-500 to-blue-600"
@@ -246,7 +246,7 @@ export default function SystemHealthPage() {
                                 </CardContent>
                             </Card>
 
-                            <Card className="border-none shadow-sm bg-white/50 backdrop-blur-sm border border-slate-100 hover:shadow-md transition-all duration-300">
+                            <Card className="border-none -sm bg-white/50 backdrop-blur-sm border border-slate-100 hover:-md transition-all duration-300">
                                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                                     <CardTitle className="text-sm font-medium text-muted-foreground">API Latency</CardTitle>
                                     <Zap className="w-4 h-4 text-amber-500" />
@@ -262,7 +262,7 @@ export default function SystemHealthPage() {
                                 </CardContent>
                             </Card>
 
-                            <Card className="border-none shadow-sm bg-white/50 backdrop-blur-sm border border-slate-100 hover:shadow-md transition-all duration-300">
+                            <Card className="border-none -sm bg-white/50 backdrop-blur-sm border border-slate-100 hover:-md transition-all duration-300">
                                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                                     <CardTitle className="text-sm font-medium text-muted-foreground">Memory Usage</CardTitle>
                                     <MemoryStick className="w-4 h-4 text-blue-500" />
@@ -275,7 +275,7 @@ export default function SystemHealthPage() {
                                 </CardContent>
                             </Card>
 
-                            <Card className="border-none shadow-sm bg-white/50 backdrop-blur-sm border border-slate-100 hover:shadow-md transition-all duration-300">
+                            <Card className="border-none -sm bg-white/50 backdrop-blur-sm border border-slate-100 hover:-md transition-all duration-300">
                                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                                     <CardTitle className="text-sm font-medium text-muted-foreground">System Uptime</CardTitle>
                                     <Clock className="w-4 h-4 text-slate-500" />
@@ -292,7 +292,7 @@ export default function SystemHealthPage() {
 
                         {/* Services + Metrics */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <Card className="border-none shadow-sm bg-white/80 backdrop-blur-sm">
+                            <Card className="border-none -sm bg-white/80 backdrop-blur-sm">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <Server className="w-5 h-5 text-blue-600" />
@@ -310,8 +310,8 @@ export default function SystemHealthPage() {
                                                 <div className={cn(
                                                     "w-12 h-12 rounded-xl flex items-center justify-center",
                                                     service.status === "healthy" ? "bg-emerald-50 text-emerald-600" :
-                                                    service.status === "down"    ? "bg-red-50 text-red-400" :
-                                                                                   "bg-slate-50 text-slate-400"
+                                                        service.status === "down" ? "bg-red-50 text-red-400" :
+                                                            "bg-slate-50 text-slate-400"
                                                 )}>
                                                     <service.icon className="w-6 h-6" />
                                                 </div>
@@ -347,7 +347,7 @@ export default function SystemHealthPage() {
                             </Card>
 
                             {/* System Metrics */}
-                            <Card className="border-none shadow-sm bg-white/80 backdrop-blur-sm">
+                            <Card className="border-none -sm bg-white/80 backdrop-blur-sm">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <Activity className="w-5 h-5 text-blue-600" />
@@ -429,7 +429,7 @@ export default function SystemHealthPage() {
                                                 )}>
                                                     {apiMetrics?.database?.status === "connected"
                                                         ? <><CheckCircle2 className="w-3 h-3" /> Connected</>
-                                                        : <><AlertCircle  className="w-3 h-3" /> Disconnected</>
+                                                        : <><AlertCircle className="w-3 h-3" /> Disconnected</>
                                                     }
                                                 </p>
                                             </div>
@@ -447,7 +447,7 @@ export default function SystemHealthPage() {
                         </div>
 
                         {/* Footer */}
-                        <div className="p-6 rounded-3xl bg-blue-600 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-blue-200">
+                        <div className="p-6 rounded-3xl bg-blue-600 text-white flex flex-col md:flex-row items-center justify-between gap-6 -xl -blue-200">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
                                     <Zap className="w-6 h-6 text-white" />

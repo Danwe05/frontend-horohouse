@@ -98,7 +98,7 @@ export function ChatArea({ messages, isTyping, isSpeaking, onSendMessage }: Chat
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Décrivez votre bien idéal..."
-                className="h-12 rounded-full border-border bg-card pr-12 text-card-foreground shadow-sm transition-shadow focus:shadow-md"
+                className="h-12 rounded-full border-border bg-card pr-12 text-card-foreground -sm transition- focus:-md"
               />
               <Button
                 type="submit"
@@ -118,7 +118,7 @@ export function ChatArea({ messages, isTyping, isSpeaking, onSendMessage }: Chat
                     size="icon"
                     onClick={handleOpenVoiceModal}
                     className={cn(
-                      "relative h-12 w-12 rounded-full shadow-lg transition-all duration-300",
+                      "relative h-12 w-12 rounded-full -lg transition-all duration-300",
                       "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105",
                     )}
                   >

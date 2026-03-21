@@ -53,8 +53,8 @@ export default function SavedProperties() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 mt-12">
         <h2 className="text-2xl font-bold text-black">Saved Properties</h2>
-        <Link 
-          href="/ViewAllFavorite" 
+        <Link
+          href="/ViewAllFavorite"
           className="text-[#808080] text-sm font-medium transition-colors hover:text-blue-600"
         >
           View All
@@ -66,7 +66,7 @@ export default function SavedProperties() {
         {properties.map((property) => (
           <div
             key={property.id}
-            className="flex bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden  p-1"
+            className="flex bg-white rounded-xl  hover:-lg transition overflow-hidden  p-1"
           >
             {/* Image */}
             <div className="relative w-1/2">
@@ -75,7 +75,7 @@ export default function SavedProperties() {
                 alt={property.title}
                 className="w-35 h-27 object-cover rounded-lg"
               />
-              <span className="absolute top-3 left-3 bg-white text-gray-600 text-[10px] font-bold px-2 py-1 rounded-md shadow">
+              <span className="absolute top-3 left-3 bg-white text-gray-600 text-[10px] font-bold px-2 py-1 rounded-md ">
                 Saved
               </span>
             </div>

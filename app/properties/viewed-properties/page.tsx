@@ -89,7 +89,7 @@ export default function ViewedPropertiesPage() {
       };
 
       const data = await apiClient.getViewedProperties(params);
-      
+
       setProperties(data.properties || []);
       setTotal(data.total || 0);
       setTotalPages(data.totalPages || 1);
@@ -145,7 +145,7 @@ export default function ViewedPropertiesPage() {
   const formatTimeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    
+
     if (hours < 1) {
       const minutes = Math.floor(diff / (1000 * 60));
       return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
@@ -414,21 +414,21 @@ export default function ViewedPropertiesPage() {
               {formattedProperties.map((property) => (
                 <div key={property.id} className="relative group">
                   <PropertyCard {...property} />
-                  
+
                   {/* Remove Button Overlay */}
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       handleRemoveProperty(property.id);
                     }}
-                    className="absolute top-4 right-4 bg-destructive text-destructive-foreground p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-destructive/90 z-10"
+                    className="absolute top-4 right-4 bg-destructive text-destructive-foreground p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity -lg hover:bg-destructive/90 z-10"
                     title="Remove from history"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
 
                   {/* Viewed At Badge */}
-                  <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow-md flex items-center gap-1.5 z-10">
+                  <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium -md flex items-center gap-1.5 z-10">
                     <Calendar className="h-3 w-3" />
                     {property.timeAgo}
                   </div>

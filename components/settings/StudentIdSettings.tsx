@@ -177,7 +177,7 @@ function DropZone({
 
   if (preview) {
     return (
-      <div className="relative rounded-xl overflow-hidden border-2 border-emerald-200 bg-emerald-50">
+      <div className="relative rounded-xl overflow-hidden border-1 border-emerald-200 bg-emerald-50">
         <img
           src={preview}
           alt="ID preview"
@@ -186,7 +186,7 @@ function DropZone({
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         <button
           onClick={onClear}
-          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-md transition-all"
+          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/90 hover:bg-white flex items-center justify-center -md transition-all"
         >
           <X className="w-3.5 h-3.5 text-gray-700" />
         </button>
@@ -205,7 +205,7 @@ function DropZone({
       onDrop={handleDrop}
       onClick={() => !disabled && inputRef.current?.click()}
       className={`
-        relative rounded-xl border-2 border-dashed h-44 flex flex-col items-center justify-center gap-3
+        relative rounded-xl border-1 border-dashed h-44 flex flex-col items-center justify-center gap-3
         transition-all duration-200 cursor-pointer group
         ${isDragging ? 'border-blue-400 bg-blue-50 scale-[0.99]' : ''}
         ${disabled ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60' : 'border-gray-300 bg-gray-50/50 hover:border-blue-400 hover:bg-blue-50/30'}
@@ -324,7 +324,7 @@ export function StudentIdSettings() {
     <div className="space-y-5">
 
       {/* Header card with status */}
-      <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+      <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
         <CardHeader className="pb-4 border-b border-gray-50">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-gray-800">
@@ -437,7 +437,7 @@ export function StudentIdSettings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+          <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
             <CardHeader className="pb-4 border-b border-gray-50">
               <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
                 <Upload className="h-4 w-4 text-gray-400" />
@@ -451,7 +451,7 @@ export function StudentIdSettings() {
                 {[
                   s?.photoMustBeClear || 'Photo must be clear and legible',
                   s?.showFullId || 'Show full ID card including name',
-                  s?.avoidGlare || 'Avoid glare or shadows',
+                  s?.avoidGlare || 'Avoid glare or s',
                   s?.mustBeCurrentId || 'Must be a current valid ID',
                 ].map((tip) => (
                   <span
@@ -478,7 +478,7 @@ export function StudentIdSettings() {
                 <Button
                   onClick={handleUpload}
                   disabled={!selectedFile || isUploading}
-                  className="rounded-xl min-w-36 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                  className="rounded-xl min-w-36 bg-blue-600 hover:bg-blue-700 text-white -sm"
                   size="lg"
                 >
                   {isUploading ? (
@@ -500,7 +500,7 @@ export function StudentIdSettings() {
       )}
 
       {/* Perks card */}
-      <Card className="rounded-2xl border-gray-100 shadow-sm overflow-hidden">
+      <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
         <CardHeader className="pb-3 border-b border-gray-50">
           <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
             <GraduationCap className="h-4 w-4 text-gray-400" />

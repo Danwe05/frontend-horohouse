@@ -130,7 +130,7 @@ export function PropertyPreferencesStep() {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-14 h-14 bg-blue-50/80 rounded-2xl flex items-center justify-center mb-3 shadow-inner border border-blue-100/50"
+          className="mx-auto w-14 h-14 bg-blue-50/80 rounded-2xl flex items-center justify-center mb-3 -inner border border-blue-100/50"
         >
           <Home className="h-7 w-7 text-blue-600" />
         </motion.div>
@@ -154,9 +154,9 @@ export function PropertyPreferencesStep() {
               {PROPERTY_TYPES.map((type) => (
                 <Label
                   key={type}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all cursor-pointer select-none
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border-1 transition-all cursor-pointer select-none
                     ${preferences.propertyType.includes(type)
-                      ? 'border-blue-500 bg-blue-50/50 text-blue-700 shadow-sm shadow-blue-100'
+                      ? 'border-blue-500 bg-blue-50/50 text-blue-700 -sm -blue-100'
                       : 'border-slate-200 bg-white/50 text-slate-600 hover:border-blue-200 hover:bg-slate-50'
                     }`}
                 >
@@ -183,9 +183,9 @@ export function PropertyPreferencesStep() {
                   return (
                     <Label
                       key={bedroom}
-                      className={`flex items-center justify-center w-12 h-12 rounded-xl border-2 font-medium transition-all cursor-pointer select-none
+                      className={`flex items-center justify-center w-12 h-12 rounded-xl border-1 font-medium transition-all cursor-pointer select-none
                         ${isChecked
-                          ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm shadow-blue-100'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700 -sm -blue-100'
                           : 'border-slate-200 bg-white/50 text-slate-600 hover:border-blue-200 hover:bg-slate-50'
                         }`}
                     >
@@ -212,9 +212,9 @@ export function PropertyPreferencesStep() {
                   return (
                     <Label
                       key={bathroom}
-                      className={`flex items-center justify-center w-12 h-12 rounded-xl border-2 font-medium transition-all cursor-pointer select-none
+                      className={`flex items-center justify-center w-12 h-12 rounded-xl border-1 font-medium transition-all cursor-pointer select-none
                         ${isChecked
-                          ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm shadow-blue-100'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700 -sm -blue-100'
                           : 'border-slate-200 bg-white/50 text-slate-600 hover:border-blue-200 hover:bg-slate-50'
                         }`}
                     >
@@ -276,7 +276,7 @@ export function PropertyPreferencesStep() {
         <Button
           onClick={handleNext}
           disabled={isLoading || preferences.propertyType.length === 0}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 sm:px-8 shadow-md shadow-blue-200/50"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 sm:px-8 -md -blue-200/50"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 mr-2 animate-spin" />

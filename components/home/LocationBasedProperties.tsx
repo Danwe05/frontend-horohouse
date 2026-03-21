@@ -6,10 +6,10 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    type CarouselApi,
 } from "@/components/ui/carousel";
 import PropertyCard from '@/components/property/PropertyCard';
 import apiClient from '@/lib/api';
@@ -337,8 +337,8 @@ export default function LocationBasedProperties() {
                                 ) : userLocation ? (
                                     <>
                                         <p>
-                                            {(formattedProperties.length === 1 
-                                                ? (_t.locationProperties?.foundNear || '{{count}} property found near') 
+                                            {(formattedProperties.length === 1
+                                                ? (_t.locationProperties?.foundNear || '{{count}} property found near')
                                                 : (_t.locationProperties?.foundNear_plural || '{{count}} properties found near')
                                             ).replace('{{count}}', String(formattedProperties.length))}{' '}
                                             <span className="font-semibold text-blue-600">{userLocation.city}</span>
@@ -365,7 +365,7 @@ export default function LocationBasedProperties() {
                                     whileTap={{ scale: 0.9 }}
                                     onClick={language === 'ar' ? handlePrevious : handleNext}
                                     disabled={language === 'ar' ? currentIndex === 0 : currentIndex === maxIndex}
-                                    className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${(language === 'ar' ? currentIndex === 0 : currentIndex === maxIndex) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                                    className={`w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all ${(language === 'ar' ? currentIndex === 0 : currentIndex === maxIndex) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:-xl'
                                         }`}
                                 >
                                     <ChevronRight className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
@@ -389,7 +389,7 @@ export default function LocationBasedProperties() {
                             ))}
                         </div>
                     ) : formattedProperties.length === 0 ? (
-                        <Card className="py-20 shadow-none border-0 bg-transparent">
+                        <Card className="py-20 -none border-0 bg-transparent">
                             <CardContent className="text-center">
                                 <h4 className="text-xl font-semibold text-gray-700 mb-2">
                                     {_t.locationProperties?.noProperties || 'No Properties Found'}
@@ -450,7 +450,7 @@ export default function LocationBasedProperties() {
                                         whileTap={{ scale: 0.9 }}
                                         onClick={language === 'ar' ? handleNext : handlePrevious}
                                         disabled={language === 'ar' ? currentIndex === maxIndex : currentIndex === 0}
-                                        className={`w-12 h-12 bg-white border-2 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all shadow-md ${(language === 'ar' ? currentIndex === maxIndex : currentIndex === 0) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
+                                        className={`w-12 h-12 bg-white border-1 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all -md ${(language === 'ar' ? currentIndex === maxIndex : currentIndex === 0) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
                                             }`}
                                     >
                                         <ChevronLeft className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
@@ -460,7 +460,7 @@ export default function LocationBasedProperties() {
                                         whileTap={{ scale: 0.9 }}
                                         onClick={language === 'ar' ? handlePrevious : handleNext}
                                         disabled={language === 'ar' ? currentIndex === 0 : currentIndex === maxIndex}
-                                        className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all shadow-md ${(language === 'ar' ? currentIndex === 0 : currentIndex === maxIndex) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:shadow-xl'
+                                        className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all -md ${(language === 'ar' ? currentIndex === 0 : currentIndex === maxIndex) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:-xl'
                                             }`}
                                     >
                                         <ChevronRight className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />

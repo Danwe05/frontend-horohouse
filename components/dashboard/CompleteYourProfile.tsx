@@ -28,7 +28,7 @@ const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
       : "text-xs px-8 py-1.5";
 
   return (
-    <div className="bg-white rounded-xl border border-gray-300 shadow-sm p-4 flex items-center justify-between">
+    <div className="bg-white rounded-xl border border-gray-300 -sm p-4 flex items-center justify-between">
       {/* Avatar + Texte */}
       <div className="flex gap-4">
         <Image
@@ -78,9 +78,8 @@ const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
           />
         </svg>
         <span
-          className={`absolute font-bold text-[#2B95F6] ${
-            variant === "small" ? "text-sm" : "text-lg"
-          }`}
+          className={`absolute font-bold text-[#2B95F6] ${variant === "small" ? "text-sm" : "text-lg"
+            }`}
         >
           {percentage}%
         </span>

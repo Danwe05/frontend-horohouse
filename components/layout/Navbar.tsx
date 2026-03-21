@@ -271,16 +271,15 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
 
         {/* RIGHT: Actions */}
         <div className="flex items-center justify-end gap-2 pr-2">
-          
+
           {/* Student Mode Toggle */}
           {user?.role === 'student' && (
             <button
               onClick={toggleStudentMode}
-              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                isStudentMode 
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20' 
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-              }`}
+              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${isStudentMode
+                ? 'bg-blue-600 text-white border-blue-600 -md -blue-500/20'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                }`}
             >
               <span className={`w-2 h-2 rounded-full ${isStudentMode ? 'bg-white' : 'bg-gray-400'}`} />
               {_t.navbar?.campusHub || 'Campus Hub'}
@@ -296,7 +295,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             <img
               src={languages[language]?.flag || languages['en'].flag}
               alt={languages[language]?.name || 'Language'}
-              className="w-6 h-6 rounded-full object-cover shadow-sm"
+              className="w-6 h-6 rounded-full object-cover -sm"
               loading="lazy"
             />
           </button>
@@ -306,11 +305,11 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             <div className="relative group">
               <button
                 onClick={handleAddProperty}
-                className="flex relative items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 md:px-4 py-2 rounded-full transition-colors shadow-sm hover:shadow-md"
+                className="flex relative items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 md:px-4 py-2 rounded-full transition-colors -sm hover:-md"
               >
                 <Plus className="h-4 w-4" />
                 <span className={`hidden sm:inline ${language === 'ar' ? 'mr-1' : ''}`}>{t.nav.addProperty || 'Add Property'}</span>
-                <span className={`absolute -top-2 ${language === 'ar' ? '-left-2' : '-right-2'} bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-sm`}>
+                <span className={`absolute -top-2 ${language === 'ar' ? '-left-2' : '-right-2'} bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none -sm`}>
                   {_t.navbar?.free || 'FREE'}
                 </span>
               </button>
@@ -404,9 +403,9 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
         </div>
       </nav>
 
-      <LanguageCurrencyModal 
-        isOpen={isLangCurrencyModalOpen} 
-        onClose={() => setIsLangCurrencyModalOpen(false)} 
+      <LanguageCurrencyModal
+        isOpen={isLangCurrencyModalOpen}
+        onClose={() => setIsLangCurrencyModalOpen(false)}
       />
 
       {/* ── Search Modal ─────────────────────────────────────────────────── */}
@@ -430,7 +429,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
               exit="exit"
               className="fixed top-24 left-1/2 -translate-x-1/2 w-full max-w-2xl z-50 px-4"
             >
-              <div className="bg-white rounded-2xl shadow-2xl shadow-blue-100/60 border border-blue-100 overflow-hidden">
+              <div className="bg-white rounded-2xl -2xl -blue-100/60 border border-blue-100 overflow-hidden">
                 <form onSubmit={handleSearch} className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
                   <Search className="h-5 w-5 text-blue-400 flex-shrink-0" />
                   <input
@@ -495,7 +494,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             className="fixed inset-0 bg-black/60 z-30 transition-all duration-500 ease-out"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 w-[85%] max-w-sm md:hidden bg-white z-40 overflow-y-auto shadow-2xl animate-in slide-in-from-left duration-500 ease-out">
+          <div className="fixed inset-y-0 left-0 w-[85%] max-w-sm md:hidden bg-white z-40 overflow-y-auto -2xl animate-in slide-in-from-left duration-500 ease-out">
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="absolute top-6 right-6 p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-200 hover:rotate-90 z-50"
@@ -508,13 +507,13 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                 <div className="mt-9">
                   <div className="flex items-start gap-4">
                     <div className="relative">
-                      <Avatar className="h-12 w-12 ring-2 ring-blue-500/20 shadow-lg">
+                      <Avatar className="h-12 w-12 ring-2 ring-blue-500/20 -lg">
                         <AvatarImage src={avatarUrl} alt={user?.name || 'User'} />
                         <AvatarFallback className="bg-blue-600 text-white font-bold text-xl">
                           {user?.name?.charAt(0).toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 rounded-full border-2 border-white" />
+                      <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 rounded-full border-1 border-white" />
                     </div>
                     <div className="flex flex-col min-w-0 flex-1 pt-1">
                       <p className="font-bold text-xl text-gray-900 truncate mb-1">{user?.name}</p>
@@ -560,7 +559,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                 <img
                   src={languages[language]?.flag || languages['en'].flag}
                   alt={languages[language]?.name || 'Language'}
-                  className="w-6 h-6 rounded-full object-cover shadow-sm"
+                  className="w-6 h-6 rounded-full object-cover -sm"
                   loading="lazy"
                 />
                 <span className={`text-[15px] flex-1 ${language === 'ar' ? 'text-right' : 'text-left'}`}>{_t.navbar?.langAndCurrency || 'Language & Currency'}</span>
@@ -589,7 +588,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             {!isAuthenticated && (
               <div className="px-6 pb-6">
                 <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <button className="w-full relative overflow-hidden bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/50 group">
+                  <button className="w-full relative overflow-hidden bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl transition-all duration-300 hover:-2xl hover:-blue-600/50 group">
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {t.nav.signIn}
                       <svg className={`w-5 h-5 transition-transform duration-300 ${language === 'ar' ? 'group-hover:-translate-x-1 rotate-180' : 'group-hover:translate-x-1'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">

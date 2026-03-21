@@ -104,7 +104,7 @@ export default function PeopertyListCards() {
                   {s.recentViewedMsg || "Recent viewed"}
                 </span>
                 {/* Favorite button */}
-                <button className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:scale-110 transition">
+                <button className="absolute top-3 right-3 bg-white p-2 rounded-full  hover:scale-110 transition">
                   <Heart className="w-4 h-4 text-red-500 fill-red-500" />
                 </button>
               </div>

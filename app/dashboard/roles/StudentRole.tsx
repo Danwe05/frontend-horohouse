@@ -47,7 +47,7 @@ function QuickStatCard({
   href?: string;
 }) {
   const inner = (
-    <div className={`bg-white rounded-2xl border border-slate-100 p-4 hover:shadow-md hover:shadow-slate-100 transition-all duration-200 ${href ? 'cursor-pointer hover:-translate-y-0.5' : ''}`}>
+    <div className={`bg-white rounded-2xl border border-slate-100 p-4 hover:-md hover:-slate-100 transition-all duration-200 ${href ? 'cursor-pointer hover:-translate-y-0.5' : ''}`}>
       <div className="flex items-start justify-between mb-3">
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}>
           {icon}
@@ -178,11 +178,11 @@ function RecentPayments({ payments }: { payments: any[] }) {
   if (!payments.length) return null;
 
   const statusStyles: Record<string, string> = {
-    pending:   'bg-slate-100 text-slate-500',
-    partial:   'bg-amber-50 text-amber-700',
-    complete:  'bg-emerald-50 text-emerald-700',
+    pending: 'bg-slate-100 text-slate-500',
+    partial: 'bg-amber-50 text-amber-700',
+    complete: 'bg-emerald-50 text-emerald-700',
     disbursed: 'bg-blue-50 text-blue-700',
-    overdue:   'bg-red-50 text-red-600',
+    overdue: 'bg-red-50 text-red-600',
   };
 
   return (
@@ -223,10 +223,10 @@ export default function StudentRole({ router }: StudentRoleProps) {
   const studentCtx = useStudentMode();
 
   const verificationStatus: string | null = (studentCtx as any).verificationStatus ?? null;
-  const isVerified: boolean               = (studentCtx as any).isVerified ?? false;
-  const studentProfile: any               = (studentCtx as any).studentProfile ?? null;
-  const hasRoommateProfile: boolean       = (studentCtx as any).hasRoommateProfile ?? false;
-  const isLoadingProfile: boolean         = (studentCtx as any).isLoadingProfile ?? false;
+  const isVerified: boolean = (studentCtx as any).isVerified ?? false;
+  const studentProfile: any = (studentCtx as any).studentProfile ?? null;
+  const hasRoommateProfile: boolean = (studentCtx as any).hasRoommateProfile ?? false;
+  const isLoadingProfile: boolean = (studentCtx as any).isLoadingProfile ?? false;
 
   const [lease, setLease] = useState<any>(null);
   const [payments, setPayments] = useState<any[]>([]);
@@ -382,7 +382,7 @@ export default function StudentRole({ router }: StudentRoleProps) {
               onClick={action.locked ? (e) => e.preventDefault() : undefined}
               className={action.locked ? 'cursor-not-allowed opacity-50' : ''}
             >
-              <div className="flex items-center gap-3 p-3.5 bg-white rounded-xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all group">
+              <div className="flex items-center gap-3 p-3.5 bg-white rounded-xl border border-slate-100 hover:border-slate-200 hover:-sm transition-all group">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${action.color}`}>
                   {action.icon}
                 </div>

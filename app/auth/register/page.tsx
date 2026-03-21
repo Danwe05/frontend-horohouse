@@ -217,10 +217,9 @@ function RegisterContent() {
 
   // Shared input class builder
   const inputClass = (field: keyof typeof touched) =>
-    `w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${
-      touched[field] && errors[field]
-        ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
-        : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
+    `w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${touched[field] && errors[field]
+      ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
+      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
     }`;
 
   return (
@@ -362,7 +361,7 @@ function RegisterContent() {
                 dropdownStyle={{
                   borderRadius: '12px',
                   border: '1px solid #e5e7eb',
-                  boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                  box: '0 10px 25px -5px rgba(0,0,0,0.1)',
                   fontSize: '13px',
                   maxHeight: '220px',
                   zIndex: 9999,
@@ -391,11 +390,10 @@ function RegisterContent() {
                   onChange={handleChange}
                   onBlur={() => handleBlur('role')}
                   disabled={isAnyLoading}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm appearance-none bg-white cursor-pointer transition-all duration-200 hover:border-gray-300 disabled:opacity-50 ${
-                    touched.role && errors.role
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm appearance-none bg-white cursor-pointer transition-all duration-200 hover:border-gray-300 disabled:opacity-50 ${touched.role && errors.role
                       ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
                       : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
-                  }`}
+                    }`}
                 >
                   <option value="registered_user">Regular User</option>
                   <option value="student">Student</option>
@@ -425,11 +423,10 @@ function RegisterContent() {
                   onBlur={() => handleBlur('password')}
                   placeholder="Enter your password"
                   disabled={isAnyLoading}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${
-                    touched.password && errors.password
+                  className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${touched.password && errors.password
                       ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
                       : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
-                  }`}
+                    }`}
                 />
                 <button
                   type="button"
@@ -451,11 +448,10 @@ function RegisterContent() {
                         style={{ width: `${passwordStrength.strength}%` }}
                       />
                     </div>
-                    <span className={`text-xs font-semibold ${
-                      passwordStrength.label === 'Weak' ? 'text-red-500' :
-                      passwordStrength.label === 'Medium' ? 'text-yellow-500' :
-                      'text-green-500'
-                    }`}>
+                    <span className={`text-xs font-semibold ${passwordStrength.label === 'Weak' ? 'text-red-500' :
+                        passwordStrength.label === 'Medium' ? 'text-yellow-500' :
+                          'text-green-500'
+                      }`}>
                       {passwordStrength.label}
                     </span>
                   </div>
@@ -470,11 +466,10 @@ function RegisterContent() {
             <button
               type="submit"
               disabled={isAnyLoading}
-              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6 ${
-                !isAnyLoading
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:shadow-md active:scale-[0.98]'
+              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 -sm mt-6 ${!isAnyLoading
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98]'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              }`}
+                }`}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">

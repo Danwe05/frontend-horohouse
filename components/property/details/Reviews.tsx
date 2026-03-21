@@ -158,8 +158,8 @@ export default function Reviews({ propertyId }: ReviewsProps) {
                 <Star
                   key={star}
                   className={`h-6 w-6 ${star <= Math.round(averageRating)
-                      ? "fill-amber-400 text-amber-400"
-                      : "text-slate-200"
+                    ? "fill-amber-400 text-amber-400"
+                    : "text-slate-200"
                     }`}
                 />
               ))}
@@ -219,9 +219,9 @@ export default function Reviews({ propertyId }: ReviewsProps) {
                 ) : (
                   <>
                     <div className="flex items-start gap-4">
-                      <Avatar className="h-12 w-12 border-2 border-white ring-1 ring-slate-100">
-                        <AvatarImage 
-                          src={review.userId?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(review.userName || 'User')}&backgroundColor=ffdfbf`} 
+                      <Avatar className="h-12 w-12 border-1 border-white ring-1 ring-slate-100">
+                        <AvatarImage
+                          src={review.userId?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(review.userName || 'User')}&backgroundColor=ffdfbf`}
                           alt={review.userName}
                         />
                         <AvatarFallback className="bg-blue-100 text-blue-700 font-bold">
@@ -253,8 +253,8 @@ export default function Reviews({ propertyId }: ReviewsProps) {
                             <Star
                               key={star}
                               className={`h-4 w-4 ${star <= review.rating
-                                  ? "fill-amber-400 text-amber-400"
-                                  : "text-slate-200"
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-slate-200"
                                 }`}
                             />
                           ))}

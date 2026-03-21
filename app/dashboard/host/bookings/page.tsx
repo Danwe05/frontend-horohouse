@@ -29,7 +29,7 @@ const STATUS_CONFIG: Record<BookingStatus, { label: string; className: string; i
     [BookingStatus.REJECTED]: { label: 'Declined', className: 'bg-red-100/50 text-red-700 border-red-200', icon: <XCircle className="h-3 w-3" /> },
     [BookingStatus.CANCELLED]: { label: 'Cancelled', className: 'bg-slate-100/50 text-slate-600 border-slate-200', icon: <RotateCcw className="h-3 w-3" /> },
     [BookingStatus.COMPLETED]: { label: 'Completed', className: 'bg-blue-100/50 text-blue-700 border-blue-200', icon: <CheckCircle2 className="h-3 w-3" /> },
-    [BookingStatus.NO_SHOW]: { label: 'No Show', className: 'bg-blue-100/50 text-blue-700 border-blue-200', icon: <AlertCircle className="h-3 w-3"/> },
+    [BookingStatus.NO_SHOW]: { label: 'No Show', className: 'bg-blue-100/50 text-blue-700 border-blue-200', icon: <AlertCircle className="h-3 w-3" /> },
 };
 
 export default function HostBookingsPage() {
@@ -128,7 +128,7 @@ export default function HostBookingsPage() {
                                 { label: 'Pending Requests', value: stats.pendingCount, icon: Inbox, color: 'text-amber-700', bg: 'bg-amber-100/50', iconColor: 'text-amber-600' },
                                 { label: 'Confirmed Stays', value: stats.confirmedCount, icon: CalendarDays, color: 'text-emerald-700', bg: 'bg-emerald-100/50', iconColor: 'text-emerald-600' },
                             ].map((stat, i) => (
-                                <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300 relative overflow-hidden group">
+                                <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200/60 -sm hover:-md hover:border-blue-100 transition-all duration-300 relative overflow-hidden group">
                                     <div className="flex items-center justify-between relative z-10">
                                         <div>
                                             <p className="text-sm font-medium text-slate-500">{stat.label}</p>
@@ -146,25 +146,25 @@ export default function HostBookingsPage() {
                         </div>
 
                         {/* ── Control Bar ── */}
-                        <div className="bg-white p-3 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3 sticky top-4 z-20">
+                        <div className="bg-white p-3 rounded-2xl border border-slate-200/60 -sm flex flex-col md:flex-row items-center justify-between gap-3 sticky top-4 z-20">
                             <div className="relative w-full md:max-w-md flex-1 group">
                                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                                 <Input
                                     placeholder="Search by guest or property name..."
-                                    className="pl-10 h-11 w-full bg-slate-50/50 border-transparent hover:border-slate-200 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 rounded-xl transition-all shadow-none"
+                                    className="pl-10 h-11 w-full bg-slate-50/50 border-transparent hover:border-slate-200 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 rounded-xl transition-all -none"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
                             <div className="w-full md:w-auto">
                                 <Select value={filter} onValueChange={(v) => { setFilter(v); setPage(1); }}>
-                                    <SelectTrigger className="h-11 w-full md:w-[180px] bg-slate-50/50 border-transparent hover:border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all shadow-none">
+                                    <SelectTrigger className="h-11 w-full md:w-[180px] bg-slate-50/50 border-transparent hover:border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all -none">
                                         <div className="flex items-center">
                                             <Filter className="h-4 w-4 mr-2 text-slate-400" />
                                             <SelectValue placeholder="Filter Status" />
                                         </div>
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+                                    <SelectContent className="rounded-xl border-slate-200 -xl">
                                         <SelectItem value="all" className="rounded-lg">All Stays</SelectItem>
                                         {Object.values(BookingStatus).map((s) => (
                                             <SelectItem key={s} value={s} className="rounded-lg">{STATUS_CONFIG[s].label}</SelectItem>
@@ -181,7 +181,7 @@ export default function HostBookingsPage() {
                                 <p className="text-sm font-medium text-slate-500 animate-pulse">Loading reservations...</p>
                             </div>
                         ) : filteredBookings.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-20 text-center shadow-sm">
+                            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-20 text-center -sm">
                                 <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
                                     <BedDouble className="h-10 w-10 text-slate-300" />
                                 </div>
@@ -201,7 +201,7 @@ export default function HostBookingsPage() {
                                         const nights = booking.nights ?? differenceInDays(parseISO(booking.checkOut), parseISO(booking.checkIn));
 
                                         return (
-                                            <div key={booking._id} className="group flex flex-col md:flex-row bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-blue-100 transition-all duration-300 overflow-hidden">
+                                            <div key={booking._id} className="group flex flex-col md:flex-row bg-white rounded-2xl border border-slate-200/60 -sm hover:-lg hover:border-blue-100 transition-all duration-300 overflow-hidden">
                                                 {/* Left side: Image & Status */}
                                                 <div className="relative h-56 md:h-auto md:w-72 shrink-0 bg-slate-100 overflow-hidden">
                                                     {prop?.images?.[0]?.url ? (
@@ -212,7 +212,7 @@ export default function HostBookingsPage() {
                                                         </div>
                                                     )}
                                                     <div className="absolute top-4 left-4">
-                                                        <Badge className={`${status.className} border backdrop-blur-md px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-sm`}>
+                                                        <Badge className={`${status.className} border backdrop-blur-md px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 -sm`}>
                                                             {status.icon}
                                                             {status.label}
                                                         </Badge>
@@ -268,7 +268,7 @@ export default function HostBookingsPage() {
                                                                     <Button variant="outline" className="h-10 px-5 rounded-xl border-slate-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-sm font-semibold transition-all" onClick={() => setActionDialog({ open: true, type: 'reject', booking })}>
                                                                         Decline
                                                                     </Button>
-                                                                    <Button className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md shadow-blue-100 transition-all hover:-translate-y-0.5" onClick={() => setActionDialog({ open: true, type: 'confirm', booking })}>
+                                                                    <Button className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold -md -blue-100 transition-all hover:-translate-y-0.5" onClick={() => setActionDialog({ open: true, type: 'confirm', booking })}>
                                                                         Accept Request
                                                                     </Button>
                                                                 </>
@@ -288,7 +288,7 @@ export default function HostBookingsPage() {
                                         );
                                     })
                                 ) : (
-                                    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden overflow-x-auto w-full">
+                                    <div className="bg-white rounded-2xl border border-slate-200/60 -sm overflow-hidden overflow-x-auto w-full">
                                         <table className="w-full text-sm text-left">
                                             <thead className="bg-slate-50/80 text-xs text-slate-500 uppercase font-semibold border-b border-slate-200/60">
                                                 <tr>
@@ -334,7 +334,7 @@ export default function HostBookingsPage() {
 
             {/* ── Action Dialog ── */}
             <Dialog open={actionDialog.open} onOpenChange={(o) => !o && setActionDialog({ ...actionDialog, open: false })}>
-                <DialogContent className="sm:max-w-md rounded-2xl border-none p-0 overflow-hidden shadow-2xl">
+                <DialogContent className="sm:max-w-md rounded-2xl border-none p-0 overflow-hidden -2xl">
                     <div className="p-8">
                         <DialogHeader className="space-y-4 mb-6 text-left">
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${actionDialog.type === 'confirm' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'}`}>
@@ -359,7 +359,7 @@ export default function HostBookingsPage() {
                                 placeholder={actionDialog.type === 'confirm' ? 'E.g. "Looking forward to hosting you. Here are some instructions..."' : 'E.g. "Unfortunately, the property is unavailable during these dates..."'}
                                 value={actionNote}
                                 onChange={(e) => setActionNote(e.target.value)}
-                                className="min-h-[120px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-blue-500 focus-visible:bg-white transition-all resize-none shadow-sm"
+                                className="min-h-[120px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-blue-500 focus-visible:bg-white transition-all resize-none -sm"
                             />
                         </div>
 
@@ -368,7 +368,7 @@ export default function HostBookingsPage() {
                                 Cancel
                             </Button>
                             <Button
-                                className={`rounded-xl h-12 w-full sm:w-1/2 font-semibold shadow-md ${actionDialog.type === 'confirm' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-100 text-white' : 'bg-red-600 hover:bg-red-700 shadow-red-100 text-white'}`}
+                                className={`rounded-xl h-12 w-full sm:w-1/2 font-semibold -md ${actionDialog.type === 'confirm' ? 'bg-blue-600 hover:bg-blue-700 -blue-100 text-white' : 'bg-red-600 hover:bg-red-700 -red-100 text-white'}`}
                                 onClick={handleAction}
                                 disabled={actioning}
                             >
@@ -433,7 +433,7 @@ function HostBookingTableRow({
                 </p>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-center">
-                <span className={`inline-flex items-center gap-1.5 rounded-lg border backdrop-blur-md px-3 py-1.5 text-xs font-semibold shadow-none ${status.className}`}>
+                <span className={`inline-flex items-center gap-1.5 rounded-lg border backdrop-blur-md px-3 py-1.5 text-xs font-semibold -none ${status.className}`}>
                     {status.icon}
                     {status.label}
                 </span>

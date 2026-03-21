@@ -134,7 +134,7 @@ export default function NotificationsPage() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-                  <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
+                  <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 -sm">
                     {isConnected ? (
                       <>
                         <Wifi className="h-4 w-4 text-emerald-600" />
@@ -162,7 +162,7 @@ export default function NotificationsPage() {
 
               <Tabs value={tab} onValueChange={(v) => setTab(v as 'all' | 'unread')} className="w-full mt-6">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <TabsList className="w-full md:w-fit bg-white border border-slate-200 shadow-sm">
+                  <TabsList className="w-full md:w-fit bg-white border border-slate-200 -sm">
                     <TabsTrigger value="all" className="gap-2">
                       {s?.all || "All"}
                       <Badge variant="secondary" className="ml-1 bg-slate-100 text-slate-700">
@@ -231,9 +231,8 @@ export default function NotificationsPage() {
                           {filtered.map((n) => (
                             <div
                               key={n._id}
-                              className={`group flex gap-3 p-4 bg-white hover:bg-slate-50 transition cursor-pointer ${
-                                !n.read ? 'bg-blue-50/30' : ''
-                              }`}
+                              className={`group flex gap-3 p-4 bg-white hover:bg-slate-50 transition cursor-pointer ${!n.read ? 'bg-blue-50/30' : ''
+                                }`}
                               role="button"
                               tabIndex={0}
                               onClick={() => handleOpen(n)}
@@ -288,15 +287,15 @@ export default function NotificationsPage() {
 
                       {!error && hasMore && (
                         <div className="mt-4 flex justify-center">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={loadMoreNotifications}
-                              disabled={isLoadingMore || isLoading}
-                            >
-                              {isLoadingMore ? (s?.loading || 'Loading…') : (s?.loadMore || 'Load more')}
-                            </Button>
-                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={loadMoreNotifications}
+                            disabled={isLoadingMore || isLoading}
+                          >
+                            {isLoadingMore ? (s?.loading || 'Loading…') : (s?.loadMore || 'Load more')}
+                          </Button>
+                        </div>
                       )}
                     </CardContent>
                   </Card>

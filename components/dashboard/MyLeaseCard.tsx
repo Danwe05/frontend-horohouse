@@ -51,7 +51,7 @@ export function MyLeaseCard({ lease }: Props) {
     };
 
     return (
-        <Card className="w-full h-full flex flex-col overflow-hidden border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <Card className="w-full h-full flex flex-col overflow-hidden border-border/50 -sm hover:-md transition- duration-300">
             <div className="h-2 w-full bg-gradient-to-r from-blue-500 to-indigo-500" />
 
             <CardHeader className="pb-4">

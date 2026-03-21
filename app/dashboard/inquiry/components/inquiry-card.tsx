@@ -63,7 +63,7 @@ export const InquiryCard: React.FC<InquiryCardProps> = ({
     if (!isRead) {
       return <Badge variant="destructive" className="text-xs">New</Badge>;
     }
-    
+
     switch (status) {
       case 'PENDING':
         return <Badge variant="outline" className="text-xs">Pending</Badge>;
@@ -90,10 +90,9 @@ export const InquiryCard: React.FC<InquiryCardProps> = ({
   };
 
   return (
-    <Card 
-      className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-        !inquiry.isRead ? 'border-blue-200 bg-blue-50/30' : ''
-      }`}
+    <Card
+      className={`cursor-pointer transition-all duration-200 hover:-md ${!inquiry.isRead ? 'border-blue-200 bg-blue-50/30' : ''
+        }`}
       onClick={() => router.push(`/dashboard/inquiry/${inquiry._id}`)}
     >
       <CardContent className="p-6">
@@ -199,7 +198,7 @@ export const InquiryCard: React.FC<InquiryCardProps> = ({
                 Email
               </Button>
             </div>
-            
+
             {inquiry.status === 'PENDING' && (
               <Button
                 size="sm"

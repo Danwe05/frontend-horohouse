@@ -99,7 +99,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   const uniqueKey = `${property.id}-${listCategory}`;
 
   return (
-    <div className="flex-shrink-0 w-72 border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
+    <div className="flex-shrink-0 w-72 border border-gray-200 rounded-lg overflow-hidden hover:-lg transition- cursor-pointer group">
       <div className="relative">
         <img
           src={property.images[activeImageIndex[uniqueKey] || 0] || '/placeholder.jpg'}
@@ -216,7 +216,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg border border-gray-200 shadow-xl">
+      <Card className="w-full max-w-lg border border-gray-200 -xl">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-gray-900">Write a Review</h3>
@@ -518,7 +518,7 @@ export default function AgentDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white mt-18">
-        <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+        <header className="sticky top-0 z-50 bg-white border-b border-gray-200 -sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <Skeleton className="h-16 w-full" />
           </div>
@@ -558,14 +558,14 @@ export default function AgentDetailPage() {
   return (
     <div className="min-h-screen bg-white mt-18">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 -sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <img
                 src={agent.profilePicture || '/placeholder.jpg'}
                 alt={agent.name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-blue-600"
+                className="w-12 h-12 rounded-full object-cover border-1 border-blue-600"
               />
               <div>
                 <h1 className="text-lg font-bold text-gray-900">{agent.name}</h1>
@@ -591,7 +591,7 @@ export default function AgentDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Agent Info Card */}
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border border-gray-200 -sm">
               <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row gap-6">
                   <img
@@ -646,21 +646,21 @@ export default function AgentDetailPage() {
             {/* Stats Bar */}
             {stats && (
               <div className="grid grid-cols-3 gap-4">
-                <Card className="border border-gray-200 shadow-sm">
+                <Card className="border border-gray-200 -sm">
                   <CardContent className="p-4 text-center">
                     <TrendingUp className="w-6 h-6 text-blue-600 mx-auto mb-2" />
                     <div className="text-xl font-bold text-gray-900">Top 5%</div>
                     <div className="text-xs text-gray-600">Local Agent</div>
                   </CardContent>
                 </Card>
-                <Card className="border border-gray-200 shadow-sm">
+                <Card className="border border-gray-200 -sm">
                   <CardContent className="p-4 text-center">
                     <Award className="w-6 h-6 text-blue-600 mx-auto mb-2" />
                     <div className="text-xl font-bold text-gray-900">{stats.awards}+</div>
                     <div className="text-xs text-gray-600">Awards</div>
                   </CardContent>
                 </Card>
-                <Card className="border border-gray-200 shadow-sm">
+                <Card className="border border-gray-200 -sm">
                   <CardContent className="p-4 text-center">
                     <CheckCircle2 className="w-6 h-6 text-blue-600 mx-auto mb-2" />
                     <div className="text-xl font-bold text-gray-900">{stats.successRate}%</div>
@@ -671,7 +671,7 @@ export default function AgentDetailPage() {
             )}
 
             {/* About */}
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border border-gray-200 -sm">
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-3">About</h3>
                 <p className="text-gray-700 leading-relaxed mb-4">
@@ -698,7 +698,7 @@ export default function AgentDetailPage() {
             </Card>
 
             {/* Map Section */}
-            <Card className="border border-gray-200 shadow-sm overflow-hidden">
+            <Card className="border border-gray-200 -sm overflow-hidden">
               <CardContent className="p-0">
                 <div className="flex flex-col lg:flex-row h-[600px]">
                   {/* Map */}
@@ -728,12 +728,12 @@ export default function AgentDetailPage() {
                             className="absolute cursor-pointer group"
                             style={{ top: `${top}%`, left: `${left}%` }}
                           >
-                            <div className={`${pinColor} w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center transform transition-transform group-hover:scale-125`}>
+                            <div className={`${pinColor} w-8 h-8 rounded-full border-1 border-white -lg flex items-center justify-center transform transition-transform group-hover:scale-125`}>
                               <MapIcon className="w-4 h-4 text-white" />
                             </div>
 
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                              <div className="bg-white rounded-lg shadow-xl border border-gray-200 w-48 overflow-hidden">
+                              <div className="bg-white rounded-lg -xl border border-gray-200 w-48 overflow-hidden">
                                 <img src={property.images[0] || '/placeholder.jpg'} alt={property.address} className="w-full h-24 object-cover" />
                                 <div className="p-2">
                                   <div className="font-bold text-sm text-gray-900">{formatPrice(property.price)}</div>
@@ -749,7 +749,7 @@ export default function AgentDetailPage() {
                       })}
                     </div>
 
-                    <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg border border-gray-200 p-1">
+                    <div className="absolute top-4 right-4 bg-white rounded-lg -lg border border-gray-200 p-1">
                       <Button variant="ghost" size="sm" className="text-gray-700">
                         <Filter className="w-4 h-4" />
                       </Button>
@@ -834,10 +834,10 @@ export default function AgentDetailPage() {
                               <Badge
                                 variant="secondary"
                                 className={`mt-1 text-xs ${property.status === 'sold'
-                                    ? 'bg-gray-100 text-gray-700'
-                                    : property.listingType === 'rent'
-                                      ? 'bg-purple-100 text-purple-700'
-                                      : 'bg-blue-100 text-blue-700'
+                                  ? 'bg-gray-100 text-gray-700'
+                                  : property.listingType === 'rent'
+                                    ? 'bg-purple-100 text-purple-700'
+                                    : 'bg-blue-100 text-blue-700'
                                   }`}
                               >
                                 {property.status}
@@ -967,7 +967,7 @@ export default function AgentDetailPage() {
                   {reviews.slice(0, 4).map((review) => (
                     <Card
                       key={review.id}
-                      className="border border-gray-200/60 shadow-lg hover:shadow-xl transition-all duration-300 hover:translate-y-[-2px] group"
+                      className="border border-gray-200/60 -lg hover:-xl transition-all duration-300 hover:translate-y-[-2px] group"
                     >
                       <CardContent className="p-6 relative">
                         {/* Decorative Quote Icon */}
@@ -984,8 +984,8 @@ export default function AgentDetailPage() {
                                 <Star
                                   key={`${review.id}-star-${i}`}
                                   className={`w-5 h-5 ${i < review.rating
-                                      ? 'fill-yellow-400 text-yellow-400 drop-shadow-sm'
-                                      : 'fill-gray-200 text-gray-200'
+                                    ? 'fill-yellow-400 text-yellow-400 drop--sm'
+                                    : 'fill-gray-200 text-gray-200'
                                     } transition-transform group-hover:scale-110`}
                                 />
                               ))}
@@ -995,7 +995,7 @@ export default function AgentDetailPage() {
 
                           {/* Verified Badge */}
                           {review.verified && (
-                            <Badge className="bg-green-50 text-green-700 border-green-200 px-3 py-1 font-medium shadow-sm">
+                            <Badge className="bg-green-50 text-green-700 border-green-200 px-3 py-1 font-medium -sm">
                               <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>
@@ -1018,7 +1018,7 @@ export default function AgentDetailPage() {
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                           <div className="flex items-center gap-3">
                             {/* User Avatar */}
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm -md">
                               {review.userName.charAt(0).toUpperCase()}
                             </div>
                             <div>
@@ -1048,7 +1048,7 @@ export default function AgentDetailPage() {
                 {/* View More Reviews Button */}
                 {reviews.length > 4 && (
                   <div className="text-center mt-8">
-                    <button className="bg-white text-blue-600 border border-blue-200 px-8 py-3 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all shadow-sm hover:shadow-md">
+                    <button className="bg-white text-blue-600 border border-blue-200 px-8 py-3 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all -sm hover:-md">
                       View All {reviews.length} Reviews
                     </button>
                   </div>
@@ -1061,7 +1061,7 @@ export default function AgentDetailPage() {
                 )}
               </div>
             ) : (
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 -sm">
                 <CardContent className="p-8 text-center">
                   <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-gray-900 mb-2">No Reviews Yet</h3>
@@ -1080,7 +1080,7 @@ export default function AgentDetailPage() {
           {/* Sidebar */}
           <div className="space-y-4 lg:order-last order-first">
             {/* Contact Card */}
-            <Card className="border border-gray-200 shadow-sm lg:sticky lg:top-20">
+            <Card className="border border-gray-200 -sm lg:sticky lg:top-20">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Contact {agent.name.split(' ')[0]}</h3>
 
@@ -1150,7 +1150,7 @@ export default function AgentDetailPage() {
 
             {/* Service Areas */}
             {agent.serviceAreas.length > 0 && (
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 -sm">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Service Areas</h3>
                   <div className="space-y-2">
@@ -1167,7 +1167,7 @@ export default function AgentDetailPage() {
 
             {/* Specialties */}
             {agent.specialties.length > 0 && (
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 -sm">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Specialties</h3>
                   <div className="space-y-2">

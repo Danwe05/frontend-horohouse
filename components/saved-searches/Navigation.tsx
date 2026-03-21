@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  Home, 
-  Search, 
-  Heart, 
-  Bookmark, 
-  User, 
+import {
+  Home,
+  Search,
+  Heart,
+  Bookmark,
+  User,
   Bell,
   Menu,
-  X 
+  X
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
@@ -24,7 +24,7 @@ const Navigation = () => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchSavedSearchesStats();
-      
+
       // Poll every 5 minutes for new matches
       const interval = setInterval(fetchSavedSearchesStats, 5 * 60 * 1000);
       return () => clearInterval(interval);
@@ -42,35 +42,35 @@ const Navigation = () => {
   };
 
   const navigationItems = [
-    { 
-      href: '/', 
-      label: 'Home', 
+    {
+      href: '/',
+      label: 'Home',
       icon: Home,
-      public: true 
+      public: true
     },
-    { 
-      href: '/properties', 
-      label: 'Search', 
+    {
+      href: '/properties',
+      label: 'Search',
       icon: Search,
-      public: true 
+      public: true
     },
-    { 
-      href: '/favorites', 
-      label: 'Favorites', 
+    {
+      href: '/favorites',
+      label: 'Favorites',
       icon: Heart,
       public: false,
       badge: null
     },
-    { 
-      href: '/saved-searches', 
-      label: 'Saved Searches', 
+    {
+      href: '/saved-searches',
+      label: 'Saved Searches',
       icon: Bookmark,
       public: false,
       badge: newMatchesCount > 0 ? newMatchesCount : null
     },
   ];
 
-  const filteredItems = navigationItems.filter(item => 
+  const filteredItems = navigationItems.filter(item =>
     item.public || isAuthenticated
   );
 
@@ -86,15 +86,14 @@ const Navigation = () => {
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${isActive
+                  ? 'bg-blue-600 text-white -lg -blue-500/30'
                   : 'text-gray-700 hover:bg-gray-100'
-              }`}
+                }`}
             >
               <Icon className="h-5 w-5" />
               <span>{item.label}</span>
-              
+
               {item.badge && (
                 <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
                   {item.badge > 9 ? '9+' : item.badge}
@@ -122,8 +121,8 @@ const Navigation = () => {
         {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
           <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
-            <div 
-              className="fixed right-0 top-0 h-full w-64 bg-white shadow-2xl p-6 animate-in slide-in-from-right duration-300"
+            <div
+              className="fixed right-0 top-0 h-full w-64 bg-white -2xl p-6 animate-in slide-in-from-right duration-300"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-8">
@@ -146,15 +145,14 @@ const Navigation = () => {
                       key={item.href}
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`relative flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
-                        isActive
+                      className={`relative flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${isActive
                           ? 'bg-blue-600 text-white'
                           : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                        }`}
                     >
                       <Icon className="h-5 w-5" />
                       <span>{item.label}</span>
-                      
+
                       {item.badge && (
                         <span className="ml-auto flex items-center justify-center px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full">
                           {item.badge > 9 ? '9+' : item.badge}
@@ -199,15 +197,14 @@ const Navigation = () => {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
-                  isActive
+                className={`relative flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${isActive
                     ? 'text-blue-600'
                     : 'text-gray-500'
-                }`}
+                  }`}
               >
                 <Icon className="h-6 w-6" />
                 <span className="text-xs font-medium">{item.label}</span>
-                
+
                 {item.badge && (
                   <span className="absolute top-0 right-2 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full">
                     {item.badge > 9 ? '9' : item.badge}

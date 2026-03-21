@@ -277,7 +277,7 @@ export default function RoomManager({ propertyId }: RoomManagerProps) {
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {activeRooms.map(room => (
-                        <div key={room._id} className="bg-white border rounded-2xl p-5 shadow-sm space-y-4 relative group">
+                        <div key={room._id} className="bg-white border rounded-2xl p-5 -sm space-y-4 relative group">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h4 className="font-bold text-lg mb-1">{room.name} {room.roomNumber && <span className="text-slate-400 font-medium">#{room.roomNumber}</span>}</h4>
@@ -411,7 +411,7 @@ export default function RoomManager({ propertyId }: RoomManagerProps) {
                             </Label>
 
                             <div
-                                className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 transition-colors ${dragActive
+                                className={`flex flex-col items-center justify-center border-1 border-dashed rounded-xl p-8 transition-colors ${dragActive
                                     ? 'border-blue-500 bg-blue-50'
                                     : 'border-slate-300 hover:border-blue-400 focus-within:border-blue-500'
                                     }`}
@@ -460,7 +460,7 @@ export default function RoomManager({ propertyId }: RoomManagerProps) {
                                             <button
                                                 type="button"
                                                 onClick={() => removeExistingImage(img.publicId)}
-                                                className="absolute top-1.5 right-1.5 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm"
+                                                className="absolute top-1.5 right-1.5 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 -sm"
                                             >
                                                 <X className="w-3.5 h-3.5" />
                                             </button>
@@ -469,15 +469,15 @@ export default function RoomManager({ propertyId }: RoomManagerProps) {
 
                                     {/* Newly Uploaded Images (Pending Save) */}
                                     {imageFiles.map((img) => (
-                                        <div key={img.id} className="relative group aspect-video rounded-lg overflow-hidden border-2 border-blue-200 bg-blue-50/50">
+                                        <div key={img.id} className="relative group aspect-video rounded-lg overflow-hidden border-1 border-blue-200 bg-blue-50/50">
                                             <img src={img.preview} alt="New Upload" className="w-full h-full object-cover opacity-80" />
                                             <div className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-100">
-                                                <Badge className="bg-white/90 text-blue-700 hover:bg-white text-[10px] px-1.5 py-0 items-center border shadow-sm">NEW</Badge>
+                                                <Badge className="bg-white/90 text-blue-700 hover:bg-white text-[10px] px-1.5 py-0 items-center border -sm">NEW</Badge>
                                             </div>
                                             <button
                                                 type="button"
                                                 onClick={() => removeNewImage(img.id)}
-                                                className="absolute top-1.5 right-1.5 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm z-10"
+                                                className="absolute top-1.5 right-1.5 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 -sm z-10"
                                             >
                                                 <X className="w-3.5 h-3.5" />
                                             </button>

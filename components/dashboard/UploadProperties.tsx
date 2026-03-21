@@ -125,7 +125,7 @@ export default function PropertyForm() {
 
           {/* Aperçu des images */}
           <div className="flex gap-4 mt-4">
-            {[0,1,2,3].map(index => (
+            {[0, 1, 2, 3].map(index => (
               <div key={index} className="w-34 h-30 bg-gray-200 rounded-lg flex items-center justify-center relative overflow-hidden">
                 {images[index] ? (
                   <>
@@ -147,7 +147,7 @@ export default function PropertyForm() {
           <label className="block text-xs font-semibold text-black mb-2">Add Video</label>
           {video ? (
             <div className="w-64 h-36 mt-2 relative">
-              <video src={URL.createObjectURL(video)} controls className="w-full h-full rounded-lg shadow" />
+              <video src={URL.createObjectURL(video)} controls className="w-full h-full rounded-lg " />
               <button type="button" onClick={() => setVideo(null)} className="absolute top-1 right-1 bg-white rounded-full p-1 hover:bg-red-100">
                 <X className="w-4 h-4 text-red-500" />
               </button>

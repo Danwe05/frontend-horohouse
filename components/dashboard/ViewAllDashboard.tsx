@@ -5,8 +5,8 @@ import { FaBed, FaMapMarkerAlt } from "react-icons/fa";
 
 interface ViewAllDashboardItem {
   image: string;
-  type: string; 
-  status: string; 
+  type: string;
+  status: string;
   price: string;
   bedrooms: number;
   location: string;
@@ -33,7 +33,7 @@ const PropertyCard: React.FC<ViewAllDashboardItem> = ({
   agentPhoto,
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+    <div className="bg-white rounded-lg -xl overflow-hidden">
       <img src={image} className="w-full h-26 object-cover" />
       <div className="px-2 py-4">
         <div className="flex justify-between items-center mb-2">
@@ -73,7 +73,7 @@ const PropertyCard: React.FC<ViewAllDashboardItem> = ({
 const ViewAllDashboard: React.FC<ViewAllDashboardProps> = ({ properties }) => {
   return (
     <div className="px-10 pt-11">
-        {/* Search Bar */}
+      {/* Search Bar */}
       <div className="mb-8">
         <div className="relative w-[250px] max-w-sm">
           <input

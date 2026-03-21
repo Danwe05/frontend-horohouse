@@ -77,7 +77,7 @@ export default function AboutPage() {
 
                     <FadeIn delay={0.4}>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                            <button className="px-8 py-4 bg-white text-blue-950 rounded-full font-semibold text-lg hover:bg-blue-50 transition-colors flex items-center gap-2 group shadow-lg shadow-blue-900/20">
+                            <button className="px-8 py-4 bg-white text-blue-950 rounded-full font-semibold text-lg hover:bg-blue-50 transition-colors flex items-center gap-2 group -lg -blue-900/20">
                                 Explore Verified Properties
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform text-blue-600" />
                             </button>
@@ -93,7 +93,7 @@ export default function AboutPage() {
             <Section className="bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     <FadeIn>
-                        <div className="relative h-[400px] md:h-[500px] bg-neutral-100 rounded-2xl overflow-hidden shadow-xl">
+                        <div className="relative h-[400px] md:h-[500px] bg-neutral-100 rounded-2xl overflow-hidden -xl">
                             {/* Image Placeholder */}
                             <div className="absolute inset-0 bg-neutral-200 flex items-center justify-center text-neutral-400">
                                 <Building className="w-20 h-20 opacity-20" />
@@ -171,7 +171,7 @@ export default function AboutPage() {
                         },
                     ].map((item, index) => (
                         <FadeIn key={index} delay={index * 0.1}>
-                            <div className="group relative overflow-hidden rounded-2xl shadow-lg h-80 transition-all hover:-translate-y-2 hover:shadow-2xl">
+                            <div className="group relative overflow-hidden rounded-2xl -lg h-80 transition-all hover:-translate-y-2 hover:-2xl">
                                 {/* Background Image */}
                                 <div className="absolute inset-0">
                                     <Image
@@ -235,7 +235,7 @@ export default function AboutPage() {
                     <FadeIn delay={0.2} className="relative">
                         {/* Solution Graphic Placeholder */}
                         <div className="relative aspect-square md:aspect-[4/3] rounded-2xl border  p-8 flex flex-col justify-center items-center">
-                         
+
                             <Image
                                 src="/ui.PNG"
                                 alt="Dashboard preview"
@@ -289,12 +289,12 @@ export default function AboutPage() {
                                     <div className="hidden md:block absolute top-12 left-1/2 w-full h-0.5 bg-gradient-to-r from-blue-200 to-slate-50 -z-10" />
                                 )}
 
-                                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden h-full">
+                                <div className="bg-white rounded-2xl p-8 -sm border border-slate-100 hover:-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden h-full">
                                     <div className="absolute top-0 right-0 p-4 opacity-5 text-9xl font-bold font-serif leading-none select-none text-blue-900">
                                         {item.step}
                                     </div>
 
-                                    <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                                    <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 -sm">
                                         <item.icon className="w-8 h-8 text-blue-600" />
                                     </div>
 
@@ -372,7 +372,7 @@ export default function AboutPage() {
                         },
                     ].map((feature, idx) => (
                         <FadeIn key={idx} delay={idx * 0.05}>
-                            <div className="group relative overflow-hidden rounded-2xl h-64 border border-neutral-200 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1">
+                            <div className="group relative overflow-hidden rounded-2xl h-64 border border-neutral-200 -sm transition-all hover:-xl hover:-translate-y-1">
                                 {/* Background Image */}
                                 <div className="absolute inset-0">
                                     <Image
@@ -444,7 +444,7 @@ export default function AboutPage() {
                         { icon: TrendingUp, title: "Impact", desc: "We measure success not just by profit, but by the positive change we bring to African cities." },
                     ].map((value, idx) => (
                         <FadeIn key={idx} delay={idx * 0.1}>
-                            <div className="group h-full bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-blue-900/10 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
+                            <div className="group h-full bg-white p-8 rounded-2xl border border-slate-100 -sm hover:-xl hover:-blue-900/10 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-150 group-hover:bg-blue-600/10" />
 
                                 <div className="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center mb-6 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 relative z-10">
@@ -496,7 +496,7 @@ export default function AboutPage() {
                                 { icon: Shield, title: "Confidence", desc: "Attracting global investors." },
                                 { icon: Users, title: "Empowerment", desc: "Helping families own homes." }
                             ].map((item, idx) => (
-                                <div key={idx} className="bg-blue-950 text-white p-6 rounded-xl shadow-lg shadow-blue-900/10">
+                                <div key={idx} className="bg-blue-950 text-white p-6 rounded-xl -lg -blue-900/10">
                                     <item.icon className="w-8 h-8 mb-4 text-blue-400" />
                                     <h4 className="font-bold text-lg mb-1">{item.title}</h4>
                                     <p className="text-sm text-blue-100">{item.desc}</p>
@@ -524,7 +524,7 @@ export default function AboutPage() {
                             "African Diaspora",
                             "Financial Institutions"
                         ].map((item, idx) => (
-                            <span key={idx} className="px-6 py-3 bg-white rounded-full border border-neutral-200 shadow-sm text-lg font-medium text-neutral-700 hover:border-neutral-400 transition-colors cursor-default">
+                            <span key={idx} className="px-6 py-3 bg-white rounded-full border border-neutral-200 -sm text-lg font-medium text-neutral-700 hover:border-neutral-400 transition-colors cursor-default">
                                 {item}
                             </span>
                         ))}
@@ -575,7 +575,7 @@ export default function AboutPage() {
                         }
                     ].map((member, idx) => (
                         <FadeIn key={idx} delay={idx * 0.1}>
-                            <div className="group relative h-[400px] w-full overflow-hidden rounded-2xl bg-neutral-100 shadow-lg transition-all hover:shadow-2xl">
+                            <div className="group relative h-[400px] w-full overflow-hidden rounded-2xl bg-neutral-100 -lg transition-all hover:-2xl">
                                 {/* Image */}
                                 <div className="absolute inset-0 h-full w-full">
                                     <Image
@@ -675,14 +675,14 @@ export default function AboutPage() {
                             <FadeIn key={idx} delay={idx * 0.1} className={`relative flex flex-col md:flex-row gap-8 items-start md:items-center ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
 
                                 {/* Timeline Dot */}
-                                <div className={`absolute left-4 md:left-1/2 -translate-x-1/2 top-8 md:top-1/2 md:-translate-y-1/2 w-8 h-8 rounded-full border-4 border-white shadow-md z-10 flex items-center justify-center ${step.status === 'completed' ? 'bg-blue-600' : step.status === 'current' ? 'bg-white ring-4 ring-blue-200' : 'bg-slate-200'}`}>
+                                <div className={`absolute left-4 md:left-1/2 -translate-x-1/2 top-8 md:top-1/2 md:-translate-y-1/2 w-8 h-8 rounded-full border-4 border-white -md z-10 flex items-center justify-center ${step.status === 'completed' ? 'bg-blue-600' : step.status === 'current' ? 'bg-white ring-4 ring-blue-200' : 'bg-slate-200'}`}>
                                     {step.status === 'completed' && <CheckCircle className="w-4 h-4 text-white" />}
                                     {step.status === 'current' && <div className="w-3 h-3 bg-blue-600 rounded-full animate-pulse" />}
                                 </div>
 
                                 {/* Content Card */}
                                 <div className={`ml-12 md:ml-0 md:w-1/2 ${idx % 2 === 0 ? 'md:pr-16 text-left md:text-right' : 'md:pl-16 text-left'}`}>
-                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-100 transition-all group">
+                                    <div className="bg-white p-6 rounded-2xl -sm border border-slate-100 hover:-md hover:border-blue-100 transition-all group">
                                         <div className={`inline-flex items-center gap-2 mb-2 ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${step.status === 'completed' ? 'bg-green-100 text-green-700' : step.status === 'current' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}`}>
                                                 {step.year}
@@ -735,7 +735,7 @@ export default function AboutPage() {
                         Ready to experience the future <br /> of real estate?
                     </h2>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <button className="px-10 py-5 bg-blue-600 text-white rounded-full font-bold text-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30 hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                        <button className="px-10 py-5 bg-blue-600 text-white rounded-full font-bold text-xl hover:bg-blue-700 transition-colors -lg -blue-600/30 hover:-xl transform hover:-translate-y-1 transition-all">
                             Join HoroHouse Today
                         </button>
                     </div>
@@ -743,7 +743,7 @@ export default function AboutPage() {
             </section>
 
             {/* 16. Contact */}
-            
+
 
 
         </main>
