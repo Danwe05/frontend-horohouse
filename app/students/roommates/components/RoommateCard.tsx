@@ -58,29 +58,6 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 }
 
-const SLEEP_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  early_bird: { label: s.earlyBird || 'Early bird',  icon: <Sun className="w-3 h-3" />,     color: 'bg-amber-50 text-amber-700 border-amber-200' },
-  night_owl:  { label: s.nightOwl || 'Night owl',   icon: <Moon className="w-3 h-3" />,    color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-  flexible:   { label: s.flexible || 'Flexible',    icon: <Sparkles className="w-3 h-3" />, color: 'bg-slate-100 text-slate-600 border-slate-200' },
-};
-
-const CLEAN_LABELS: Record<string, { label: string; color: string }> = {
-  very_neat: { label: s.veryNeat || 'Very neat',  color: 'bg-teal-50 text-teal-700 border-teal-200' },
-  neat:      { label: s.neat || 'Neat',       color: 'bg-teal-50 text-teal-700 border-teal-200' },
-  relaxed:   { label: s.relaxed || 'Relaxed',    color: 'bg-slate-100 text-slate-600 border-slate-200' },
-};
-
-const SOCIAL_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
-  introverted: { label: s.introverted || 'Introverted', icon: <UserCheck className="w-3 h-3" /> },
-  balanced:    { label: s.balanced || 'Balanced',    icon: <Users className="w-3 h-3" /> },
-  social:      { label: s.social || 'Social',      icon: <Users className="w-3 h-3" /> },
-};
-
-const STUDY_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
-  home_studier:  { label: s.studiesHome || 'Studies at home',    icon: <BookOpen className="w-3 h-3" /> },
-  library_goer:  { label: s.studiesLibrary || 'Studies at library', icon: <Library className="w-3 h-3" /> },
-  mixed:         { label: s.mixedStudy || 'Mixed study',         icon: <BookOpen className="w-3 h-3" /> },
-};
 
 function scoreColor(score: number) {
   if (score >= 80) return 'bg-emerald-500';
@@ -94,6 +71,29 @@ export function RoommateCard({ profile, index = 0, onInterestSent }: RoommateCar
   const { t } = useLanguage();
   const _t = t as any;
   const s = _t.students?.roommates?.card || {};
+  const SLEEP_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+    early_bird: { label: s.earlyBird || 'Early bird',  icon: <Sun className="w-3 h-3" />,     color: 'bg-amber-50 text-amber-700 border-amber-200' },
+    night_owl:  { label: s.nightOwl || 'Night owl',   icon: <Moon className="w-3 h-3" />,    color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    flexible:   { label: s.flexible || 'Flexible',    icon: <Sparkles className="w-3 h-3" />, color: 'bg-slate-100 text-slate-600 border-slate-200' },
+  };
+
+  const CLEAN_LABELS: Record<string, { label: string; color: string }> = {
+    very_neat: { label: s.veryNeat || 'Very neat',  color: 'bg-teal-50 text-teal-700 border-teal-200' },
+    neat:      { label: s.neat || 'Neat',       color: 'bg-teal-50 text-teal-700 border-teal-200' },
+    relaxed:   { label: s.relaxed || 'Relaxed',    color: 'bg-slate-100 text-slate-600 border-slate-200' },
+  };
+
+  const SOCIAL_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
+    introverted: { label: s.introverted || 'Introverted', icon: <UserCheck className="w-3 h-3" /> },
+    balanced:    { label: s.balanced || 'Balanced',    icon: <Users className="w-3 h-3" /> },
+    social:      { label: s.social || 'Social',      icon: <Users className="w-3 h-3" /> },
+  };
+
+  const STUDY_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
+    home_studier:  { label: s.studiesHome || 'Studies at home',    icon: <BookOpen className="w-3 h-3" /> },
+    library_goer:  { label: s.studiesLibrary || 'Studies at library', icon: <Library className="w-3 h-3" /> },
+    mixed:         { label: s.mixedStudy || 'Mixed study',         icon: <BookOpen className="w-3 h-3" /> },
+  };
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
 
