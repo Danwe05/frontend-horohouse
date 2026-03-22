@@ -133,8 +133,7 @@ function DeletePropertyDialog({
                 className="absolute inset-0 bg-black/50 backdrop-blur-md"
                 onClick={onCancel}
             />
-            <div className="relative bg-white rounded-3xl -2xl w-full max-w-md overflow-hidden"
-                style={{ box: '0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)' }}>
+            <div className="relative bg-white rounded-3xl -2xl w-full max-w-md overflow-hidden">
                 {/* Top accent bar */}
                 <div className="h-1 w-full bg-red-500" />
 
@@ -234,7 +233,6 @@ function WarnOwnerDialog({
             <div className="absolute inset-0 bg-black/50 backdrop-blur-md" onClick={onCancel} />
             <div
                 className="relative bg-white rounded-3xl -2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col"
-                style={{ box: '0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)' }}
             >
                 {/* Top accent */}
                 <div className={cn('h-1 w-full flex-shrink-0', severity === 'final_warning' ? 'bg-red-500' : 'bg-amber-400')} />

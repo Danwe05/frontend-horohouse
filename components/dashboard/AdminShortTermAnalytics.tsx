@@ -142,7 +142,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
                                 <Tooltip
-                                    contentStyle={{ borderRadius: '12px', border: 'none', box: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                    contentStyle={{ borderRadius: '12px', border: 'none'}}
                                     formatter={(val: number) => [analyticsService.formatCurrency(val), s?.revenue || 'Revenue']}
                                 />
                                 <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
@@ -162,7 +162,7 @@ export default function AdminShortTermAnalytics({ dateRange }: { dateRange: stri
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', box: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
                                 <Bar dataKey="occupancy" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>

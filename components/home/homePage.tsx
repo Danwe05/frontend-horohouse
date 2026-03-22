@@ -15,12 +15,12 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <TopListing />
-      <RecentlyViewedProperties />
-      <LuxuriousHaven />
       <LocationBasedProperties />
-      <WhatWeOffer />
+      <RecentlyViewedProperties />
       <TopShortTerm />
+      <TopListing />
+      <LuxuriousHaven />
+      <WhatWeOffer />
       <PropertyTypeCards />
       <StudentSection />
       <AboutUs />

@@ -152,7 +152,7 @@ function RevenueChart({ data }: { data: ChartDataPoint[] }) {
                 tick={{ fill: "#94a3b8", fontSize: 11 }}
                 tickFormatter={(v) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
               <Tooltip
-                contentStyle={{ borderRadius: "14px", border: "none", box: "0 10px 25px -5px rgb(0 0 0 / 0.12)", padding: "10px 14px", fontSize: "12px" }}
+                contentStyle={{ borderRadius: "14px", border: "none", padding: "10px 14px", fontSize: "12px" }}
                 formatter={(value: number) => [fc(value), "Revenue"]}
                 labelStyle={{ fontWeight: 700, color: "#1e293b", marginBottom: 2 }}
               />

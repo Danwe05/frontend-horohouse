@@ -167,7 +167,7 @@ const EarningsPage = () => {
                                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
                                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} tickFormatter={(val) => `${val / 1000000}M`} />
                                                     <Tooltip
-                                                        contentStyle={{ borderRadius: '16px', border: 'none', box: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
+                                                        contentStyle={{ borderRadius: '16px', border: 'none', padding: '12px' }}
                                                         formatter={(value: number) => [`${value.toLocaleString()} FCFA`, 'Revenue']}
                                                     />
                                                     <Area type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />

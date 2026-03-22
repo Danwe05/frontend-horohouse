@@ -361,7 +361,6 @@ function RegisterContent() {
                 dropdownStyle={{
                   borderRadius: '12px',
                   border: '1px solid #e5e7eb',
-                  box: '0 10px 25px -5px rgba(0,0,0,0.1)',
                   fontSize: '13px',
                   maxHeight: '220px',
                   zIndex: 9999,

@@ -257,7 +257,7 @@ export default function PremiumNotificationDropdown() {
             <div style={{
               position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999,
               borderRadius: '1.5rem 1.5rem 0 0', overflow: 'hidden',
-              box: '0 -8px 40px rgba(0,0,0,0.2)',
+             
             }}>
               {/* Drag handle */}
               <div style={{

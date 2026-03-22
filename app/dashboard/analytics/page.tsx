@@ -167,7 +167,7 @@ const RegularUserDashboard = ({ data, dateRange, setDateRange, loading, onExport
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }} dx={-10} />
                   <Tooltip
-                    contentStyle={{ borderRadius: '16px', border: 'none', box: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)', padding: '12px 16px', fontWeight: 600 }}
+                    contentStyle={{ borderRadius: '16px', border: 'none', padding: '12px 16px', fontWeight: 600 }}
                     itemStyle={{ fontSize: '14px', padding: '2px 0' }}
                     labelStyle={{ color: '#64748b', marginBottom: '8px', fontSize: '13px' }}
                   />
@@ -274,7 +274,7 @@ const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport, s }:
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }} dx={-10} />
                   <Tooltip
-                    contentStyle={{ borderRadius: '16px', border: 'none', box: '0 10px 25px -5px rgba(0,0,0,0.1)', padding: '12px 16px', fontWeight: 600 }}
+                    contentStyle={{ borderRadius: '16px', border: 'none', padding: '12px 16px', fontWeight: 600 }}
                     itemStyle={{ fontSize: '14px', padding: '2px 0' }}
                   />
                   <Area type="monotone" name="Views" dataKey="views" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorViewsAgent)" activeDot={{ r: 6, strokeWidth: 0, fill: '#8b5cf6' }} />
