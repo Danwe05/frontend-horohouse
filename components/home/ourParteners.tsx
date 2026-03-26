@@ -51,14 +51,14 @@ export default function OurPartners() {
   const duplicatedPartners = [...partners, ...partners];
 
   return (
-    <div className="bg-white py-10 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 mb-16">
+    <div className="bg-white py-5 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col items-center text-center gap-6 mb-16 px-4"
+          className="flex flex-col items-center text-center gap-6 px-4"
         >
           <div className="max-w-3xl flex flex-col items-center">
             <div className="flex items-center justify-center gap-3 mb-4">

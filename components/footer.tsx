@@ -56,7 +56,7 @@ export default function Footer() {
   ];
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-white py-10 px-6 md:px-12" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className=" py-10 px-6 md:px-12" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <footer className="bg-blue-900 text-white rounded-3xl -2xl overflow-hidden relative">
         {/* Decorative background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

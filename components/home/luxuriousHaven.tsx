@@ -23,7 +23,7 @@ export default function LuxuriousHaven() {
   const imageScale = useTransform(smoothProgress, [0, 1], [1, 1.05]);
 
   return (
-    <section ref={containerRef} className="relative min-h-screen bg-slate-50 py-24 overflow-hidden">
+    <section ref={containerRef} className="relative min-h-screen bg-slate-50 py-14 overflow-hidden">
       
       {/* 1. KINETIC BACKGROUND TYPOGRAPHY (Watermark) */}
       <motion.div 

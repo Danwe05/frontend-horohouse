@@ -141,16 +141,15 @@ export default function TopShortTerm() {
     );
 
     return (
-        <div className="min-h-screen px-4 sm:px-6 md:px-10 bg-slate-50" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="min-h-screen px-4 sm:px-6 md:px-10 bg-slate-50 py-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="mb-0"
                 >
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center justify-between">
                         <div>
 
                             <h3 className="text-2xl md:text-2xl font-bold text-gray-900">

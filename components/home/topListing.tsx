@@ -146,8 +146,8 @@ export default function TopListing() {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen px-4 sm:px-6 md:px-10 py-10 relative overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="max-w-7xl mx-auto mb-10 relative z-10">
+    <div className="bg-white min-h-screen px-4 sm:px-6 md:px-10 py-5 relative overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

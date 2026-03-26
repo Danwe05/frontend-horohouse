@@ -1,5 +1,5 @@
-// app/dashboard/message/page.tsx
 'use client';
+
 import { AppSidebar } from '@/components/dashboard/Sidebar';
 import MessageList from '@/components/dashboard/MessageList';
 import ChatIntro from '@/components/dashboard/ChatIntro';
@@ -9,7 +9,6 @@ import { NavDash } from '@/components/dashboard/NavDash';
 import { MobileNav } from '@/components/chat/MobileNav';
 import { MessagesList } from '@/components/chat/MessagesList';
 import { ChatThread } from '@/components/chat/ChatThread';
-import { Sidebar } from '@/components/chat/Sidebar';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -74,11 +73,9 @@ export default function MessagesPage() {
   // Show loading while checking auth or getting token
   if (isLoading || isInitializing) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-sm text-muted-foreground">{s.loadingMessages || 'Loading messages...'}</p>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50/50">
+        <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4" />
+        <p className="text-sm font-medium text-gray-500 animate-pulse">{s.loadingMessages || 'Loading messages...'}</p>
       </div>
     );
   }
@@ -128,43 +125,31 @@ export default function MessagesPage() {
 
   // Render with ChatProvider
   return (
-
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex h-screen w-full overflow-hidden">
         {/* Sidebar - Slimmer */}
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex flex-col flex-1 overflow-hidden w-full h-full">
           <NavDash />
 
           {/* Contenu principal */}
-          <div className="flex-1 flex flex-col min-h-screen pt-0 lg:pt-0">
-            <div className="">
-              <div className="hidden md:block">
-                <Sidebar />
-              </div>
-              <div className="w-full  md:pt-0">
-                <div className="h-screen overflow-hidden bg-background">
-                  <ChatProvider token={token} apiUrl={apiUrl}>
-                    <div className="flex h-full">
-                      {/* Messages List - Hidden on mobile when thread is shown */}
-                      <div className={`${showMobileThread ? 'hidden' : 'block'} md:block`}>
-                        <MessagesList onConversationSelect={() => setShowMobileThread(true)} />
-                      </div>
+          <div className="flex-1 flex flex-col overflow-hidden w-full relative">
+            <ChatProvider token={token} apiUrl={apiUrl} currentUser={user}>
+              <div className="flex h-full w-full overflow-hidden">
+                {/* Messages List - Hidden on mobile when thread is shown */}
+                <div className={`h-full shrink-0 ${showMobileThread ? 'hidden md:block' : 'block w-full md:w-auto'}`}>
+                  <MessagesList onConversationSelect={() => setShowMobileThread(true)} />
+                </div>
 
-                      {/* Chat Thread - Hidden on mobile when list is shown */}
-                      <div className={`${showMobileThread ? 'block' : 'hidden'} md:block flex-1`}>
-                        <ChatThread onBack={() => setShowMobileThread(false)} />
-                      </div>
-                    </div>
-                  </ChatProvider>
+                {/* Chat Thread - Hidden on mobile when list is shown */}
+                <div className={`flex-1 h-full min-w-0 ${showMobileThread ? 'block' : 'hidden md:block'}`}>
+                  <ChatThread onBack={() => setShowMobileThread(false)} />
                 </div>
               </div>
-            </div>
+            </ChatProvider>
           </div>
         </SidebarInset>
       </div>
     </SidebarProvider>
-
-
   );
 }

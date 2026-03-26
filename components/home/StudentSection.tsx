@@ -36,7 +36,7 @@ function getImageSrc(img: { url: string } | string): string {
 
 function PropertySkeleton() {
   return (
-    <div className="group flex flex-col sm:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden animate-pulse">
+    <div className="group flex flex-col sm:flex-row bg-white rounded-2xl border  overflow-hidden animate-pulse">
       <div className="w-full sm:w-2/5 h-64 sm:h-auto bg-gray-100" />
       <div className="p-6 flex-1 flex flex-col gap-4">
         <div className="h-4 bg-gray-100 rounded w-1/4" />
@@ -73,12 +73,12 @@ function ImageCarousel({
 
   return (
     <div
-      className="relative w-full sm:w-2/5 h-64 sm:h-auto overflow-hidden group/img"
+      className="relative w-full sm:w-2/5 min-h-[260px] sm:min-h-full overflow-hidden group/img flex-shrink-0"
       onPointerDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
     >
       <Carousel
-        className="w-full h-full"
+        className="w-full h-full absolute inset-0"
         opts={{ loop: true, direction: language === 'ar' ? 'rtl' : 'ltr' }}
         setApi={(api) => {
           if (!api) return;
@@ -88,12 +88,12 @@ function ImageCarousel({
       >
         <CarouselContent className="ml-0 h-full">
           {images.map((src, i) => (
-            <CarouselItem key={i} className="pl-0 h-full">
+            <CarouselItem key={i} className="pl-0 relative h-full min-h-[260px]">
               <img
                 src={src}
                 alt={`${title} — photo ${i + 1}`}
                 loading="lazy"
-                className="w-full h-64 sm:h-full object-cover transition-transform duration-700 group-hover/img:scale-105"
+                className="absolute inset-0 w-full h-full object-cover object-center"
               />
             </CarouselItem>
           ))}
@@ -201,11 +201,11 @@ export default function StudentSection() {
   }, []);
 
   return (
-    <section className="relative py-20 px-5 md:px-10 bg-white" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <section className="relative py-10 px-5 md:px-10 bg-white" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
 
         {/* Left-Aligned Header with Action */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 border-b border-gray-100 pb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6  pb-10">
           <div className="max-w-2xl">
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">
               {_t.studentSection?.titlePrefix || 'Find your '}
@@ -234,7 +234,7 @@ export default function StudentSection() {
                 <PropertySkeleton />
               </>
             ) : properties.length === 0 ? (
-              <div className="flex items-center justify-center h-64 border border-dashed border-gray-200 rounded-2xl">
+              <div className="flex items-center justify-center h-64 border border-dashed  rounded-2xl">
                 <p className="text-gray-400 font-medium">{_t.studentSection?.noProperties || 'No student properties found.'}</p>
               </div>
             ) : (
@@ -256,7 +256,8 @@ export default function StudentSection() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="group flex flex-col sm:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:-md transition-all cursor-pointer"
+                    className="group flex flex-col sm:flex-row bg-white rounded-2xl border  
+             overflow-hidden hover:shadow-md transition-all cursor-pointer sm:min-h-[240px]"
                   >
                     <Link href={`/properties/${p._id || p.id}`} className="contents">
                       {/* Image carousel */}
@@ -290,17 +291,17 @@ export default function StudentSection() {
                         {sd && (
                           <div className="flex flex-wrap gap-2 mb-6">
                             {sd.nearestCampus && (
-                              <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-md border border-gray-200">
+                              <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-md ">
                                 {_t.studentSection?.nearCampus?.replace('{{campus}}', sd.nearestCampus) || `Near ${sd.nearestCampus}`}
                               </span>
                             )}
                             {sd.availableBeds > 0 && (
-                              <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md border border-teal-200">
+                              <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md ">
                                 {_t.studentSection?.bedsFree?.replace('{{count}}', String(sd.availableBeds)) || `${sd.availableBeds} beds free`}
                               </span>
                             )}
                             {sd.walkingMinutes && (
-                              <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-md border border-gray-200">
+                              <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-md  ">
                                 {_t.studentSection?.minWalk?.replace('{{count}}', String(sd.walkingMinutes)) || `${sd.walkingMinutes} min walk`}
                               </span>
                             )}

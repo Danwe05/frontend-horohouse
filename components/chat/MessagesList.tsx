@@ -1,4 +1,4 @@
-import { Search, MessageCircle, Archive, Inbox } from "lucide-react";
+import { Search, MessageCircle, Archive, Inbox, MapPin } from "lucide-react";
 import { Input } from "../ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -101,7 +101,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
   ).length;
 
   return (
-    <div className="w-full md:w-[320px] bg-white border-r border-border h-screen flex flex-col">
+    <div className="w-full md:w-[320px] bg-white border-r border-border h-full flex flex-col">
       {/* Header */}
       <div className="p-6 border-b border-border">
         <h1 className="text-2xl font-bold mb-4">{s.messagesTitle || 'Messages'}</h1>
@@ -258,8 +258,8 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
                     )}
                   </div>
                   {conv.propertyId && (
-                    <p className="text-xs text-muted-foreground mt-1 truncate">
-                      📍 {conv.propertyId.title}
+                    <p className="text-xs flex items-center gap-2 text-muted-foreground mt-1 truncate">
+                     <MapPin className="w-4 h-4" /> <span>{conv.propertyId.title}</span>
                     </p>
                   )}
                 </div>

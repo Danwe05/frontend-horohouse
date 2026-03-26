@@ -1,7 +1,7 @@
 // contexts/ChatContext.tsx - FIXED VERSION
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { apiClient } from '@/lib/api';
 
@@ -43,6 +43,8 @@ interface Message {
     editedAt?: string;
     isDeleted?: boolean;
     deletedAt?: string;
+    // FIX: tempId for optimistic message replacement
+    tempId?: string;
 }
 
 interface Conversation {
@@ -136,9 +138,16 @@ interface ChatProviderProps {
     children: React.ReactNode;
     token: string;
     apiUrl: string;
+    // FIX: Accept current user info so we can build optimistic messages
+    currentUser?: {
+        id?: string;
+        _id?: string;
+        name?: string;
+        profilePicture?: string;
+    };
 }
 
-export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, apiUrl }) => {
+export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, apiUrl, currentUser }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
@@ -147,8 +156,18 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
     const [unreadCount, setUnreadCount] = useState(0);
     const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
     const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
-    const [activeCall, setActiveCall] = useState<Call | null>(null);
-    const [callStatus, setCallStatus] = useState<CallStatus>('idle');
+
+    // FIX: Keep a stable ref to the current user for optimistic messages
+    const currentUserRef = useRef(currentUser);
+    useEffect(() => {
+        currentUserRef.current = currentUser;
+    }, [currentUser]);
+
+    // FIX: Keep a ref to the active conversation so socket handlers can read it
+    const activeConversationRef = useRef<Conversation | null>(null);
+    useEffect(() => {
+        activeConversationRef.current = activeConversation;
+    }, [activeConversation]);
 
     // Load conversations - INDEPENDENT OF SOCKET
     const loadConversations = useCallback(async () => {
@@ -165,7 +184,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
 
             setConversations(data.conversations || []);
 
-            // Calculate total unread count
             const total = (data.conversations || []).reduce(
                 (acc: number, conv: Conversation) => acc + (conv.unreadCount || 0),
                 0
@@ -182,7 +200,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
         }
     }, [token]);
 
-    // Load conversations IMMEDIATELY on mount (don't wait for socket)
+    // Load conversations IMMEDIATELY on mount
     useEffect(() => {
         console.log('🚀 ChatProvider mounted - loading conversations immediately');
         loadConversations();
@@ -197,26 +215,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
 
         console.group('🔌 Initializing Socket Connection');
         console.log('API URL:', apiUrl);
-        console.log('Token preview:', token.substring(0, 30) + '...');
 
-        // FIXED: Properly extract base URL
         let socketUrl = apiUrl;
-        
-        // Remove /api/v1 or /api from the end
         socketUrl = socketUrl.replace(/\/api\/v1\/?$/, '').replace(/\/api\/?$/, '');
-        
-        // Ensure no trailing slash
         socketUrl = socketUrl.replace(/\/$/, '');
 
-        console.log('Base URL:', socketUrl);
-        console.log('Socket namespace:', '/chat');
         console.log('Full socket URL:', `${socketUrl}/chat`);
         console.groupEnd();
 
         const newSocket = io(`${socketUrl}/chat`, {
-            auth: { 
-                token  // Server expects { token: "your-jwt-token" }
-            },
+            auth: { token },
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionDelay: 1000,
@@ -227,12 +235,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
             forceNew: false,
         });
 
-        // Connection events
         newSocket.on('connect', () => {
-            console.log('✅ Chat socket connected!');
-            console.log('   Socket ID:', newSocket.id);
-            console.log('   Transport:', newSocket.io.engine.transport.name);
-            console.log('   Auth token sent:', !!token);
+            console.log('✅ Chat socket connected! Socket ID:', newSocket.id);
             setIsConnected(true);
         });
 
@@ -243,18 +247,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
 
         newSocket.on('disconnect', (reason) => {
             console.warn('⚠️ Socket disconnected:', reason);
-            console.warn('   Disconnect details:', {
-                reason,
-                willReconnect: reason === 'io server disconnect' ? 'No (server kicked)' : 'Yes (auto-reconnect)'
-            });
             setIsConnected(false);
-            
-            // If server disconnected us, try to reconnect manually
+
             if (reason === 'io server disconnect') {
-                console.log('🔄 Server disconnected - will attempt manual reconnect in 2s...');
                 setTimeout(() => {
                     if (!newSocket.connected) {
-                        console.log('🔄 Attempting manual reconnection...');
                         newSocket.connect();
                     }
                 }, 2000);
@@ -262,24 +259,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
         });
 
         newSocket.on('connect_error', (error) => {
-            console.error('❌ Socket connection error:', {
-                message: error.message,
-                description: error,
-                type: error.constructor.name,
-            });
+            console.error('❌ Socket connection error:', error.message);
             setIsConnected(false);
-            
-            // Check if it's an auth error
-            if (error.message.includes('auth') || error.message.includes('unauthorized')) {
-                console.error('🔐 Authentication error - token may be invalid');
-            }
         });
 
         newSocket.on('error', (error) => {
             console.error('❌ Socket error:', error);
         });
 
-        // Auth error event (if your server emits this)
         newSocket.on('unauthorized', (error) => {
             console.error('🔐 Unauthorized:', error);
             setIsConnected(false);
@@ -290,10 +277,19 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
         // ============================================
 
         newSocket.on('message:new', (data: { message: Message }) => {
-            console.log('📩 New message received:', data.message);
-            setMessages((prev) => [...prev, data.message]);
+            console.log('📩 New message received:', data.message._id);
 
-            // Update conversation's last message
+            const senderId = typeof data.message.senderId === 'object'
+                ? data.message.senderId._id?.toString()
+                : (data.message.senderId as any)?.toString();
+
+            const isOwnMessage = senderId === (currentUserRef.current?.id || currentUserRef.current?._id)?.toString();
+
+            setMessages((prev) => {
+                if (prev.some(m => m._id === data.message._id)) return prev;
+                return [...prev, data.message];
+            });
+
             setConversations((prev) =>
                 prev.map((conv) =>
                     conv._id === data.message.conversationId
@@ -309,24 +305,50 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
                 )
             );
 
-            playNotificationSound();
+            if (!isOwnMessage) {
+                playNotificationSound();
+            }
         });
 
-        newSocket.on('message:sent', (data: { message: Message }) => {
-            console.log('✅ Message sent confirmation:', data.message);
-            setMessages((prev) => [...prev, data.message]);
+        // FIX: Replace optimistic temp message with real server message using tempId
+        newSocket.on('message:sent', (data: { message: Message & { tempId?: string } }) => {
+            console.log('✅ Message sent confirmation, tempId:', data.message.tempId);
+
+            setMessages((prev) => {
+                // Remove the optimistic temp message by tempId
+                const withoutTemp = data.message.tempId
+                    ? prev.filter(m => m._id !== data.message.tempId)
+                    : prev;
+
+                // Avoid duplicates by real _id
+                if (withoutTemp.some(m => m._id === data.message._id)) return withoutTemp;
+
+                return [...withoutTemp, data.message];
+            });
+
+            // Update last message in conversations list
+            setConversations((prev) =>
+                prev.map((conv) =>
+                    conv._id === data.message.conversationId
+                        ? {
+                            ...conv,
+                            lastMessage: {
+                                content: data.message.content || '',
+                                createdAt: data.message.createdAt,
+                            },
+                        }
+                        : conv
+                )
+            );
         });
 
-        // Typing indicators
         newSocket.on('typing:start', (data: { conversationId: string; userId: string }) => {
-            console.log('⌨️ User typing:', data.userId);
-            if (activeConversation?._id === data.conversationId) {
+            if (activeConversationRef.current?._id === data.conversationId) {
                 setTypingUsers((prev) => new Set(prev).add(data.userId));
             }
         });
 
         newSocket.on('typing:stop', (data: { conversationId: string; userId: string }) => {
-            console.log('⌨️ User stopped typing:', data.userId);
             setTypingUsers((prev) => {
                 const newSet = new Set(prev);
                 newSet.delete(data.userId);
@@ -334,9 +356,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
             });
         });
 
-        // Read receipts
         newSocket.on('messages:read', (data: { messageIds: string[] }) => {
-            console.log('📖 Messages read:', data.messageIds.length);
             setMessages((prev) =>
                 prev.map((msg) =>
                     data.messageIds.includes(msg._id)
@@ -347,67 +367,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
         });
 
         // ============================================
-        // CALL EVENTS
-        // ============================================
-
-        newSocket.on('call:incoming', (data: { call: Call; initiator: any }) => {
-            console.log('📞 Incoming call:', data);
-            setActiveCall(data.call);
-            setCallStatus('ringing');
-            playNotificationSound();
-        });
-
-        newSocket.on('call:answered', (data: { call: Call; sdpAnswer: any }) => {
-            console.log('✅ Call answered:', data);
-            setActiveCall(data.call);
-            setCallStatus('connecting');
-        });
-
-        newSocket.on('call:declined', (data: { call: Call; reason?: string }) => {
-            console.log('❌ Call declined:', data);
-            setCallStatus('declined');
-            setTimeout(() => {
-                setActiveCall(null);
-                setCallStatus('idle');
-            }, 2000);
-        });
-
-        newSocket.on('call:ended', (data: { call: Call; reason?: string }) => {
-            console.log('📵 Call ended:', data);
-            setCallStatus('ended');
-            setTimeout(() => {
-                setActiveCall(null);
-                setCallStatus('idle');
-            }, 2000);
-        });
-
-        newSocket.on('call:missed', (data: { call: Call }) => {
-            console.log('📵 Call missed:', data);
-            setCallStatus('missed');
-            setTimeout(() => {
-                setActiveCall(null);
-                setCallStatus('idle');
-            }, 2000);
-        });
-
-        newSocket.on('call:status', (data: { callId: string; status: string }) => {
-            console.log('📊 Call status update:', data);
-            if (data.status === 'connected') {
-                setCallStatus('connected');
-            }
-        });
-
-        newSocket.on('call:ice-candidate', (data: { callId: string; candidate: any }) => {
-            console.log('🧊 ICE candidate received');
-            // This will be handled by useVideoCall hook
-        });
-
-        // ============================================
         // USER STATUS EVENTS
         // ============================================
 
         newSocket.on('user:status', (data: { userId: string; status: string }) => {
-            console.log('👤 User status:', data.userId, data.status);
             if (data.status === 'online') {
                 setOnlineUsers((prev) => new Set(prev).add(data.userId));
             } else {
@@ -421,104 +384,92 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
 
         setSocket(newSocket);
 
-        // Cleanup
         return () => {
             console.log('🔌 Closing socket connection');
-            newSocket.off('connect');
-            newSocket.off('connection:success');
-            newSocket.off('disconnect');
-            newSocket.off('connect_error');
-            newSocket.off('error');
-            newSocket.off('unauthorized');
-            newSocket.off('message:new');
-            newSocket.off('message:sent');
-            newSocket.off('typing:start');
-            newSocket.off('typing:stop');
-            newSocket.off('messages:read');
-            newSocket.off('call:incoming');
-            newSocket.off('call:answered');
-            newSocket.off('call:declined');
-            newSocket.off('call:ended');
-            newSocket.off('call:missed');
-            newSocket.off('call:status');
-            newSocket.off('call:ice-candidate');
-            newSocket.off('user:status');
+            newSocket.offAny();
             newSocket.close();
         };
-    }, [token, apiUrl, activeConversation]);
+    }, [token, apiUrl]);
 
-    // Load messages - USE API CLIENT
+    // Load messages
     const loadMessages = useCallback(async (conversationId: string) => {
         try {
             console.log('📥 Loading messages for:', conversationId);
             const data = await apiClient.getMessages(conversationId);
             setMessages(data.messages || []);
 
-            // Join conversation room via socket (if connected)
             if (socket?.connected) {
                 socket.emit('conversation:join', { conversationId });
-                console.log('🔌 Joined conversation room via socket');
             }
         } catch (error) {
             console.error('❌ Error loading messages:', error);
         }
     }, [socket]);
 
-    // Create conversation - USE API CLIENT
+    // Create conversation
     const createConversation = useCallback(async (
         participantId: string,
         propertyId?: string,
         initialMessage?: string
     ): Promise<Conversation> => {
         try {
-            console.log('🔵 Creating conversation:', {
-                participantId,
-                propertyId,
-                hasMessage: !!initialMessage,
-            });
-
             const conversation = await apiClient.createConversation({
                 participantId,
                 propertyId,
                 initialMessage,
             });
 
-            console.log('✅ Conversation created:', conversation);
-
-            // Add to conversations list if new
             setConversations((prev) => {
                 const exists = prev.find(c => c._id === conversation._id);
-                if (!exists) {
-                    return [conversation, ...prev];
-                }
+                if (!exists) return [conversation, ...prev];
                 return prev;
             });
 
-            // Set as active conversation
             setActiveConversation(conversation);
-
             return conversation;
         } catch (error: any) {
-            console.error('❌ Error creating conversation:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Failed to create conversation';
             throw new Error(errorMessage);
         }
     }, []);
 
-    // Send message
+    // FIX: sendMessage with optimistic update
     const sendMessage = useCallback((conversationId: string, content: string, type: string = 'text') => {
         if (!socket || !socket.connected) {
             console.error('❌ Socket not connected, cannot send message');
             return;
         }
 
-        console.log('📤 Sending message via socket:', { 
-            conversationId, 
-            contentPreview: content.substring(0, 50),
-            type 
-        });
+        const tempId = `temp_${Date.now()}_${Math.random()}`;
+        const user = currentUserRef.current;
+        const userId = user?.id || user?._id || '';
 
-        const tempId = `temp_${Date.now()}`;
+        // FIX: Add optimistic message immediately so it shows on the RIGHT side instantly
+        const optimisticMessage: Message = {
+            _id: tempId,
+            conversationId,
+            senderId: {
+                _id: userId,
+                name: user?.name || '',
+                profilePicture: user?.profilePicture,
+            },
+            recipientId: '',
+            type,
+            content,
+            status: 'sending',
+            createdAt: new Date().toISOString(),
+            tempId,
+        };
+
+        setMessages(prev => [...prev, optimisticMessage]);
+        playSentSound();
+
+        console.log('📤 Sending message via socket:', {
+            conversationId,
+            contentPreview: content.substring(0, 50),
+            type,
+            tempId,
+        });
 
         socket.emit('message:send', {
             conversationId,
@@ -530,19 +481,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
 
     // Mark messages as read
     const markAsRead = useCallback((conversationId: string, messageIds: string[]) => {
-        if (!socket || !socket.connected) {
-            console.log('⚠️ Socket not connected, skipping mark as read');
-            return;
-        }
+        if (!socket || !socket.connected) return;
 
-        console.log('📖 Marking messages as read:', messageIds.length);
+        socket.emit('messages:read', { conversationId, messageIds });
 
-        socket.emit('messages:read', {
-            conversationId,
-            messageIds,
-        });
-
-        // Update local state immediately
         setMessages((prev) =>
             prev.map((msg) =>
                 messageIds.includes(msg._id)
@@ -551,29 +493,23 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
             )
         );
 
-        // Update conversation unread count
         setConversations((prev) =>
             prev.map((conv) =>
-                conv._id === conversationId
-                    ? { ...conv, unreadCount: 0 }
-                    : conv
+                conv._id === conversationId ? { ...conv, unreadCount: 0 } : conv
             )
         );
     }, [socket]);
 
-    // Start typing
     const startTyping = useCallback((conversationId: string) => {
         if (!socket || !socket.connected) return;
         socket.emit('typing:start', { conversationId, isTyping: true });
     }, [socket]);
 
-    // Stop typing
     const stopTyping = useCallback((conversationId: string) => {
         if (!socket || !socket.connected) return;
         socket.emit('typing:stop', { conversationId, isTyping: false });
     }, [socket]);
 
-    // Load messages when active conversation changes
     useEffect(() => {
         if (activeConversation) {
             loadMessages(activeConversation._id);
@@ -592,11 +528,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
         unreadCount,
         typingUsers,
         onlineUsers,
-        activeCall,
-        callStatus,
         setActiveConversation,
-        setActiveCall,
-        setCallStatus,
         sendMessage,
         markAsRead,
         startTyping,
@@ -604,20 +536,32 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
         loadConversations,
         loadMessages,
         createConversation,
+        activeCall: null,
+        callStatus: 'connected',
+        setActiveCall: function (call: Call | null): void {
+            throw new Error('Function not implemented.');
+        },
+        setCallStatus: function (status: CallStatus): void {
+            throw new Error('Function not implemented.');
+        }
     };
 
     return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };
 
-// Helper function to play notification sound
-const playNotificationSound = () => {
+// AFTER
+const playSound = (src: string, volume = 0.3) => {
     if (typeof window !== 'undefined' && 'Audio' in window) {
         try {
-            const audio = new Audio('/sounds/notification.mp3');
-            audio.volume = 0.3;
+            const audio = new Audio(src);
+            audio.volume = volume;
             audio.play().catch(e => console.log('Audio play failed:', e));
         } catch (e) {
             console.log('Audio not supported:', e);
         }
     }
 };
+
+const playNotificationSound = () => playSound('/sounds/notification.mp3');  // incoming message
+const playSentSound = () => playSound('/sounds/sent.wav');           // outgoing message
+export const playRingtone = () => playSound('/sounds/ringtone.mp3', 0.5); // incoming call

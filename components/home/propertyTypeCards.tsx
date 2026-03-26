@@ -41,7 +41,7 @@ export default function PropertyBentoGrid() {
   ];
 
   return (
-    <section className="bg-slates-50 py-10 px-6 overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <section className="bg-slate-50 py-5 px-6 overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
 
         {/* Header — matching "What We Offer" two-column layout */}

@@ -136,7 +136,7 @@ export default function WhatWeOffer() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative w-full min-h-screen select-none bg-slate-50 py-20 overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <section ref={sectionRef} className="relative w-full min-h-screen select-none bg-white py-14 overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <motion.div
         style={{ x: textX }}
         className="absolute top-10 left-0 whitespace-nowrap select-none pointer-events-none opacity-[0.03] z-0"

@@ -314,14 +314,13 @@ export default function LocationBasedProperties() {
     );
 
     return (
-        <div className="min-h-screen px-4 sm:px-6 md:px-10 py-10" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="min-h-screen px-4 sm:px-6 md:px-10 py-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="mb-10"
                 >
                     <div className="flex items-center justify-between mb-6">
                         <div>

@@ -1,4 +1,4 @@
-import { MoreVertical, Paperclip, Send, ArrowLeft, Smile, MessageCircle, Mic, Video } from "lucide-react";
+import { MoreVertical, Paperclip, Send, ArrowLeft, Smile, MessageCircle, Mic, Video, MapPin, Check, CheckCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -49,19 +49,15 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
+  // FIX: Normalize current user ID to string once
+  const currentUserId = (user?.id || user?._id || '').toString();
+
   // Get other user from conversation
   const otherUser = activeConversation?.otherUser ||
-    activeConversation?.participants.find(p => p.userId._id !== (user?.id || user?._id))?.userId;
+    activeConversation?.participants.find(
+      p => p.userId._id.toString() !== currentUserId
+    )?.userId;
 
-  // CRITICAL DEBUG LOGGING
-  console.log('🔍 DEBUG - ChatThread otherUser extraction:');
-  console.log('  activeConversation:', activeConversation);
-  console.log('  activeConversation?.otherUser:', activeConversation?.otherUser);
-  console.log('  activeConversation?.participants:', activeConversation?.participants);
-  console.log('  otherUser (final):', otherUser);
-  console.log('  user?.id:', user?.id || user?._id);
-
-  // Video call hook with proper remote user handling
   const {
     callStatus,
     currentCall,
@@ -77,34 +73,26 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     toggleCamera,
   } = useVideoCall({
     socket,
-    userId: user?.id || user?._id || '',
-    otherUser: otherUser, // Pass the other user for remote user display
+    userId: currentUserId,
+    otherUser,
     onIncomingCall: (data) => {
       console.log('📞 Incoming call data in ChatThread:', data);
-      console.log('👤 Initiator:', data.initiator);
-      console.log('📋 Call:', data.call);
       setIncomingCallData(data);
     },
   });
 
   // Control video overlay visibility
   useEffect(() => {
-    console.log('📊 Call status changed to:', callStatus);
-    console.log('👤 Remote user:', remoteUser);
-
     if (callStatus === 'calling' || callStatus === 'connecting' || callStatus === 'connected') {
-      console.log('✅ Showing video call overlay');
       setShowVideoCall(true);
       if (callStatus === 'connecting' || callStatus === 'connected') {
         setIncomingCallData(null);
       }
-    }
-    else if (callStatus === 'idle' || callStatus === 'ended' || callStatus === 'declined' || callStatus === 'missed') {
-      console.log('❌ Hiding video call overlay');
+    } else if (callStatus === 'idle' || callStatus === 'ended' || callStatus === 'declined' || callStatus === 'missed') {
       setShowVideoCall(false);
       setIncomingCallData(null);
     }
-  }, [callStatus, remoteUser]);
+  }, [callStatus]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -113,27 +101,30 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
 
   // Mark messages as read when viewing
   useEffect(() => {
-    if (activeConversation && messages.length > 0 && user) {
-      const currentUserId = user.id || user._id;
+    if (activeConversation && messages.length > 0 && currentUserId) {
       const unreadMessages = messages
-        .filter(msg => msg.recipientId === currentUserId && msg.status !== 'read')
-        .map(msg => msg._id);
+        .filter(msg => {
+          // FIX: Normalize senderId safely whether it's a string or object
+          const senderId = typeof msg.senderId === 'object'
+            ? msg.senderId._id?.toString()
+            : (msg.senderId as any)?.toString();
+          return senderId !== currentUserId && msg.status !== 'read';
+        })
+        .map(msg => msg._id)
+        // Exclude optimistic temp messages (they don't exist on server yet)
+        .filter(id => id && !id.startsWith('temp_'));
 
       if (unreadMessages.length > 0) {
         markAsRead(activeConversation._id, unreadMessages);
       }
     }
-  }, [messages, activeConversation, user, markAsRead]);
+  }, [messages, activeConversation, currentUserId, markAsRead]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      if (recordingIntervalRef.current) {
-        clearInterval(recordingIntervalRef.current);
-      }
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
       stopRecording();
     };
   }, []);
@@ -146,9 +137,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
       startTyping(activeConversation._id);
     }
 
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
     typingTimeoutRef.current = setTimeout(() => {
       if (activeConversation) {
@@ -177,7 +166,6 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     }
   };
 
-  // Voice Message Functions
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -190,8 +178,8 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        setAudioBlob(audioBlob);
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        setAudioBlob(blob);
         stream.getTracks().forEach(track => track.stop());
       };
 
@@ -202,7 +190,6 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
       recordingIntervalRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
-
     } catch (error) {
       console.error('Error starting recording:', error);
       alert('Could not access microphone. Please check permissions.');
@@ -213,30 +200,22 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      if (recordingIntervalRef.current) {
-        clearInterval(recordingIntervalRef.current);
-      }
+      if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
     }
   };
 
   const sendVoiceMessage = async () => {
     if (!audioBlob || !activeConversation) return;
-
     const audioUrl = URL.createObjectURL(audioBlob);
     const voiceMessageContent = `VOICE_MESSAGE:${audioUrl}:${recordingTime}`;
     sendMessage(activeConversation._id, voiceMessageContent, 'audio');
-
     setAudioBlob(null);
     setRecordingTime(0);
   };
 
-  // Video Call Functions
   const handleStartVideoCall = async () => {
     if (!activeConversation) return;
-
     try {
-      console.log('📞 Starting video call from ChatThread...');
-      console.log('👤 Other user:', otherUser);
       await startCall(activeConversation._id, 'video');
     } catch (error: any) {
       console.error('Error starting video call:', error);
@@ -246,15 +225,10 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
 
   const handleAnswerCall = async () => {
     if (!incomingCallData) return;
-
-    console.log('📞 Answering call in ChatThread...', incomingCallData);
-    console.log('👤 Call initiator:', incomingCallData.initiator);
-
     try {
       await answerCall(incomingCallData);
-      console.log('✅ Call answered successfully');
     } catch (error: any) {
-      console.error('❌ Error answering call:', error);
+      console.error('Error answering call:', error);
       alert(error.message || 'Could not answer call');
       setIncomingCallData(null);
     }
@@ -262,13 +236,11 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
 
   const handleDeclineCall = () => {
     if (incomingCallData) {
-      console.log('❌ Declining call:', incomingCallData.call._id);
       declineCall(incomingCallData.call._id);
       setIncomingCallData(null);
     }
   };
 
-  // Empty state when no conversation is selected
   if (!activeConversation) {
     return (
       <div className="flex-1 flex items-center justify-center bg-muted/20">
@@ -288,10 +260,6 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     );
   }
 
-  const isOtherUserOnline = otherUser && onlineUsers.has(otherUser._id);
-  const isOtherUserTyping = Array.from(typingUsers).some(id => id !== (user?.id || user?._id));
-  const currentUserId = user?.id || user?._id;
-
   if (!currentUserId) {
     return (
       <div className="flex-1 flex items-center justify-center bg-muted/20">
@@ -303,12 +271,12 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     );
   }
 
-  // CRITICAL FIX: Determine display user for video call
+  const isOtherUserOnline = otherUser && onlineUsers.has(otherUser._id);
+  const isOtherUserTyping = Array.from(typingUsers).some(id => id !== currentUserId);
   const displayUser = remoteUser || otherUser;
-  console.log('📊 Display user:', displayUser);
 
   return (
-    <div className="flex-1 flex flex-col h-screen bg-background">
+    <div className="flex-1 flex flex-col h-full bg-background min-h-0 relative">
       {/* Video Call Overlay */}
       {showVideoCall && (
         <VideoCallOverlay
@@ -351,7 +319,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
               <AvatarFallback>{otherUser?.name?.[0] || "U"}</AvatarFallback>
             </Avatar>
             {isOtherUserOnline && (
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-1 border-white rounded-full"></span>
+              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
             )}
           </div>
           <div className="flex-1 min-w-0">
@@ -359,7 +327,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
               <h2 className="font-semibold">{otherUser?.name || (s.unknownUser || "Unknown User")}</h2>
               {isOtherUserOnline && (
                 <span className="flex items-center gap-1 text-xs text-green-600">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
                   {s.online || 'Online'}
                 </span>
               )}
@@ -367,9 +335,11 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
             {activeConversation.propertyId?._id && (
               <button
                 onClick={() => router.push(`/properties/${activeConversation.propertyId?._id}`)}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors text-left truncate max-w-full"
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors text-left truncate max-w-full"
               >
-                📍 {activeConversation.propertyId?.title}
+                {/* FIX: MapPin icon instead of emoji */}
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{activeConversation.propertyId?.title}</span>
               </button>
             )}
           </div>
@@ -394,7 +364,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
       {/* Connection Warning */}
       {!isConnected && (
         <div className="px-4 py-2 bg-yellow-50 border-b border-yellow-200 flex items-center justify-center gap-2">
-          <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
           <span className="text-sm text-yellow-700">{s.reconnectingMsg || 'Reconnecting to chat server...'}</span>
         </div>
       )}
@@ -407,38 +377,57 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
               <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-semibold text-lg mb-2">{s.noMessagesYetStr || 'No messages yet'}</h3>
               <p className="text-sm text-muted-foreground">
-                {s.startConversationWith?.replace('{name}', otherUser?.name) || `Start the conversation by sending a message to ${otherUser?.name}`}
+                {s.startConversationWith?.replace('{name}', otherUser?.name) ||
+                  `Start the conversation by sending a message to ${otherUser?.name}`}
               </p>
             </div>
           </div>
         ) : (
           <>
-            {messages.map((message) => {
-              const senderId = message.senderId._id;
-              const isOwn = senderId === currentUserId ||
-                (senderId?.toString && currentUserId?.toString &&
-                  senderId.toString() === currentUserId.toString());
+            {messages.map((message, index) => {
+              // FIX: Safely normalize senderId whether it's a string or populated object
+              const senderId = typeof message.senderId === 'object'
+                ? message.senderId._id?.toString()
+                : (message.senderId as any)?.toString();
+
+              // FIX: Compare normalized strings — this is the core fix for left/right alignment
+              const isOwn = !!senderId && !!currentUserId && senderId === currentUserId;
 
               const isVoiceMessage = message.type === 'audio' ||
                 (message.content && message.content.startsWith('VOICE_MESSAGE:'));
 
+              // FIX: Optimistic messages (tempId) get a slightly different style
+              const isOptimistic = !!message._id && message._id.startsWith('temp_');
+
               return (
                 <div
-                  key={message._id}
+                  key={`${message._id}-${index}`}
                   className={`flex items-start gap-3 ${isOwn ? "justify-end" : "justify-start"}`}
                 >
                   {!isOwn && (
                     <Avatar className="w-10 h-10 flex-shrink-0">
-                      <AvatarImage src={message.senderId.profilePicture} />
-                      <AvatarFallback>{message.senderId.name[0]}</AvatarFallback>
+                      <AvatarImage src={
+                        typeof message.senderId === 'object'
+                          ? message.senderId.profilePicture
+                          : undefined
+                      } />
+                      <AvatarFallback>
+                        {typeof message.senderId === 'object'
+                          ? message.senderId.name?.[0]
+                          : 'U'}
+                      </AvatarFallback>
                     </Avatar>
                   )}
 
                   <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[70%]`}>
                     <div
-                      className={`${isOwn ? "bg-primary text-white" : "bg-muted text-foreground"} 
-                        p-4 rounded-2xl ${isOwn ? "rounded-tr-sm" : "rounded-tl-sm"} 
-                        ${isVoiceMessage ? 'min-w-[200px]' : ''}`}
+                      className={`
+                        ${isOwn ? "bg-primary text-white" : "bg-muted text-foreground"}
+                        p-4 rounded-2xl ${isOwn ? "rounded-tr-sm" : "rounded-tl-sm"}
+                        ${isVoiceMessage ? 'min-w-[200px]' : ''}
+                        ${isOptimistic ? 'opacity-70' : 'opacity-100'}
+                        transition-opacity duration-200
+                      `}
                     >
                       {!isVoiceMessage && message.type !== 'image' && (
                         <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
@@ -449,17 +438,21 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
                       <span className="text-xs text-muted-foreground">
                         {new Date(message.createdAt).toLocaleTimeString([], {
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
                         })}
                       </span>
                       {isOwn && (
-                        <span className="text-xs text-muted-foreground">
-                          {message.status === 'read' ? (
-                            <span className="text-blue-500">✓✓</span>
+                        <span className="flex items-center">
+                          {/* FIX: Lucide icons instead of emoji ticks */}
+                          {isOptimistic ? (
+                            // Sending state — single faded check
+                            <Check className="w-3.5 h-3.5 text-gray-300" />
+                          ) : message.status === 'read' ? (
+                            <CheckCheck className="w-3.5 h-3.5 text-blue-500" />
                           ) : message.status === 'delivered' ? (
-                            <span className="text-gray-500">✓✓</span>
+                            <CheckCheck className="w-3.5 h-3.5 text-gray-400" />
                           ) : (
-                            <span className="text-gray-400">✓</span>
+                            <Check className="w-3.5 h-3.5 text-gray-400" />
                           )}
                         </span>
                       )}
@@ -484,9 +477,9 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
                 </Avatar>
                 <div className="bg-muted p-4 rounded-2xl rounded-tl-sm">
                   <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                   </div>
                 </div>
               </div>
