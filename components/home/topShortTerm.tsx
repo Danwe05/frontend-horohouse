@@ -263,30 +263,6 @@ export default function TopShortTerm() {
                                 </div>
                             )}
 
-                            {/* Navigation Buttons - Mobile */}
-                            {formattedProperties.length > cardsPerView && (
-                                <div className="flex md:hidden items-center justify-center gap-4 mt-8">
-                                    <motion.button
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={handlePrevious}
-                                        disabled={currentIndex === 0}
-                                        className={`w-12 h-12 bg-white border-1 border-blue-600 text-blue-600 rounded-full flex items-center justify-center transition-all -md ${currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'
-                                            }`}
-                                    >
-                                        <ChevronLeft className="w-5 h-5" />
-                                    </motion.button>
-
-                                    <motion.button
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={handleNext}
-                                        disabled={currentIndex === maxIndex}
-                                        className={`w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transition-all -md ${currentIndex === maxIndex ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-700 hover:-xl'
-                                            }`}
-                                    >
-                                        <ChevronRight className="w-5 h-5" />
-                                    </motion.button>
-                                </div>
-                            )}
                         </>
                     )}
                 </section>
