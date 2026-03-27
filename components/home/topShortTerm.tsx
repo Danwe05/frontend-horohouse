@@ -141,7 +141,7 @@ export default function TopShortTerm() {
     );
 
     return (
-        <div className="min-h-screen px-4 sm:px-6 md:px-10 bg-slate-50 py-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="px-4 sm:px-6 md:px-10 bg-slate-50 py-10" dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

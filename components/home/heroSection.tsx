@@ -475,7 +475,7 @@ export default function HeroSection() {
           </div>
 
           {/* Mobile Tabs */}
-          <div className="flex lg:hidden justify-center space-x-1 bg-white mx-d4 p-1 rounded-xl -mt-16 sm:-mt-20 relative z-20 max-w-sm mx-auto">
+          <div className="flex lg:hidden justify-center space-x-1 bg-white p-1 rounded-xl -mt-16 sm:-mt-20 relative z-20 max-w-sm mx-auto">
             {[
               { value: 'rent', label: t.hero?.tabs?.rent || 'Rent' },
               { value: 'sale', label: t.hero?.tabs?.sale || 'Buy' },
