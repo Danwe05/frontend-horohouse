@@ -1546,13 +1546,10 @@ const MapView = ({
 
       {/* Loading overlay */}
       {!mapLoaded && !mapError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100/30 z-20">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2" />
-            <p className="text-sm text-gray-600">
-              {isLocating ? "Getting your location…" : "Loading map…"}
-            </p>
-          </div>
+
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50/50">
+          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4" />
+          <p className="text-sm font-medium text-gray-500 animate-pulse">{isLocating ? "Getting your location…" : "Loading map…"}</p>
         </div>
       )}
     </div>

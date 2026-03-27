@@ -97,14 +97,22 @@ function RegisterContent() {
         else if (cleanPhone.length > 15) error = 'Phone number is too long';
         break;
       }
-      case 'password':
-        if (!value.trim()) error = 'Password is required';
-        else if (value.length < 8) error = 'Must be at least 8 characters';
-        else if (!/[A-Z]/.test(value)) error = 'Must contain an uppercase letter';
-        else if (!/[a-z]/.test(value)) error = 'Must contain a lowercase letter';
-        else if (!/[0-9]/.test(value)) error = 'Must contain a number';
-        else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) error = 'Must contain a special character';
+      case 'password': {
+        if (!value.trim()) {
+          error = 'Password is required';
+          break;
+        }
+        const rules = [
+          { test: value.length >= 8, msg: 'At least 8 characters' },
+          { test: /[A-Z]/.test(value), msg: 'One uppercase letter' },
+          { test: /[a-z]/.test(value), msg: 'One lowercase letter' },
+          { test: /[0-9]/.test(value), msg: 'One number' },
+          { test: /[!@#$%^&*(),.?":{}|<>]/.test(value), msg: 'One special character' },
+        ];
+        const failed = rules.filter(r => !r.test).map(r => r.msg);
+        if (failed.length) error = `Password needs: ${failed.join(', ')}`;
         break;
+      }
       case 'role':
         if (!value) error = 'Please select an account type';
         break;
@@ -390,8 +398,8 @@ function RegisterContent() {
                   onBlur={() => handleBlur('role')}
                   disabled={isAnyLoading}
                   className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm appearance-none bg-white cursor-pointer transition-all duration-200 hover:border-gray-300 disabled:opacity-50 ${touched.role && errors.role
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                    : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
                     }`}
                 >
                   <option value="registered_user">Regular User</option>
@@ -423,8 +431,8 @@ function RegisterContent() {
                   placeholder="Enter your password"
                   disabled={isAnyLoading}
                   className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${touched.password && errors.password
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
-                      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
+                    : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
                     }`}
                 />
                 <button
@@ -448,8 +456,8 @@ function RegisterContent() {
                       />
                     </div>
                     <span className={`text-xs font-semibold ${passwordStrength.label === 'Weak' ? 'text-red-500' :
-                        passwordStrength.label === 'Medium' ? 'text-yellow-500' :
-                          'text-green-500'
+                      passwordStrength.label === 'Medium' ? 'text-yellow-500' :
+                        'text-green-500'
                       }`}>
                       {passwordStrength.label}
                     </span>
@@ -466,8 +474,8 @@ function RegisterContent() {
               type="submit"
               disabled={isAnyLoading}
               className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 -sm mt-6 ${!isAnyLoading
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98]'
-                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98]'
+                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 }`}
             >
               {isLoading ? (
