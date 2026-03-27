@@ -78,7 +78,7 @@ export default function LuxuriousHaven() {
           
           {/* Main Panoramic Image (Left) */}
           <motion.div 
-            style={{ y: imageY, scale: imageScale }}
+            
             className="lg:col-span-5 relative w-full h-[300px] md:h-[380px] rounded-3xl overflow-hidden group lg:order-1 border border-slate-200"
           >
             <Image
