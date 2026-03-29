@@ -98,21 +98,13 @@ function RegisterContent() {
         break;
       }
       case 'password': {
-        if (!value.trim()) {
-          error = 'Password is required';
-          break;
-        }
-        const rules = [
-          { test: value.length >= 8, msg: 'At least 8 characters' },
-          { test: /[A-Z]/.test(value), msg: 'One uppercase letter' },
-          { test: /[a-z]/.test(value), msg: 'One lowercase letter' },
-          { test: /[0-9]/.test(value), msg: 'One number' },
-          { test: /[!@#$%^&*(),.?":{}|<>]/.test(value), msg: 'One special character' },
-        ];
-        const failed = rules.filter(r => !r.test).map(r => r.msg);
-        if (failed.length) error = `Password needs: ${failed.join(', ')}`;
-        break;
-      }
+  if (!value.trim()) {
+    error = 'Password is required';
+  } else if (value.length < 8) {
+    error = 'Password must be at least 8 characters';
+  }
+  break;
+}
       case 'role':
         if (!value) error = 'Please select an account type';
         break;
@@ -445,25 +437,7 @@ function RegisterContent() {
                 </button>
               </div>
 
-              {/* Password strength bar */}
-              {form.password && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${passwordStrength.color} transition-all duration-300`}
-                        style={{ width: `${passwordStrength.strength}%` }}
-                      />
-                    </div>
-                    <span className={`text-xs font-semibold ${passwordStrength.label === 'Weak' ? 'text-red-500' :
-                      passwordStrength.label === 'Medium' ? 'text-yellow-500' :
-                        'text-green-500'
-                      }`}>
-                      {passwordStrength.label}
-                    </span>
-                  </div>
-                </div>
-              )}
+             
               {touched.password && errors.password && (
                 <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.password}</p>
               )}
