@@ -82,7 +82,7 @@ export default function WhatWeOffer() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full min-h-screen select-none bg-white py-10 sm:py-12 md:py-16 overflow-hidden"
+      className="relative w-full select-none bg-white py-10 sm:py-12 md:py-16 overflow-hidden"
       dir={language === 'ar' ? 'rtl' : 'ltr'}
     >
       {/* Scrolling background text — clamped so it doesn't destroy mobile layout */}
