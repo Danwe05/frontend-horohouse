@@ -469,8 +469,10 @@ class ApiClient {
   async addTenant(data: any) { return (await this.client.post('/users/me/tenants', data)).data; }
   async updateTenant(tenantId: string, data: any) { return (await this.client.patch(`/users/me/tenants/${tenantId}`, data)).data; }
   async removeTenant(tenantId: string) { return (await this.client.delete(`/users/me/tenants/${tenantId}`)).data; }
-
   async request(config: AxiosRequestConfig) { return (await this.client.request(config)).data; }
+  async subscribeNewsletter(email: string) {
+    return (await this.client.post('/newsletter/subscribe', { email }, { skipAuth: true } as any)).data;
+  }
 
   // ─── Student Profiles ────────────────────────────────────────────────────
   async createStudentProfile(data: {

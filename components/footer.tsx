@@ -1,7 +1,20 @@
 'use client';
 
-import { FaXTwitter, FaInstagram, FaYoutube, FaLinkedin, FaFacebook } from "react-icons/fa6";
+import React, { useState } from 'react';
+import { FaInstagram, FaYoutube, FaLinkedin, FaFacebook } from "react-icons/fa6";
 import { motion } from "framer-motion";
+import { Loader2, CheckCircle2, XCircle, Send } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useLanguage } from '@/contexts/LanguageContext';
+import apiClient from '@/lib/api';
 
 const socialLinks = [
   { icon: FaFacebook, href: "https://facebook.com/horohouse", label: "Facebook" },
@@ -10,11 +23,52 @@ const socialLinks = [
   { icon: FaLinkedin, href: "https://linkedin.com/company/horohouse", label: "LinkedIn" },
 ];
 
-import { useLanguage } from '@/contexts/LanguageContext';
+type AlertState = {
+  open: boolean;
+  title: string;
+  description: string;
+  isError: boolean;
+};
 
 export default function Footer() {
   const { t, language } = useLanguage();
   const _t = t as any;
+
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [alert, setAlert] = useState<AlertState>({
+    open: false,
+    title: '',
+    description: '',
+    isError: false,
+  });
+
+  const showAlert = (title: string, description: string, isError = false) => {
+    setAlert({ open: true, title, description, isError });
+  };
+
+  const handleSubscribe = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      showAlert('Invalid email', 'Please enter a valid email address.', true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const data = await apiClient.subscribeNewsletter(email);
+      showAlert('Subscribed!', data.message || 'You are now subscribed to our newsletter.');
+      setEmail('');
+    } catch (err: any) {
+      showAlert(
+        'Subscription failed',
+        err?.response?.data?.message || 'Something went wrong. Please try again.',
+        true
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const footerSections = [
     {
@@ -56,8 +110,30 @@ export default function Footer() {
   ];
 
   return (
-    <div className=" py-10 px-6 md:px-12" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <footer className="bg-blue-900 text-white rounded-3xl -2xl overflow-hidden relative">
+    <div className="py-10 px-6 md:px-12" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      {/* AlertDialog for subscription feedback */}
+      <AlertDialog open={alert.open} onOpenChange={(open) => setAlert((prev) => ({ ...prev, open }))}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className={`flex items-center gap-2 ${alert.isError ? 'text-destructive' : 'text-green-600'}`}>
+              {alert.isError
+                ? <XCircle className="w-5 h-5 shrink-0" />
+                : <CheckCircle2 className="w-5 h-5 shrink-0" />
+              }
+              {alert.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription>{alert.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setAlert((prev) => ({ ...prev, open: false }))}>
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <footer className="bg-blue-900 text-white rounded-3xl shadow-2xl overflow-hidden relative">
+
         {/* Decorative background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
@@ -65,8 +141,11 @@ export default function Footer() {
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-8 py-12 md:py-10">
+
+          {/* Main grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-            {/* Logo & Social Media */}
+
+            {/* Logo & Social */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -103,7 +182,7 @@ export default function Footer() {
               </div>
             </motion.div>
 
-            {/* Footer Sections */}
+            {/* Footer link sections */}
             {footerSections.map((section, sectionIndex) => (
               <motion.div
                 key={sectionIndex}
@@ -123,7 +202,7 @@ export default function Footer() {
                       whileHover={{ x: language === 'ar' ? -5 : 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <a
+                      <a  
                         href={link.href}
                         className="text-blue-100 hover:text-white text-sm transition-colors duration-300 flex items-center group"
                       >
@@ -137,7 +216,7 @@ export default function Footer() {
             ))}
           </div>
 
-          {/* Newsletter Section */}
+          {/* Newsletter */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -146,27 +225,38 @@ export default function Footer() {
             className="border-t border-white/20 pt-10 mb-10"
           >
             <div className="max-w-2xl mx-auto text-center">
-              <h3 className="text-2xl font-bold mb-3">{_t.footer?.stayUpdated || "Stay Updated"}</h3>
+              <h3 className="text-2xl font-bold mb-3">
+                {_t.footer?.stayUpdated || "Stay Updated"}
+              </h3>
               <p className="text-blue-100 mb-6 text-sm">
                 {_t.footer?.subscribeDesc || "Subscribe to our newsletter for the latest property listings and exclusive deals."}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
                   placeholder={_t.footer?.enterEmail || "Enter your email"}
-                  className="flex-1 px-5 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-start"
+                  disabled={isLoading}
+                  className="flex-1 px-5 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-start disabled:opacity-60"
                 />
                 <motion.button
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-2 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 -lg"
+                  onClick={handleSubscribe}
+                  disabled={isLoading}
+                  className="px-8 py-2 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 disabled:opacity-60 min-w-[110px] flex items-center justify-center"
                 >
-                  {_t.footer?.subscribe || "Subscribe"}
+                  {isLoading
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : (_t.footer?.subscribe || 'Subscribe')
+                  }
                 </motion.button>
               </div>
             </div>
           </motion.div>
 
-          {/* Bottom Bar */}
+          {/* Bottom bar */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -174,7 +264,7 @@ export default function Footer() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
           >
-            <p className="text-blue-100 text-sm text-center md:text-start flex-row-reverse" dir="ltr">
+            <p className="text-blue-100 text-sm text-center md:text-start" dir="ltr">
               © 2025 - {new Date().getFullYear()} HoroHouse. {_t.footer?.allRightsReserved || "All rights reserved."}
             </p>
             <div className="flex flex-wrap justify-center gap-6 text-sm">
@@ -191,6 +281,7 @@ export default function Footer() {
               </a>
             </div>
           </motion.div>
+
         </div>
       </footer>
     </div>
