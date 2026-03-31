@@ -35,6 +35,7 @@ const WavyLine = () => {
 
 const WelcomeHorohouse = () => {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [greetingIcon, setGreetingIcon] = useState<ReactNode | null>(null);
   const { user } = useAuth();
@@ -44,6 +45,8 @@ const WelcomeHorohouse = () => {
   const role = user?.role ?? 'user';
 
   useEffect(() => {
+    setMounted(true);
+
     const updateGreeting = () => {
       const hour = new Date().getHours();
       
@@ -68,6 +71,20 @@ const WelcomeHorohouse = () => {
     
     return () => clearInterval(interval);
   }, []);
+
+  // Render a stable placeholder until after hydration
+  if (!mounted) {
+    return (
+      <div className="w-full relative overflow-hidden">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-700 flex items-center gap-2">
+            {displayName ? `${displayName}!` : ''}
+          </h1>
+          <p className="text-gray-500 text-lg md:text-sm mt-3" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full relative overflow-hidden">

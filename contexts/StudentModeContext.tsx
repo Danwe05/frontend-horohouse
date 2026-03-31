@@ -72,15 +72,8 @@ export function StudentModeProvider({ children }: { children: ReactNode }) {
   const isStudent = user?.role === 'student';
 
   // ── Persistent toggle state ───────────────────────────────────────────────
-
-  const [isStudentMode, setIsStudentMode] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    try {
-      return localStorage.getItem(STORAGE_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
+  // Always start as false (matches server render); restore from localStorage after mount
+  const [isStudentMode, setIsStudentMode] = useState<boolean>(false);
 
   // ── Student profile state ─────────────────────────────────────────────────
 
@@ -90,6 +83,14 @@ export function StudentModeProvider({ children }: { children: ReactNode }) {
     useState<StudentVerificationStatus | null>(null);
 
   // ── Auto-enable student mode when the user's role is STUDENT ─────────────
+
+  useEffect(() => {
+    // Restore persisted student-mode toggle after hydration
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === 'true') setIsStudentMode(true);
+    } catch { }
+  }, []);
 
   useEffect(() => {
     if (isStudent && !isStudentMode) {

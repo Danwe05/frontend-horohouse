@@ -35,8 +35,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   const [translations, setTranslations] = useState<TranslationKeys>(getTranslations(defaultLanguage));
   const [isAutoTranslateEnabled, setAutoTranslateEnabled] = useState(true);
   const [currency, setCurrencyState] = useState<string>('XAF');
+  // Tracks whether we've hydrated — prevents server/client mismatch
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Load language from localStorage on mount
     const savedLanguage = localStorage.getItem('language') as Language | null;
     const savedAutoTranslate = localStorage.getItem('autoTranslate');

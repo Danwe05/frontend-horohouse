@@ -117,7 +117,8 @@ const IndexContent = () => {
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
 
   // ── Mobile state ──────────────────────────────────────────────────────────
-  const [isMobile, setIsMobile] = useState(false);
+  // Start as null so SSR and first client render are identical (avoids hydration mismatch)
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [mobileMapFullScreen, setMobileMapFullScreen] = useState(false);
   // ── Hover state (for map pin highlight) ───────────────────────────────
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -498,6 +499,9 @@ const IndexContent = () => {
   const currentListingType = (filters.listingType as "sale" | "rent" | "short_term" | undefined) ?? "any";
 
   // ── Mobile layout ─────────────────────────────────────────────────────────
+  // Render nothing until isMobile is determined on the client (prevents hydration mismatch)
+  if (isMobile === null) return null;
+
   if (isMobile) {
     return (
       <div className="min-h-screen flex flex-col bg-background mt-[70px]">

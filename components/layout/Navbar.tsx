@@ -73,10 +73,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [favoritesCount, setFavoritesCount] = useState(0);
   const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState<string | null>(null);
-
-  if (showOnlyWhenAuthenticated && !isAuthenticated) {
-    return null;
-  }
+  // Prevents auth-state hydration mismatch (server always has isAuthenticated=false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -123,12 +121,18 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
   }, [isAuthenticated]);
 
   useEffect(() => {
+    setMounted(true);
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');
     }
   }, []);
+
+  // Move the authenticated-only guard after all hooks to satisfy Rules of Hooks
+  if (showOnlyWhenAuthenticated && !mounted && !isAuthenticated) {
+    return null;
+  }
 
   const handleLogout = async () => {
     try {
@@ -320,7 +324,8 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             </div>
           )}
 
-          {isAuthenticated ? (
+          {/* Auth section — only rendered after hydration to avoid server/client mismatch */}
+          {mounted && (isAuthenticated ? (
             <>
               {/*
                 FIX: Wrap NotificationDropdown in a div with `static` positioning
@@ -399,7 +404,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                 </Link>
               </div>
             )
-          )}
+          ))}
         </div>
       </nav>
 
