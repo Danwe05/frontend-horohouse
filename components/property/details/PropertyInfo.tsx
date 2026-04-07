@@ -1,14 +1,14 @@
 "use client"
 
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useCallback } from "react";
 import {
   Wifi, BedDouble, Bath, Utensils, Maximize2, MapPin, Eye, Home,
   Car, Snowflake, Dumbbell, Waves, Shield, Coffee, TreePine,
-  MessageCircle, Mail, Phone, Clock, AlertCircle,
+  MessageCircle, Mail, Phone, Clock, AlertCircle, ShieldCheck
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChatContext } from "@/contexts/ChatContext";
@@ -108,9 +108,9 @@ function getContactInfo(property: PropertyInfoProps["property"], pd: any = null)
 }
 
 const MESSAGE_TEMPLATES = (title: string, pd: any) => [
-  { label: pd?.askAvailability || "Ask Availability", text: pd?.askAvailabilityText?.replace("{title}", title) || `Hi! I'm interested in ${title}. Is it still available?` },
-  { label: pd?.scheduleViewing || "Schedule Viewing", text: pd?.scheduleViewingText?.replace("{title}", title) || `Hi! I'd like to schedule a viewing for ${title}.` },
-  { label: pd?.requestDetails || "Request Details", text: pd?.requestDetailsText?.replace("{title}", title) || `Hi! Can you provide more details about ${title}?` },
+  { label: pd?.askAvailability || "Ask availability", text: pd?.askAvailabilityText?.replace("{title}", title) || `Hi! I'm interested in ${title}. Is it still available?` },
+  { label: pd?.scheduleViewing || "Schedule viewing", text: pd?.scheduleViewingText?.replace("{title}", title) || `Hi! I'd like to schedule a viewing for ${title}.` },
+  { label: pd?.requestDetails || "Request details", text: pd?.requestDetailsText?.replace("{title}", title) || `Hi! Can you provide more details about ${title}?` },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -153,8 +153,8 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
     {
       title: pd?.essentials || "Essentials",
       items: [
-        { icon: BedDouble, label: pd?.bedrooms?.replace("{count}", (amenities.bedrooms ?? 0).toString()) || `${amenities.bedrooms ?? 0} Bedrooms`, value: amenities.bedrooms },
-        { icon: Bath, label: pd?.bathrooms?.replace("{count}", (amenities.bathrooms ?? 0).toString()) || `${amenities.bathrooms ?? 0} Bathrooms`, value: amenities.bathrooms },
+        { icon: BedDouble, label: pd?.bedrooms?.replace("{count}", (amenities.bedrooms ?? 0).toString()) || `${amenities.bedrooms ?? 0} bedrooms`, value: amenities.bedrooms },
+        { icon: Bath, label: pd?.bathrooms?.replace("{count}", (amenities.bathrooms ?? 0).toString()) || `${amenities.bathrooms ?? 0} bathrooms`, value: amenities.bathrooms },
         { icon: Maximize2, label: pd?.sqm?.replace("{area}", (property.area ?? 0).toString()) || `${property.area ?? 0} sqm`, value: property.area },
         { icon: Utensils, label: pd?.furnished || "Furnished", value: amenities.furnished },
       ].filter((i) => i.value),
@@ -163,27 +163,27 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
       ? [{
         title: pd?.hospitalityRules || "Hospitality & Rules",
         items: [
-          { icon: Home, label: pd?.maxGuests?.replace("{count}", (stAmenities.maxGuests ?? 0).toString()) || `${stAmenities.maxGuests ?? 0} Max Guests`, value: stAmenities.maxGuests },
+          { icon: Home, label: pd?.maxGuests?.replace("{count}", (stAmenities.maxGuests ?? 0).toString()) || `${stAmenities.maxGuests ?? 0} guests maximum`, value: stAmenities.maxGuests },
           { icon: Clock, label: pd?.checkIn?.replace("{time}", stAmenities.checkInTime ?? "14:00") || `Check-in: ${stAmenities.checkInTime ?? "14:00"}`, value: true },
-          { icon: Clock, label: pd?.checkOut?.replace("{time}", stAmenities.checkOutTime ?? "11:00") || `Check-out: ${stAmenities.checkOutTime ?? "11:00"}`, value: true },
-          { icon: Coffee, label: pd?.breakfastIncluded || "Breakfast Included", value: stAmenities.hasBreakfast },
+          { icon: Clock, label: pd?.checkOut?.replace("{time}", stAmenities.checkOutTime ?? "11:00") || `Checkout: ${stAmenities.checkOutTime ?? "11:00"}`, value: true },
+          { icon: Coffee, label: pd?.breakfastIncluded || "Breakfast included", value: stAmenities.hasBreakfast },
           { icon: Snowflake, label: pd?.heating || "Heating", value: stAmenities.hasHeating },
-          { icon: Shield, label: pd?.concierge || "Concierge", value: stAmenities.conciergeService },
-          { icon: Car, label: pd?.airportTransfer || "Airport Transfer", value: stAmenities.airportTransfer },
-          { icon: AlertCircle, label: pd?.petsAllowed || "Pets Allowed", value: stAmenities.petsAllowed },
+          { icon: ShieldCheck, label: pd?.concierge || "Concierge", value: stAmenities.conciergeService },
+          { icon: Car, label: pd?.airportTransfer || "Airport transfer", value: stAmenities.airportTransfer },
+          { icon: AlertCircle, label: pd?.petsAllowed || "Pets allowed", value: stAmenities.petsAllowed },
         ].filter((i) => i.value),
       }]
       : []),
     {
       title: pd?.comfortFacilities || "Comfort & Facilities",
       items: [
-        { icon: Wifi, label: pd?.wifi || "WiFi", value: amenities.hasInternet || stAmenities.hasWifi },
-        { icon: Snowflake, label: pd?.airConditioning || "Air Conditioning", value: amenities.airConditioning },
+        { icon: Wifi, label: pd?.wifi || "Wifi", value: amenities.hasInternet || stAmenities.hasWifi },
+        { icon: Snowflake, label: pd?.airConditioning || "Air conditioning", value: amenities.airConditioning },
         { icon: Coffee, label: pd?.balcony || "Balcony", value: amenities.balcony },
         { icon: TreePine, label: pd?.garden || "Garden", value: amenities.garden },
         { icon: Car, label: pd?.parking || "Parking", value: amenities.parking },
         { icon: Dumbbell, label: pd?.gym || "Gym", value: amenities.gym },
-        { icon: Waves, label: pd?.swimmingPool || "Swimming Pool", value: amenities.pool },
+        { icon: Waves, label: pd?.swimmingPool || "Pool", value: amenities.pool },
         { icon: Shield, label: pd?.security || "Security", value: amenities.security },
       ].filter((i) => i.value),
     },
@@ -268,183 +268,159 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-8 -none">
-      {/* Header */}
-      <div className="space-y-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge className="bg-slate-900 text-white hover:bg-slate-800 px-3.5 py-1.5 capitalize text-sm font-bold rounded-lg border-none">
-            {property.type}
-          </Badge>
-          <Badge className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3.5 py-1.5 capitalize text-sm font-bold border-none rounded-lg">
-            {property.listingType === "short_term" ? (pd?.shortTerm || "Short Term") : (pd?.forType?.replace("{type}", property.listingType) || `For ${property.listingType}`)}
-          </Badge>
-          {property.cancellationPolicy && (
-            <Badge className="bg-amber-50 text-amber-600 hover:bg-amber-100 px-3.5 py-1.5 text-sm font-bold border-none rounded-lg">
-              {property.cancellationPolicy}
-            </Badge>
-          )}
-          {amenities.furnished && (
-            <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3.5 py-1.5 text-sm font-bold border-none rounded-lg">
-              {pd?.fullyFurnished || "Fully Furnished"}
-            </Badge>
-          )}
+    <div className="space-y-10 text-[#222222]">
 
-          <div className="flex items-center gap-5 ml-auto text-sm font-medium text-slate-500">
-            <div className="flex items-center gap-2">
-              <Eye className="h-4 w-4 text-slate-400" aria-hidden />
+      {/* ── Header Info ── */}
+      <div className="space-y-4">
+        <h1 className="text-[26px] md:text-[32px] font-semibold tracking-tight leading-tight">
+          {property.title}
+        </h1>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-1.5 text-[15px] font-medium text-[#222222]">
+            <MapPin className="h-4 w-4 mr-1 stroke-[2]" aria-hidden />
+            <span className="underline">{fullAddress}</span>
+            <span className="mx-1 text-[#DDDDDD]">•</span>
+            <span className="capitalize">{property.type}</span>
+            <span className="mx-1 text-[#DDDDDD]">•</span>
+            <span className="capitalize">{property.listingType.replace('_', ' ')}</span>
+          </div>
+
+          <div className="flex items-center gap-4 text-[14px] text-[#717171]">
+            <div className="flex items-center gap-1.5">
+              <Eye className="h-4 w-4 stroke-[2]" aria-hidden />
               <span>{property.viewsCount.toLocaleString()} {pd?.views?.toLowerCase() || "views"}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-slate-400" aria-hidden />
-              <span>{pd?.daysOnMarket?.replace("{days}", daysOnMarket.toString()) || `${daysOnMarket}d on market`}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-            {property.title}
-          </h1>
-          <div className="flex items-start gap-2.5">
-            <MapPin className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" aria-hidden />
-            <div>
-              <p className="text-slate-700 font-semibold text-lg">{fullAddress}</p>
-              <p className="text-sm font-medium text-slate-500 mt-0.5">
-                {pd?.listedOn?.replace("{date}", listedDate) || `Listed on ${listedDate}`}
-              </p>
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-4 w-4 stroke-[2]" aria-hidden />
+              <span>{pd?.daysOnMarket?.replace("{days}", daysOnMarket.toString()) || `${daysOnMarket} days ago`}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="h-px bg-slate-100 w-full" />
+      <div className="h-px bg-[#DDDDDD] w-full" />
 
-      {/* Description & Features */}
-      <div className="space-y-10">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{pd?.aboutProperty || "About this property"}</h2>
-          <p className="text-slate-600 leading-relaxed whitespace-pre-line text-lg">
-            {property.description}
-          </p>
-        </div>
+      {/* ── Description ── */}
+      <div className="space-y-4">
+        <h2 className="text-[22px] font-semibold tracking-tight">{pd?.aboutProperty || "About this space"}</h2>
+        <p className="text-[16px] text-[#222222] leading-relaxed whitespace-pre-line">
+          {property.description}
+        </p>
+      </div>
 
-        {amenityGroups.length > 0 && (
-          <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{pd?.propertyFeatures || "Property Features"}</h3>
-            <div className="grid gap-8">
-              {amenityGroups.map((group, index) => (
-                <div key={index} className="space-y-4">
-                  <h4 className="text-sm font-bold text-slate-400 tracking-wider uppercase">
-                    {group.title}
-                  </h4>
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    {group.items.map((item, itemIndex) => (
-                      <div
-                        key={itemIndex}
-                        className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border-1 border-transparent transition-colors group"
-                      >
-                        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white text-blue-600 transition-transform">
-                          <item.icon className="h-6 w-6" aria-hidden />
-                        </div>
-                        <span className="font-bold text-slate-700 text-sm leading-tight">
-                          {item.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+      <div className="h-px bg-[#DDDDDD] w-full" />
+
+      {/* ── Features / Amenities ── */}
+      {amenityGroups.length > 0 && (
+        <div className="space-y-8">
+          <h2 className="text-[22px] font-semibold tracking-tight">{pd?.propertyFeatures || "What this place offers"}</h2>
+
+          <div className="grid gap-10">
+            {amenityGroups.map((group, index) => (
+              <div key={index} className="space-y-6">
+                <h3 className="text-[16px] font-semibold text-[#222222]">
+                  {group.title}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6">
+                  {group.items.map((item, itemIndex) => (
+                    <div key={itemIndex} className="flex items-center gap-4">
+                      <item.icon className="h-6 w-6 text-[#222222] stroke-[1.5]" aria-hidden />
+                      <span className="text-[16px] text-[#222222]">
+                        {item.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        )}
-      </div>
-
-      <div className="h-px bg-slate-100 w-full" />
-
-      {/* Contact actions */}
-      <div className="flex flex-col sm:flex-row gap-4 pt-2">
-        <Button
-          onClick={handleQuickMessage}
-          disabled={isLoading || !contact}
-          aria-busy={isLoading}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 rounded-xl shfadow-sm"
-        >
-          <MessageCircle className="w-5 h-5 mr-2" />
-          {isLoading ? (pd?.sending || "Sending…") : (pd?.quickMessage || "Quick Message")}
-        </Button>
-
-        <Button
-          onClick={handleChatClick}
-          disabled={!contact}
-          variant="outline"
-          className="flex-1 border-slate-200 text-slate-700 font-bold h-12 rounded-xl hover:bg-slate-50"
-        >
-          <Mail className="w-5 h-5 mr-2" />
-          {pd?.writeMessage || "Write Message"}
-        </Button>
-
-        {contact?.phoneNumber && (
-          <Button
-            variant="outline"
-            className="border-slate-200 text-slate-700 font-bold h-12 w-12 rounded-xl hover:bg-slate-50 shrink-0 p-0"
-            onClick={() => { window.location.href = `tel:${contact.phoneNumber}`; }}
-            aria-label={`Call ${contactName}`}
-          >
-            <Phone className="w-5 h-5" />
-          </Button>
-        )}
-      </div>
-
-      {!contact && (
-        <div className="p-4 bg-amber-50 border-1 border-amber-100 rounded-2xl flex gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" aria-hidden />
-          <p className="text-sm font-medium text-amber-800 leading-relaxed">
-            {pd?.contactUnavailable || "Contact information is not available for this property. The owner may need to complete their profile setup."}
-          </p>
         </div>
       )}
 
-      {/* Custom message dialog */}
+      <div className="h-px bg-[#DDDDDD] w-full" />
+
+      {/* ── Host / Contact Actions ── */}
+      <div className="space-y-6">
+        <h2 className="text-[22px] font-semibold tracking-tight">Meet your host</h2>
+
+        {contact ? (
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
+            <Button
+              onClick={handleQuickMessage}
+              disabled={isLoading}
+              aria-busy={isLoading}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[16px] py-6 rounded-lg transition-colors"
+            >
+              <MessageCircle className="w-5 h-5 mr-2 stroke-[2]" />
+              {isLoading ? (pd?.sending || "Sending…") : (pd?.quickMessage || "Quick message")}
+            </Button>
+
+            <Button
+              onClick={handleChatClick}
+              variant="outline"
+              className="flex-1 border-blue-600 text-[#222222] font-semibold text-[16px] py-6 rounded-lg hover:bg-[#F7F7F7] transition-colors"
+            >
+              <Mail className="w-5 h-5 mr-2 stroke-[2]" />
+              {pd?.writeMessage || "Write message"}
+            </Button>
+
+            {contact.phoneNumber && (
+              <Button
+                variant="outline"
+                className="border-blue-600 text-[#222222] py-6 w-14 rounded-lg hover:bg-[#F7F7F7] transition-colors shrink-0 p-0"
+                onClick={() => { window.location.href = `tel:${contact.phoneNumber}`; }}
+                aria-label={`Call ${contactName}`}
+              >
+                <Phone className="w-5 h-5 stroke-[2]" />
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="p-4 bg-[#FFF8F8] border border-[#FFDFDF] rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-[#E50000] shrink-0 mt-0.5" aria-hidden />
+            <p className="text-[15px] font-medium text-[#E50000] leading-relaxed">
+              {pd?.contactUnavailable || "Contact information is not available for this property. The owner may need to complete their profile setup."}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Custom Message Dialog ── */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{pd?.sendMessageTo?.replace("{name}", contactName) || `Send Message to ${contactName}`}</DialogTitle>
-            <DialogDescription>
-              {pd?.writeMessageAbout?.replace("{title}", property.title) || `Write a message about ${property.title}`}
+        <DialogContent className="sm:max-w-[500px] p-8 border-[#DDDDDD] rounded-2xl shadow-2xl">
+          <DialogHeader className="mb-6 space-y-2 text-left">
+            <DialogTitle className="text-[22px] font-semibold text-[#222222]">
+              {pd?.sendMessageTo?.replace("{name}", contactName) || `Contact ${contactName}`}
+            </DialogTitle>
+            <DialogDescription className="text-[15px] text-[#717171]">
+              {pd?.writeMessageAbout?.replace("{title}", property.title) || `Ask a question about ${property.title}`}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-              <div>
-                <p className="font-medium">{contactName}</p>
-                <p className="text-sm text-muted-foreground">{contactRole}</p>
-              </div>
-            </div>
-
+          <div className="space-y-6">
             <div className="space-y-2">
-              <label htmlFor="custom-message" className="text-sm font-medium block">
-                {pd?.yourMessage || "Your Message"}
+              <label htmlFor="custom-message" className="text-[15px] font-semibold text-[#222222] block">
+                {pd?.yourMessage || "Message"}
               </label>
               <Textarea
                 id="custom-message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={`Hi! I'm interested in ${property.title}…`}
-                rows={4}
-                className="resize-none"
+                rows={5}
+                className="resize-none text-[15px] p-4 bg-white border-[#DDDDDD] placeholder:text-[#717171] focus-visible:ring-1 focus-visible:ring-[#222222] focus-visible:border-blue-600 rounded-xl"
               />
             </div>
 
-            {/* Quick templates */}
-            <div className="space-y-2">
-              <p className="text-sm font-medium">{pd?.quickTemplates || "Quick Templates:"}</p>
+            <div className="space-y-3">
+              <p className="text-[14px] font-semibold text-[#222222]">{pd?.quickTemplates || "Quick templates"}</p>
               <div className="flex flex-wrap gap-2">
                 {MESSAGE_TEMPLATES(property.title, pd).map(({ label, text }) => (
                   <Button
                     key={label}
                     variant="outline"
-                    size="sm"
+                    className="rounded-full border-[#DDDDDD] text-[#222222] hover:border-blue-600 hover:bg-white text-[14px] font-medium h-9"
                     onClick={() => setMessage(text)}
                   >
                     {label}
@@ -452,25 +428,25 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
                 ))}
               </div>
             </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setIsOpen(false)}
-                className="flex-1"
-              >
-                {pd?.cancel || "Cancel"}
-              </Button>
-              <Button
-                onClick={handleSendMessage}
-                disabled={!message.trim() || isLoading}
-                aria-busy={isLoading}
-                className="flex-1 bg-primary"
-              >
-                {isLoading ? (pd?.sending || "Sending…") : (pd?.sendMessage || "Send Message")}
-              </Button>
-            </div>
           </div>
+
+          <DialogFooter className="mt-8 sm:space-x-0 gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+              className="w-full sm:w-1/2 h-12 rounded-lg font-semibold text-[15px] border-blue-600 text-[#222222] hover:bg-[#F7F7F7] transition-colors"
+            >
+              {pd?.cancel || "Cancel"}
+            </Button>
+            <Button
+              onClick={handleSendMessage}
+              disabled={!message.trim() || isLoading}
+              aria-busy={isLoading}
+              className="w-full sm:w-1/2 h-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] transition-colors"
+            >
+              {isLoading ? (pd?.sending || "Sending…") : (pd?.sendMessage || "Send message")}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

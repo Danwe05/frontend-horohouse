@@ -179,7 +179,7 @@ const Index = () => {
               )}
 
               {/* ── Property Listings ────────────────────────────────────────── */}
-              <div>
+              {/* <div>
                 {isAdmin ? (
                   <AdminRole
                     properties={properties}
@@ -206,7 +206,7 @@ const Index = () => {
                     router={router}
                   />
                 )}
-              </div>
+              </div> */}
 
               {/* Transactions — all roles */}
               <TransactionList />

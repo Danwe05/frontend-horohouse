@@ -1,8 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PropertyBentoGrid() {
@@ -13,7 +11,7 @@ export default function PropertyBentoGrid() {
     {
       id: '01',
       label: _t.propertyTypeCards?.types?.residential || 'Residential',
-      description: _t.propertyTypeCards?.types?.residentialDesc || 'Bespoke family estates and private villas in prime locations.',
+      description: _t.propertyTypeCards?.types?.residentialDesc || 'Bespoke family estates and private villas.',
       image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&q=80',
       gridClass: 'md:col-span-2 md:row-span-2',
     },
@@ -41,92 +39,52 @@ export default function PropertyBentoGrid() {
   ];
 
   return (
-    <section className="bg-slate-50 py-10 px-6 overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <section className="bg-white py-16 px-6 md:px-10" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
 
-        {/* Header — matching "What We Offer" two-column layout */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:items-end mb-16">
-          <div className="flex-1">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-1 bg-blue-600" />
-                <span className="text-blue-600 font-black text-xs uppercase tracking-[0.4em]">{_t.propertyTypeCards?.marketAccess || 'Market Access'}</span>
-              </div>
-              <h2 className="text-5xl md:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter">
-                {_t.propertyTypeCards?.our || 'OUR'} <br />
-                <span className="text-blue-600">{_t.propertyTypeCards?.assets || 'ASSETS.'}</span>
-              </h2>
-            </motion.div>
-          </div>
-
-          <div className="flex-1 lg:pb-3">
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className={`text-slate-500 text-xl md:text-2xl leading-tight max-w-sm ${language === 'ar' ? 'border-r-4 pr-6' : 'border-l-4 pl-6'} border-blue-600`}
-            >
-              {_t.propertyTypeCards?.subtitle || 'From private residences to industrial hubs — curated properties across every market segment.'}
-            </motion.p>
-          </div>
+        {/* Airbnb Style Header - Clean, minimal, readable */}
+        <div className="mb-10">
+          <h2 className="text-[32px] md:text-[40px] font-semibold text-[#222222] tracking-tight leading-tight mb-2">
+            {_t.propertyTypeCards?.title || 'Discover your perfect space'}
+          </h2>
+          <p className="text-[#717171] text-lg max-w-2xl">
+            {_t.propertyTypeCards?.subtitle || 'From private residences to industrial hubs — explore curated properties across every market segment.'}
+          </p>
         </div>
 
         {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-auto md:grid-rows-2 gap-4 h-auto md:h-[700px]">
-          {propertyTypes.map((type, index) => {
+        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-[auto] md:grid-rows-[320px_320px] gap-4 md:gap-6">
+          {propertyTypes.map((type) => {
             return (
-              <motion.div
+              <div
                 key={type.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`relative group overflow-hidden rounded-[2rem] -sm hover:-translate-y-2 hover:-2xl transition-all duration-500 cursor-pointer ${type.gridClass}`}
+                className={`relative group overflow-hidden rounded-2xl cursor-pointer ${type.gridClass}`}
               >
-                {/* Background Image with Zoom on Hover */}
-                <div className="absolute inset-0 z-0">
+                {/* Image with subtle zoom on hover (Airbnb signature) */}
+                <div className="absolute inset-0 z-0 bg-[#EBEBEB]">
                   <img
                     src={type.image}
                     alt={type.label}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-blue-900/20 transition-colors duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80" />
+                  {/* Soft bottom gradient just enough to make text pop */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-90" />
                 </div>
 
-                {/* Card Content */}
-                <div className="relative z-10 h-full flex flex-col justify-between p-8">
-                  <div className={`flex items-start ${language === 'ar' ? 'justify-start' : 'justify-end'}`}>
-                    <ArrowUpRight className={`text-white opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 ${language === 'ar' ? '-rotate-90' : ''}`} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <p className="text-blue-400 text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      {_t.propertyTypeCards?.viewListings || 'View Listings'}
-                    </p>
-                    {/* Thin line divider */}
-                    <div className="w-8 h-[1.5px] bg-white/40 group-hover:w-12 group-hover:bg-blue-400 transition-all duration-500" />
-                    <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                      {type.label}
-                    </h3>
-                    <p className="text-white/70 text-sm leading-relaxed max-w-[280px] line-clamp-2 md:line-clamp-none">
-                      {type.description}
-                    </p>
-                  </div>
+                {/* Card Content - Always visible, clean layout */}
+                <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-8">
+                  <h3 className="text-[22px] md:text-2xl font-semibold text-white tracking-tight mb-1">
+                    {type.label}
+                  </h3>
+                  <p className="text-white/90 text-sm md:text-base leading-snug line-clamp-2">
+                    {type.description}
+                  </p>
                 </div>
-
-                {/* Blue Border Glow on Hover */}
-                <div className="absolute inset-0 border-1 border-blue-600/0 group-hover:border-blue-600/50 rounded-[2rem] transition-all duration-500 pointer-events-none" />
-              </motion.div>
+              </div>
             );
           })}
         </div>
+        
       </div>
     </section>
   );

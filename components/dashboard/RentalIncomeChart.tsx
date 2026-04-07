@@ -1,13 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { TrendingUp, TrendingDown, Wallet, RefreshCw } from "lucide-react"
+import { TrendingUp, TrendingDown, Wallet, RefreshCw, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { cn } from "@/lib/utils"
-import {
-  Card, CardContent, CardFooter,
-  CardHeader, CardTitle, CardDescription,
-} from "@/components/ui/card"
 import {
   ChartConfig, ChartContainer,
   ChartTooltip, ChartTooltipContent,
@@ -16,19 +12,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { apiClient } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 
-// ─── Shared types ─────────────────────────────────────────────────────────────
-interface ChartRow {
-  month: string
-  primary: number    // main metric per role
-  secondary: number  // secondary bar (0 = hidden)
-}
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface ChartRow { month: string; primary: number; secondary: number }
 interface SummaryConfig {
-  primaryLabel: string
-  secondaryLabel: string
-  primaryTotal: number
-  secondaryTotal: number
-  extraLabel?: string
-  extraValue?: string
+  primaryLabel: string; secondaryLabel: string
+  primaryTotal: number; secondaryTotal: number
+  extraLabel?: string; extraValue?: string
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -52,8 +41,7 @@ function lastNMonths(n = 6) {
 function periodLabel(period: string) {
   if (/^\d{4}-\d{2}$/.test(period)) {
     const [y, m] = period.split("-")
-    return new Date(Number(y), Number(m) - 1, 1)
-      .toLocaleString("default", { month: "short" })
+    return new Date(Number(y), Number(m) - 1, 1).toLocaleString("default", { month: "short" })
   }
   return period
 }
@@ -61,10 +49,7 @@ function periodLabel(period: string) {
 function buildDateRange(months = 6) {
   const end = new Date()
   const start = new Date(end.getFullYear(), end.getMonth() - (months - 1), 1)
-  return {
-    startDate: start.toISOString().split("T")[0],
-    endDate: end.toISOString().split("T")[0],
-  }
+  return { startDate: start.toISOString().split("T")[0], endDate: end.toISOString().split("T")[0] }
 }
 
 function calcTrend(rows: ChartRow[]) {
@@ -76,29 +61,18 @@ function calcTrend(rows: ChartRow[]) {
   return { percentage: Math.abs(Math.round(pct * 10) / 10), isPositive: pct >= 0 }
 }
 
-// ─── Per-role data fetchers ───────────────────────────────────────────────────
-
+// ─── Fetchers ─────────────────────────────────────────────────────────────────
 async function fetchAdmin(): Promise<ChartRow[]> {
   const { startDate, endDate } = buildDateRange(6)
-  const points: any[] = await apiClient.request({
-    method: "GET",
-    url: "/analytics/admin/revenue",
-    params: { startDate, endDate, granularity: "month" },
-  })
+  const points: any[] = await apiClient.request({ method: "GET", url: "/analytics/admin/revenue", params: { startDate, endDate, granularity: "month" } })
   if (!Array.isArray(points)) return []
-  return points.map((p) => ({
-    month: periodLabel(p.period),
-    primary: p.grossRevenue ?? 0,
-    secondary: p.platformFees ?? 0,
-  }))
+  return points.map((p) => ({ month: periodLabel(p.period), primary: p.grossRevenue ?? 0, secondary: p.platformFees ?? 0 }))
 }
 
 async function fetchAgent(): Promise<ChartRow[]> {
   const months = lastNMonths(6)
   const map: Record<string, { primary: number; secondary: number }> = {}
   months.forEach((m) => { map[m.key] = { primary: 0, secondary: 0 } })
-
-  // Host booking revenue (completed stays)
   try {
     const res = await apiClient.request({ method: 'GET', url: '/bookings/hosting', params: { limit: 100, page: 1 } })
     const bookings: any[] = res?.bookings ?? res?.data ?? []
@@ -108,8 +82,6 @@ async function fetchAgent(): Promise<ChartRow[]> {
       if (key in map) map[key].primary += b.priceBreakdown?.totalAmount ?? 0
     })
   } catch { /* non-critical */ }
-
-  // Commission / success transactions
   try {
     const res = await apiClient.request({ method: 'GET', url: '/payments/transactions', params: { status: 'success', limit: 100, page: 1 } })
     const txs: any[] = res?.transactions ?? res?.data ?? []
@@ -118,12 +90,7 @@ async function fetchAgent(): Promise<ChartRow[]> {
       if (key in map) map[key].secondary += tx.amount ?? 0
     })
   } catch { /* non-critical */ }
-
-  return months.map((m) => ({
-    month: m.label,
-    primary: map[m.key].primary,
-    secondary: map[m.key].secondary,
-  }))
+  return months.map((m) => ({ month: m.label, primary: map[m.key].primary, secondary: map[m.key].secondary }))
 }
 
 async function fetchLandlord(): Promise<ChartRow[]> {
@@ -131,8 +98,6 @@ async function fetchLandlord(): Promise<ChartRow[]> {
   const expected: Record<string, number> = {}
   const collected: Record<string, number> = {}
   months.forEach((m) => { expected[m.key] = 0; collected[m.key] = 0 })
-
-  // Long-term: payment cycles
   try {
     const cyclesRes = await apiClient.getLandlordPaymentCycles()
     const cycles: any[] = cyclesRes?.cycles ?? cyclesRes?.data ?? cyclesRes ?? []
@@ -146,8 +111,6 @@ async function fetchLandlord(): Promise<ChartRow[]> {
       })
     })
   } catch { /* non-critical */ }
-
-  // Short-term: host bookings
   try {
     const res = await apiClient.request({ method: 'GET', url: '/bookings/hosting', params: { limit: 100, page: 1 } })
     const bookings: any[] = res?.bookings ?? res?.data ?? []
@@ -160,19 +123,13 @@ async function fetchLandlord(): Promise<ChartRow[]> {
       if (b.paymentStatus === "paid") collected[key] += amt
     })
   } catch { /* non-critical */ }
-
-  return months.map((m) => ({
-    month: m.label,
-    primary: collected[m.key],  // collected = green bar
-    secondary: expected[m.key],   // expected = blue ghost
-  }))
+  return months.map((m) => ({ month: m.label, primary: collected[m.key], secondary: expected[m.key] }))
 }
 
 async function fetchUser(): Promise<ChartRow[]> {
   const months = lastNMonths(6)
   const map: Record<string, number> = {}
   months.forEach((m) => { map[m.key] = 0 })
-
   try {
     const res = await apiClient.request({ method: 'GET', url: '/bookings/my', params: { limit: 100, page: 1 } })
     const bookings: any[] = res?.bookings ?? res?.data ?? []
@@ -182,73 +139,73 @@ async function fetchUser(): Promise<ChartRow[]> {
       if (key in map) map[key] += b.priceBreakdown?.totalAmount ?? 0
     })
   } catch { /* non-critical */ }
-
-  return months.map((m) => ({
-    month: m.label,
-    primary: map[m.key],
-    secondary: 0,
-  }))
+  return months.map((m) => ({ month: m.label, primary: map[m.key], secondary: 0 }))
 }
 
-// ─── Role display config ──────────────────────────────────────────────────────
+// ─── Role config ──────────────────────────────────────────────────────────────
 function getRoleCfg(role: string): {
-  title: string
-  subtitle: string
-  primaryColor: string
-  secondaryColor: string
+  title: string; subtitle: string
+  primaryColor: string; secondaryColor: string
   labels: (rows: ChartRow[]) => SummaryConfig
 } {
   switch (role) {
-    case "admin":
-      return {
-        title: "Platform Revenue",
-        subtitle: "Gross revenue & platform fees — last 6 months",
-        primaryColor: "#10b981", secondaryColor: "#3b82f6",
-        labels: (rows) => ({
-          primaryLabel: "Gross Revenue", secondaryLabel: "Platform Fees",
-          primaryTotal: rows.reduce((s, r) => s + r.primary, 0),
-          secondaryTotal: rows.reduce((s, r) => s + r.secondary, 0),
-        }),
-      }
-    case "agent":
-      return {
-        title: "My Earnings",
-        subtitle: "Host revenue + commissions — last 6 months",
-        primaryColor: "#6366f1", secondaryColor: "#f59e0b",
-        labels: (rows) => ({
-          primaryLabel: "Hosting Revenue", secondaryLabel: "Commissions",
-          primaryTotal: rows.reduce((s, r) => s + r.primary, 0),
-          secondaryTotal: rows.reduce((s, r) => s + r.secondary, 0),
-        }),
-      }
-    case "landlord":
-      return {
-        title: "Rental Income",
-        subtitle: "Collected vs expected — last 6 months",
-        primaryColor: "#10b981", secondaryColor: "#f59e0b",
-        labels: (rows) => {
-          const col = rows.reduce((s, r) => s + r.primary, 0)
-          const exp = rows.reduce((s, r) => s + r.secondary, 0)
-          const rate = exp > 0 ? Math.round((col / exp) * 100) : 0
-          return {
-            primaryLabel: "Collected", secondaryLabel: "Expected",
-            primaryTotal: col, secondaryTotal: exp,
-            extraLabel: "Collection Rate", extraValue: `${rate}%`,
-          }
-        },
-      }
-    default: // user
-      return {
-        title: "Booking Spend",
-        subtitle: "Amount spent on confirmed stays — last 6 months",
-        primaryColor: "#8b5cf6", secondaryColor: "transparent",
-        labels: (rows) => ({
-          primaryLabel: "Total Spent", secondaryLabel: "",
-          primaryTotal: rows.reduce((s, r) => s + r.primary, 0),
-          secondaryTotal: 0,
-        }),
-      }
+    case "admin": return {
+      title: "Platform Revenue", subtitle: "Gross revenue & platform fees · last 6 months",
+      primaryColor: "#00A699", secondaryColor: "#FF5A5F",
+      labels: (rows) => ({
+        primaryLabel: "Gross Revenue", secondaryLabel: "Platform Fees",
+        primaryTotal: rows.reduce((s, r) => s + r.primary, 0),
+        secondaryTotal: rows.reduce((s, r) => s + r.secondary, 0),
+      }),
+    }
+    case "agent": return {
+      title: "My Earnings", subtitle: "Host revenue & commissions · last 6 months",
+      primaryColor: "#FF5A5F", secondaryColor: "#FC642D",
+      labels: (rows) => ({
+        primaryLabel: "Hosting Revenue", secondaryLabel: "Commissions",
+        primaryTotal: rows.reduce((s, r) => s + r.primary, 0),
+        secondaryTotal: rows.reduce((s, r) => s + r.secondary, 0),
+      }),
+    }
+    case "landlord": return {
+      title: "Rental Income", subtitle: "Collected vs expected · last 6 months",
+      primaryColor: "#00A699", secondaryColor: "#FC642D",
+      labels: (rows) => {
+        const col = rows.reduce((s, r) => s + r.primary, 0)
+        const exp = rows.reduce((s, r) => s + r.secondary, 0)
+        const rate = exp > 0 ? Math.round((col / exp) * 100) : 0
+        return { primaryLabel: "Collected", secondaryLabel: "Expected", primaryTotal: col, secondaryTotal: exp, extraLabel: "Collection Rate", extraValue: `${rate}%` }
+      },
+    }
+    default: return {
+      title: "Booking Spend", subtitle: "Amount spent on confirmed stays · last 6 months",
+      primaryColor: "#FF5A5F", secondaryColor: "transparent",
+      labels: (rows) => ({ primaryLabel: "Total Spent", secondaryLabel: "", primaryTotal: rows.reduce((s, r) => s + r.primary, 0), secondaryTotal: 0 }),
+    }
   }
+}
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function ChartSkeleton() {
+  return (
+    <div className="rounded-2xl bg-white border border-gray-100 overflow-hidden p-6">
+      <div className="flex items-start justify-between mb-6">
+        <div><Skeleton className="h-5 w-40 mb-2" /><Skeleton className="h-3.5 w-56" /></div>
+        <Skeleton className="h-7 w-20 rounded-full" />
+      </div>
+      <div className="h-[200px] flex items-end gap-2">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex-1 flex flex-col gap-1 items-center">
+            <Skeleton className="w-full rounded-t-lg" style={{ height: `${35 + i * 8}%` }} />
+            <Skeleton className="h-3 w-6 mt-2 rounded" />
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-4 mt-6 pt-5 border-t border-gray-100">
+        {[1, 2].map(i => <Skeleton key={i} className="h-12 flex-1 rounded-xl" />)}
+      </div>
+    </div>
+  )
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -291,156 +248,132 @@ export function RentalIncomeChart() {
     secondary: { label: summary.secondaryLabel, color: cfg.secondaryColor },
   }), [summary, cfg])
 
-  if (authLoading || loading) return (
-    <Card className="overflow-hidden border-0 -lg bg-white">
-      <div className="p-6 border-b border-slate-100">
-        <Skeleton className="h-6 w-44 mb-2" /><Skeleton className="h-4 w-56" />
-      </div>
-      <CardContent className="pt-8">
-        <div className="h-[280px] flex items-end gap-3 px-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex-1 flex flex-col gap-1 items-center">
-              <Skeleton className="w-full rounded-t-md" style={{ height: `${35 + Math.random() * 45}%` }} />
-              <Skeleton className="h-3 w-8 mt-2" />
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  )
+  if (authLoading || loading) return <ChartSkeleton />
 
+  // ── Error ──────────────────────────────────────────────────────────────────
   if (error) return (
-    <Card className="overflow-hidden border-0 -lg bg-white">
-      <div className="p-6 border-b border-slate-100">
-        <CardTitle className="text-xl font-bold text-slate-900">{cfg.title}</CardTitle>
+    <div className="rounded-2xl bg-white border border-gray-100 p-6 flex flex-col items-center justify-center min-h-[320px] text-center gap-3">
+      <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center">
+        <TrendingDown className="w-5 h-5 text-red-500" />
       </div>
-      <CardContent className="flex flex-col items-center justify-center h-[280px] text-center p-4">
-        <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-3">
-          <TrendingDown className="w-7 h-7 text-red-500" />
-        </div>
-        <p className="text-sm font-medium text-gray-700 mb-1">Failed to load data</p>
-        <p className="text-xs text-gray-400 mb-4">{error}</p>
-        <button onClick={fetchData}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-          <RefreshCw className="w-3 h-3" /> Retry
-        </button>
-      </CardContent>
-    </Card>
+      <p className="text-sm font-semibold text-gray-800">Couldn't load data</p>
+      <p className="text-xs text-gray-400">{error}</p>
+      <button onClick={fetchData} className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-gray-900 text-white rounded-full hover:bg-gray-700 transition-colors">
+        <RefreshCw className="w-3 h-3" /> Retry
+      </button>
+    </div>
   )
 
+  // ── Empty ──────────────────────────────────────────────────────────────────
   if (!hasData) return (
-    <Card className="overflow-hidden border-0 -lg bg-white">
-      <div className="p-6 border-b border-slate-100">
-        <CardTitle className="text-xl font-bold text-slate-900">{cfg.title}</CardTitle>
-        <CardDescription className="text-slate-500">{cfg.subtitle}</CardDescription>
+    <div className="rounded-2xl bg-white border border-gray-100 p-6 flex flex-col items-center justify-center min-h-[320px] text-center gap-3">
+      <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center">
+        <Wallet className="w-5 h-5 text-gray-400" />
       </div>
-      <CardContent className="flex flex-col items-center justify-center h-[280px] text-center p-4">
-        <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-          <Wallet className="w-7 h-7 text-gray-400" />
-        </div>
-        <p className="text-sm font-medium text-gray-600 mb-1">No data yet</p>
-        <p className="text-xs text-gray-400">
-          {role === "user"
-            ? "Your confirmed booking spend will appear here."
-            : "Revenue will appear once bookings are confirmed."}
-        </p>
-      </CardContent>
-    </Card>
+      <p className="text-sm font-semibold text-gray-700">{cfg.title}</p>
+      <p className="text-xs text-gray-400">
+        {role === "user" ? "Your confirmed booking spend will appear here." : "Revenue will appear once bookings are confirmed."}
+      </p>
+    </div>
   )
 
+  // ── Main ───────────────────────────────────────────────────────────────────
   return (
-    <Card className="overflow-hidden border-0 -lg pb-0 bg-white">
-      <div className="p-6 border-b border-slate-100">
-        <CardHeader className="p-0">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <CardTitle className="text-xl font-bold text-slate-900">{cfg.title}</CardTitle>
-              <CardDescription className="text-slate-500 font-medium">{cfg.subtitle}</CardDescription>
-            </div>
-            {trend.percentage > 0 && (
-              <div className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold",
-                trend.isPositive
-                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                  : "bg-rose-50 border-rose-200 text-rose-700",
-              )}>
-                {trend.isPositive
-                  ? <TrendingUp className="h-3.5 w-3.5" />
-                  : <TrendingDown className="h-3.5 w-3.5" />}
-                {trend.isPositive ? "+" : "-"}{trend.percentage}%
-              </div>
-            )}
-          </div>
-        </CardHeader>
+    <div className="rounded-2xl bg-white border border-gray-100 overflow-hidden">
+
+      {/* Header */}
+      <div className="flex items-start justify-between px-6 pt-6 pb-5">
+        <div>
+          <h3 className="text-base font-semibold text-gray-900 tracking-tight">{cfg.title}</h3>
+          <p className="text-xs text-gray-400 mt-0.5">{cfg.subtitle}</p>
+        </div>
+        {trend.percentage > 0 && (
+          <span className={cn(
+            "inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold",
+            trend.isPositive ? "bg-[#E8F5F4] text-[#00A699]" : "bg-rose-50 text-rose-600",
+          )}>
+            {trend.isPositive ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
+            {trend.isPositive ? "+" : "-"}{trend.percentage}%
+          </span>
+        )}
       </div>
 
-      <CardContent className="pt-8">
-        <ChartContainer config={chartConfig}>
-          <BarChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-            <XAxis dataKey="month" tickLine={false} tickMargin={12} axisLine={false}
-              className="text-[11px] font-bold text-slate-400" />
-            <YAxis tickLine={false} axisLine={false} tickFormatter={fmt}
-              className="text-[11px] text-slate-400" width={72} />
+      {/* Chart */}
+      <div className="px-2 pb-2">
+        <ChartContainer config={chartConfig} className="h-[200px] w-full">
+          <BarChart data={rows} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              tick={{ fontSize: 11, fill: "#9ca3af", fontWeight: 500 }}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={fmt}
+              tick={{ fontSize: 10, fill: "#9ca3af" }}
+              width={56}
+            />
             <ChartTooltip
-              cursor={{ fill: "rgba(99,102,241,0.05)" }}
+              cursor={{ fill: "rgba(0,0,0,0.03)" }}
               content={<ChartTooltipContent
-                formatter={(value, name) => [
-                  fmt(value as number),
-                  name === "primary" ? summary.primaryLabel : summary.secondaryLabel,
-                ]}
+                formatter={(value, name) => [fmt(value as number), name === "primary" ? summary.primaryLabel : summary.secondaryLabel]}
               />}
             />
-            <Bar dataKey="primary" fill={cfg.primaryColor} radius={[4, 4, 0, 0]} barSize={20} />
+            <Bar dataKey="primary" fill={cfg.primaryColor} radius={[4, 4, 0, 0]} barSize={20} maxBarSize={28} />
             {summary.secondaryLabel && (
-              <Bar dataKey="secondary" fill={cfg.secondaryColor}
-                radius={[4, 4, 0, 0]} barSize={20} opacity={0.45} />
+              <Bar dataKey="secondary" fill={cfg.secondaryColor} radius={[4, 4, 0, 0]} barSize={20} maxBarSize={28} opacity={0.4} />
             )}
           </BarChart>
         </ChartContainer>
-      </CardContent>
+      </div>
 
-      <CardFooter className="border-t border-slate-100 bg-slate-50/50 p-6">
-        <div className={cn("w-full grid gap-4",
-          summary.extraLabel ? "grid-cols-3" : summary.secondaryLabel ? "grid-cols-2" : "grid-cols-1")}>
-          {/* Primary */}
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: cfg.primaryColor }} />
-              <span className="text-xs font-bold text-slate-500">{summary.primaryLabel}</span>
-            </div>
-            <span className="text-lg font-bold text-slate-900 pl-4">{fmt(summary.primaryTotal)}</span>
+      {/* Legend row */}
+      {summary.secondaryLabel && (
+        <div className="flex items-center gap-4 px-6 pb-4">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ backgroundColor: cfg.primaryColor }} />
+            <span className="text-[11px] text-gray-400 font-medium">{summary.primaryLabel}</span>
           </div>
-          {/* Secondary */}
-          {summary.secondaryLabel && (
-            <div className="flex flex-col border-l border-slate-100 pl-4">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-2.5 h-2.5 rounded-sm opacity-50"
-                  style={{ backgroundColor: cfg.secondaryColor }} />
-                <span className="text-xs font-bold text-slate-500">{summary.secondaryLabel}</span>
-              </div>
-              <span className="text-lg font-bold text-slate-900">{fmt(summary.secondaryTotal)}</span>
-            </div>
-          )}
-          {/* Extra (landlord collection rate) */}
-          {summary.extraLabel && (
-            <div className="flex flex-col border-l border-slate-100 pl-4">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-2.5 h-2.5 bg-indigo-500 rounded-sm" />
-                <span className="text-xs font-bold text-slate-500">{summary.extraLabel}</span>
-              </div>
-              <span className={cn("text-lg font-bold pl-4",
-                summary.extraValue && Number(summary.extraValue.replace("%", "")) >= 80
-                  ? "text-emerald-600"
-                  : summary.extraValue && Number(summary.extraValue.replace("%", "")) >= 60
-                    ? "text-amber-600" : "text-rose-600"
-              )}>
-                {summary.extraValue}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block opacity-40" style={{ backgroundColor: cfg.secondaryColor }} />
+            <span className="text-[11px] text-gray-400 font-medium">{summary.secondaryLabel}</span>
+          </div>
         </div>
-      </CardFooter>
-    </Card>
+      )}
+
+      {/* Footer stats */}
+      <div className={cn(
+        "border-t border-gray-100 grid divide-x divide-gray-100",
+        summary.extraLabel ? "grid-cols-3" : summary.secondaryLabel ? "grid-cols-2" : "grid-cols-1",
+      )}>
+        <div className="flex flex-col items-center justify-center py-4 px-3 text-center">
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">{summary.primaryLabel}</span>
+          <span className="text-base font-bold text-gray-900">{fmt(summary.primaryTotal)}</span>
+        </div>
+        {summary.secondaryLabel && (
+          <div className="flex flex-col items-center justify-center py-4 px-3 text-center">
+            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">{summary.secondaryLabel}</span>
+            <span className="text-base font-bold text-gray-900">{fmt(summary.secondaryTotal)}</span>
+          </div>
+        )}
+        {summary.extraLabel && (
+          <div className="flex flex-col items-center justify-center py-4 px-3 text-center">
+            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">{summary.extraLabel}</span>
+            <span className={cn(
+              "text-base font-bold",
+              summary.extraValue && Number(summary.extraValue.replace("%", "")) >= 80 ? "text-[#00A699]"
+                : summary.extraValue && Number(summary.extraValue.replace("%", "")) >= 60 ? "text-amber-600"
+                : "text-rose-600",
+            )}>
+              {summary.extraValue}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

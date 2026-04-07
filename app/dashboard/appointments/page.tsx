@@ -71,12 +71,12 @@ type AppointmentStats = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<AppointmentStatus, { label: string; bg: string; text: string; dot: string }> = {
-  scheduled: { label: 'Scheduled', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-400' },
-  rescheduled: { label: 'Rescheduled', bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400' },
-  completed: { label: 'Completed', bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
-  cancelled: { label: 'Cancelled', bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-400' },
-  'no-show': { label: 'No-Show', bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400' },
+const STATUS_CONFIG: Record<AppointmentStatus, { label: string; border: string; text: string; dot: string }> = {
+  scheduled: { label: 'Scheduled', border: 'border-[#DDDDDD]', text: 'text-[#222222]', dot: 'bg-blue-600' },
+  rescheduled: { label: 'Rescheduled', border: 'border-[#DDDDDD]', text: 'text-[#222222]', dot: 'bg-[#717171]' },
+  completed: { label: 'Completed', border: 'border-[#DDDDDD]', text: 'text-[#222222]', dot: 'bg-blue-600' },
+  cancelled: { label: 'Cancelled', border: 'border-[#DDDDDD]', text: 'text-[#717171]', dot: 'bg-[#DDDDDD]' },
+  'no-show': { label: 'No-Show', border: 'border-[#DDDDDD]', text: 'text-[#717171]', dot: 'bg-[#DDDDDD]' },
 };
 
 const TYPE_ICON: Record<AppointmentType, React.ElementType> = {
@@ -86,7 +86,7 @@ const TYPE_ICON: Record<AppointmentType, React.ElementType> = {
 function StatusBadge({ status }: { status: AppointmentStatus }) {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.scheduled;
   return (
-    <span className={cn('inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold', cfg.bg, cfg.text)}>
+    <span className={cn('inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white border', cfg.border, cfg.text)}>
       <span className={cn('w-1.5 h-1.5 rounded-full', cfg.dot)} />
       {cfg.label}
     </span>
@@ -130,31 +130,31 @@ function CalendarView({ appointments, onSelect }: { appointments: Appointment[];
   const cells = Array.from({ length: firstDayOfWeek + daysInMonth }, (_, i) => i < firstDayOfWeek ? null : i - firstDayOfWeek + 1);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 -sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-[#DDDDDD] shadow-none overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-        <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors">
-          <ChevronLeft className="w-4 h-4 text-slate-600" />
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
+        <button onClick={prevMonth} className="p-1.5 rounded-full hover:bg-[#F7F7F7] cursor-pointer transition-colors">
+          <ChevronLeft className="w-4 h-4 text-[#717171]" />
         </button>
-        <h2 className="font-bold text-slate-900">
+        <h2 className="font-semibold text-[#222222]">
           {currentMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
         </h2>
-        <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors">
-          <ChevronRight className="w-4 h-4 text-slate-600" />
+        <button onClick={nextMonth} className="p-1.5 rounded-full hover:bg-[#F7F7F7] cursor-pointer transition-colors">
+          <ChevronRight className="w-4 h-4 text-[#717171]" />
         </button>
       </div>
 
       {/* Day labels */}
-      <div className="grid grid-cols-7 border-b border-slate-100">
+      <div className="grid grid-cols-7 border-b border-[#EBEBEB]">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-          <div key={d} className="text-center text-xs font-semibold text-slate-400 py-2">{d}</div>
+          <div key={d} className="text-center text-xs font-semibold text-[#717171] py-2">{d}</div>
         ))}
       </div>
 
       {/* Days */}
       <div className="grid grid-cols-7">
         {cells.map((day, idx) => {
-          if (!day) return <div key={`empty-${idx}`} className="min-h-[80px] border-b border-r border-slate-50" />;
+          if (!day) return <div key={`empty-${idx}`} className="min-h-[80px] border-b border-r border-[#EBEBEB] bg-[#F7F7F7]/30" />;
 
           const d = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
           const key = d.toDateString();
@@ -168,26 +168,24 @@ function CalendarView({ appointments, onSelect }: { appointments: Appointment[];
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.015 }}
               className={cn(
-                'min-h-[80px] border-b border-r border-slate-50 p-1.5 relative',
-                isToday && 'bg-blue-50/40'
+                'min-h-[80px] border-b border-r border-[#EBEBEB] p-1.5 relative',
+                isToday && 'bg-[#F7F7F7]'
               )}
             >
               <div className={cn(
                 'text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full mb-1',
-                isToday ? 'bg-blue-600 text-white' : 'text-slate-600'
+                isToday ? 'bg-blue-600 text-white' : 'text-[#222222]'
               )}>
                 {day}
               </div>
               <div className="space-y-0.5">
                 {dayAppts.slice(0, 3).map(a => {
-                  const cfg = STATUS_CONFIG[a.status] ?? STATUS_CONFIG.scheduled;
                   return (
                     <button
                       key={a._id}
                       onClick={() => onSelect(a)}
                       className={cn(
-                        'w-full text-left text-[10px] font-medium px-1.5 py-0.5 rounded truncate cursor-pointer transition-opacity hover:opacity-80',
-                        cfg.bg, cfg.text
+                        'w-full text-left text-[10px] font-medium px-1.5 py-1 rounded-md truncate cursor-pointer transition-colors hover:bg-[#F7F7F7] border border-[#EBEBEB] bg-white text-[#222222]'
                       )}
                     >
                       {new Date(a.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} {a.title}
@@ -195,7 +193,7 @@ function CalendarView({ appointments, onSelect }: { appointments: Appointment[];
                   );
                 })}
                 {dayAppts.length > 3 && (
-                  <p className="text-[10px] text-slate-400 pl-1.5">+{dayAppts.length - 3} more</p>
+                  <p className="text-[10px] text-[#717171] pl-1.5 pt-0.5">+{dayAppts.length - 3} more</p>
                 )}
               </div>
             </motion.div>
@@ -218,51 +216,51 @@ function AppointmentFormFields({
   return (
     <div className="grid gap-3.5 py-2">
       {conflictError && (
-        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#FFF8F8] border border-[#FFDFDF] text-sm text-[#E50000]">
           <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
           <span>{conflictError}</span>
         </div>
       )}
 
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Title *</Label>
+        <Label className="text-right text-[#717171] text-xs">Title *</Label>
         <Input value={data.title ?? ''} onChange={e => setData({ ...data, title: e.target.value })}
-          className="col-span-3 bg-slate-50 border-slate-200 h-9" placeholder="Property Viewing" />
+          className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222] rounded-xl h-9" placeholder="Property Viewing" />
       </div>
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Client *</Label>
+        <Label className="text-right text-[#717171] text-xs">Client *</Label>
         <Input value={data.clientName ?? ''} onChange={e => setData({ ...data, clientName: e.target.value })}
-          className="col-span-3 bg-slate-50 border-slate-200 h-9" placeholder="John Doe" />
+          className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222] rounded-xl h-9" placeholder="John Doe" />
       </div>
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Email</Label>
+        <Label className="text-right text-[#717171] text-xs">Email</Label>
         <Input type="email" value={data.clientEmail ?? ''} onChange={e => setData({ ...data, clientEmail: e.target.value })}
-          className="col-span-3 bg-slate-50 border-slate-200 h-9" placeholder="john@example.com" />
+          className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222] rounded-xl h-9" placeholder="john@example.com" />
       </div>
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Phone</Label>
+        <Label className="text-right text-[#717171] text-xs">Phone</Label>
         <Input value={data.clientPhone ?? ''} onChange={e => setData({ ...data, clientPhone: e.target.value })}
-          className="col-span-3 bg-slate-50 border-slate-200 h-9" placeholder="+237..." />
+          className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222] rounded-xl h-9" placeholder="+237..." />
       </div>
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Property</Label>
+        <Label className="text-right text-[#717171] text-xs">Property</Label>
         <Input value={data.property ?? ''} onChange={e => setData({ ...data, property: e.target.value })}
-          className="col-span-3 bg-slate-50 border-slate-200 h-9" placeholder="Property name" />
+          className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222] rounded-xl h-9" placeholder="Property name" />
       </div>
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Date & Time *</Label>
+        <Label className="text-right text-[#717171] text-xs">Date & Time *</Label>
         <Input type="datetime-local" value={data.date ?? ''} onChange={e => setData({ ...data, date: e.target.value })}
-          className="col-span-3 bg-slate-50 border-slate-200 h-9" />
+          className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222] rounded-xl h-9" />
       </div>
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Duration</Label>
+        <Label className="text-right text-[#717171] text-xs">Duration</Label>
         <Input type="number" value={data.duration ?? ''} onChange={e => setData({ ...data, duration: e.target.value ? Number(e.target.value) : undefined })}
-          className="col-span-3 bg-slate-50 border-slate-200 h-9" placeholder="Minutes (e.g. 60)" />
+          className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222] rounded-xl h-9" placeholder="Minutes (e.g. 60)" />
       </div>
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Type</Label>
+        <Label className="text-right text-[#717171] text-xs">Type</Label>
         <Select value={data.type} onValueChange={v => setData({ ...data, type: v as AppointmentType })}>
-          <SelectTrigger className="col-span-3 bg-slate-50 border-slate-200 h-9"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:ring-0 rounded-xl h-9"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="in-person">In-person</SelectItem>
             <SelectItem value="virtual">Virtual</SelectItem>
@@ -271,19 +269,19 @@ function AppointmentFormFields({
         </Select>
       </div>
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Location</Label>
+        <Label className="text-right text-[#717171] text-xs">Location</Label>
         <Input value={data.location ?? ''} onChange={e => setData({ ...data, location: e.target.value })}
-          className="col-span-3 bg-slate-50 border-slate-200 h-9" placeholder="Address or Meeting Link" />
+          className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222] rounded-xl h-9" placeholder="Address or Meeting Link" />
       </div>
       <div className="grid grid-cols-4 items-start gap-3">
-        <Label className="text-right text-slate-500 text-xs mt-2.5">Notes</Label>
+        <Label className="text-right text-[#717171] text-xs mt-2.5">Notes</Label>
         <Textarea value={data.description ?? ''} onChange={e => setData({ ...data, description: e.target.value })}
-          className="col-span-3 bg-slate-50 border-slate-200 resize-none" placeholder="Brief notes…" rows={2} />
+          className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 resize-none rounded-xl" placeholder="Brief notes…" rows={2} />
       </div>
       <div className="grid grid-cols-4 items-center gap-3">
-        <Label className="text-right text-slate-500 text-xs">Status</Label>
+        <Label className="text-right text-[#717171] text-xs">Status</Label>
         <Select value={data.status} onValueChange={v => setData({ ...data, status: v as AppointmentStatus })}>
-          <SelectTrigger className="col-span-3 bg-slate-50 border-slate-200 h-9"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="col-span-3 bg-white border-[#DDDDDD] hover:border-blue-600 focus:ring-0 rounded-xl h-9"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="scheduled">Scheduled</SelectItem>
             <SelectItem value="rescheduled">Rescheduled</SelectItem>
@@ -462,10 +460,10 @@ export default function AppointmentsPage() {
 
   // Stats cards
   const statsCards = [
-    { title: 'Total', value: stats?.total ?? 0, icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { title: 'Upcoming', value: stats?.upcoming ?? 0, icon: CalendarClock, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-    { title: 'Completed', value: stats?.completed ?? 0, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { title: 'Success Rate', value: `${stats?.completionRate ?? 0}%`, icon: TrendingUp, color: 'text-violet-600', bg: 'bg-violet-50' },
+    { title: 'Total', value: stats?.total ?? 0, icon: Calendar, bg: 'bg-[#F7F7F7]', color: 'text-[#222222]' },
+    { title: 'Upcoming', value: stats?.upcoming ?? 0, icon: CalendarClock, bg: 'bg-[#F7F7F7]', color: 'text-[#222222]' },
+    { title: 'Completed', value: stats?.completed ?? 0, icon: CheckCircle2, bg: 'bg-[#F7F7F7]', color: 'text-[#222222]' },
+    { title: 'Success Rate', value: `${stats?.completionRate ?? 0}%`, icon: TrendingUp, bg: 'bg-[#F7F7F7]', color: 'text-[#222222]' },
   ];
 
   const hasDateFilter = !!(startDate || endDate);
@@ -473,7 +471,7 @@ export default function AppointmentsPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#f8fafc]">
+      <div className="flex min-h-screen w-full bg-white">
         <AppSidebar />
         <SidebarInset>
           <NavDash />
@@ -485,21 +483,19 @@ export default function AppointmentsPage() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-                        <Calendar className="w-6 h-6" />
-                      </div>
-                      <h1 className="text-3xl font-bold tracking-tight text-slate-900">Appointments</h1>
+
+                      <h1 className="text-3xl font-semibold tracking-tight text-[#222222]">Appointments</h1>
                     </div>
-                    <p className="text-slate-500 pl-11">Manage viewings, tours, and client meetings</p>
+                    <p className="text-[#717171]">Manage viewings, tours, and client meetings</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {/* View toggle */}
-                    <div className="flex items-center bg-slate-100 rounded-lg p-1">
+                    <div className="flex items-center bg-[#F7F7F7] rounded-full p-1 border border-[#EBEBEB]">
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => setView('list')}
-                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'list' ? 'bg-white -sm text-slate-900' : 'text-slate-500 hover:text-slate-700')}
+                            className={cn('p-1.5 rounded-full transition-colors cursor-pointer', view === 'list' ? 'bg-white shadow-sm text-[#222222]' : 'text-[#717171] hover:text-[#222222]')}
                           >
                             <List className="w-4 h-4" />
                           </button>
@@ -510,7 +506,7 @@ export default function AppointmentsPage() {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => setView('calendar')}
-                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'calendar' ? 'bg-white -sm text-slate-900' : 'text-slate-500 hover:text-slate-700')}
+                            className={cn('p-1.5 rounded-full transition-colors cursor-pointer', view === 'calendar' ? 'bg-white shadow-sm text-[#222222]' : 'text-[#717171] hover:text-[#222222]')}
                           >
                             <CalendarDays className="w-4 h-4" />
                           </button>
@@ -519,7 +515,7 @@ export default function AppointmentsPage() {
                       </Tooltip>
                     </div>
                     <Button
-                      className="rounded-full px-5 bg-blue-600 hover:bg-blue-700 -sm"
+                      className="rounded-xl px-5 bg-blue-600 hover:bg-blue-700 text-white shadow-none"
                       onClick={() => { setConflictErr(''); setNewAppt({ ...emptyAppt }); setAddOpen(true); }}
                     >
                       <Plus className="w-4 h-4 mr-1.5" /> New Appointment
@@ -531,7 +527,7 @@ export default function AppointmentsPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {statsLoading
                     ? Array.from({ length: 4 }).map((_, i) => (
-                      <Card key={i} className="rounded-2xl border-slate-200 -sm">
+                      <Card key={i} className="rounded-2xl border border-[#DDDDDD] shadow-none">
                         <CardContent className="p-4"><Skeleton className="h-4 w-24 mb-2" /><Skeleton className="h-8 w-16" /></CardContent>
                       </Card>
                     ))
@@ -542,14 +538,14 @@ export default function AppointmentsPage() {
                         animate={{ opacity: 1, overflow: 'visible', height: 'auto', scale: 1 }}
                         transition={{ delay: idx * 0.05, duration: 0.3 }}
                       >
-                        <Card className="rounded-2xl border-slate-200 -sm hover:-md transition-all h-full">
+                        <Card className="rounded-2xl border border-[#DDDDDD] shadow-none hover:border-blue-600 transition-colors duration-200 h-full">
                           <CardContent className="p-5 flex items-center gap-4 h-full">
                             <div className={cn('p-3 rounded-2xl', card.bg)}>
                               <card.icon className={cn('w-6 h-6', card.color)} />
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{card.title}</p>
-                              <p className="text-2xl font-black text-slate-800">{card.value}</p>
+                              <p className="text-[10px] font-bold text-[#717171] uppercase tracking-widest">{card.title}</p>
+                              <p className="text-2xl font-semibold text-[#222222] tracking-tight">{card.value}</p>
                             </div>
                           </CardContent>
                         </Card>
@@ -559,19 +555,19 @@ export default function AppointmentsPage() {
                 </div>
 
                 {/* ── Filters ── */}
-                <div className="bg-white p-3 rounded-2xl -sm border border-slate-200 space-y-3">
+                <div className="bg-white p-3 rounded-2xl border border-[#DDDDDD] space-y-3 shadow-none">
                   <div className="flex flex-col lg:flex-row gap-3">
                     {/* Search */}
                     <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AAAAAA] pointer-events-none" />
                       <Input
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         placeholder="Search by title, client, property…"
-                        className="pl-9 border-none bg-slate-50 h-10 rounded-xl"
+                        className="pl-9 border border-[#DDDDDD] focus:border-blue-600 bg-white h-10 rounded-full text-sm"
                       />
                       {search && (
-                        <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
+                        <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-[#222222] cursor-pointer">
                           <X className="w-4 h-4" />
                         </button>
                       )}
@@ -581,20 +577,20 @@ export default function AppointmentsPage() {
 
                     <div className="flex flex-wrap items-center gap-2">
                       <Tabs value={statusFilter} onValueChange={v => { setStatusFilter(v as any); setPage(1); }}>
-                        <TabsList className="bg-slate-50/80 h-10 rounded-xl p-1">
-                          <TabsTrigger value="all" className="h-8 rounded-lg text-xs px-3">All</TabsTrigger>
-                          <TabsTrigger value="scheduled" className="h-8 rounded-lg text-xs px-3">Scheduled</TabsTrigger>
-                          <TabsTrigger value="rescheduled" className="h-8 rounded-lg text-xs px-2">
+                        <TabsList className="bg-[#F7F7F7] h-10 rounded-full p-1 border border-[#EBEBEB]">
+                          <TabsTrigger value="all" className="h-8 rounded-full text-xs px-4 data-[state=active]:bg-white data-[state=active]:text-[#222222] data-[state=active]:shadow-sm font-medium text-[#717171]">All</TabsTrigger>
+                          <TabsTrigger value="scheduled" className="h-8 rounded-full text-xs px-4 data-[state=active]:bg-white data-[state=active]:text-[#222222] data-[state=active]:shadow-sm font-medium text-[#717171]">Scheduled</TabsTrigger>
+                          <TabsTrigger value="rescheduled" className="h-8 rounded-full text-xs px-3 data-[state=active]:bg-white data-[state=active]:text-[#222222] data-[state=active]:shadow-sm font-medium text-[#717171]">
                             <RotateCcw className="w-3 h-3 mr-1" />Rescheduled
                           </TabsTrigger>
-                          <TabsTrigger value="completed" className="h-8 rounded-lg text-xs px-3">Completed</TabsTrigger>
-                          <TabsTrigger value="cancelled" className="h-8 rounded-lg text-xs px-3">Cancelled</TabsTrigger>
+                          <TabsTrigger value="completed" className="h-8 rounded-full text-xs px-4 data-[state=active]:bg-white data-[state=active]:text-[#222222] data-[state=active]:shadow-sm font-medium text-[#717171]">Completed</TabsTrigger>
+                          <TabsTrigger value="cancelled" className="h-8 rounded-full text-xs px-4 data-[state=active]:bg-white data-[state=active]:text-[#222222] data-[state=active]:shadow-sm font-medium text-[#717171]">Cancelled</TabsTrigger>
                         </TabsList>
                       </Tabs>
 
                       <Select value={typeFilter} onValueChange={v => { setTypeFilter(v as any); setPage(1); }}>
-                        <SelectTrigger className="w-[140px] h-10 border-none bg-slate-50 rounded-xl text-sm">
-                          <ListFilter className="w-4 h-4 mr-1.5 text-slate-400" /><SelectValue placeholder="Type" />
+                        <SelectTrigger className="w-[140px] h-10 border border-[#DDDDDD] hover:border-blue-600 focus:ring-0 bg-white rounded-full text-sm font-medium">
+                          <ListFilter className="w-4 h-4 mr-1.5 text-[#AAAAAA]" /><SelectValue placeholder="Type" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Any Type</SelectItem>
@@ -608,7 +604,7 @@ export default function AppointmentsPage() {
 
                   {/* Date range filter */}
                   <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-slate-100">
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="text-xs font-semibold text-[#717171] uppercase tracking-wider flex items-center gap-1.5">
                       <CalendarDays className="w-3.5 h-3.5" /> Date Range:
                     </span>
                     <div className="flex items-center gap-2">
@@ -616,23 +612,23 @@ export default function AppointmentsPage() {
                         type="date"
                         value={startDate}
                         onChange={e => { setStartDate(e.target.value); setPage(1); }}
-                        className="h-8 text-xs bg-slate-50 border-slate-200 w-[150px]"
+                        className="h-8 text-xs bg-white border border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 rounded-lg w-[150px]"
                       />
-                      <span className="text-slate-400 text-xs">to</span>
+                      <span className="text-[#AAAAAA] text-xs">to</span>
                       <Input
                         type="date"
                         value={endDate}
                         onChange={e => { setEndDate(e.target.value); setPage(1); }}
-                        className="h-8 text-xs bg-slate-50 border-slate-200 w-[150px]"
+                        className="h-8 text-xs bg-white border border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 rounded-lg w-[150px]"
                       />
                       {hasDateFilter && (
-                        <Button variant="ghost" size="sm" onClick={() => { setStartDate(''); setEndDate(''); }} className="h-8 text-xs text-slate-500 px-2">
+                        <Button variant="ghost" size="sm" onClick={() => { setStartDate(''); setEndDate(''); }} className="h-8 text-xs text-[#555555] hover:text-[#222222] px-2 hover:bg-[#F7F7F7]">
                           <X className="w-3.5 h-3.5 mr-1" /> Clear
                         </Button>
                       )}
                     </div>
                     {hasAnyFilter && !hasDateFilter && (
-                      <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setStatusFilter('all'); setTypeFilter('all'); setStartDate(''); setEndDate(''); }} className="h-8 text-xs text-slate-500 ml-auto">
+                      <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setStatusFilter('all'); setTypeFilter('all'); setStartDate(''); setEndDate(''); }} className="h-8 text-xs text-[#555555] hover:text-[#222222] hover:bg-[#F7F7F7] ml-auto">
                         Clear all filters
                       </Button>
                     )}

@@ -488,7 +488,7 @@ export default function PlatformSettingsPage() {
                                         Reset
                                     </Button>
                                     <Button
-                                        className="rounded-xl h-11 px-8 bg-black hover:bg-zinc-800 text-white -lg"
+                                        className="rounded-xl h-11 px-8 bg-blue-700 hover:bg-zinc-800 text-white -lg"
                                         onClick={handleSave}
                                         disabled={isSaving}
                                     >

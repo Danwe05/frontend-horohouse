@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useStudentMode } from '@/contexts/StudentModeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Clock, AlertCircle, Upload, ArrowRight, X } from 'lucide-react';
-
+import { ShieldCheck, Clock, AlertCircle, X, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,7 +30,6 @@ function useBannerConfig(): BannerConfig {
   const _t = t as any;
   const s = _t.students?.banner || {};
 
-  // Support both old stub context (no verificationStatus) and new full context
   const status: string | null =
     ctx.verificationStatus ??
     ctx.studentProfile?.verificationStatus ??
@@ -46,15 +45,15 @@ function useBannerConfig(): BannerConfig {
     unverified: {
       show: true,
       variant: 'info',
-      title: s.unverifiedTitle || 'Upload your student ID to unlock all features',
-      description: s.unverifiedDesc || 'Verify your university ID to access the roommate pool and student-verified listings.',
+      title: s.unverifiedTitle || 'Verify your student status',
+      description: s.unverifiedDesc || 'Upload your university ID to access the roommate pool and student-verified listings.',
       ctaLabel: s.uploadBtn || 'Upload ID',
       ctaHref: '/dashboard/settings?tab=student-id',
     },
     pending: {
       show: true,
       variant: 'warning',
-      title: s.pendingTitle || 'Your student ID is under review',
+      title: s.pendingTitle || 'Your ID is under review',
       description: s.pendingDesc || "Verification usually takes less than 24 hours. We'll notify you once approved.",
       dismissible: true,
     },
@@ -79,18 +78,42 @@ function useBannerConfig(): BannerConfig {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const STYLES: Record<Variant, string> = {
-  info: 'bg-slate-900 border-slate-800 text-white',
-  warning: 'bg-amber-500 border-amber-400 text-white',
-  success: 'bg-emerald-500 border-emerald-400 text-white',
-  destructive: 'bg-red-500 border-red-400 text-white',
+const STYLES: Record<Variant, { container: string; iconBox: string; icon: string; title: string; desc: string }> = {
+  info: {
+    container: 'bg-white border-[#DDDDDD]',
+    iconBox: 'bg-[#F7F7F7] border-[#EBEBEB]',
+    icon: 'text-[#222222]',
+    title: 'text-[#222222]',
+    desc: 'text-[#717171]',
+  },
+  warning: {
+    container: 'bg-[#FFF7ED] border-[#C2410C]/20',
+    iconBox: 'bg-white/60 border-[#C2410C]/10',
+    icon: 'text-[#C2410C]',
+    title: 'text-[#C2410C]',
+    desc: 'text-[#C2410C]/80',
+  },
+  success: {
+    container: 'bg-[#EBFBF0] border-[#008A05]/20',
+    iconBox: 'bg-white/60 border-[#008A05]/10',
+    icon: 'text-[#008A05]',
+    title: 'text-[#008A05]',
+    desc: 'text-[#008A05]/80',
+  },
+  destructive: {
+    container: 'bg-[#FFF8F6] border-[#C2293F]/20',
+    iconBox: 'bg-white/60 border-[#C2293F]/10',
+    icon: 'text-[#C2293F]',
+    title: 'text-[#C2293F]',
+    desc: 'text-[#C2293F]/80',
+  },
 };
 
 const ICONS: Record<Variant, React.ReactNode> = {
-  info: <ShieldCheck className="w-5 h-5 shrink-0 text-blue-400" />,
-  warning: <Clock className="w-5 h-5 shrink-0" />,
-  success: <ShieldCheck className="w-5 h-5 shrink-0" />,
-  destructive: <AlertCircle className="w-5 h-5 shrink-0" />,
+  info: <ShieldCheck className="w-5 h-5 stroke-[1.5]" />,
+  warning: <Clock className="w-5 h-5 stroke-[1.5]" />,
+  success: <ShieldCheck className="w-5 h-5 stroke-[1.5]" />,
+  destructive: <AlertCircle className="w-5 h-5 stroke-[1.5]" />,
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -98,45 +121,49 @@ const ICONS: Record<Variant, React.ReactNode> = {
 export function StudentVerificationBanner() {
   const config = useBannerConfig();
   const [dismissed, setDismissed] = useState(false);
-  const { t } = useLanguage();
-  const _t = t as any;
-  const s = _t.students?.banner || {};
 
   if (!config.show || dismissed) return null;
+  const style = STYLES[config.variant];
 
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className={`flex items-center gap-4 px-6 py-4 rounded-3xl border -xl -slate-900/10 ${STYLES[config.variant]}`}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3 }}
+        className={cn("flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 px-5 py-4 rounded-2xl border", style.container)}
       >
-        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-          {ICONS[config.variant]}
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border", style.iconBox, style.icon)}>
+            {ICONS[config.variant]}
+          </div>
+
+          <div className="flex-1 min-w-0 pt-0.5">
+            <p className={cn("font-semibold text-[15px] leading-tight", style.title)}>
+              {config.title}
+            </p>
+            <p className={cn("text-[14px] mt-0.5 leading-snug", style.desc)}>
+              {config.description}
+            </p>
+          </div>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <p className="font-black uppercase tracking-widest text-[11px] opacity-60 mb-1">{config.variant} {s.notificationLbl || 'notification'}</p>
-          <p className="font-bold text-sm tracking-tight">{config.title}</p>
-          <p className="text-xs opacity-80 mt-0.5 line-clamp-1">{config.description}</p>
-        </div>
-
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0 pl-14 sm:pl-0 shrink-0">
           {config.ctaLabel && config.ctaHref && (
-            <Link href={config.ctaHref}>
-              <button className="bg-white text-slate-900 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white/90 transition-colors">
-                {config.ctaLabel}
+            <Link href={config.ctaHref} className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto bg-[#222222] hover:bg-black text-white px-5 h-10 rounded-lg text-[14px] font-semibold transition-colors flex items-center justify-center gap-2">
+                {config.ctaLabel} <ChevronRight className="w-4 h-4 opacity-70" />
               </button>
             </Link>
           )}
           {config.dismissible && (
             <button
               onClick={() => setDismissed(true)}
-              className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-full hover:bg-black/5 flex items-center justify-center transition-colors focus:outline-none shrink-0"
               aria-label="Dismiss"
             >
-              <X className="w-4 h-4" />
+              <X className={cn("w-5 h-5", style.icon)} />
             </button>
           )}
         </div>

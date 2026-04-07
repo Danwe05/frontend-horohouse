@@ -471,7 +471,7 @@ export default function RoomManager({ propertyId }: RoomManagerProps) {
                                     {imageFiles.map((img) => (
                                         <div key={img.id} className="relative group aspect-video rounded-lg overflow-hidden border-1 border-blue-200 bg-blue-50/50">
                                             <img src={img.preview} alt="New Upload" className="w-full h-full object-cover opacity-80" />
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-100">
+                                            <div className="absolute inset-0 flex items-center justify-center bg-blue-700/10 opacity-100">
                                                 <Badge className="bg-white/90 text-blue-700 hover:bg-white text-[10px] px-1.5 py-0 items-center border -sm">NEW</Badge>
                                             </div>
                                             <button

@@ -1151,8 +1151,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                               type="button"
                               onClick={() => setFormData(prev => ({ ...prev, listingType: value }))}
                               className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${selected
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-white text-gray-500 hover:bg-gray-50'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-500 hover:bg-gray-50'
                                 } border-r border-gray-200 last:border-r-0`}
                             >
                               {label}
@@ -1761,8 +1761,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setFormData(prev => ({ ...prev, [feature.name]: !prev[feature.name as keyof PropertyFormData] }))}
                             className={`relative flex items-center gap-2 px-4 py-3 rounded-xl border-1 text-sm font-medium transition-all duration-150 ${checked
-                                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
                               }`}
                           >
                             <Icon className={`w-4 h-4 shrink-0 ${checked ? 'text-blue-500' : 'text-gray-400'}`} />
@@ -1884,8 +1884,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                             whileTap={{ scale: 0.95 }}
                             onClick={() => toggleArrayItem('nearbyAmenities', amenity.value)}
                             className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-1 text-sm font-medium transition-all duration-150 ${selected
-                                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
                               }`}
                           >
                             {selected && (
@@ -1914,8 +1914,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                             whileTap={{ scale: 0.95 }}
                             onClick={() => toggleArrayItem('transportAccess', transport.value)}
                             className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-1 text-sm font-medium transition-all duration-150 ${selected
-                                ? 'border-purple-500 bg-purple-50 text-purple-700'
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-purple-300'
+                              ? 'border-purple-500 bg-purple-50 text-purple-700'
+                              : 'bg-white text-gray-600 border-gray-200 hover:border-purple-300'
                               }`}
                           >
                             {selected && (
@@ -2242,8 +2242,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                           type="button"
                           onClick={() => setVideoSourceTab(tab)}
                           className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${videoSourceTab === tab
-                              ? 'bg-white text-blue-600 border-b-2 border-blue-600'
-                              : 'bg-gray-50 text-gray-500 hover:text-gray-700'
+                            ? 'bg-white text-blue-600 border-b-2 border-blue-600'
+                            : 'bg-gray-50 text-gray-500 hover:text-gray-700'
                             }`}
                         >
                           {tab === 'local' ? 'Upload from device' : 'Paste URL'}
@@ -2258,7 +2258,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                             <video
                               src={videoPreview}
                               controls
-                              className="w-full rounded-lg border border-gray-200 bg-black max-h-44 object-contain"
+                              className="w-full rounded-lg border border-gray-200 bg-blue-700 max-h-44 object-contain"
                             />
                             <div className="flex items-center justify-between">
                               <div className="text-xs text-gray-600">

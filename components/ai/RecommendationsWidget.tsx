@@ -118,7 +118,7 @@ export default function RecommendationsWidget() {
 
                 {/* Hover Overlay with Reasons */}
                 {rec.reasons && rec.reasons.length > 0 && (
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-75 transition-all duration-300 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="absolute inset-0 bg-blue-700 bg-opacity-0 group-hover:bg-opacity-75 transition-all duration-300 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <div className="text-white text-center px-4">
                       <p className="font-semibold mb-2 text-sm">Why recommended:</p>
                       <ul className="text-xs space-y-1">

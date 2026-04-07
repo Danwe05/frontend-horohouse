@@ -1,5 +1,3 @@
-// components/payment/PaymentModal.tsx
-
 'use client';
 
 import React from 'react';
@@ -7,28 +5,26 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Loader2,
   CreditCard,
   Smartphone,
   Building,
-  Lock,
   AlertCircle,
   CheckCircle,
-  Shield,
-  Award
+  ShieldCheck,
+  ChevronLeft,
+  X
 } from 'lucide-react';
 import { PaymentMethod, Currency } from '@/types/paiement';
+import { cn } from '@/lib/utils';
 
 interface PaymentModalProps {
   open: boolean;
@@ -44,7 +40,6 @@ interface PaymentModalProps {
   onPaymentSubmit: (paymentMethod: PaymentMethod, email?: string, phone?: string) => void;
   loading?: boolean;
   error?: string;
-  /** Pre-filled from wallet's saved MoMo details */
   savedPhone?: string;
   savedProvider?: 'MTN' | 'ORANGE';
 }
@@ -129,381 +124,332 @@ export function PaymentModal({
 
   const paymentMethods = [
     {
-      value: PaymentMethod.CARD,
-      label: 'Credit/Debit Card',
-      icon: CreditCard,
-      description: 'Visa, Mastercard accepted',
-      processingTime: 'Instant',
-      color: 'blue',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-500',
-      textColor: 'text-blue-700',
-    },
-    {
       value: PaymentMethod.MTN_MOMO,
-      label: 'MTN Mobile Money',
+      label: 'MTN MoMo',
       icon: Smartphone,
-      description: 'Pay with MTN MoMo',
-      processingTime: '2-5 minutes',
-      color: 'yellow',
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-500',
-      textColor: 'text-yellow-700',
-      badge: 'MTN',
-      badgeColor: 'bg-yellow-400',
+      description: 'Pay instantly via MTN',
+      brandColor: 'bg-[#FFCC00]',
     },
     {
       value: PaymentMethod.ORANGE_MONEY,
       label: 'Orange Money',
       icon: Smartphone,
-      description: 'Pay with Orange Money',
-      processingTime: '2-5 minutes',
-      color: 'orange',
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-500',
-      textColor: 'text-orange-700',
-      badge: 'Orange',
-      badgeColor: 'bg-orange-500 text-white',
+      description: 'Pay instantly via Orange',
+      brandColor: 'bg-[#FF6600]',
+    },
+    {
+      value: PaymentMethod.CARD,
+      label: 'Credit or debit card',
+      icon: CreditCard,
+      description: 'Visa or Mastercard',
+      brandColor: 'bg-[#222222]',
     },
     {
       value: PaymentMethod.BANK_TRANSFER,
       label: 'Bank Transfer',
       icon: Building,
-      description: 'Direct bank transfer',
-      processingTime: '1-3 business days',
-      color: 'purple',
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-500',
-      textColor: 'text-purple-700',
+      description: '1-3 business days',
+      brandColor: 'bg-[#717171]',
     },
   ];
 
-  const selectedMethod = paymentMethods.find(m => m.value === paymentMethod);
+  // Airbnb specific input styling
+  const inputClasses = "flex h-14 w-full rounded-xl border border-[#B0B0B0] bg-white px-4 py-2 text-[16px] text-[#222222] placeholder:text-[#717171] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] focus-visible:border-transparent transition-all";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Lock className="h-5 w-5 text-green-700" />
-            </div>
-            <span>Secure Payment</span>
-          </DialogTitle>
-          <DialogDescription>
-            {description || 'Complete your payment securely. All transactions are encrypted.'}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[560px] p-0 overflow-hidden bg-white border-0 sm:rounded-2xl flex flex-col max-h-[90vh]">
 
-        <div className="space-y-6">
-          {/* Error Display */}
-          {error && (
-            <Alert variant="destructive" className="border-red-300 bg-red-50">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">{error}</AlertDescription>
-            </Alert>
-          )}
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-[#EBEBEB] sticky top-0 bg-white z-10">
+          <button 
+            onClick={() => onOpenChange(false)} 
+            className="w-8 h-8 -ml-2 rounded-full flex items-center justify-center hover:bg-[#F7F7F7] transition-colors focus:outline-none"
+          >
+            <ChevronLeft className="w-5 h-5 text-[#222222] stroke-[2]" />
+          </button>
+          <h2 className="text-[16px] font-bold text-[#222222]">Confirm and pay</h2>
+          <div className="w-8 h-8" /> {/* Spacer for centering */}
+        </div>
 
-          {/* Saved payment method quick-pay */}
-          {savedPaymentMethod && (
-            <div className={`rounded-xl border-1 p-4 cursor-pointer transition-all ${usingSaved
-              ? 'border-emerald-500 bg-emerald-50'
-              : 'border-slate-200 bg-white hover:border-slate-300'
-              }`} onClick={() => {
-                setUsingSaved(true);
-                setPaymentMethod(savedPaymentMethod);
-                setPhone(savedPhone ?? '');
-              }}>
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${usingSaved ? 'bg-emerald-100' : 'bg-slate-100'}`}>
-                  <Smartphone className={`h-5 w-5 ${usingSaved ? 'text-emerald-700' : 'text-slate-500'}`} />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-900">
-                      {savedProvider === 'MTN' ? 'MTN Mobile Money' : 'Orange Money'}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${savedProvider === 'MTN' ? 'bg-yellow-400 text-yellow-900' : 'bg-orange-500 text-white'}`}>
-                      {savedProvider}
-                    </span>
-                    <span className="ml-auto text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Saved</span>
+        {/* Scrollable Body */}
+        <div className="overflow-y-auto px-6 py-8 space-y-10 custom-scrollbar flex-1">
+
+          {/* Price Breakdown */}
+          <section>
+            <h3 className="text-[22px] font-semibold text-[#222222] mb-6">Price details</h3>
+            <div className="space-y-4 pb-6 border-b border-[#EBEBEB]">
+              {breakdown ? (
+                <>
+                  <div className="flex justify-between text-[16px] text-[#222222]">
+                    <span>Subtotal</span>
+                    <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(breakdown.subtotal)}</span>
                   </div>
-                  <p className="text-sm text-slate-500 mt-0.5">{savedPhone}</p>
+                  {breakdown.tax !== undefined && (
+                    <div className="flex justify-between text-[16px] text-[#222222]">
+                      <span className="underline decoration-1 underline-offset-2 hover:text-[#717171] cursor-pointer transition-colors">Taxes</span>
+                      <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(breakdown.tax)}</span>
+                    </div>
+                  )}
+                  {breakdown.fees !== undefined && (
+                    <div className="flex justify-between text-[16px] text-[#222222]">
+                      <span className="underline decoration-1 underline-offset-2 hover:text-[#717171] cursor-pointer transition-colors">Service fee</span>
+                      <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(breakdown.fees)}</span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex justify-between text-[16px] text-[#222222]">
+                  <span>Total payment</span>
+                  <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount)}</span>
                 </div>
-                {usingSaved && <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0" />}
+              )}
+            </div>
+            <div className="flex justify-between pt-6 text-[16px] font-bold text-[#222222]">
+              <span>Total ({currency})</span>
+              <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount)}</span>
+            </div>
+          </section>
+
+          {/* Payment Method */}
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-[22px] font-semibold text-[#222222]">Pay with</h3>
+              {/* Decorative credit card icons typical of Airbnb */}
+              <div className="flex gap-1">
+                <div className="w-8 h-5 bg-[#F7F7F7] border border-[#DDDDDD] rounded flex items-center justify-center">
+                  <CreditCard className="w-3.5 h-3.5 text-[#222222]" />
+                </div>
               </div>
             </div>
-          )}
 
-          {/* Amount Display */}
-          <div className="bg-indigo-600 p-6 rounded-xl border-1 border-indigo-700 text-white">
-            <div className="text-center">
-              <div className="text-sm font-medium mb-2 text-indigo-200">Total Amount</div>
-              <div className="text-4xl font-bold">
-                {currency} {amount.toLocaleString()}
-              </div>
-            </div>
-
-            {/* Breakdown */}
-            {breakdown && (
-              <div className="mt-4 pt-4 border-t border-indigo-500 space-y-2 text-sm">
-                <div className="flex justify-between text-indigo-100">
-                  <span>Subtotal</span>
-                  <span>{currency} {breakdown.subtotal.toLocaleString()}</span>
+            {/* Saved Payment Quick-Select */}
+            {savedPaymentMethod && (
+              <div
+                onClick={() => {
+                  setUsingSaved(true);
+                  setPaymentMethod(savedPaymentMethod);
+                  setPhone(savedPhone ?? '');
+                }}
+                className={cn(
+                  "p-4 rounded-xl border mb-6 cursor-pointer transition-all flex items-center justify-between group",
+                  usingSaved 
+                    ? "border-[#222222] bg-[#F7F7F7]" 
+                    : "border-[#DDDDDD] bg-white hover:border-[#222222]"
+                )}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={cn(
+                    "w-10 h-10 rounded-[10px] flex items-center justify-center text-white border border-black/10", 
+                    savedProvider === 'MTN' ? "bg-[#FFCC00]" : "bg-[#FF6600]"
+                  )}>
+                    <Smartphone className="w-5 h-5 stroke-[2]" />
+                  </div>
+                  <div>
+                    <p className="text-[16px] font-semibold text-[#222222]">{savedProvider === 'MTN' ? 'MTN MoMo' : 'Orange Money'}</p>
+                    <p className="text-[14px] text-[#717171]">{savedPhone} • Saved</p>
+                  </div>
                 </div>
-                {breakdown.tax && (
-                  <div className="flex justify-between text-indigo-100">
-                    <span>Tax</span>
-                    <span>{currency} {breakdown.tax.toLocaleString()}</span>
-                  </div>
-                )}
-                {breakdown.fees && (
-                  <div className="flex justify-between text-indigo-100">
-                    <span>Processing Fee</span>
-                    <span>{currency} {breakdown.fees.toLocaleString()}</span>
-                  </div>
-                )}
+                <div className={cn(
+                  "w-6 h-6 rounded-full border-[2px] flex items-center justify-center transition-colors", 
+                  usingSaved ? "border-[#222222] bg-[#222222]" : "border-[#DDDDDD] group-hover:border-[#717171]"
+                )}>
+                  {usingSaved && <div className="w-2 h-2 bg-white rounded-full" />}
+                </div>
               </div>
             )}
-          </div>
 
-          {/* Trust Badges */}
-          <div className="flex items-center justify-center gap-4 py-3 bg-gray-50 rounded-lg border">
-            <div className="flex items-center gap-2 text-sm">
-              <Shield className="h-5 w-5 text-green-600" />
-              <span className="font-medium text-gray-700">SSL Secure</span>
-            </div>
-            <div className="h-4 w-px bg-gray-300"></div>
-            <div className="flex items-center gap-2 text-sm">
-              <Award className="h-5 w-5 text-blue-600" />
-              <span className="font-medium text-gray-700">Verified</span>
-            </div>
-          </div>
-
-          {/* Promo Code */}
-          {!showPromoCode ? (
-            <Button
-              type="button"
-              variant="link"
-              className="h-auto p-0 text-sm text-indigo-600 hover:text-indigo-700"
-              onClick={() => setShowPromoCode(true)}
-            >
-              Have a promo code?
-            </Button>
-          ) : (
-            <div className="space-y-2">
-              <Label htmlFor="promo" className="text-gray-700">Promo Code</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="promo"
-                  type="text"
-                  placeholder="Enter code"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                  className="border-gray-300"
-                />
-                <Button type="button" variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100">
-                  Apply
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Payment Method Selection */}
-          <div className="space-y-4">
-            <Label className="text-gray-900 font-semibold">{savedPaymentMethod ? 'Use another method' : 'Select Payment Method'}</Label>
-            <RadioGroup value={paymentMethod} onValueChange={(value) => {
-              setPaymentMethod(value as PaymentMethod);
-              setUsingSaved(false);
-              if (value !== PaymentMethod.MTN_MOMO && value !== PaymentMethod.ORANGE_MONEY) setPhone('');
-            }}>
+            {/* Methods Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {paymentMethods.map((method) => (
                 <div
                   key={method.value}
-                  className={`flex items-start space-x-3 p-4 rounded-xl border-1 transition-all cursor-pointer hover:-md ${paymentMethod === method.value
-                    ? `${method.borderColor} ${method.bgColor} -md`
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                    }`}
+                  onClick={() => {
+                    setPaymentMethod(method.value);
+                    setUsingSaved(false);
+                    if (method.value !== PaymentMethod.MTN_MOMO && method.value !== PaymentMethod.ORANGE_MONEY) setPhone('');
+                  }}
+                  className={cn(
+                    "p-4 rounded-xl border cursor-pointer transition-all flex flex-col gap-3 group",
+                    paymentMethod === method.value && !usingSaved
+                      ? "border-[#222222] bg-[#F7F7F7] shadow-[0_0_0_1px_#222222]"
+                      : "border-[#DDDDDD] bg-white hover:border-[#222222]"
+                  )}
                 >
-                  <RadioGroupItem value={method.value} id={method.value} className="mt-1" />
-                  <Label htmlFor={method.value} className="flex items-start space-x-3 flex-1 cursor-pointer">
-                    <div className={`p-2.5 rounded-lg ${paymentMethod === method.value
-                      ? `${method.bgColor}`
-                      : 'bg-gray-100'
-                      }`}>
-                      <method.icon className={`h-5 w-5 ${paymentMethod === method.value
-                        ? method.textColor
-                        : 'text-gray-600'
-                        }`} />
+                  <div className="flex justify-between items-start">
+                    <div className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center text-white border border-black/10",
+                      method.brandColor
+                    )}>
+                      <method.icon className="w-4 h-4 stroke-[2]" />
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900">{method.label}</span>
-                        {method.badge && (
-                          <span className={`px-2 py-0.5 text-xs font-bold rounded ${method.badgeColor}`}>
-                            {method.badge}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-600">{method.description}</div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
-                        <CheckCircle className="h-3.5 w-3.5 text-green-600" />
-                        <span className="font-medium">Processing: {method.processingTime}</span>
-                      </div>
+                    <div className={cn(
+                      "w-5 h-5 rounded-full border-[2px] flex items-center justify-center transition-colors", 
+                      paymentMethod === method.value && !usingSaved ? "border-[#222222] bg-[#222222]" : "border-[#DDDDDD] group-hover:border-[#717171]"
+                    )}>
+                      {paymentMethod === method.value && !usingSaved && <div className="w-2 h-2 bg-white rounded-full" />}
                     </div>
-                  </Label>
+                  </div>
+                  <div className="mt-1">
+                    <p className="text-[15px] font-semibold text-[#222222]">{method.label}</p>
+                    <p className="text-[13px] text-[#717171] mt-0.5">{method.description}</p>
+                  </div>
                 </div>
               ))}
-            </RadioGroup>
-          </div>
-
-          {/* Card Logos */}
-          {paymentMethod === PaymentMethod.CARD && (
-            <div className="flex items-center justify-center gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <span className="text-sm font-medium text-blue-900">We Accept:</span>
-              <div className="flex items-center gap-3">
-                <div className="px-3 py-1.5 bg-white rounded border border-blue-200">
-                  <CreditCard className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="px-3 py-1.5 bg-white rounded border border-blue-200">
-                  <span className="text-sm font-bold text-blue-600">VISA</span>
-                </div>
-                <div className="px-3 py-1.5 bg-white rounded border border-blue-200">
-                  <span className="text-sm font-bold text-red-600">MC</span>
-                </div>
-              </div>
             </div>
-          )}
+          </section>
 
-          {/* Payment Method Instructions */}
-          {selectedMethod && (
-            <Alert className={`${selectedMethod.bgColor} border-1 ${selectedMethod.borderColor}`}>
-              <AlertDescription className={`text-sm ${selectedMethod.textColor} font-medium`}>
-                {paymentMethod === PaymentMethod.CARD &&
-                  'You will be redirected to our secure payment gateway to enter your card details.'}
-                {(paymentMethod === PaymentMethod.MTN_MOMO || paymentMethod === PaymentMethod.ORANGE_MONEY) &&
-                  'A payment request will be sent to your phone. Please approve it to complete the transaction.'}
-                {paymentMethod === PaymentMethod.BANK_TRANSFER &&
-                  'Bank transfer details will be provided after confirmation. Payment typically takes 1-3 business days.'}
-              </AlertDescription>
-            </Alert>
-          )}
+          {/* User Details */}
+          <section className="space-y-4 pt-8 border-t border-[#EBEBEB]">
+            <h3 className="text-[22px] font-semibold text-[#222222] mb-6">Billing details</h3>
 
-          {/* Customer Information */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700 font-medium">Email Address *</Label>
+            <div>
               <Input
                 id="email"
                 type="email"
-                placeholder="your@email.com"
+                placeholder="Email address"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  if (validationErrors.email) {
-                    setValidationErrors(prev => ({ ...prev, email: '' }));
-                  }
+                  if (validationErrors.email) setValidationErrors(prev => ({ ...prev, email: '' }));
                 }}
-                className={validationErrors.email ? 'border-red-500 bg-red-50' : 'border-gray-300'}
+                className={cn(inputClasses, validationErrors.email && "border-[#C2293F] bg-[#FFF8F6] focus-visible:ring-[#C2293F]")}
               />
               {validationErrors.email && (
-                <p className="text-sm text-red-600 font-medium">{validationErrors.email}</p>
+                <p className="text-[12px] font-medium text-[#C2293F] mt-2 flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5" />{validationErrors.email}
+                </p>
               )}
             </div>
 
-            {isMobileMoney(paymentMethod) && (
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-gray-700 font-medium">Phone Number *</Label>
+            {isMobileMoney(paymentMethod) && !usingSaved && (
+              <div>
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+237 6XX XXX XXX"
+                  placeholder="Phone number (+237...)"
                   value={phone}
                   onChange={(e) => {
                     setPhone(e.target.value);
-                    if (validationErrors.phone) {
-                      setValidationErrors(prev => ({ ...prev, phone: '' }));
-                    }
+                    if (validationErrors.phone) setValidationErrors(prev => ({ ...prev, phone: '' }));
                   }}
-                  className={validationErrors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300'}
+                  className={cn(inputClasses, validationErrors.phone && "border-[#C2293F] bg-[#FFF8F6] focus-visible:ring-[#C2293F]")}
                 />
                 {validationErrors.phone && (
-                  <p className="text-sm text-red-600 font-medium">{validationErrors.phone}</p>
+                  <p className="text-[12px] font-medium text-[#C2293F] mt-2 flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5" />{validationErrors.phone}
+                  </p>
                 )}
-                <p className="text-xs text-gray-500">
-                  Enter the {paymentMethod === PaymentMethod.MTN_MOMO ? 'MTN' : 'Orange'} Mobile Money number for this payment
-                </p>
               </div>
             )}
-          </div>
 
-          {/* Additional Options */}
-          <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="save-method"
-                checked={savePaymentMethod}
-                onCheckedChange={(checked) => setSavePaymentMethod(checked as boolean)}
-                className="border-gray-400"
-              />
-              <Label htmlFor="save-method" className="text-sm font-normal cursor-pointer text-gray-700">
-                Save this payment method for future purchases
-              </Label>
-            </div>
+            {isMobileMoney(paymentMethod) && !usingSaved && (
+              <div className="flex items-start space-x-3 pt-3">
+                <Checkbox
+                  id="save-method"
+                  checked={savePaymentMethod}
+                  onCheckedChange={(checked) => setSavePaymentMethod(checked as boolean)}
+                  className="w-5 h-5 border-[#B0B0B0] text-[#222222] data-[state=checked]:bg-[#222222] data-[state=checked]:border-[#222222] rounded shadow-none mt-0.5"
+                />
+                <Label htmlFor="save-method" className="text-[15px] font-normal cursor-pointer text-[#222222] leading-relaxed">
+                  Save this number for future payments
+                </Label>
+              </div>
+            )}
+          </section>
 
-            <div className="flex items-start space-x-2">
+          {/* Promo Code */}
+          <section className="pt-8 border-t border-[#EBEBEB]">
+            {!showPromoCode ? (
+              <button
+                type="button"
+                onClick={() => setShowPromoCode(true)}
+                className="text-[16px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none"
+              >
+                Enter a coupon
+              </button>
+            ) : (
+              <div className="flex gap-3">
+                <Input
+                  type="text"
+                  placeholder="Coupon code"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                  className="h-14 rounded-xl border-[#B0B0B0] focus-visible:ring-2 focus-visible:ring-[#222222] text-[16px] placeholder:text-[#717171]"
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="h-14 px-8 rounded-xl border-[#222222] text-[#222222] font-semibold hover:bg-[#F7F7F7] transition-colors"
+                >
+                  Apply
+                </Button>
+              </div>
+            )}
+          </section>
+
+          {/* Terms & Error */}
+          <section className="pt-8 border-t border-[#EBEBEB] space-y-6">
+            <div className="flex items-start space-x-3">
               <Checkbox
                 id="terms"
                 checked={acceptTerms}
                 onCheckedChange={(checked) => {
                   setAcceptTerms(checked as boolean);
-                  if (validationErrors.terms) {
-                    setValidationErrors(prev => ({ ...prev, terms: '' }));
-                  }
+                  if (validationErrors.terms) setValidationErrors(prev => ({ ...prev, terms: '' }));
                 }}
-                className={validationErrors.terms ? 'border-red-500' : 'border-gray-400'}
+                className={cn("w-5 h-5 border-[#B0B0B0] text-[#222222] data-[state=checked]:bg-[#222222] data-[state=checked]:border-[#222222] rounded shadow-none mt-0.5", validationErrors.terms && "border-[#C2293F]")}
               />
-              <Label htmlFor="terms" className="text-sm font-normal cursor-pointer leading-relaxed text-gray-700">
-                I accept the <a href="#" className="text-indigo-600 hover:underline font-medium">terms and conditions</a> and <a href="#" className="text-indigo-600 hover:underline font-medium">refund policy</a>
+              <Label htmlFor="terms" className="text-[13px] font-normal cursor-pointer leading-relaxed text-[#717171]">
+                By selecting the button below, I agree to the <span className="font-semibold text-[#222222] underline hover:text-[#717171]">Terms of Service</span>, <span className="font-semibold text-[#222222] underline hover:text-[#717171]">Payments Terms of Service</span>, and I acknowledge the <span className="font-semibold text-[#222222] underline hover:text-[#717171]">Privacy Policy</span>.
               </Label>
             </div>
-            {validationErrors.terms && (
-              <p className="text-sm text-red-600 ml-6 font-medium">{validationErrors.terms}</p>
-            )}
-          </div>
+            {validationErrors.terms && <p className="text-[12px] font-medium text-[#C2293F] ml-8">{validationErrors.terms}</p>}
 
-          {/* Security Badge */}
-          <div className="flex items-center justify-center gap-3 p-4 bg-green-50 rounded-lg border-1 border-green-300">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Lock className="h-6 w-6 text-green-700" />
-            </div>
-            <div className="text-sm">
-              <div className="font-bold text-green-900">256-bit SSL Encrypted</div>
-              <div className="text-green-700">Your payment information is secure</div>
-            </div>
-          </div>
+            {error && (
+              <div className="flex items-start gap-2 p-4 rounded-xl bg-[#FFF8F6] border border-[#C2293F]/20 text-[#C2293F]">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <span className="text-[14px] font-medium leading-relaxed">{error}</span>
+              </div>
+            )}
+          </section>
+
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={loading}
-            className="w-full sm:w-auto border-gray-300 hover:bg-gray-50"
-          >
-            Cancel
-          </Button>
+        {/* Footer Actions */}
+        <div className="px-6 py-5 border-t border-[#EBEBEB] bg-white sticky bottom-0 z-10">
           <Button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+            className="w-full h-14 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[16px] flex items-center justify-center transition-colors active:scale-[0.98]"
           >
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {loading ? 'Processing...' : `Pay ${currency} ${amount.toLocaleString()}`}
+            {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+            {loading ? 'Processing...' : `Confirm and pay`}
           </Button>
-        </DialogFooter>
+
+          <div className="flex justify-center items-center gap-2 mt-5 text-[#717171]">
+            <ShieldCheck className="w-4 h-4 stroke-[1.5]" />
+            <span className="text-[13px] font-medium">Payments are securely encrypted</span>
+          </div>
+        </div>
+
       </DialogContent>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #DDDDDD;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #B0B0B0;
+        }
+      `}</style>
     </Dialog>
   );
 }

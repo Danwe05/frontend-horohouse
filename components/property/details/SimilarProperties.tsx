@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import PropertyCard, { PropertyCardSkeleton } from "../PropertyCard";
 import apiClient from "@/lib/api";
-import { Home } from "lucide-react";
+import { Home, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -20,7 +20,7 @@ interface SimilarPropertiesProps {
   propertyId: string;
   city: string;
   type: string;
-  listingType?: "rent" | "sale";
+  listingType?: "rent" | "sale" | "short_term";
 }
 
 interface PropertyData {
@@ -39,7 +39,7 @@ interface PropertyData {
     parkingSpaces?: number;
   };
   area?: number;
-  createdAt: string; // ISO timestamp — passed directly to PropertyCard
+  createdAt: string; 
   isFavorite?: boolean;
   averageRating?: number;
   reviewCount?: number;
@@ -61,7 +61,7 @@ const SimilarProperties = ({
     if (!propertyId || !city || !type) return;
     let cancelled = false;
 
-    const fetch = async () => {
+    const fetchProperties = async () => {
       setLoading(true);
       setError("");
       try {
@@ -79,7 +79,7 @@ const SimilarProperties = ({
       }
     };
 
-    fetch();
+    fetchProperties();
     return () => { cancelled = true; };
   }, [propertyId, city, type]);
 
@@ -89,12 +89,12 @@ const SimilarProperties = ({
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <section className="space-y-8">
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-          Similar Properties Nearby
+      <section className="space-y-6">
+        <h2 className="text-[22px] font-semibold text-[#222222]">
+          More places to stay
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
             <PropertyCardSkeleton key={i} />
           ))}
         </div>
@@ -106,66 +106,62 @@ const SimilarProperties = ({
   if (error || properties.length === 0) {
     if (error) {
       return (
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Similar Properties Nearby
-          </h2>
-          <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 text-center space-y-3">
-            <Home className="h-10 w-10 text-slate-300 mx-auto" />
-            <p className="text-sm font-medium text-slate-500">
-              Could not load similar properties right now.
+        <section className="py-12 border-t border-[#DDDDDD]">
+          <div className="text-center space-y-4">
+            <Home className="h-8 w-8 text-[#717171] mx-auto stroke-[1.5]" />
+            <p className="text-[16px] text-[#717171]">
+              We couldn't load similar listings right now.
             </p>
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/properties?city=${encodeURIComponent(city)}&type=${encodeURIComponent(type)}`}>
-                Browse {city} listings
-              </Link>
-            </Button>
+            <Link 
+              href={`/properties?city=${encodeURIComponent(city)}`}
+              className="text-[14px] font-semibold text-[#222222] underline"
+            >
+              Browse other listings in {city}
+            </Link>
           </div>
         </section>
       );
     }
-    // Silently hide if no properties found (no error)
     return null;
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <section className="space-y-8">
+    <section className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-          Similar Properties Nearby
+        <h2 className="text-[22px] font-semibold text-[#222222]">
+          More places to stay
         </h2>
-        <span className="text-sm font-bold text-slate-500 bg-slate-100 px-4 py-1.5 rounded-full">
-          {properties.length} {properties.length === 1 ? "property" : "properties"}
-        </span>
       </div>
 
-      <Carousel opts={{ align: "start", loop: false }} className="w-full">
-        <CarouselContent className="-ml-2 md:-ml-4">
+      <Carousel 
+        opts={{ align: "start", loop: false }} 
+        className="w-full group"
+      >
+        <CarouselContent className="-ml-4">
           {properties.map((property, index) => {
             const imageUrls = property.images.map((img) => img.url);
             const fullAddress = property.neighborhood
-              ? `${property.address}, ${property.neighborhood}, ${property.city}`
+              ? `${property.neighborhood}, ${property.city}`
               : `${property.address}, ${property.city}`;
 
             return (
               <CarouselItem
-                key={property._id ?? `${city}-${property.address}-${index}`}
-                className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
+                key={property._id ?? index}
+                className="pl-4 basis-full sm:basis-1/2 lg:basis-1/4"
               >
                 <PropertyCard
                   id={property._id}
                   image={imageUrls[0]}
                   images={imageUrls}
                   price={property.price}
-                  // Pass raw ISO timestamp — PropertyCard's formatTimeAgo handles it accurately
                   timeAgo={property.createdAt}
                   address={fullAddress}
                   beds={property.amenities?.bedrooms}
                   baths={property.amenities?.bathrooms}
                   sqft={formatArea(property.area)}
                   initialIsFavorite={property.isFavorite ?? false}
-                  listingType={property.listingType as "rent" | "sale"}
+                  listingType={property.listingType as any}
                   rating={typeof property.averageRating === "number" && property.averageRating > 0 ? property.averageRating : undefined}
                   reviewCount={typeof property.reviewCount === "number" ? property.reviewCount : undefined}
                 />
@@ -174,9 +170,13 @@ const SimilarProperties = ({
           })}
         </CarouselContent>
 
-        {/* Show nav on all breakpoints with sensible positioning */}
-        <CarouselPrevious className="-left-4 lg:-left-12 h-12 w-12 bg-white border-1 border-slate-100 text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
-        <CarouselNext className="-right-4 lg:-right-12 h-12 w-12 bg-white border-1 border-slate-100 text-slate-600 hover:bg-slate-50 hover:text-slate-900" />
+        {/* Circular floating arrows */}
+        <CarouselPrevious 
+            className="hidden md:flex -left-4 h-8 w-8 bg-white border border-[#DDDDDD] text-[#222222] hover:bg-white hover:scale-105 shadow-md opacity-0 group-hover:opacity-100 transition-all" 
+        />
+        <CarouselNext 
+            className="hidden md:flex -right-4 h-8 w-8 bg-white border border-[#DDDDDD] text-[#222222] hover:bg-white hover:scale-105 shadow-md opacity-0 group-hover:opacity-100 transition-all" 
+        />
       </Carousel>
     </section>
   );

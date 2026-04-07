@@ -1,6 +1,5 @@
 "use client";
 
-import Footer from "@/components/footer";
 import { motion } from "framer-motion";
 import {
     FileText,
@@ -11,19 +10,20 @@ import {
     AlertTriangle,
     Scale,
     Mail,
-    HelpCircle,
-    ArrowRight,
-    ChevronRight,
     Info,
-    ShieldCheck
+    ShieldCheck,
+    ChevronRight
 } from "lucide-react";
+import Link from "next/link";
+
+// ─── Animations & Wrappers ───────────────────────────────────────────────────
 
 const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
     <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.6, delay, ease: "easeOut" }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
         className={className}
     >
         {children}
@@ -43,50 +43,52 @@ const TermsSection = ({
 }) => (
     <FadeIn delay={delay} className="mb-16">
         <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
-                <Icon className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-full border border-[#DDDDDD] bg-[#F7F7F7] flex items-center justify-center text-[#222222] shrink-0">
+                <Icon className="w-5 h-5 stroke-[1.5]" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{title}</h2>
+            <h2 className="text-[22px] md:text-[26px] font-semibold text-[#222222] tracking-tight">{title}</h2>
         </div>
-        <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed space-y-4 pl-16">
+        <div className="pl-0 sm:pl-16 space-y-4 text-[16px] text-[#717171] leading-relaxed">
             {children}
         </div>
     </FadeIn>
 );
 
+// ─── Main Component ──────────────────────────────────────────────────────────
+
 export default function TermsOfServicePage() {
     const lastUpdated = "March 1, 2026";
 
     return (
-        <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white">
-            {/* Hero Header */}
-            <section className="relative pt-32 pb-20 px-4 md:px-8 bg-white border-b border-slate-100 overflow-hidden">
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-50/50 to-transparent pointer-events-none" />
-                <div className="max-w-4xl mx-auto relative z-10">
+        <main className="min-h-screen bg-white text-[#222222] selection:blue-blue-600 selection:text-white font-sans pb-20">
+
+            {/* ── Hero Header ── */}
+            <section className="pt-32 pb-16 px-6 md:px-12 border-b border-[#DDDDDD]">
+                <div className="max-w-3xl mx-auto">
                     <FadeIn>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6">
-                            <Scale className="w-3 h-3" />
+                        <div className="mb-6 inline-flex items-center gap-2 text-[14px] font-semibold text-[#717171] uppercase tracking-wider">
+                            <Scale className="w-4 h-4 stroke-[2]" />
                             Legal Framework
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 mb-6">
+                        <h1 className="text-[36px] md:text-[48px] font-semibold tracking-tight text-[#222222] mb-6 leading-tight">
                             Terms of Service
                         </h1>
-                        <p className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed">
+                        <p className="text-[18px] text-[#717171] leading-relaxed">
                             Welcome to HoroHouse. By using our platform, you agree to these terms. Please read them carefully to understand your rights and responsibilities.
                         </p>
-                        <div className="mt-8 flex items-center gap-2 text-sm text-slate-400 font-medium">
-                            <Info className="w-4 h-4" />
-                            Last Updated: {lastUpdated}
+                        <div className="mt-8 flex items-center gap-2 text-[14px] text-[#717171] font-medium">
+                            <Info className="w-4 h-4 stroke-[2]" />
+                            Last updated: {lastUpdated}
                         </div>
                     </FadeIn>
                 </div>
             </section>
 
-            {/* Content Section */}
-            <section className="py-24 px-4 md:px-8">
-                <div className="max-w-4xl mx-auto">
+            {/* ── Content Section ── */}
+            <section className="py-16 px-6 md:px-12">
+                <div className="max-w-3xl mx-auto">
 
-                    <TermsSection icon={UserPlus} title="Acceptance of Terms" delay={0.1}>
+                    <TermsSection icon={UserPlus} title="Acceptance of terms" delay={0.1}>
                         <p>
                             By accessing or using the HoroHouse website, mobile application, or any other services provided by HoroHouse (collectively, the "Services"), you agree to be bound by these Terms of Service. If you do not agree to all of these terms, do not use our Services.
                         </p>
@@ -95,33 +97,63 @@ export default function TermsOfServicePage() {
                         </p>
                     </TermsSection>
 
-                    <TermsSection icon={ShieldCheck} title="User Obligations" delay={0.2}>
+                    <TermsSection icon={ShieldCheck} title="User obligations" delay={0.2}>
                         <p>
                             To maintain the integrity of our real estate community, all users agree to:
                         </p>
-                        <ul className="list-disc pl-5 space-y-2">
-                            <li>Provide accurate, current, and complete information during registration.</li>
-                            <li>Maintain the security of your account credentials.</li>
-                            <li>Promptly update account information to keep it accurate.</li>
-                            <li>Accept all risks of unauthorized access to your account based on your actions.</li>
-                            <li>Use the Services only for lawful purposes and in accordance with these Terms.</li>
+                        <ul className="space-y-3 mt-4">
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Provide accurate, current, and complete information during registration.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Maintain the security of your account credentials.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Promptly update account information to keep it accurate.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Accept all risks of unauthorized access to your account based on your actions.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Use the Services only for lawful purposes and in accordance with these Terms.</span>
+                            </li>
                         </ul>
                     </TermsSection>
 
-                    <TermsSection icon={Ban} title="Prohibited Activities" delay={0.3}>
+                    <TermsSection icon={Ban} title="Prohibited activities" delay={0.3}>
                         <p>
                             HoroHouse is built on trust. We strictly prohibit any activity that undermines this, including but not limited to:
                         </p>
-                        <ul className="list-disc pl-5 space-y-2">
-                            <li>Posting fraudulent, misleading, or deceptive property listings.</li>
-                            <li>Impersonating any person or entity, including HoroHouse employees or vetted agents.</li>
-                            <li>Attempting to bypass platform security or scraping data without authorization.</li>
-                            <li>Engaging in any conduct that restricts or inhibits anyone's use or enjoyment of the Services.</li>
-                            <li>Using the Services for any commercial purpose not explicitly permitted.</li>
+                        <ul className="space-y-3 mt-4">
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Posting fraudulent, misleading, or deceptive property listings.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Impersonating any person or entity, including HoroHouse employees or vetted agents.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Attempting to bypass platform security or scraping data without authorization.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Engaging in any conduct that restricts or inhibits anyone's use or enjoyment of the Services.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Using the Services for any commercial purpose not explicitly permitted.</span>
+                            </li>
                         </ul>
                     </TermsSection>
 
-                    <TermsSection icon={Copyright} title="Intellectual Property" delay={0.4}>
+                    <TermsSection icon={Copyright} title="Intellectual property" delay={0.4}>
                         <p>
                             The HoroHouse platform, including its logo, design, text, graphics, and software, is the property of HoroHouse and is protected by international copyright and trademark laws.
                         </p>
@@ -130,18 +162,29 @@ export default function TermsOfServicePage() {
                         </p>
                     </TermsSection>
 
-                    <TermsSection icon={Gavel} title="Limitation of Liability" delay={0.5}>
+                    <TermsSection icon={Gavel} title="Limitation of liability" delay={0.5}>
                         <p>
                             HoroHouse provides a platform to connect users. While we verify listings and agents, we are not responsible for:
                         </p>
-                        <ul className="list-disc pl-5 space-y-2">
-                            <li>The accuracy of third-party property descriptions.</li>
-                            <li>The outcome of negotiations or transactions between users.</li>
-                            <li>Any indirect, incidental, or consequential damages arising from your use of the platform.</li>
+                        <ul className="space-y-3 mt-4">
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>The accuracy of third-party property descriptions.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>The outcome of negotiations or transactions between users.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Any indirect, incidental, or consequential damages arising from your use of the platform.</span>
+                            </li>
                         </ul>
-                        <p className="italic text-sm mt-4">
-                            Note: Transactions in real estate involve significant financial commitment. We always recommend legal counsel and physical inspections before finalizing any purchase.
-                        </p>
+                        <div className="mt-6 p-4 rounded-xl border border-[#DDDDDD] bg-[#F7F7F7]">
+                            <p className="text-[14px] text-[#717171]">
+                                <strong>Note:</strong> Transactions in real estate involve significant financial commitment. We always recommend legal counsel and physical inspections before finalizing any purchase or long-term lease.
+                            </p>
+                        </div>
                     </TermsSection>
 
                     <TermsSection icon={AlertTriangle} title="Termination" delay={0.6}>
@@ -150,25 +193,24 @@ export default function TermsOfServicePage() {
                         </p>
                     </TermsSection>
 
-                    <TermsSection icon={Mail} title="Contact Legal Team" delay={0.7}>
+                    <TermsSection icon={FileText} title="Contact legal team" delay={0.7}>
                         <p>
                             For any questions regarding these Terms of Service or legal inquiries, please contact our legal department:
                         </p>
-                        <div className="mt-8 p-8 rounded-3xl bg-slate-900 text-white relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-8 opacity-5">
-                                <Gavel className="w-32 h-32" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-4">Legal Support Center</h3>
-                            <p className="text-slate-300 text-sm mb-6 max-w-md">Our legal team is available to clarify any points within this agreement.</p>
-                            <div className="flex flex-wrap gap-4">
-                                <a href="mailto:legal@horohouse.com" className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 transition-colors font-bold text-sm flex items-center gap-2">
-                                    <Mail className="w-4 h-4" />
+                        <div className="mt-8 p-8 rounded-2xl bg-[#F7F7F7] border border-[#DDDDDD] text-[#222222]">
+                            <h3 className="text-[20px] font-semibold mb-2">Legal support center</h3>
+                            <p className="text-[15px] text-[#717171] mb-8 max-w-md">
+                                Our legal team is available to clarify any points within this agreement and assist with compliance inquiries.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <a href="mailto:legal@horohouse.com" className="px-6 py-3.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors font-semibold text-[15px] flex items-center justify-center gap-2">
+                                    <Mail className="w-4 h-4 stroke-[2]" />
                                     Email Legal Team
                                 </a>
-                                <a href="/support" className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-bold text-sm flex items-center gap-2">
+                                <Link href="/support" className="px-6 py-3.5 rounded-lg bg-white border border-blue-600 hover:bg-[#F7F7F7] transition-colors font-semibold text-[15px] flex items-center justify-center gap-2">
                                     Visit Help Center
-                                    <ChevronRight className="w-4 h-4" />
-                                </a>
+                                    <ChevronRight className="w-4 h-4 stroke-[2]" />
+                                </Link>
                             </div>
                         </div>
                     </TermsSection>
@@ -176,25 +218,24 @@ export default function TermsOfServicePage() {
                 </div>
             </section>
 
-            {/* Footer CTA */}
-            <section className="py-24 bg-white border-t border-slate-100">
-                <div className="max-w-4xl mx-auto px-4 text-center">
+            {/* ── Footer CTA ── */}
+            <section className="py-16 px-6 border-t border-[#DDDDDD]">
+                <div className="max-w-3xl mx-auto text-center">
                     <FadeIn>
-                        <h2 className="text-3xl md:text-4xl font-black mb-6 text-slate-900">
-                            Building Africa's Future. <br /> Together.
+                        <h2 className="text-[26px] md:text-[32px] font-semibold mb-8 text-[#222222] tracking-tight">
+                            Building Africa's future. <br /> Together.
                         </h2>
-                        <div className="flex flex-wrap justify-center gap-4">
-                            <a href="/dashboard" className="px-8 py-4 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all -lg -blue-600/20">
+                        <div className="flex flex-col sm:flex-row justify-center gap-4">
+                            <Link href="/dashboard" className="px-8 py-3.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] transition-colors">
                                 Go to Dashboard
-                            </a>
-                            <a href="/privacy" className="px-8 py-4 rounded-full bg-slate-100 text-slate-900 font-bold hover:bg-slate-200 transition-all">
+                            </Link>
+                            <Link href="/privacy" className="px-8 py-3.5 rounded-lg bg-white border border-blue-600 text-[#222222] font-semibold text-[15px] hover:bg-[#F7F7F7] transition-colors">
                                 View Privacy Policy
-                            </a>
+                            </Link>
                         </div>
                     </FadeIn>
                 </div>
             </section>
-
 
         </main>
     );

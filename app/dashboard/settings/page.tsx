@@ -27,6 +27,7 @@ import { AppSidebar } from '@/components/dashboard/Sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
 import { useStudentMode } from '@/contexts/StudentModeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
@@ -38,18 +39,18 @@ function SettingsContent({ user }: { user: NonNullable<ReturnType<typeof useAuth
   const s = (t as any)?.settings || {};
 
   const BASE_TABS = [
-    { id: 'profile', label: s?.profile || 'Profile', icon: <User className="h-4 w-4" /> },
-    { id: 'security', label: s?.security || 'Security', icon: <Shield className="h-4 w-4" /> },
-    { id: 'notifications', label: s?.notifications || 'Notifications', icon: <Bell className="h-4 w-4" /> },
-    { id: 'privacy', label: s?.privacy || 'Privacy', icon: <Eye className="h-4 w-4" /> },
-    { id: 'preferences', label: s?.preferences || 'Preferences', icon: <Palette className="h-4 w-4" /> },
-    { id: 'account', label: s?.account || 'Account', icon: <Database className="h-4 w-4" /> },
+    { id: 'profile', label: s?.profile || 'Profile', icon: <User className="h-5 w-5" /> },
+    { id: 'security', label: s?.security || 'Security', icon: <Shield className="h-5 w-5" /> },
+    { id: 'notifications', label: s?.notifications || 'Notifications', icon: <Bell className="h-5 w-5" /> },
+    { id: 'privacy', label: s?.privacy || 'Privacy', icon: <Eye className="h-5 w-5" /> },
+    { id: 'preferences', label: s?.preferences || 'Preferences', icon: <Palette className="h-5 w-5" /> },
+    { id: 'account', label: s?.account || 'Account', icon: <Database className="h-5 w-5" /> },
   ];
 
   const STUDENT_TAB = {
     id: 'student-id',
     label: s?.studentId || 'Student ID',
-    icon: <GraduationCap className="h-4 w-4" />,
+    icon: <GraduationCap className="h-5 w-5" />,
   };
 
   // Read ?tab= from URL, fall back to 'profile'
@@ -75,79 +76,77 @@ function SettingsContent({ user }: { user: NonNullable<ReturnType<typeof useAuth
   const settingsTabs = isStudent ? [...BASE_TABS, STUDENT_TAB] : BASE_TABS;
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
+    <main className="max-w-[1200px] mx-auto w-full px-0 sm:px-6 lg:px-8 py-6 lg:py-12">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
 
         {/* ── Sidebar nav ───────────────────────────────────── */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-8 space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-1">
+        <div className="lg:w-[280px] flex-shrink-0 px-4 sm:px-0">
+          <div className="sticky top-28 space-y-6">
+            
+            <div className="hidden lg:block mb-8">
+              <h1 className="text-[32px] font-semibold tracking-tight text-[#222222] mb-2">
                 {s?.settings || "Settings"}
               </h1>
-              <p className="text-sm text-gray-500">
-                {s?.settingsDesc || "Manage your profile and preferences"}
+              <p className="text-[15px] text-[#717171]">
+                {s?.settingsDesc || "Manage your profile, security, and preferences"}
               </p>
             </div>
 
-            <nav className="flex space-x-2 overflow-x-auto pb-2 lg:block lg:space-x-0 lg:space-y-1 lg:overflow-visible">
+            {/* Mobile (Horizontal Pills) */}
+            <nav className="flex lg:hidden space-x-2 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
               {settingsTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`relative flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 group flex-shrink-0 lg:w-full
-                    ${activeTab === tab.id
-                      ? 'text-blue-700 bg-blue-50/50'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
-                >
-                  {activeTab === tab.id && (
-                    <motion.div
-                      layoutId="activeTabIndicator"
-                      className="absolute inset-0 bg-blue-50 rounded-xl"
-                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    />
+                  className={cn(
+                    "flex items-center gap-2 px-5 h-11 rounded-full text-[14px] transition-colors shrink-0 whitespace-nowrap",
+                    activeTab === tab.id
+                      ? "bg-[#222222] text-white font-semibold border border-[#222222]"
+                      : "bg-white text-[#222222] font-medium border border-[#DDDDDD] hover:border-[#222222]"
                   )}
-                  <div
-                    className={`relative z-10 flex items-center justify-center p-2 rounded-lg transition-colors
-                      ${activeTab === tab.id
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:-sm'
-                      }
-                      ${tab.id === 'student-id' && activeTab !== 'student-id'
-                        ? 'bg-purple-50 text-purple-400 group-hover:bg-purple-50'
-                        : ''
-                      }`}
-                  >
-                    {tab.icon}
-                  </div>
-                  <div className="relative z-10 flex-1 min-w-0">
-                    <p
-                      className={`text-sm font-semibold whitespace-nowrap pr-2
-                        ${activeTab === tab.id
-                          ? 'text-blue-900'
-                          : 'text-gray-700 group-hover:text-gray-900'
-                        }`}
-                    >
-                      {tab.label}
-                    </p>
-                  </div>
+                >
+                  {React.cloneElement(tab.icon, { className: cn("w-4 h-4", activeTab === tab.id ? "stroke-[2]" : "stroke-[1.5]") })}
+                  {tab.label}
                 </button>
               ))}
             </nav>
+
+            {/* Desktop (Vertical List) */}
+            <nav className="hidden lg:flex flex-col space-y-1">
+              {settingsTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={cn(
+                    "flex items-center gap-4 px-4 py-3.5 rounded-xl text-left transition-colors w-full focus:outline-none",
+                    activeTab === tab.id
+                      ? "bg-[#F7F7F7] text-[#222222] font-semibold"
+                      : "bg-transparent text-[#717171] font-medium hover:bg-[#F7F7F7] hover:text-[#222222]"
+                  )}
+                >
+                  <div className={cn(
+                    "flex items-center justify-center transition-colors",
+                    activeTab === tab.id ? "text-[#222222]" : "text-[#717171]"
+                  )}>
+                    {React.cloneElement(tab.icon, { className: cn("w-5 h-5", activeTab === tab.id ? "stroke-[2]" : "stroke-[1.5]") })}
+                  </div>
+                  <span className="text-[15px]">{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+            
           </div>
         </div>
 
         {/* ── Content area ──────────────────────────────────── */}
-        <div className="lg:col-span-3">
+        <div className="flex-1 min-w-0 pb-20">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
-              className="space-y-6"
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             >
               {activeTab === 'profile' && <ProfileSettings user={user} />}
               {activeTab === 'security' && <SecuritySettings user={user} />}
@@ -173,8 +172,8 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#DDDDDD] border-t-[#222222]" />
       </div>
     );
   }
@@ -186,31 +185,35 @@ export default function SettingsPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full bg-white">
         <AppSidebar />
         <SidebarInset>
           <NavDash />
 
-          <div className="flex-1 flex flex-col lg:flex-row min-h-screen">
-            <div className="flex-1 p-2 lg:p-4 bg-white lg:bg-transparent">
-              <div className="bg-white rounded-xl -ssm border border-gray-100 lg:border-none lg:-none lg:rounded-none">
-
-                {/* ✅ Suspense boundary wraps the component that calls useSearchParams() */}
-                <Suspense
-                  fallback={
-                    <div className="flex items-center justify-center py-24">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-                    </div>
-                  }
-                >
-                  <SettingsContent user={user} />
-                </Suspense>
-
-              </div>
-            </div>
+          <div className="flex-1 flex flex-col min-h-screen bg-white">
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center py-32 bg-white">
+                  <div className="animate-spin rounded-full h-8 w-8 border-4 border-[#DDDDDD] border-t-[#222222]" />
+                </div>
+              }
+            >
+              <SettingsContent user={user} />
+            </Suspense>
           </div>
+          
         </SidebarInset>
       </div>
+
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </SidebarProvider>
   );
 }

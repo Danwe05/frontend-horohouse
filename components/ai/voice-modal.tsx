@@ -404,7 +404,7 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
         <div className="flex-1">
           {user && (
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center overflow-hidden ring-2 ring-primary-foreground/20">
+              <div className="h-8 w-8 rounded-full bg-muted/20 flex items-center justify-center overflow-hidden ring-2 ring-primary-foreground/20">
                 {user.profilePicture ? (
                   <img
                     src={user.profilePicture}
@@ -642,7 +642,7 @@ export function VoiceModal({ isOpen, onClose, onSendMessage }: VoiceModalProps) 
               "h-14 w-14 rounded-full transition-all duration-200",
               "hover:scale-105 active:scale-95",
               transcript.trim() && !error && autoSendCountdown === null
-                ? "bg-accent text-accent-foreground hover:bg-accent/90 -lg"
+                ? "bg-muted text-accent-foreground hover:bg-muted/90 -lg"
                 : "bg-primary-foreground/10 text-primary-foreground/40",
             )}
           >
@@ -673,7 +673,7 @@ function WaveformBars({ className }: { className?: string }) {
       {[0, 1, 2, 3, 4].map((i) => (
         <span
           key={i}
-          className="w-1.5 rounded-full bg-accent-foreground animate-voice-bar"
+          className="w-1.5 rounded-full bg-muted-foreground animate-voice-bar"
           style={{
             animationDelay: `${i * 0.1}s`,
           }}

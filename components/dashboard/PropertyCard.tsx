@@ -255,8 +255,8 @@ export const PropertyCard = ({
 
                 {hasMultipleImages && (
                   <div onClick={(e) => e.preventDefault()}>
-                    <CarouselPrevious className="left-2 bg-black/40 text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm border-0 hover:bg-black/60 transition-all duration-200" />
-                    <CarouselNext className="right-2 bg-black/40 text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm border-0 hover:bg-black/60 transition-all duration-200" />
+                    <CarouselPrevious className="left-2 bg-blue-700/40 text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm border-0 hover:bg-blue-700/60 transition-all duration-200" />
+                    <CarouselNext className="right-2 bg-blue-700/40 text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm border-0 hover:bg-blue-700/60 transition-all duration-200" />
                   </div>
                 )}
               </Carousel>
@@ -287,7 +287,7 @@ export const PropertyCard = ({
               {/* Verification strip */}
               {(isVerified || isBlockchainVerified) && (
                 <div
-                  className="absolute bottom-0 left-0 right-0 z-10 flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-md"
+                  className="absolute bottom-0 left-0 right-0 z-10 flex items-center gap-2 px-3 py-1.5 bg-blue-700/40 backdrop-blur-md"
                   onClick={(e) => e.preventDefault()}
                 >
                   {isVerified && (

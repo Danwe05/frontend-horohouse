@@ -101,8 +101,8 @@ function ImageCarousel({
 
         {hasMultiple && (
           <div onClick={(e) => e.preventDefault()}>
-            <CarouselPrevious className="left-2 bg-black/40 text-white hover:text-white opacity-0 group-hover/img:opacity-100 backdrop-blur-sm border-0 hover:bg-black/60 transition-all duration-200" />
-            <CarouselNext className="right-2 bg-black/40 text-white hover:text-white opacity-0 group-hover/img:opacity-100 backdrop-blur-sm border-0 hover:bg-black/60 transition-all duration-200" />
+            <CarouselPrevious className="left-2 bg-blue-700/40 text-white hover:text-white opacity-0 group-hover/img:opacity-100 backdrop-blur-sm border-0 hover:bg-blue-700/60 transition-all duration-200" />
+            <CarouselNext className="right-2 bg-blue-700/40 text-white hover:text-white opacity-0 group-hover/img:opacity-100 backdrop-blur-sm border-0 hover:bg-blue-700/60 transition-all duration-200" />
           </div>
         )}
       </Carousel>
@@ -125,7 +125,7 @@ function ImageCarousel({
 
       {/* Image counter */}
       {hasMultiple && (
-        <div className="absolute bottom-2 right-3 z-10 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded backdrop-blur-sm font-medium">
+        <div className="absolute bottom-2 right-3 z-10 bg-blue-700/50 text-white text-[10px] px-1.5 py-0.5 rounded backdrop-blur-sm font-medium">
           {activeIndex + 1}/{images.length}
         </div>
       )}
@@ -140,7 +140,7 @@ function ImageCarousel({
 
       {/* Student Approved badge */}
       {isStudentApproved && (
-        <div className="absolute bottom-8 left-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-emerald-300 text-[11px] font-semibold px-2.5 py-1 rounded-lg z-10">
+        <div className="absolute bottom-8 left-3 flex items-center gap-1 bg-blue-700/50 backdrop-blur-sm text-emerald-300 text-[11px] font-semibold px-2.5 py-1 rounded-lg z-10">
           <ShieldCheck className="w-3 h-3" /> {_t?.studentSection?.studentApproved || 'Student Approved'}
         </div>
       )}

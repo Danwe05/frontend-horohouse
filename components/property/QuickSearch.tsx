@@ -643,7 +643,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
           </div>
         ) : (
           // ── Mobile Expanded Full-Screen Drawer ── 
-          <div className="fixed inset-0 top-[50px] z-[100] bg-[#f7f7f9] flex flex-col animate-in slide-in-from-bottom-8 duration-300">
+          <div className="fixed inset-0 top-[70px] z-[100] bg-[#f7f7f9] flex flex-col animate-in slide-in-from-bottom-8 duration-300">
             {/* Header */}
             <div className="flex items-center justify-between p-4 bg-white border-b border-slate-100">
               <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 bg-slate-50 hover:bg-slate-100 text-slate-600 focus-visible:ring-0" onClick={() => setIsMobileExpanded(false)}>

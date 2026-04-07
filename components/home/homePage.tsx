@@ -19,11 +19,11 @@ export default function HomePage() {
       <RecentlyViewedProperties />
       <TopShortTerm />
       <TopListing />
-      <LuxuriousHaven />
+      {/* <LuxuriousHaven /> */}
       <WhatWeOffer />
       <PropertyTypeCards />
-      <StudentSection />
-      <AboutUs />
+      {/* <StudentSection /> */}
+      {/* <AboutUs /> */}
       <OurParteners />
       <CustomersSay />
       

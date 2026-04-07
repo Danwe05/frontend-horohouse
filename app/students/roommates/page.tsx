@@ -20,9 +20,6 @@ import {
 } from '@/components/ui/select';
 import {
   Users,
-  Plus,
-  Settings,
-  Inbox,
   Search,
   Loader2,
   ChevronLeft,
@@ -31,14 +28,14 @@ import {
   GraduationCap,
   Pause,
   Play,
-  ArrowRight,
   Filter,
-  Check,
   X,
+  MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -179,18 +176,18 @@ export default function RoommatesPage() {
   // Not a student
   if (!isAuthenticated || !isStudent) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="pt-32 max-w-md mx-auto px-4 text-center">
-          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <GraduationCap className="w-8 h-8 text-blue-600" />
+        <div className="pt-40 max-w-md mx-auto px-6 text-center">
+          <div className="w-16 h-16 bg-[#F7F7F7] rounded-full flex items-center justify-center mx-auto mb-6">
+            <GraduationCap className="w-8 h-8 text-[#222222] stroke-[1.5]" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">{s.studentsOnly || 'Students only'}</h2>
-          <p className="text-slate-500 text-sm mb-6">
+          <h2 className="text-[22px] font-semibold text-[#222222] mb-3">{s.studentsOnly || 'Students only'}</h2>
+          <p className="text-[#717171] text-[15px] mb-8 leading-relaxed">
             {s.studentsOnlyDesc || 'Create a student profile to access the roommate matching pool.'}
           </p>
           <Link href="/onboarding">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
+            <Button className="h-12 px-8 bg-[#222222] hover:bg-black text-white rounded-lg font-semibold text-[15px]">
               Create student profile
             </Button>
           </Link>
@@ -202,21 +199,21 @@ export default function RoommatesPage() {
   // Not verified
   if (!isVerified) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="pt-32 max-w-md mx-auto px-4 text-center">
-          <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <ShieldCheck className="w-8 h-8 text-amber-500" />
+        <div className="pt-40 max-w-md mx-auto px-6 text-center">
+          <div className="w-16 h-16 bg-[#F7F7F7] rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShieldCheck className="w-8 h-8 text-[#222222] stroke-[1.5]" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">{s.verifyIdFirst || 'Verify your student ID first'}</h2>
-          <p className="text-slate-500 text-sm mb-2">
+          <h2 className="text-[22px] font-semibold text-[#222222] mb-3">{s.verifyIdFirst || 'Verify your student ID first'}</h2>
+          <p className="text-[#717171] text-[15px] mb-8 leading-relaxed">
             {verificationStatus === 'pending'
               ? (s.idUnderReview || "Your ID is under review. You'll get access within 24 hours.")
               : (s.uploadIdToJoin || 'Upload your university ID to join the roommate pool.')}
           </p>
           {verificationStatus !== 'pending' && (
             <Link href="/dashboard/settings?tab=student-id">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl mt-4">
+              <Button className="h-12 px-8 bg-[#222222] hover:bg-black text-white rounded-lg font-semibold text-[15px]">
                 {s.uploadStudentId || 'Upload student ID'}
               </Button>
             </Link>
@@ -229,86 +226,79 @@ export default function RoommatesPage() {
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
 
       {/* Hero Section */}
-      <div className="bg-blue-600 pt-32 pb-12 overflow-hidden relative">
-        {/* Abstract Background pattern */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-white rounded-full -translate-y-1/2 translate-x-1/2 blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-400 rounded-full translate-y-1/2 -translate-x-1/2 blur-[100px]" />
-        </div>
-
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+      <div className="pt-24 sm:pt-32 pb-12 border-b border-[#EBEBEB]">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10">
+            
             {/* Left Content */}
-            <div className="flex-1 text-center lg:text-left">
+            <div className="flex-1 max-w-2xl">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.4 }}
               >
-                <div className="inline-flex items-center gap-2 bg-blue-500/30 text-blue-50 text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full mb-6 border border-white/10 backdrop-blur-md">
-                  <Users className="w-3.5 h-3.5" />
+                <div className="inline-flex items-center gap-2 text-[#717171] text-[13px] font-semibold uppercase tracking-wide mb-4">
+                  <Users className="w-4 h-4 stroke-[2]" />
                   {s.roommateMatching || 'Roommate matching'}
                 </div>
-                <h1 className="text-4xl sm:text-6xl font-black text-white leading-[0.95] tracking-tighter mb-6 uppercase">
-                  {s.findYour || 'Find your'}<br />
-                  <span className="text-blue-200">{s.perfectMatch || 'Perfect match.'}</span>
+                <h1 className="text-[36px] sm:text-[44px] font-semibold text-[#222222] leading-[1.1] tracking-tight mb-4">
+                  {s.findYour || 'Find your'} {s.perfectMatch || 'perfect match'}
                 </h1>
-                <p className="text-blue-50/80 text-base sm:text-lg font-medium max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed">
-                  {s.matchedDesc || 'Matched by sleep schedule, cleanliness, and vibes. When both of you like each other, a chat opens instantly.'}
+                <p className="text-[#717171] text-[16px] mb-10 leading-relaxed">
+                  {s.matchedDesc || 'Matched by sleep schedule, cleanliness, and vibes. When both of you show interest, you can start chatting instantly.'}
                 </p>
 
-                {/* My profile status card (Flat) */}
-                <div className="max-w-md mx-auto lg:mx-0">
+                {/* My profile status card */}
+                <div>
                   {isLoadingMyProfile ? (
-                    <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex items-center justify-center backdrop-blur-sm">
-                      <Loader2 className="w-6 h-6 text-white animate-spin" />
-                    </div>
+                    <div className="h-24 bg-[#F7F7F7] border border-[#EBEBEB] rounded-2xl animate-pulse" />
                   ) : myProfile ? (
-                    <div className="bg-white/5 border border-white/10 rounded-[32px] p-6 backdrop-blur-md">
-                      <div className="flex items-center justify-between mb-4">
+                    <div className="bg-[#F7F7F7] border border-[#EBEBEB] rounded-2xl p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2.5 mb-1.5">
+                            <div className={cn('w-2 h-2 rounded-full', myProfile.isActive ? 'bg-[#008A05]' : 'bg-[#717171]')} />
+                            <span className="text-[13px] font-bold text-[#222222] uppercase tracking-wide">
+                              {myProfile.isActive ? (s.profileActive || 'Profile Active') : (s.profilePausedStatus || 'Profile Paused')}
+                            </span>
+                          </div>
+                          <p className="text-[16px] font-semibold text-[#222222]">
+                            {myProfile.mode === 'have_room' ? (s.haveRoom || 'I have a room') : (s.lookForRoom || 'I need a room')}
+                          </p>
+                          <p className="text-[#717171] text-[14px] mt-0.5">
+                            {myProfile.campusCity} {myProfile.preferredNeighborhood ? `· ${myProfile.preferredNeighborhood}` : ''}
+                          </p>
+                        </div>
                         <div className="flex items-center gap-3">
-                          <div className={`w-2 h-2 rounded-full ${myProfile.isActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
-                          <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest">
-                            {myProfile.isActive ? (s.profileActive || 'Profile Active') : (s.profilePausedStatus || 'Profile Paused')}
-                          </span>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
+                          <Button
+                            variant="outline"
                             onClick={handleToggleActive}
-                            className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl transition-all"
+                            className="h-10 px-4 rounded-lg border-[#DDDDDD] text-[#222222] hover:bg-white font-semibold"
                           >
-                            {myProfile.isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                          </button>
-                          <button
+                            {myProfile.isActive ? <><Pause className="w-4 h-4 mr-2" /> Pause</> : <><Play className="w-4 h-4 mr-2" /> Activate</>}
+                          </Button>
+                          <Button
                             onClick={() => setShowModal(true)}
-                            className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
+                            className="h-10 px-5 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold"
                           >
-                            {s.editProfile || 'Edit Profile'}
-                          </button>
+                            {s.editProfile || 'Edit profile'}
+                          </Button>
                         </div>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-white font-bold text-lg">
-                          {myProfile.mode === 'have_room' ? (s.haveRoom || 'Have a room') : (s.lookForRoom || 'Looking for a room')}
-                        </p>
-                        <p className="text-blue-100/60 text-xs font-medium uppercase tracking-widest">
-                          {myProfile.campusCity} {myProfile.preferredNeighborhood ? `· ${myProfile.preferredNeighborhood}` : ''}
-                        </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-white text-blue-600 rounded-[32px] p-8 flex flex-col sm:flex-row items-center justify-between gap-6 -2xl -blue-900/40 border border-blue-400/20">
-                      <div className="text-center sm:text-left">
-                        <p className="text-sm font-black uppercase tracking-widest mb-1 opacity-60">{s.joinPool || 'Join the pool'}</p>
-                        <p className="text-xl font-black text-slate-900 leading-tight">{s.appearInSearches || 'Appear in searches & find matches.'}</p>
+                    <div className="bg-[#F7F7F7] border border-[#EBEBEB] rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                      <div>
+                        <p className="text-[13px] font-bold uppercase tracking-wide text-[#717171] mb-1">{s.joinPool || 'Join the pool'}</p>
+                        <p className="text-[16px] font-semibold text-[#222222]">{s.appearInSearches || 'Appear in searches and find matches.'}</p>
                       </div>
                       <Button
                         onClick={() => setShowModal(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 px-8 text-xs font-black uppercase tracking-widest transition-all hover:scale-105"
+                        className="h-12 px-6 bg-[#FF385C] hover:bg-[#D90B38] text-white rounded-lg font-semibold whitespace-nowrap active:scale-[0.98] transition-transform"
                       >
                         {s.createProfile || 'Create profile'}
                       </Button>
@@ -320,204 +310,149 @@ export default function RoommatesPage() {
 
             {/* Right Side - Featured Image Panel */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="hidden lg:block w-[400px] xl:w-[480px] shrink-0"
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className="hidden lg:block w-[400px] shrink-0"
             >
-              <div className="relative group">
-                {/* Decorative Elements */}
-                <div className="absolute -top-6 -right-6 w-32 h-32 bg-blue-400/20 rounded-full blur-2xl animate-pulse" />
-                <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-indigo-400/20 rounded-full blur-2xl animate-pulse delay-700" />
-
-                <div className="relative z-10 border-[12px] border-white/10 rounded-[4rem] overflow-hidden aspect-[4/5] -2xl -blue-900/40">
-                  <img
-                    src="https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=2070&auto=format&fit=crop"
-                    alt="Premium Roommate Matching"
-                    className="w-full h-full object-cover grayscale-[0.6] group-hover:grayscale-0 transition-all duration-1000"
-                  />
-                  {/* Floating Badge */}
-                  <div className="absolute bottom-6 left-6 right-6 bg-white p-6 rounded-[2.5rem] flex items-center justify-between -xl -black/10 transition-transform group-hover:-translate-y-2 duration-500">
-                    <div>
-                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">{s.featuredMatch || 'Featured Match'}</p>
-                      <p className="text-slate-900 font-black text-base uppercase tracking-tight">{s.perfectSuite || 'The Perfect Suite'}</p>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white">
-                      <ArrowRight className="w-5 h-5" />
-                    </div>
-                  </div>
-                </div>
+              <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-[#F7F7F7]">
+                <img
+                  src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2070&auto=format&fit=crop"
+                  alt="Roommates"
+                  className="w-full h-full object-cover grayscale-[0.2]"
+                />
               </div>
             </motion.div>
           </div>
         </div>
       </div>
 
-      {/* Sticky Filters Bar */}
-      <div className="sticky top-16 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 bg-white/80 backdrop-blur-xl border-b border-slate-100">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            {/* Tabs (Flat Style) */}
-            <div className="flex gap-1 bg-slate-50 border border-slate-100 rounded-2xl p-1 shrink-0">
-              {[
-                { key: 'browse', label: s.browse || 'Browse', icon: <Search className="w-3.5 h-3.5" /> },
-                {
-                  key: 'matches',
-                  label: s.matches || 'Matches',
-                  icon: <Inbox className="w-3.5 h-3.5" />,
-                  badge: pendingCount > 0 ? pendingCount : undefined,
-                },
-              ].map((t) => (
-                <button
-                  key={t.key}
-                  onClick={() => setTab(t.key as Tab)}
-                  className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all ${tab === t.key
-                      ? 'bg-slate-900 text-white -lg -slate-900/20'
-                      : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
-                    }`}
-                >
-                  {t.icon}
-                  {t.label}
-                  {t.badge && (
-                    <span className="bg-blue-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center animate-bounce">
-                      {t.badge}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            <div className="h-4 w-px bg-slate-100 hidden sm:block" />
-
-            {/* Quick Chips (Visible when filters active) */}
-            <div className="hidden lg:flex items-center gap-2 overflow-x-auto no-scrollbar">
-              <AnimatePresence>
-                {modeFilter && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0"
-                  >
-                    <Filter className="w-3 h-3" />
-                    {modeFilter === 'have_room' ? (s.hasRoom || 'Has Room') : (s.needsRoom || 'Needs Room')}
-                    <button onClick={() => setModeFilter('')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
-                  </motion.div>
+      {/* Filters and Navigation Bar */}
+      <div className="border-b border-[#EBEBEB] bg-white sticky top-[80px] z-30">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          
+          {/* Tabs */}
+          <div className="flex gap-2">
+            {[
+              { key: 'browse', label: s.browse || 'Browse', icon: Search },
+              {
+                key: 'matches',
+                label: s.matches || 'Matches',
+                icon: MessageSquare,
+                badge: pendingCount > 0 ? pendingCount : undefined,
+              },
+            ].map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key as Tab)}
+                className={cn(
+                  "flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold transition-colors focus:outline-none",
+                  tab === t.key 
+                    ? "bg-[#222222] text-white" 
+                    : "bg-white text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222] border border-transparent hover:border-[#EBEBEB]"
                 )}
-                {maxBudget && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0"
-                  >
-                    {s.maxLabel || 'Max'} {maxBudget / 1000}K
-                    <button onClick={() => setMaxBudget(undefined)} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
-                  </motion.div>
+              >
+                <t.icon className="w-4 h-4 stroke-[2]" />
+                {t.label}
+                {t.badge && (
+                  <span className={cn(
+                    "w-5 h-5 rounded-full flex items-center justify-center text-[11px]",
+                    tab === t.key ? "bg-white text-[#222222]" : "bg-[#FF385C] text-white"
+                  )}>
+                    {t.badge}
+                  </span>
                 )}
-              </AnimatePresence>
-            </div>
+              </button>
+            ))}
           </div>
 
-          <div className="flex items-center gap-3 ml-auto w-full sm:w-auto">
-            {/* Selects styled as flat buttons */}
-            <Select
-              value={modeFilter || 'all'}
-              onValueChange={(v) => setModeFilter(v === 'all' ? '' : v as 'have_room' | 'need_room')}
-            >
-              <SelectTrigger className="w-full sm:w-44 h-11 rounded-full border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wide px-5 focus:ring-blue-100 border-none transition-all hover:bg-slate-100">
-                <SelectValue placeholder={s.allModes || 'All modes'} />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl border-slate-100 p-1 -2xl">
-                <SelectItem value="all" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.allModes || 'All modes'}</SelectItem>
-                <SelectItem value="need_room" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.needsRoom || 'Needs a room'}</SelectItem>
-                <SelectItem value="have_room" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.hasRoom || 'Has a room'}</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Filters (Only visible on Browse tab) */}
+          {tab === 'browse' && (
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <Select
+                value={modeFilter || 'all'}
+                onValueChange={(v) => setModeFilter(v === 'all' ? '' : v as 'have_room' | 'need_room')}
+              >
+                <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-full border border-[#DDDDDD] bg-white text-[14px] font-medium px-4 focus:ring-0 focus:border-[#222222] hover:border-[#222222] transition-colors">
+                  <SelectValue placeholder={s.allModes || 'All modes'} />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-[#DDDDDD]">
+                  <SelectItem value="all" className="text-[14px]">{s.allModes || 'All modes'}</SelectItem>
+                  <SelectItem value="need_room" className="text-[14px]">{s.needsRoom || 'Needs a room'}</SelectItem>
+                  <SelectItem value="have_room" className="text-[14px]">{s.hasRoom || 'Has a room'}</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select
-              value={maxBudget ? String(maxBudget) : 'any'}
-              onValueChange={(v) => setMaxBudget(v === 'any' ? undefined : Number(v))}
-            >
-              <SelectTrigger className="w-full sm:w-44 h-11 rounded-full border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wide px-5 focus:ring-blue-100 border-none transition-all hover:bg-slate-100">
-                <SelectValue placeholder={s.anyBudget || 'Any budget'} />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl border-slate-100 p-1 -2xl">
-                <SelectItem value="any" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.anyBudget || 'Any budget'}</SelectItem>
-                <SelectItem value="30000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max30k || 'Max 30K'}</SelectItem>
-                <SelectItem value="50000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max50k || 'Max 50K'}</SelectItem>
-                <SelectItem value="75000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max75k || 'Max 75K'}</SelectItem>
-                <SelectItem value="100000" className="text-xs font-bold rounded-xl cursor-pointer py-2.5">{s.max100k || 'Max 100K'}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <Select
+                value={maxBudget ? String(maxBudget) : 'any'}
+                onValueChange={(v) => setMaxBudget(v === 'any' ? undefined : Number(v))}
+              >
+                <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-full border border-[#DDDDDD] bg-white text-[14px] font-medium px-4 focus:ring-0 focus:border-[#222222] hover:border-[#222222] transition-colors">
+                  <SelectValue placeholder={s.anyBudget || 'Any budget'} />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-[#DDDDDD]">
+                  <SelectItem value="any" className="text-[14px]">{s.anyBudget || 'Any budget'}</SelectItem>
+                  <SelectItem value="30000" className="text-[14px]">{s.max30k || 'Max 30K'}</SelectItem>
+                  <SelectItem value="50000" className="text-[14px]">{s.max50k || 'Max 50K'}</SelectItem>
+                  <SelectItem value="75000" className="text-[14px]">{s.max75k || 'Max 75K'}</SelectItem>
+                  <SelectItem value="100000" className="text-[14px]">{s.max100k || 'Max 100K'}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-        {/* Statistics / Status */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">
-              {tab === 'browse' ? (s.availableRoommates || 'Available Roommates') : (s.yourMatchingPool || 'Your Matching Pool')}
-            </h2>
-            <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">
-              {total} {s.activeTracking || 'active profiles tracking'}
-            </p>
-          </div>
-
-          {(modeFilter || maxBudget) && (
-            <button
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-10">
+        
+        {/* Active Filters Display */}
+        {tab === 'browse' && (modeFilter || maxBudget) && (
+          <div className="flex items-center gap-2 mb-6">
+            <span className="text-[14px] text-[#717171] font-medium mr-2">Filters:</span>
+            {modeFilter && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#DDDDDD] bg-[#F7F7F7] text-[#222222] text-[13px] font-medium">
+                {modeFilter === 'have_room' ? (s.hasRoom || 'Has Room') : (s.needsRoom || 'Needs Room')}
+                <button onClick={() => setModeFilter('')} className="hover:text-[#C2293F] focus:outline-none"><X className="w-3.5 h-3.5" /></button>
+              </span>
+            )}
+            {maxBudget && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#DDDDDD] bg-[#F7F7F7] text-[#222222] text-[13px] font-medium">
+                {s.maxLabel || 'Max'} {maxBudget / 1000}K
+                <button onClick={() => setMaxBudget(undefined)} className="hover:text-[#C2293F] focus:outline-none"><X className="w-3.5 h-3.5" /></button>
+              </span>
+            )}
+            <button 
               onClick={() => { setModeFilter(''); setMaxBudget(undefined); }}
-              className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-all border border-blue-100"
+              className="text-[13px] font-semibold text-[#222222] underline hover:text-[#717171] ml-2"
             >
-              {s.clearFilters || 'Clear Filters'}
+              Clear all
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* ── Browse tab ──────────────────────────────────────────────────── */}
         {tab === 'browse' && (
           <>
             {isLoadingProfiles ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-[32px] border border-slate-100 p-8 h-[360px] animate-pulse space-y-6">
-                    <div className="flex gap-4">
-                      <div className="w-16 h-16 rounded-[24px] bg-slate-50" />
-                      <div className="flex-1 space-y-3 pt-2">
-                        <div className="h-4 bg-slate-50 rounded-full w-2/3" />
-                        <div className="h-3 bg-slate-50 rounded-full w-1/2" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="h-3 bg-slate-50 rounded-full" />
-                      <div className="h-3 bg-slate-50 rounded-full w-5/6" />
-                    </div>
-                    <div className="flex flex-wrap gap-2 pt-4">
-                      <div className="h-6 bg-slate-50 rounded-full w-20" />
-                      <div className="h-6 bg-slate-50 rounded-full w-24" />
-                      <div className="h-6 bg-slate-50 rounded-full w-16" />
-                    </div>
-                  </div>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="bg-[#F7F7F7] rounded-2xl border border-[#EBEBEB] p-6 h-[320px] animate-pulse" />
                 ))}
               </div>
             ) : profiles.length === 0 ? (
-              <div className="text-center py-32 bg-white rounded-[48px] border border-slate-100">
-                <div className="w-20 h-20 bg-slate-50 rounded-[40px] flex items-center justify-center mx-auto mb-6">
-                  <Users className="w-10 h-10 text-slate-200" />
-                </div>
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">{s.noRoommatesFound || 'No Roommates found'}</h3>
-                <p className="text-slate-400 font-medium max-w-sm mx-auto text-sm">
+              <div className="text-center py-20 bg-[#F7F7F7] rounded-2xl border border-[#EBEBEB]">
+                <Users className="w-12 h-12 text-[#DDDDDD] mx-auto mb-4 stroke-[1.5]" />
+                <h3 className="text-[20px] font-semibold text-[#222222] mb-2">{s.noRoommatesFound || 'No roommates found'}</h3>
+                <p className="text-[#717171] text-[15px] max-w-sm mx-auto">
                   {s.noProfilesDesc || "We couldn't find any profiles matching your current filters. Try adjusting your preferences."}
                 </p>
-                <button
+                <Button
                   onClick={() => { setModeFilter(''); setMaxBudget(undefined); }}
-                  className="mt-8 text-[11px] font-black uppercase tracking-widest bg-slate-900 text-white px-8 py-4 rounded-2xl -xl -slate-900/20 hover:scale-105 transition-all"
+                  className="mt-8 h-12 px-8 bg-[#222222] hover:bg-black text-white rounded-lg font-semibold"
                 >
                   {s.resetAllFilters || 'Reset all filters'}
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -536,29 +471,25 @@ export default function RoommatesPage() {
 
             {/* Pagination */}
             {totalPages > 1 && !isLoadingProfiles && (
-              <div className="flex items-center justify-center gap-3 mt-12">
+              <div className="flex items-center justify-center gap-4 mt-12 pt-8 border-t border-[#EBEBEB]">
                 <Button
                   variant="outline"
-                  size="sm"
                   disabled={page === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-2xl h-12 px-6 border-slate-100 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
+                  className="h-10 rounded-full border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] font-medium"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-2" /> {s.previous || 'Previous'}
+                  <ChevronLeft className="w-4 h-4 mr-1" /> {s.previous || 'Previous'}
                 </Button>
-                <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 rounded-2xl">
-                  <span className="text-[10px] font-black text-slate-900">{page}</span>
-                  <span className="text-[10px] font-black text-slate-300">/</span>
-                  <span className="text-[10px] font-black text-slate-500">{totalPages}</span>
+                <div className="text-[14px] font-medium text-[#717171]">
+                  {page} / {totalPages}
                 </div>
                 <Button
                   variant="outline"
-                  size="sm"
                   disabled={page === totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-2xl h-12 px-6 border-slate-100 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
+                  className="h-10 rounded-full border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] font-medium"
                 >
-                  {s.next || 'Next'} <ChevronRight className="w-4 h-4 ml-2" />
+                  {s.next || 'Next'} <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             )}
@@ -567,11 +498,11 @@ export default function RoommatesPage() {
 
         {/* ── Matches tab ─────────────────────────────────────────────────── */}
         {tab === 'matches' && (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-3xl mx-auto">
             {isLoadingMatches ? (
-              <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[48px] border border-slate-100">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-4" />
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.loadingMatches || 'Loading matching pool...'}</p>
+              <div className="flex flex-col items-center justify-center py-24 bg-[#F7F7F7] rounded-2xl border border-[#EBEBEB]">
+                <Loader2 className="w-8 h-8 animate-spin text-[#222222] mb-4 stroke-[2.5]" />
+                <p className="text-[14px] font-semibold text-[#717171]">{s.loadingMatches || 'Loading matches...'}</p>
               </div>
             ) : (
               <MatchInbox

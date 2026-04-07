@@ -10,11 +10,8 @@ import { apiClient } from '@/lib/api';
 import {
   Loader2,
   GraduationCap,
-  ArrowRight,
   CheckCircle2,
   Clock,
-  Home,
-  Users,
   ShieldCheck,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -96,149 +93,120 @@ export function StudentCompletionStep() {
   const goToStudentSearch = () => router.push('/students');
 
   const nextSteps = [
-    {
-      icon: <Home className="w-4 h-4" />,
-      text: 'Browse student-friendly listings near your campus',
-    },
-    {
-      icon: <Users className="w-4 h-4" />,
-      text: 'Set up your roommate profile to join the matching pool',
-    },
-    {
-      icon: <ShieldCheck className="w-4 h-4" />,
-      text: idUploaded
-        ? 'Your ID is under review — full access granted within 24h'
-        : 'Upload your student ID to unlock verified features',
-    },
+    'Browse student-friendly listings near your campus',
+    'Set up your roommate profile to join the matching pool',
+    idUploaded
+      ? 'Your ID is under review — full access granted within 24h'
+      : 'Upload your student ID to unlock verified features'
   ];
 
   return (
-    <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center justify-center py-8">
+    <div className="flex flex-col h-full">
 
-      {/* Icon */}
-      <motion.div
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        className="w-24 h-24 rounded-[2rem] flex items-center justify-center -xl mb-8 bg-gradient-to-br from-blue-500 to-indigo-600"
-      >
-        <GraduationCap className="h-12 w-12 text-white" />
-      </motion.div>
-
-      {/* Title */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="text-center space-y-3 mb-8 max-w-md"
-      >
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">
-          {isCreated ? "You're in Campus Hub!" : 'Almost there!'}
-        </h2>
-        <p className="text-lg text-slate-500">
-          {isCreated
-            ? 'Your student profile is live. Start exploring housing built for students.'
-            : `Ready to create your student profile, ${user?.name?.split(' ')[0]}?`}
-        </p>
-      </motion.div>
-
-      {/* Verification status chip */}
-      {isCreated && (
+      {/* Scrollable Content */}
+      <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto pb-32 pt-12">
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8 ${idUploaded
-              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-              : 'bg-slate-100 text-slate-600 border border-slate-200'
-            }`}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-[500px] flex flex-col items-center text-center"
         >
-          {idUploaded ? (
-            <>
-              <Clock className="w-4 h-4" />
-              ID under review — some features locked until verified
-            </>
-          ) : (
-            <>
-              <ShieldCheck className="w-4 h-4" />
-              Upload your ID anytime from your student profile
-            </>
+          <div className="mb-8">
+            <GraduationCap className="h-12 w-12 text-[#222222] stroke-[1.5]" />
+          </div>
+
+          <h2 className="text-[32px] sm:text-[40px] font-semibold text-[#222222] tracking-tight leading-[1.1] mb-4">
+            {isCreated ? "You're in Campus Hub!" : "Almost there!"}
+          </h2>
+
+          <p className="text-[16px] text-[#717171] mb-8 px-4">
+            {isCreated
+              ? "Your student profile is live. Start exploring housing built for students."
+              : `Ready to create your student profile, ${user?.name?.split(' ')[0]}?`}
+          </p>
+
+          {/* Verification status chip */}
+          {!isCreated && (
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-medium mb-12 ${idUploaded
+              ? 'bg-[#EBFBF0] text-[#008A05] border border-[#008A05]/20'
+              : 'bg-[#F7F7F7] text-[#717171] border border-[#DDDDDD]'
+              }`}
+            >
+              {idUploaded ? (
+                <>
+                  <Clock className="w-4 h-4" />
+                  ID under review — some features locked until verified
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-4 h-4" />
+                  Upload your ID anytime from your student profile
+                </>
+              )}
+            </div>
           )}
+
+          <div className="w-full text-left space-y-6">
+            <h3 className="text-[18px] font-semibold text-[#222222] mb-6 flex items-center border-b border-[#EBEBEB] pb-4">
+              <CheckCircle2 className="w-6 h-6 mr-3 text-[#222222] stroke-[2]" />
+              Recommended next steps
+            </h3>
+
+            <ul className="space-y-6 px-2">
+              {nextSteps.map((task, idx) => (
+                <motion.li
+                  key={idx}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + (idx * 0.1) }}
+                  className="flex items-start text-[#222222]"
+                >
+                  <div className="w-6 h-6 rounded-full bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center text-[12px] font-bold mr-4 shrink-0 mt-0.5 text-[#222222]">
+                    {idx + 1}
+                  </div>
+                  <span className="text-[16px]">{task}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
         </motion.div>
-      )}
+      </div>
 
-      {/* Next steps card */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.25 }}
-        className="w-full bg-white/60 backdrop-blur-sm border border-slate-100 rounded-3xl p-6 sm:p-8 -sm mb-8"
-      >
-        <h3 className="font-semibold text-slate-800 mb-4 flex items-center">
-          <CheckCircle2 className="w-5 h-5 mr-2 text-blue-500" />
-          What's next
-        </h3>
-        <ul className="space-y-4">
-          {nextSteps.map((step, idx) => (
-            <motion.li
-              key={idx}
-              initial={{ x: -10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.4 + idx * 0.1 }}
-              className="flex items-start text-slate-600"
+      {/* Fixed Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DDDDDD] p-4 sm:p-6 z-50">
+        <div className="max-w-[850px] mx-auto flex items-center justify-end">
+          {!isCreated ? (
+            <Button
+              onClick={handleComplete}
+              disabled={isLoading}
+              className="h-14 px-10 rounded-lg blue-blue-600 blue-blue-700 text-white font-semibold text-[16px] transition-colors disabled:opacity-50 w-full sm:w-auto active:scale-[0.98]"
             >
-              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mr-3 shrink-0 mt-0.5">
-                {step.icon}
-              </div>
-              <span className="text-sm font-medium pt-0.5">{step.text}</span>
-            </motion.li>
-          ))}
-        </ul>
-      </motion.div>
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                "Create my student profile"
+              )}
+            </Button>
+          ) : (
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
+              <Button
+                onClick={goToDashboard}
+                variant="outline"
+                className="h-14 px-8 rounded-lg border-[#222222] text-[#222222] hover:bg-[#F7F7F7] font-semibold text-[16px] transition-colors w-full sm:w-auto"
+              >
+                Go to dashboard
+              </Button>
+              <Button
+                onClick={goToStudentSearch}
+                className="h-14 px-8 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold text-[16px] transition-colors w-full sm:w-auto active:scale-[0.98]"
+              >
+                Browse housing
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
 
-      {/* CTA buttons */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="w-full max-w-xs flex flex-col gap-3"
-      >
-        {!isCreated ? (
-          <Button
-            onClick={handleComplete}
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 text-base font-semibold -lg -blue-200 transition-all group"
-          >
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-            ) : (
-              <span className="flex items-center justify-center">
-                Create my student profile
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </span>
-            )}
-          </Button>
-        ) : (
-          <>
-            <Button
-              onClick={goToStudentSearch}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-12 font-semibold -md -blue-200 group"
-            >
-              <span className="flex items-center justify-center">
-                Browse student housing
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Button>
-            <Button
-              onClick={goToDashboard}
-              variant="ghost"
-              className="w-full rounded-2xl h-12 text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-            >
-              Go to dashboard
-            </Button>
-          </>
-        )}
-      </motion.div>
     </div>
   );
 }

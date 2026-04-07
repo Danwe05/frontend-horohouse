@@ -15,9 +15,7 @@ import {
   SlidersHorizontal,
   Droplets,
   Zap,
-  Shield,
   ChevronDown,
-  ChevronUp,
   X,
   CheckCircle2,
   Bed,
@@ -29,7 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-
+import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -81,10 +79,12 @@ function FilterChip({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 text-[11px] font-black uppercase tracking-wider px-4 py-2 rounded-full border transition-all ${active
-          ? 'bg-blue-600 text-white border-blue-600 -md -blue-500/20'
-          : 'bg-white text-slate-500 border-slate-100 hover:border-blue-200 hover:bg-slate-50'
-        }`}
+      className={cn(
+        "flex items-center gap-2 text-[14px] font-medium px-4 py-2 rounded-full border transition-colors focus:outline-none whitespace-nowrap",
+        active
+          ? "bg-[#F7F7F7] text-[#222222] border-[#222222] shadow-[0_0_0_1px_#222222]"
+          : "bg-white text-[#222222] border-[#DDDDDD] hover:border-[#222222]"
+      )}
     >
       {icon}
       {label}
@@ -123,8 +123,8 @@ export function StudentSearchFilters({
 
   const SORT_OPTIONS = [
     { value: 'campusProximityMeters-asc', label: s.sortClosest || 'Closest to campus' },
-    { value: 'pricePerPersonMonthly-asc', label: s.sortPriceUp || 'Price per person ↑' },
-    { value: 'pricePerPersonMonthly-desc', label: s.sortPriceDown || 'Price per person ↓' },
+    { value: 'pricePerPersonMonthly-asc', label: s.sortPriceUp || 'Price per person: Low to High' },
+    { value: 'pricePerPersonMonthly-desc', label: s.sortPriceDown || 'Price per person: High to Low' },
     { value: 'createdAt-desc', label: s.sortNewest || 'Newest listings' },
   ];
 
@@ -144,88 +144,90 @@ export function StudentSearchFilters({
   };
 
   return (
-    <div className="sticky top-16 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 bg-white border-b border-slate-100 mb-8">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+    <div className="sticky top-[80px] z-30 -mx-6 px-6 py-4 bg-white border-b border-[#EBEBEB] mb-8">
+      <div className="flex items-center justify-between gap-4">
+        
         {/* Desktop Quick Filters + Active Indicators */}
-        <div className="hidden lg:flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <div className="hidden lg:flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
           <FilterChip
-            label={s.verified || "Verified"}
+            label={s.verified || "Verified only"}
             active={!!filters.studentApprovedOnly}
-            icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+            icon={<CheckCircle2 className="w-4 h-4 stroke-[2]" />}
             onClick={() => toggleBool('studentApprovedOnly')}
           />
           <FilterChip
             label={s.bedsAvailable || "Beds available"}
             active={!!filters.hasAvailableBeds}
-            icon={<Bed className="w-3.5 h-3.5" />}
+            icon={<Bed className="w-4 h-4 stroke-[2]" />}
             onClick={() => toggleBool('hasAvailableBeds')}
           />
 
-          {activeCount > 0 && <div className="h-4 w-px bg-slate-100 mx-2 shrink-0" />}
+          {activeCount > 0 && <div className="h-6 w-px bg-[#DDDDDD] mx-2 shrink-0" />}
 
+          {/* Active Status Pills */}
           {filters.city && (
-            <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
-              <MapPin className="w-3 h-3" />
+            <div className="flex items-center gap-1.5 bg-[#F7F7F7] text-[#222222] px-3 py-1.5 rounded-full text-[13px] font-medium border border-[#DDDDDD] shrink-0">
+              <MapPin className="w-3.5 h-3.5" />
               {filters.city}
-              <button onClick={() => set('city', '')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
+              <button onClick={() => set('city', '')} className="ml-1 hover:text-[#C2293F] focus:outline-none"><X className="w-3.5 h-3.5" /></button>
             </div>
           )}
           {filters.maxCampusProximityMeters && (
-            <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
-              {(filters.maxCampusProximityMeters / 1000).toFixed(1)}km
-              <button onClick={() => set('maxCampusProximityMeters', undefined)} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
+            <div className="flex items-center gap-1.5 bg-[#F7F7F7] text-[#222222] px-3 py-1.5 rounded-full text-[13px] font-medium border border-[#DDDDDD] shrink-0">
+              Max {(filters.maxCampusProximityMeters / 1000).toFixed(1)}km
+              <button onClick={() => set('maxCampusProximityMeters', undefined)} className="ml-1 hover:text-[#C2293F] focus:outline-none"><X className="w-3.5 h-3.5" /></button>
             </div>
           )}
           {filters.waterSource && (
-            <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
-              <Droplets className="w-3 h-3" />
+            <div className="flex items-center gap-1.5 bg-[#F7F7F7] text-[#222222] px-3 py-1.5 rounded-full text-[13px] font-medium border border-[#DDDDDD] shrink-0">
+              <Droplets className="w-3.5 h-3.5" />
               {filters.waterSource.split('_').pop()}
-              <button onClick={() => set('waterSource', '')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
+              <button onClick={() => set('waterSource', '')} className="ml-1 hover:text-[#C2293F] focus:outline-none"><X className="w-3.5 h-3.5" /></button>
             </div>
           )}
           {filters.electricityBackup && (
-            <div className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shrink-0">
-              <Zap className="w-3 h-3" />
+            <div className="flex items-center gap-1.5 bg-[#F7F7F7] text-[#222222] px-3 py-1.5 rounded-full text-[13px] font-medium border border-[#DDDDDD] shrink-0">
+              <Zap className="w-3.5 h-3.5" />
               {filters.electricityBackup.split('_').pop()}
-              <button onClick={() => set('electricityBackup', '')} className="ml-1 hover:text-blue-800"><X className="w-3 h-3" /></button>
+              <button onClick={() => set('electricityBackup', '')} className="ml-1 hover:text-[#C2293F] focus:outline-none"><X className="w-3.5 h-3.5" /></button>
             </div>
           )}
         </div>
 
-        {/* Mobile Filter */}
+        {/* Mobile Filter Button */}
         <button
           onClick={() => setIsDrawerOpen(true)}
-          className="lg:hidden flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest -xl -slate-900/30 shrink-0"
+          className="lg:hidden flex items-center justify-center gap-2 bg-white border border-[#222222] text-[#222222] px-6 h-12 rounded-full text-[14px] font-semibold shrink-0 w-full sm:w-auto"
         >
-          <SlidersHorizontal className="w-4 h-4" />
-          {s.moreFilters || 'More Filters'}
+          <SlidersHorizontal className="w-4 h-4 stroke-[2]" />
+          {s.moreFilters || 'Filters'}
           {activeCount > 0 && (
-            <span className="bg-blue-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
+            <span className="bg-[#222222] text-white w-5 h-5 rounded-full flex items-center justify-center text-[11px] ml-1">
               {activeCount}
             </span>
           )}
         </button>
 
-        {/* Advanced & Sort */}
-        <div className="flex items-center gap-3 ml-auto">
+        {/* Advanced & Sort (Right Side) */}
+        <div className="hidden sm:flex items-center gap-4 ml-auto">
           {activeCount > 0 && (
             <button
               onClick={onReset}
-              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 px-3 transition-colors"
+              className="text-[14px] font-semibold underline text-[#222222] hover:text-[#717171] px-2 transition-colors focus:outline-none"
             >
-              {s.reset || 'Reset'}
+              {s.reset || 'Clear all'}
             </button>
           )}
 
-          <div className="hidden sm:block h-6 w-px bg-slate-100" />
+          <div className="hidden lg:block h-6 w-px bg-[#DDDDDD]" />
 
           <Select value={currentSort} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-44 h-11 rounded-full border-slate-50 bg-slate-50 text-[11px] font-bold uppercase tracking-wide px-5 focus:ring-blue-100">
+            <SelectTrigger className="w-[200px] h-11 rounded-full border border-[#DDDDDD] bg-white text-[14px] font-medium px-4 focus:ring-0 hover:border-[#222222] transition-colors shadow-none">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="rounded-2xl border-slate-50 p-1">
+            <SelectContent className="rounded-xl border-[#DDDDDD]">
               {SORT_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value} className="text-xs font-bold rounded-xl cursor-pointer py-2.5">
+                <SelectItem key={o.value} value={o.value} className="text-[14px] py-2.5">
                   {o.label}
                 </SelectItem>
               ))}
@@ -234,71 +236,82 @@ export function StudentSearchFilters({
 
           <button
             onClick={() => setIsDrawerOpen(true)}
-            className="hidden lg:flex items-center gap-3 bg-slate-900 hover:bg-slate-800 text-white h-11 px-6 rounded-full text-[11px] font-black uppercase tracking-widest transition-all active:scale-95"
+            className="hidden lg:flex items-center gap-2 bg-white border border-[#DDDDDD] hover:border-[#222222] text-[#222222] h-11 px-5 rounded-full text-[14px] font-medium transition-colors focus:outline-none"
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            {s.more || 'More'}
+            <SlidersHorizontal className="w-4 h-4 stroke-[1.5]" />
+            {s.more || 'Filters'}
           </button>
         </div>
       </div>
 
       <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DialogContent className="max-w-md w-full h-[85vh] flex flex-col p-0 border-slate-100 rounded-[32px] overflow-hidden gap-0 bg-white">
-          <DialogHeader className="p-6 border-b border-slate-100 sticky top-0 bg-white z-10">
-            <DialogTitle className="text-xl font-black text-slate-900 tracking-tighter uppercase">{s.advancedFilters || 'Advanced Filters'}</DialogTitle>
+        <DialogContent className="max-w-2xl w-full h-[85vh] flex flex-col p-0 border-[#DDDDDD] rounded-2xl overflow-hidden bg-white gap-0">
+          <DialogHeader className="p-6 border-b border-[#EBEBEB] flex flex-row items-center justify-between shrink-0">
+            <DialogTitle className="text-[20px] font-semibold text-[#222222]">{s.advancedFilters || 'Filters'}</DialogTitle>
+            <button onClick={() => setIsDrawerOpen(false)} className="p-2 rounded-full hover:bg-[#F7F7F7] text-[#222222] transition-colors focus:outline-none">
+              <X className="w-5 h-5" />
+            </button>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-10 no-scrollbar">
+          <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
             <section>
-              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.prefLoc || 'Preferred Location'}</Label>
-              <div className="flex flex-wrap gap-2">
+              <Label className="text-[18px] font-semibold text-[#222222] mb-4 block">{s.prefLoc || 'Preferred location'}</Label>
+              <div className="flex flex-wrap gap-3">
                 {['', ...CITIES].map(c => (
                   <button
                     key={c}
                     onClick={() => set('city', c)}
-                    className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border ${filters.city === c || (!c && !filters.city)
-                      ? 'bg-blue-600 text-white border-blue-600 -lg -blue-500/20'
-                      : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'}`}
+                    className={cn(
+                      "px-5 py-2.5 rounded-full text-[15px] font-medium transition-all border focus:outline-none",
+                      filters.city === c || (!c && !filters.city)
+                        ? "bg-[#F7F7F7] text-[#222222] border-[#222222] shadow-[0_0_0_1px_#222222]"
+                        : "bg-white text-[#222222] border-[#DDDDDD] hover:border-[#222222]"
+                    )}
                   >
-                    {c || s.anyCity || 'Any City'}
+                    {c || s.anyCity || 'Any city'}
                   </button>
                 ))}
               </div>
             </section>
 
-            <section>
+            <section className="pt-8 border-t border-[#EBEBEB]">
               <div className="flex justify-between items-center mb-6">
-                <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{s.campusProx || 'Campus Proximity'}</Label>
-                <span className="text-xs font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter">
-                  {filters.maxCampusProximityMeters ? `${s.max || 'Max'} ${(filters.maxCampusProximityMeters / 1000).toFixed(1)}km` : s.anyDist || 'Any Distance'}
+                <Label className="text-[18px] font-semibold text-[#222222]">{s.campusProx || 'Campus proximity'}</Label>
+                <span className="text-[15px] font-medium text-[#717171]">
+                  {filters.maxCampusProximityMeters ? `${s.max || 'Max'} ${(filters.maxCampusProximityMeters / 1000).toFixed(1)} km` : s.anyDist || 'Any distance'}
                 </span>
               </div>
-              <Slider
-                min={200}
-                max={5000}
-                step={100}
-                value={[filters.maxCampusProximityMeters ?? 5000]}
-                onValueChange={([v]) => set('maxCampusProximityMeters', v === 5000 ? undefined : v)}
-              />
-              <div className="flex justify-between mt-3 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+              <div className="px-2">
+                <Slider
+                  min={200}
+                  max={5000}
+                  step={100}
+                  value={[filters.maxCampusProximityMeters ?? 5000]}
+                  onValueChange={([v]) => set('maxCampusProximityMeters', v === 5000 ? undefined : v)}
+                />
+              </div>
+              <div className="flex justify-between mt-3 text-[14px] text-[#717171]">
                 <span>200m</span>
                 <span>5km+</span>
               </div>
             </section>
 
-            <section>
-              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.waterPower || 'Water & Power'}</Label>
-              <div className="grid grid-cols-1 gap-3">
-                <div className="space-y-3">
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{s.waterSrc || 'Water Source'}</p>
-                  <div className="flex flex-wrap gap-2">
+            <section className="pt-8 border-t border-[#EBEBEB]">
+              <Label className="text-[18px] font-semibold text-[#222222] mb-6 block">{s.waterPower || 'Water & Power'}</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div>
+                  <p className="text-[15px] font-medium text-[#717171] mb-3">{s.waterSrc || 'Water source'}</p>
+                  <div className="flex flex-col gap-3">
                     {WATER_OPTIONS.map(opt => (
                       <button
                         key={opt.value}
                         onClick={() => set('waterSource', opt.value)}
-                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase border transition-all ${filters.waterSource === opt.value || (!opt.value && !filters.waterSource)
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-slate-500 border-slate-100 hover:border-blue-100'}`}
+                        className={cn(
+                          "px-4 py-3 rounded-xl text-[15px] text-left transition-all border focus:outline-none",
+                          filters.waterSource === opt.value || (!opt.value && !filters.waterSource)
+                            ? "bg-[#F7F7F7] text-[#222222] border-[#222222] font-semibold shadow-[0_0_0_1px_#222222]"
+                            : "bg-white text-[#222222] border-[#DDDDDD] hover:border-[#222222]"
+                        )}
                       >
                         {opt.label.split(' (')[0]}
                       </button>
@@ -306,16 +319,19 @@ export function StudentSearchFilters({
                   </div>
                 </div>
 
-                <div className="space-y-3 mt-4">
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{s.elecBackup || 'Electricity Backup'}</p>
-                  <div className="flex flex-wrap gap-2">
+                <div>
+                  <p className="text-[15px] font-medium text-[#717171] mb-3">{s.elecBackup || 'Electricity backup'}</p>
+                  <div className="flex flex-col gap-3">
                     {ELECTRICITY_OPTIONS.map(opt => (
                       <button
                         key={opt.value}
                         onClick={() => set('electricityBackup', opt.value)}
-                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase border transition-all ${filters.electricityBackup === opt.value || (!opt.value && !filters.electricityBackup)
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-slate-500 border-slate-100 hover:border-blue-100'}`}
+                        className={cn(
+                          "px-4 py-3 rounded-xl text-[15px] text-left transition-all border focus:outline-none",
+                          filters.electricityBackup === opt.value || (!opt.value && !filters.electricityBackup)
+                            ? "bg-[#F7F7F7] text-[#222222] border-[#222222] font-semibold shadow-[0_0_0_1px_#222222]"
+                            : "bg-white text-[#222222] border-[#DDDDDD] hover:border-[#222222]"
+                        )}
                       >
                         {opt.label.split(' (')[0]}
                       </button>
@@ -325,29 +341,35 @@ export function StudentSearchFilters({
               </div>
             </section>
 
-            <section>
-              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.livingRules || 'Living Rules'}</Label>
-              <div className="flex flex-wrap gap-2">
-                <FilterChip label={s.noCurfew || "No Curfew"} active={!!filters.noCurfew} onClick={() => toggleBool('noCurfew')} />
-                <FilterChip label={s.visAllowed || "Visitors Allowed"} active={!!filters.visitorsAllowed} onClick={() => toggleBool('visitorsAllowed')} />
+            <section className="pt-8 border-t border-[#EBEBEB]">
+              <Label className="text-[18px] font-semibold text-[#222222] mb-4 block">{s.livingRules || 'Living rules'}</Label>
+              <div className="flex flex-wrap gap-3">
+                <FilterChip label={s.noCurfew || "No curfew"} active={!!filters.noCurfew} onClick={() => toggleBool('noCurfew')} />
+                <FilterChip label={s.visAllowed || "Visitors allowed"} active={!!filters.visitorsAllowed} onClick={() => toggleBool('visitorsAllowed')} />
               </div>
             </section>
 
-            <section>
-              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{s.propSecurity || 'Property Security'}</Label>
-              <div className="flex flex-wrap gap-2">
-                <FilterChip label={s.gated || "Gated Compound"} active={!!filters.hasGatedCompound} onClick={() => toggleBool('hasGatedCompound')} />
-                <FilterChip label={s.nightMan || "Night Watchman"} active={!!filters.hasNightWatchman} onClick={() => toggleBool('hasNightWatchman')} />
+            <section className="pt-8 border-t border-[#EBEBEB]">
+              <Label className="text-[18px] font-semibold text-[#222222] mb-4 block">{s.propSecurity || 'Property security'}</Label>
+              <div className="flex flex-wrap gap-3">
+                <FilterChip label={s.gated || "Gated compound"} active={!!filters.hasGatedCompound} onClick={() => toggleBool('hasGatedCompound')} />
+                <FilterChip label={s.nightMan || "Night watchman"} active={!!filters.hasNightWatchman} onClick={() => toggleBool('hasNightWatchman')} />
               </div>
             </section>
           </div>
 
-          <div className="p-6 border-t border-slate-100 bg-slate-50 sticky bottom-0 z-10">
+          <div className="px-6 py-4 border-t border-[#EBEBEB] bg-white shrink-0 flex items-center justify-between">
+            <button
+              onClick={() => { onReset(); setIsDrawerOpen(false); }}
+              className="text-[16px] font-semibold underline text-[#222222] hover:text-[#717171] focus:outline-none"
+            >
+              {s.clearAll || 'Clear all'}
+            </button>
             <Button
               onClick={() => setIsDrawerOpen(false)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 text-sm font-black uppercase tracking-widest"
+              className="bg-[#222222] hover:bg-black text-white rounded-lg h-12 px-8 text-[16px] font-semibold active:scale-[0.98] transition-transform"
             >
-              {s.showResults || 'Show Results'}
+              {s.showResults || 'Show properties'}
             </Button>
           </div>
         </DialogContent>

@@ -186,7 +186,7 @@ const PropertyPreview: React.FC = () => {
 
       {/* Modal de confirmation avant publication */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-blue-700/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-md -lg p-10 max-w-xs w-full text-center space-y-5">
             <h2 className="text-lg font-bold text-gray-800 mb-4">Confirm Publication</h2>
             <p className="text-gray-600 mb-6 text-sm">
@@ -215,7 +215,7 @@ const PropertyPreview: React.FC = () => {
 
       {/* Modal "Property Published" avec carte et icône */}
       {isPublishedModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-auto p-4">
+        <div className="fixed inset-0 bg-blue-700/50 flex items-center justify-center z-50 overflow-auto p-4">
           <div className="bg-white rounded-md -lg p-10 max-w-xs w-full text-center space-y-5">
             <CheckCircle className="w-12 h-12 mx-auto text-black" />
             <p className="text-sm font-bold text-gray-600">Property published successfully</p>

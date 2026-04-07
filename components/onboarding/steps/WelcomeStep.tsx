@@ -6,8 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Button } from '@/components/ui/button';
 import { onboardingApi } from '@/lib/onboarding-api';
-import { Loader2, Home, User, MapPin, DollarSign, ArrowRight } from 'lucide-react';
-import { motion, Variants } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export function WelcomeStep() {
   const router = useRouter();
@@ -28,124 +28,100 @@ export function WelcomeStep() {
     }
   };
 
-  const getFeatures = () => {
+  const getSteps = () => {
     if (user?.role === 'agent') {
       return [
-        { icon: <User className="w-5 h-5" />, title: 'Agent Profile', description: 'Set up credentials' },
-        { icon: <Home className="w-5 h-5" />, title: 'Property Types', description: 'Your specialties' },
-        { icon: <MapPin className="w-5 h-5" />, title: 'Service Areas', description: 'Regions covered' },
-        { icon: <DollarSign className="w-5 h-5" />, title: 'Commissions', description: 'Configure fees' }
+        { title: 'Tell us about yourself', description: 'Share your professional credentials and agency details.' },
+        { title: 'Define your expertise', description: 'Select your property types and preferred service areas.' },
+        { title: 'Set your terms', description: 'Configure your commissions and finish up your profile.' }
       ];
     } else {
       return [
-        { icon: <Home className="w-5 h-5" />, title: 'Preferences', description: 'Tell us what you want' },
-        { icon: <MapPin className="w-5 h-5" />, title: 'Locations', description: 'Preferred neighborhoods' },
-        { icon: <DollarSign className="w-5 h-5" />, title: 'Budget', description: 'Financing details' }
+        { title: 'Tell us what you want', description: 'Choose the specific types of properties you are looking for.' },
+        { title: 'Choose your locations', description: 'Highlight your preferred neighborhoods and regions.' },
+        { title: 'Set your budget', description: 'Define your price range so we can find the perfect match.' }
       ];
     }
   };
 
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-  };
-
   return (
-    <div className="flex flex-col h-full justify-between items-center text-center w-full max-w-2xl mx-auto py-2">
-      <div className="flex flex-col items-center justify-center flex-1 w-full space-y-6 sm:space-y-8 min-h-0">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", duration: 0.6 }}
-          className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-50/80 rounded-3xl flex items-center justify-center -inner border border-blue-100/50 backdrop-blur-sm shrink-0"
-        >
-          <Home className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" />
-        </motion.div>
+    <div className="flex flex-col h-full absolute inset-0 bg-white z-50">
 
-        <div className="space-y-2 sm:space-y-3 shrink-0">
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight"
+      {/* Split Screen Content */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-y-auto pb-[100px]">
+
+        {/* Left Side: Massive Headline */}
+        <div className="flex-1 flex items-center justify-center p-8 sm:p-12 md:p-16 md:sticky md:top-0 md:h-[calc(100vh-100px)]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-[480px]"
           >
-            Welcome to HoroHouse, <span className="text-blue-600">{user?.name?.split(' ')[0]}</span>!
-          </motion.h1>
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="text-base sm:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed px-4"
-          >
-            Let's customize your experience in just a few quick steps. This will help us find exactly what you're looking for.
-          </motion.p>
+            <h1 className="text-[36px] sm:text-[48px] lg:text-[54px] font-semibold text-[#222222] leading-[1.1] tracking-tight">
+              It's easy to get started on HoroHouse
+            </h1>
+          </motion.div>
         </div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-3xl sm:gap-4 flex-1 min-h-0 overflow-y-auto custom-scrollbar px-2 pb-2"
-        >
-          {getFeatures().map((feature, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              whileHover={{ scale: 1.03, y: -2 }}
-              className="flex items-center sm:flex-col sm:items-center sm:text-center p-3 sm:p-5 bg-white/60 backdrop-blur-md rounded-2xl border border-white/80 -sm hover:-md transition-all group cursor-default text-left gap-4 sm:gap-0"
-            >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 sm:mb-3 group-hover:scale-110 transition-transform bg-gradient-to-br from-blue-50 to-indigo-50 shrink-0">
-                {feature.icon}
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-800 mb-0.5 sm:mb-1 text-sm sm:text-base">{feature.title}</h3>
-                <p className="text-xs text-slate-500 line-clamp-2">{feature.description}</p>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+        {/* Right Side: 1-2-3 Steps */}
+        <div className="flex-1 flex items-center justify-center p-8 sm:p-12 md:p-16">
+          <div className="w-full max-w-[480px]">
+            {getSteps().map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 + index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="flex gap-4 sm:gap-6">
+                  <div className="text-[22px] font-semibold text-[#222222] pt-0.5">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <h3 className="text-[22px] font-semibold text-[#222222] mb-2">
+                      {step.title}
+                    </h3>
+                    <p className="text-[16px] text-[#717171] leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Airbnb separator lines (don't show after the last item) */}
+                {index < getSteps().length - 1 && (
+                  <div className="border-b border-[#DDDDDD] my-8 w-full" />
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
       </div>
 
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="w-full pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3 justify-center items-center shrink-0"
-      >
-        <Button
-          onClick={() => router.push('/dashboard')}
-          variant="ghost"
-          size="lg"
-          className="text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 rounded-xl px-8 w-full sm:w-auto"
-        >
-          Skip for Now
-        </Button>
-        <Button
-          onClick={handleGetStarted}
-          disabled={isLoading}
-          size="lg"
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-10 -lg -blue-200 group relative overflow-hidden w-full sm:w-auto"
-        >
-          {isLoading ? (
-            <span className="flex items-center">
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Preparing...
-            </span>
-          ) : (
-            <span className="flex items-center font-semibold text-base">
-              Start
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </span>
-          )}
-        </Button>
-      </motion.div>
+      {/* Fixed Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DDDDDD] p-4 sm:p-6 z-[60]">
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="text-[16px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none"
+          >
+            Skip for now
+          </button>
+          <Button
+            onClick={handleGetStarted}
+            disabled={isLoading}
+            className="h-12 sm:h-14 px-8 rounded-lg blue-blue-600 blue-blue-700 text-white font-semibold text-[16px] transition-colors disabled:opacity-50 active:scale-[0.98]"
+          >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              "Get started"
+            )}
+          </Button>
+        </div>
+      </div>
+
     </div>
   );
 }

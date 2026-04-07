@@ -3,10 +3,8 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  GraduationCap,
   Upload,
   CheckCircle2,
   Clock,
@@ -16,17 +14,19 @@ import {
   RefreshCw,
   ShieldCheck,
   Info,
-  ImageIcon,
+  Image as ImageIcon,
   Loader2,
   X,
   Users,
   Home,
   CreditCard,
   Star,
+  GraduationCap
 } from 'lucide-react';
 import { useStudentMode } from '@/contexts/StudentModeContext';
 import { apiClient } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 // ─── Status config ────────────────────────────────────────────────────────────
 
@@ -34,38 +34,34 @@ const STATUS_CONFIG = {
   unverified: {
     label: 'Not Submitted',
     icon: <AlertCircle className="h-4 w-4" />,
-    badge: 'bg-gray-100 text-gray-600',
-    border: 'border-gray-200',
-    bg: 'bg-gray-50',
-    iconColor: 'text-gray-400',
-    ringColor: 'ring-gray-200',
+    badge: 'border-[#DDDDDD] text-[#717171] bg-white',
+    border: 'border-[#DDDDDD]',
+    bg: 'bg-white',
+    iconColor: 'text-[#717171]',
   },
   pending: {
     label: 'Under Review',
     icon: <Clock className="h-4 w-4" />,
-    badge: 'bg-amber-100 text-amber-700',
-    border: 'border-amber-200',
-    bg: 'bg-amber-50',
-    iconColor: 'text-amber-500',
-    ringColor: 'ring-amber-200',
+    badge: 'border-[#C2410C]/30 text-[#C2410C] bg-[#FFF7ED]',
+    border: 'border-[#C2410C]/20',
+    bg: 'bg-[#FFF7ED]',
+    iconColor: 'text-[#C2410C]',
   },
   verified: {
     label: 'Verified',
     icon: <CheckCircle2 className="h-4 w-4" />,
-    badge: 'bg-emerald-100 text-emerald-700',
-    border: 'border-emerald-200',
-    bg: 'bg-emerald-50',
-    iconColor: 'text-emerald-500',
-    ringColor: 'ring-emerald-200',
+    badge: 'border-[#008A05]/30 text-[#008A05] bg-[#EBFBF0]',
+    border: 'border-[#008A05]/20',
+    bg: 'bg-[#EBFBF0]',
+    iconColor: 'text-[#008A05]',
   },
   rejected: {
     label: 'Rejected',
     icon: <XCircle className="h-4 w-4" />,
-    badge: 'bg-red-100 text-red-700',
-    border: 'border-red-200',
-    bg: 'bg-red-50',
-    iconColor: 'text-red-500',
-    ringColor: 'ring-red-200',
+    badge: 'border-[#C2293F]/30 text-[#C2293F] bg-[#FFF8F6]',
+    border: 'border-[#C2293F]/20',
+    bg: 'bg-[#FFF8F6]',
+    iconColor: 'text-[#C2293F]',
   },
 } as const;
 
@@ -96,42 +92,47 @@ function StepIndicator({ status, s }: { status: string | null, s: any }) {
   };
 
   return (
-    <div className="flex items-center gap-0">
+    <div className="flex items-center w-full max-w-[400px]">
       {steps.map((step, idx) => {
         const state = getStepState(step.key);
         return (
           <React.Fragment key={step.key}>
-            <div className="flex flex-col items-center gap-1.5 min-w-[72px]">
+            <div className="flex flex-col items-center gap-2 w-[80px]">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all
-                  ${state === 'done' ? 'bg-emerald-500 text-white' : ''}
-                  ${state === 'current' ? 'bg-blue-600 text-white ring-4 ring-blue-100' : ''}
-                  ${state === 'upcoming' ? 'bg-gray-100 text-gray-400' : ''}
-                  ${state === 'rejected' ? 'bg-red-100 text-red-400' : ''}
-                `}
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold transition-all border-2",
+                  state === 'done' ? "bg-[#222222] border-[#222222] text-white" : "",
+                  state === 'current' ? "bg-white border-[#222222] text-[#222222]" : "",
+                  state === 'upcoming' ? "bg-white border-[#DDDDDD] text-[#717171]" : "",
+                  state === 'rejected' ? "bg-[#FFF8F6] border-[#C2293F] text-[#C2293F]" : ""
+                )}
               >
                 {state === 'done' ? (
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="w-5 h-5 text-white stroke-[3]" />
+                ) : state === 'rejected' ? (
+                  <XCircle className="w-5 h-5 text-[#C2293F] stroke-[3]" />
                 ) : (
                   <span>{idx + 1}</span>
                 )}
               </div>
               <span
-                className={`text-[10px] font-medium text-center leading-tight
-                  ${state === 'current' ? 'text-blue-700' : ''}
-                  ${state === 'done' ? 'text-emerald-600' : ''}
-                  ${state === 'upcoming' ? 'text-gray-400' : ''}
-                  ${state === 'rejected' ? 'text-red-400' : ''}
-                `}
+                className={cn(
+                  "text-[12px] font-semibold text-center leading-tight",
+                  state === 'current' ? "text-[#222222]" : "",
+                  state === 'done' ? "text-[#222222]" : "",
+                  state === 'upcoming' ? "text-[#717171]" : "",
+                  state === 'rejected' ? "text-[#C2293F]" : ""
+                )}
               >
                 {step.label}
               </span>
             </div>
             {idx < steps.length - 1 && (
               <div
-                className={`flex-1 h-0.5 mb-5 transition-all
-                  ${state === 'done' ? 'bg-emerald-300' : 'bg-gray-200'}
-                `}
+                className={cn(
+                  "flex-1 h-[2px] mb-6 transition-all",
+                  state === 'done' ? "bg-[#222222]" : "bg-[#EBEBEB]"
+                )}
               />
             )}
           </React.Fragment>
@@ -177,22 +178,21 @@ function DropZone({
 
   if (preview) {
     return (
-      <div className="relative rounded-xl overflow-hidden border-1 border-emerald-200 bg-emerald-50">
+      <div className="relative rounded-2xl overflow-hidden border border-[#DDDDDD] bg-[#F7F7F7]">
         <img
           src={preview}
           alt="ID preview"
-          className="w-full h-48 object-cover object-center"
+          className="w-full h-[280px] object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         <button
           onClick={onClear}
-          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/90 hover:bg-white flex items-center justify-center -md transition-all"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white hover:bg-[#F7F7F7] shadow-md flex items-center justify-center transition-colors focus:outline-none"
         >
-          <X className="w-3.5 h-3.5 text-gray-700" />
+          <X className="w-5 h-5 text-[#222222]" />
         </button>
-        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white/90 rounded-full px-2.5 py-1">
-          <FileImage className="w-3 h-3 text-emerald-600" />
-          <span className="text-[11px] font-semibold text-emerald-700">{s?.imageSelected || "Image selected"}</span>
+        <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-[#222222] text-white rounded-full px-3 py-1.5 shadow-md">
+          <FileImage className="w-4 h-4" />
+          <span className="text-[13px] font-semibold">{s?.imageSelected || "Image selected"}</span>
         </div>
       </div>
     );
@@ -204,12 +204,11 @@ function DropZone({
       onDragLeave={() => setIsDragging(false)}
       onDrop={handleDrop}
       onClick={() => !disabled && inputRef.current?.click()}
-      className={`
-        relative rounded-xl border-1 border-dashed h-44 flex flex-col items-center justify-center gap-3
-        transition-all duration-200 cursor-pointer group
-        ${isDragging ? 'border-blue-400 bg-blue-50 scale-[0.99]' : ''}
-        ${disabled ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60' : 'border-gray-300 bg-gray-50/50 hover:border-blue-400 hover:bg-blue-50/30'}
-      `}
+      className={cn(
+        "relative rounded-2xl border border-dashed h-[280px] flex flex-col items-center justify-center gap-4 transition-colors duration-200 cursor-pointer group",
+        isDragging ? "border-[#222222] bg-[#F7F7F7]" : "border-[#B0B0B0] bg-white hover:bg-[#F7F7F7]",
+        disabled && "opacity-50 cursor-not-allowed hover:bg-white border-[#DDDDDD]"
+      )}
     >
       <input
         ref={inputRef}
@@ -219,20 +218,14 @@ function DropZone({
         disabled={disabled}
         className="hidden"
       />
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all
-        ${isDragging ? 'bg-blue-100' : 'bg-gray-100 group-hover:bg-blue-100'}`}
-      >
-        <ImageIcon className={`w-5 h-5 transition-colors
-          ${isDragging ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'}`}
-        />
+      <div className="w-16 h-16 rounded-full bg-[#EBEBEB] flex items-center justify-center">
+        <ImageIcon className="w-7 h-7 text-[#222222] stroke-[1.5]" />
       </div>
       <div className="text-center px-4">
-        <p className={`text-sm font-semibold transition-colors
-          ${isDragging ? 'text-blue-700' : 'text-gray-600 group-hover:text-blue-700'}`}
-        >
+        <p className="text-[16px] font-semibold text-[#222222]">
           {isDragging ? (s?.dropYourImageHere || 'Drop your image here') : (s?.dropImageOrClickToBrowse || 'Drop image or click to browse')}
         </p>
-        <p className="text-xs text-gray-400 mt-0.5">{s?.jpgPngWebpOrHeic || "JPG, PNG, WEBP or HEIC · max 10 MB"}</p>
+        <p className="text-[14px] text-[#717171] mt-1">{s?.jpgPngWebpOrHeic || "JPEG, PNG, WEBP, HEIC — max 10 MB"}</p>
       </div>
     </div>
   );
@@ -314,41 +307,46 @@ export function StudentIdSettings() {
 
   if (isLoadingProfile) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+      <div className="flex items-center justify-center py-32">
+        <Loader2 className="w-8 h-8 animate-spin text-[#222222] stroke-[2.5]" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8 max-w-4xl">
+
+      <div className="mb-2">
+        <h2 className="text-[32px] font-semibold tracking-tight text-[#222222] mb-2">Student verification</h2>
+        <p className="text-[16px] text-[#717171]">Manage your student identity to access exclusive housing and features.</p>
+      </div>
 
       {/* Header card with status */}
-      <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
-        <CardHeader className="pb-4 border-b border-gray-50">
+      <Card className="rounded-2xl border-[#DDDDDD] shadow-none overflow-hidden bg-white">
+        <CardHeader className="pb-4 border-b border-[#EBEBEB]">
           <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-gray-800">
-              <ShieldCheck className="h-5 w-5 text-gray-400" />
+            <div className="flex items-center gap-2.5 text-[#222222] text-[18px]">
+              <ShieldCheck className="h-5 w-5 stroke-[1.5]" />
               <span>{s?.studentIdVerification || "Student ID Verification"}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold ${cfg.badge}`}>
+            <div className="flex items-center gap-3">
+              <span className={cn('inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[13px] font-bold border', cfg.badge)}>
                 {cfg.icon}
                 {s?.[status] || cfg.label}
-              </Badge>
+              </span>
               <button
                 onClick={handleRefreshStatus}
                 disabled={isRefreshing}
                 title="Refresh status"
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-[#717171] hover:bg-[#F7F7F7] hover:text-[#222222] transition-colors focus:outline-none"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
               </button>
             </div>
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="pt-5 space-y-5">
+        <CardContent className="p-6 sm:p-8 space-y-10">
           {/* Progress steps */}
           <StepIndicator status={status} s={s} />
 
@@ -360,48 +358,43 @@ export function StudentIdSettings() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.18 }}
-              className={`flex items-start gap-3 p-4 rounded-xl border ${cfg.bg} ${cfg.border}`}
+              className={cn("flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 rounded-xl border", cfg.bg, cfg.border)}
             >
-              <div className={`mt-0.5 shrink-0 ${cfg.iconColor}`}>
-                {status === 'pending' ? (
-                  <Clock className="w-4 h-4" />
-                ) : status === 'verified' ? (
-                  <CheckCircle2 className="w-4 h-4" />
-                ) : status === 'rejected' ? (
-                  <XCircle className="w-4 h-4" />
-                ) : (
-                  <Info className="w-4 h-4" />
-                )}
+              <div className={cn("shrink-0", cfg.iconColor)}>
+                {status === 'pending' ? <Clock className="w-6 h-6 stroke-[1.5]" />
+                  : status === 'verified' ? <CheckCircle2 className="w-6 h-6 stroke-[1.5]" />
+                  : status === 'rejected' ? <XCircle className="w-6 h-6 stroke-[1.5]" />
+                  : <Info className="w-6 h-6 stroke-[1.5]" />}
               </div>
               <div>
                 {status === 'unverified' && (
                   <>
-                    <p className="text-sm font-semibold text-gray-800">{s?.uploadYourStudentIdToGetVerified || "Upload your student ID to get verified"}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-[16px] font-semibold text-[#222222]">{s?.uploadYourStudentIdToGetVerified || "Upload your student ID to get verified"}</p>
+                    <p className="text-[14px] text-[#717171] mt-1">
                       {s?.uploadYourStudentIdDesc || "Upload a clear photo of your valid student ID card. Verification usually takes less than 24 hours."}
                     </p>
                   </>
                 )}
                 {status === 'pending' && (
                   <>
-                    <p className="text-sm font-semibold text-amber-800">{s?.yourIdIsBeingReviewed || "Your ID is being reviewed"}</p>
-                    <p className="text-xs text-amber-700 mt-0.5">
+                    <p className="text-[16px] font-semibold text-[#C2410C]">{s?.yourIdIsBeingReviewed || "Your ID is being reviewed"}</p>
+                    <p className="text-[14px] text-[#C2410C] mt-1 opacity-80">
                       {s?.yourIdIsBeingReviewedDesc || "Our team is reviewing your submission. You'll be notified once it's approved — usually within 24 hours."}
                     </p>
                   </>
                 )}
                 {status === 'verified' && (
                   <>
-                    <p className="text-sm font-semibold text-emerald-800">{s?.youAreFullyVerified || "You're fully verified!"}</p>
-                    <p className="text-xs text-emerald-700 mt-0.5">
+                    <p className="text-[16px] font-semibold text-[#008A05]">{s?.youAreFullyVerified || "You're fully verified!"}</p>
+                    <p className="text-[14px] text-[#008A05] mt-1 opacity-80">
                       {s?.youAreFullyVerifiedDesc || "You have full access to the roommate pool and all student-exclusive features."}
                     </p>
                   </>
                 )}
                 {status === 'rejected' && (
                   <>
-                    <p className="text-sm font-semibold text-red-800">{s?.yourIdCouldNotBeVerified || "Your ID could not be verified"}</p>
-                    <p className="text-xs text-red-700 mt-0.5">
+                    <p className="text-[16px] font-semibold text-[#C2293F]">{s?.yourIdCouldNotBeVerified || "Your ID could not be verified"}</p>
+                    <p className="text-[14px] text-[#C2293F] mt-1 opacity-80">
                       {s?.yourIdCouldNotBeVerifiedDesc || "The photo was unclear or the ID was invalid. Please upload a clearer image and resubmit."}
                     </p>
                   </>
@@ -410,9 +403,9 @@ export function StudentIdSettings() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Student profile summary (if it exists) */}
+          {/* Student profile summary */}
           {studentProfile && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 border-t border-[#EBEBEB]">
               {[
                 { label: 'University', value: studentProfile.universityName },
                 { label: 'Campus', value: studentProfile.campusName },
@@ -420,9 +413,9 @@ export function StudentIdSettings() {
                 ...(studentProfile.faculty ? [{ label: 'Faculty', value: studentProfile.faculty }] : []),
                 ...(studentProfile.studyLevel ? [{ label: 'Level', value: studentProfile.studyLevel }] : []),
               ].map(({ label, value }) => (
-                <div key={label} className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">{label}</p>
-                  <p className="text-sm font-medium text-gray-800 mt-0.5 truncate">{value}</p>
+                <div key={label} className="space-y-1">
+                  <p className="text-[12px] font-bold uppercase tracking-wide text-[#717171]">{label}</p>
+                  <p className="text-[15px] font-semibold text-[#222222] truncate">{value}</p>
                 </div>
               ))}
             </div>
@@ -437,28 +430,28 @@ export function StudentIdSettings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
-            <CardHeader className="pb-4 border-b border-gray-50">
-              <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
-                <Upload className="h-4 w-4 text-gray-400" />
+          <Card className="rounded-2xl border-[#DDDDDD] shadow-none overflow-hidden bg-white">
+            <CardHeader className="pb-4 border-b border-[#EBEBEB]">
+              <CardTitle className="flex items-center gap-2.5 text-[#222222] text-[18px]">
+                <Upload className="h-5 w-5 stroke-[1.5]" />
                 {status === 'rejected' ? (s?.reUploadStudentId || 'Re-upload Student ID') : (s?.uploadStudentId || 'Upload Student ID')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-5 space-y-4">
+            <CardContent className="p-6 sm:p-8 space-y-6">
 
               {/* Tips */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {[
                   s?.photoMustBeClear || 'Photo must be clear and legible',
                   s?.showFullId || 'Show full ID card including name',
-                  s?.avoidGlare || 'Avoid glare or s',
+                  s?.avoidGlare || 'Avoid glare or shadows',
                   s?.mustBeCurrentId || 'Must be a current valid ID',
                 ].map((tip) => (
                   <span
                     key={tip}
-                    className="inline-flex items-center gap-1 text-[11px] bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium"
+                    className="inline-flex items-center gap-2 text-[13px] bg-[#F7F7F7] text-[#222222] px-3 py-1.5 rounded-full font-medium border border-[#EBEBEB]"
                   >
-                    <Info className="w-3 h-3 shrink-0" />
+                    <Info className="w-3.5 h-3.5 shrink-0 text-[#717171]" />
                     {tip}
                   </span>
                 ))}
@@ -474,12 +467,11 @@ export function StudentIdSettings() {
               />
 
               {/* Submit button */}
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-4 border-t border-[#EBEBEB]">
                 <Button
                   onClick={handleUpload}
                   disabled={!selectedFile || isUploading}
-                  className="rounded-xl min-w-36 bg-blue-600 hover:bg-blue-700 text-white -sm"
-                  size="lg"
+                  className="rounded-lg h-12 px-8 bg-[#222222] hover:bg-black text-white font-semibold text-[15px] transition-colors disabled:opacity-50 w-full sm:w-auto active:scale-[0.98]"
                 >
                   {isUploading ? (
                     <>
@@ -500,57 +492,55 @@ export function StudentIdSettings() {
       )}
 
       {/* Perks card */}
-      <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
-        <CardHeader className="pb-3 border-b border-gray-50">
-          <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
-            <GraduationCap className="h-4 w-4 text-gray-400" />
+      <Card className="rounded-2xl border-[#DDDDDD] shadow-none overflow-hidden bg-white">
+        <CardHeader className="pb-4 border-b border-[#EBEBEB]">
+          <CardTitle className="flex items-center gap-2.5 text-[#222222] text-[18px]">
+            <GraduationCap className="h-5 w-5 stroke-[1.5]" />
             {s?.whatVerificationUnlocks || "What verification unlocks"}
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <CardContent className="p-6 sm:p-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
               {
-                icon: <Users className="w-4 h-4" />,
-                color: 'bg-purple-100 text-purple-600',
+                icon: <Users className="w-5 h-5" />,
                 title: s?.roommatePool || 'Roommate pool',
                 desc: s?.roommatePoolDesc || 'Browse and match with verified students looking to share housing.',
               },
               {
-                icon: <Home className="w-4 h-4" />,
-                color: 'bg-blue-100 text-blue-600',
+                icon: <Home className="w-5 h-5" />,
                 title: s?.studentVerifiedListings || 'Student-verified listings',
                 desc: s?.studentVerifiedListingsDesc || 'See properties approved for students with student-friendly terms.',
               },
               {
-                icon: <CreditCard className="w-4 h-4" />,
-                color: 'bg-teal-100 text-teal-600',
+                icon: <CreditCard className="w-5 h-5" />,
                 title: s?.rentAdvanceScheme || 'Rent advance scheme',
                 desc: s?.rentAdvanceSchemeDesc || 'Access landlords offering flexible advance payment plans for students.',
               },
               {
-                icon: <Star className="w-4 h-4" />,
-                color: 'bg-amber-100 text-amber-600',
+                icon: <Star className="w-5 h-5" />,
                 title: s?.ambassadorProgramme || 'Ambassador programme',
                 desc: s?.ambassadorProgrammeDesc || 'Eligible verified students can become campus ambassadors.',
               },
-            ].map(({ icon, color, title, desc }) => (
+            ].map(({ icon, title, desc }) => (
               <div
                 key={title}
-                className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all
-                  ${isVerified ? 'border-emerald-100 bg-emerald-50/40' : 'border-gray-100 bg-gray-50/50'}`}
+                className={cn(
+                  "flex items-start gap-4 p-5 rounded-2xl border transition-all",
+                  isVerified ? "border-[#DDDDDD] bg-[#F7F7F7]" : "border-[#EBEBEB] bg-white"
+                )}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-white border border-[#DDDDDD] text-[#222222]">
                   {icon}
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold text-gray-800">{title}</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-[16px] font-semibold text-[#222222]">{title}</p>
                     {isVerified && (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-[#008A05] shrink-0" />
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{desc}</p>
+                  <p className="text-[14px] text-[#717171] leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -565,20 +555,22 @@ export function StudentIdSettings() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, height: 0 }}
-            className={`flex items-start gap-2.5 p-4 rounded-xl border text-sm
-              ${message.type === 'success'
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                : 'bg-red-50 border-red-200 text-red-800'
-              }`}
+            className={cn(
+              "flex items-start gap-3 p-5 rounded-xl border text-[14px] font-medium",
+              message.type === 'success'
+                ? "bg-[#EBFBF0] border-[#008A05]/20 text-[#008A05]"
+                : "bg-[#FFF7ED] border-[#C2410C]/20 text-[#C2410C]"
+            )}
           >
             {message.type === 'success'
-              ? <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-              : <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              ? <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+              : <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
             }
-            <span>{message.text}</span>
+            <span className="pt-0.5">{message.text}</span>
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }

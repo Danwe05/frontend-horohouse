@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell,
   Mail,
@@ -15,10 +16,11 @@ import {
   Users,
   AlertCircle,
   Check,
-  Save
+  ShieldCheck
 } from 'lucide-react';
 import apiClient from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface User {
   id: string;
@@ -46,6 +48,26 @@ interface NotificationPreference {
   category: 'general' | 'property' | 'account' | 'marketing';
 }
 
+// Custom Airbnb-style Toggle Switch
+const Toggle = ({ active, onChange, disabled = false }: { active: boolean; onChange: (v: boolean) => void; disabled?: boolean }) => (
+  <button
+    type="button"
+    disabled={disabled}
+    onClick={() => onChange(!active)}
+    className={cn(
+      "w-12 h-8 rounded-full transition-colors relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] focus-visible:ring-offset-2 shrink-0",
+      active ? "bg-[#222222]" : "bg-[#DDDDDD]",
+      disabled && "opacity-50 cursor-not-allowed"
+    )}
+    aria-pressed={active}
+  >
+    <div className={cn(
+      "absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-transform shadow-[0_2px_4px_rgba(0,0,0,0.18)]",
+      active ? "translate-x-4" : ""
+    )} />
+  </button>
+);
+
 export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -53,12 +75,11 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
   const s = (t as any)?.settings || {};
 
   const [preferences, setPreferences] = useState<NotificationPreference[]>([
-    // General Notifications
     {
       id: 'new_messages',
-      title: 'New Messages',
-      description: 'When you receive a new message from agents or users',
-      icon: <MessageSquare className="h-4 w-4" />,
+      title: 'New messages',
+      description: 'When you receive a new message from agents or users.',
+      icon: <MessageSquare className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
       email: true,
       sms: false,
       push: true,
@@ -66,22 +87,20 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
     },
     {
       id: 'account_security',
-      title: 'Account Security',
-      description: 'Login alerts and security notifications',
-      icon: <AlertCircle className="h-4 w-4" />,
+      title: 'Account security',
+      description: 'Login alerts and important security notifications.',
+      icon: <AlertCircle className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
       email: true,
       sms: true,
       push: true,
       category: 'account'
     },
-
-    // Property Notifications (for users)
     ...(user.role === 'registered_user' ? [
       {
         id: 'new_properties',
-        title: 'New Properties',
-        description: 'When new properties match your saved searches',
-        icon: <Home className="h-4 w-4" />,
+        title: 'New properties',
+        description: 'When new properties match your saved searches.',
+        icon: <Home className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
         email: true,
         sms: false,
         push: true,
@@ -89,9 +108,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       },
       {
         id: 'price_changes',
-        title: 'Price Changes',
-        description: 'When prices change on your favorite properties',
-        icon: <DollarSign className="h-4 w-4" />,
+        title: 'Price changes',
+        description: 'When prices change on your favorite properties.',
+        icon: <DollarSign className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
         email: true,
         sms: false,
         push: false,
@@ -99,23 +118,21 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       },
       {
         id: 'property_updates',
-        title: 'Property Updates',
-        description: 'When your favorite properties are updated',
-        icon: <TrendingUp className="h-4 w-4" />,
+        title: 'Property updates',
+        description: 'When your favorite properties are updated.',
+        icon: <TrendingUp className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
         email: false,
         sms: false,
         push: true,
         category: 'property' as const
       }
     ] : []),
-
-    // Agent Notifications
     ...(user.role === 'agent' ? [
       {
         id: 'new_inquiries',
-        title: 'New Inquiries',
-        description: 'When someone inquires about your properties',
-        icon: <Users className="h-4 w-4" />,
+        title: 'New inquiries',
+        description: 'When someone inquires about your properties.',
+        icon: <Users className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
         email: true,
         sms: true,
         push: true,
@@ -123,9 +140,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       },
       {
         id: 'property_views',
-        title: 'Property Views',
-        description: 'Daily summary of property views',
-        icon: <TrendingUp className="h-4 w-4" />,
+        title: 'Property views',
+        description: 'Daily summary of property views and analytics.',
+        icon: <TrendingUp className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
         email: true,
         sms: false,
         push: false,
@@ -133,22 +150,20 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       },
       {
         id: 'listing_approved',
-        title: 'Listing Approved',
-        description: 'When your property listings are approved',
-        icon: <Check className="h-4 w-4" />,
+        title: 'Listing approved',
+        description: 'When your property listings are reviewed and approved.',
+        icon: <Check className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
         email: true,
         sms: false,
         push: true,
         category: 'property' as const
       }
     ] : []),
-
-    // Marketing Notifications
     {
       id: 'newsletter',
       title: s?.newsletter || 'Newsletter',
-      description: s?.newsletterDesc || 'Weekly newsletter with market insights and tips',
-      icon: <Mail className="h-4 w-4" />,
+      description: s?.newsletterDesc || 'Weekly newsletter with market insights and tips.',
+      icon: <Mail className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
       email: true,
       sms: false,
       push: false,
@@ -157,8 +172,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
     {
       id: 'promotions',
       title: s?.promotions || 'Promotions',
-      description: s?.promotionsDesc || 'Special offers and promotional content',
-      icon: <TrendingUp className="h-4 w-4" />,
+      description: s?.promotionsDesc || 'Special offers and promotional content.',
+      icon: <TrendingUp className="w-6 h-6 stroke-[1.5] text-[#222222]" />,
       email: false,
       sms: false,
       push: false,
@@ -180,8 +195,6 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
 
   const handleGlobalSettingChange = (type: 'email' | 'sms' | 'push', value: boolean) => {
     setGlobalSettings(prev => ({ ...prev, [type]: value }));
-
-    // If disabling globally, disable all individual preferences
     if (!value) {
       setPreferences(prev => prev.map(pref => ({ ...pref, [type]: false })));
     }
@@ -195,11 +208,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       const notificationSettings = {
         globalSettings,
         preferences: preferences.reduce((acc, pref) => {
-          acc[pref.id] = {
-            email: pref.email,
-            sms: pref.sms,
-            push: pref.push
-          };
+          acc[pref.id] = { email: pref.email, sms: pref.sms, push: pref.push };
           return acc;
         }, {} as Record<string, { email: boolean; sms: boolean; push: boolean }>)
       };
@@ -210,10 +219,12 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         data: notificationSettings
       });
 
-      setMessage({ type: 'success', text: 'Notification settings updated successfully' });
+      setMessage({ type: 'success', text: 'Notification settings updated' });
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error('Failed to update notification settings:', error);
       setMessage({ type: 'error', text: 'Failed to update notification settings' });
+      setTimeout(() => setMessage(null), 3000);
     } finally {
       setIsLoading(false);
     }
@@ -221,232 +232,170 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
 
   const getCategoryTitle = (category: string) => {
     switch (category) {
-      case 'general':
-        return 'General Notifications';
-      case 'property':
-        return user.role === 'agent' ? 'Property Management' : 'Property Alerts';
-      case 'account':
-        return 'Account & Security';
-      case 'marketing':
-        return 'Marketing & Updates';
-      default:
-        return 'Other';
+      case 'general': return 'General notifications';
+      case 'property': return user.role === 'agent' ? 'Property management' : 'Property alerts';
+      case 'account': return 'Account & security';
+      case 'marketing': return 'Marketing & updates';
+      default: return 'Other';
     }
   };
 
   const groupedPreferences = preferences.reduce((acc, pref) => {
-    if (!acc[pref.category]) {
-      acc[pref.category] = [];
-    }
+    if (!acc[pref.category]) acc[pref.category] = [];
     acc[pref.category].push(pref);
     return acc;
   }, {} as Record<string, NotificationPreference[]>);
 
+  const inputClasses = "flex h-14 w-full rounded-xl border border-[#B0B0B0] bg-white px-4 py-2 text-[16px] text-[#222222] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] focus-visible:border-transparent transition-all";
+
   return (
-    <div className="space-y-4 lg:space-y-6 lg:p-0">
-      {/* Global Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Bell className="h-5 w-5" />
-            <span>{s?.globalNotificationSettings || "Global Notification Settings"}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3 sm:space-y-4">
-            {/* Email Notifications */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
-                  <Mail className="h-4 w-4 text-blue-600" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.emailNotifications || "Email Notifications"}</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">{s?.receiveNotificationsViaEmail || "Receive notifications via email"}</p>
+    <div className="w-full animate-in fade-in duration-300">
+      
+      {/* ── Page Header ── */}
+      <div className="mb-10">
+        <h2 className="text-[32px] font-semibold text-[#222222] tracking-tight">
+          {s?.notifications || "Notifications"}
+        </h2>
+        <p className="text-[16px] text-[#717171] mt-2">
+          Choose how you want to be notified about updates, messages, and promotions.
+        </p>
+      </div>
+
+      <div className="space-y-0">
+
+        {/* ── Global Settings ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {s?.globalNotificationSettings || "Global settings"}
+          </h3>
+          
+          <div className="space-y-6 max-w-3xl">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <Mail className="w-6 h-6 text-[#222222] stroke-[1.5] shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-[16px] font-medium text-[#222222]">{s?.emailNotifications || "Email notifications"}</h4>
+                  <p className="text-[15px] text-[#717171] mt-0.5">{s?.receiveNotificationsViaEmail || "Receive notifications via email"}</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
-                <input
-                  type="checkbox"
-                  checked={globalSettings.email}
-                  onChange={(e) => handleGlobalSettingChange('email', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
+              <Toggle active={globalSettings.email} onChange={(val) => handleGlobalSettingChange('email', val)} />
             </div>
 
-            {/* SMS Notifications */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
-                  <Smartphone className="h-4 w-4 text-green-600" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.smsNotifications || "SMS Notifications"}</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">{s?.receiveNotificationsViaSms || "Receive notifications via SMS"}</p>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <Smartphone className="w-6 h-6 text-[#222222] stroke-[1.5] shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-[16px] font-medium text-[#222222]">{s?.smsNotifications || "SMS notifications"}</h4>
+                  <p className="text-[15px] text-[#717171] mt-0.5">{s?.receiveNotificationsViaSms || "Receive notifications via SMS"}</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
-                <input
-                  type="checkbox"
-                  checked={globalSettings.sms}
-                  onChange={(e) => handleGlobalSettingChange('sms', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
+              <Toggle active={globalSettings.sms} onChange={(val) => handleGlobalSettingChange('sms', val)} />
             </div>
 
-            {/* Push Notifications */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-purple-100 flex-shrink-0">
-                  <Bell className="h-4 w-4 text-purple-600" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.pushNotifications || "Push Notifications"}</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">{s?.receivePushNotificationsInBrowser || "Receive push notifications in browser"}</p>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <Bell className="w-6 h-6 text-[#222222] stroke-[1.5] shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-[16px] font-medium text-[#222222]">{s?.pushNotifications || "Push notifications"}</h4>
+                  <p className="text-[15px] text-[#717171] mt-0.5">{s?.receivePushNotificationsInBrowser || "Receive push notifications in browser"}</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
-                <input
-                  type="checkbox"
-                  checked={globalSettings.push}
-                  onChange={(e) => handleGlobalSettingChange('push', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
+              <Toggle active={globalSettings.push} onChange={(val) => handleGlobalSettingChange('push', val)} />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </section>
 
-      {/* Detailed Preferences */}
-      {Object.entries(groupedPreferences).map(([category, prefs]) => (
-        <Card key={category}>
-          <CardHeader>
-            <CardTitle className="text-base sm:text-lg">{getCategoryTitle(category)}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 sm:space-y-4">
+        {/* ── Detailed Preferences ── */}
+        {Object.entries(groupedPreferences).map(([category, prefs]) => (
+          <section key={category} className="py-8 border-t border-[#DDDDDD] space-y-6">
+            <h3 className="text-[18px] font-semibold text-[#222222]">
+              {getCategoryTitle(category)}
+            </h3>
+            
+            <div className="space-y-0 max-w-3xl">
               {prefs.map((pref) => (
-                <div key={pref.id} className="border rounded-lg p-3 sm:p-4">
-                  <div className="flex items-start space-x-3 mb-3">
-                    <div className="p-2 rounded-full bg-gray-100 flex-shrink-0">
-                      {pref.icon}
-                    </div>
+                <div key={pref.id} className="flex flex-col gap-4 py-6 border-b border-[#EBEBEB] last:border-0 last:pb-0 first:pt-0">
+                  <div className="flex items-start gap-4">
+                    <div className="shrink-0 mt-0.5">{pref.icon}</div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 text-sm sm:text-base">{pref.title}</h3>
-                      <p className="text-xs sm:text-sm text-gray-500">{pref.description}</p>
+                      <h4 className="text-[16px] font-medium text-[#222222]">{pref.title}</h4>
+                      <p className="text-[15px] text-[#717171] mt-0.5">{pref.description}</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 xs:grid-cols-3 gap-3 sm:gap-4 ml-0 sm:ml-11">
-                    <div className="flex items-center space-x-2">
+                  {/* Channel toggles */}
+                  <div className="flex flex-wrap items-center gap-6 sm:gap-8 ml-[40px]">
+                    <label className={cn("flex items-center gap-3 cursor-pointer transition-opacity", !globalSettings.email && "opacity-50")}>
                       <input
                         type="checkbox"
-                        id={`${pref.id}-email`}
                         checked={pref.email && globalSettings.email}
                         onChange={(e) => handlePreferenceChange(pref.id, 'email', e.target.checked)}
                         disabled={!globalSettings.email}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        className="w-5 h-5 rounded border-[#B0B0B0] text-[#222222] focus:ring-[#222222] focus:ring-offset-0 transition-colors cursor-pointer accent-[#222222]"
                       />
-                      <Label
-                        htmlFor={`${pref.id}-email`}
-                        className={`text-xs sm:text-sm ${!globalSettings.email ? 'text-gray-400' : 'text-gray-700'}`}
-                      >
-                        Email
-                      </Label>
-                    </div>
+                      <span className="text-[15px] text-[#222222]">Email</span>
+                    </label>
 
-                    <div className="flex items-center space-x-2">
+                    <label className={cn("flex items-center gap-3 cursor-pointer transition-opacity", !globalSettings.sms && "opacity-50")}>
                       <input
                         type="checkbox"
-                        id={`${pref.id}-sms`}
                         checked={pref.sms && globalSettings.sms}
                         onChange={(e) => handlePreferenceChange(pref.id, 'sms', e.target.checked)}
                         disabled={!globalSettings.sms}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        className="w-5 h-5 rounded border-[#B0B0B0] text-[#222222] focus:ring-[#222222] focus:ring-offset-0 transition-colors cursor-pointer accent-[#222222]"
                       />
-                      <Label
-                        htmlFor={`${pref.id}-sms`}
-                        className={`text-xs sm:text-sm ${!globalSettings.sms ? 'text-gray-400' : 'text-gray-700'}`}
-                      >
-                        SMS
-                      </Label>
-                    </div>
+                      <span className="text-[15px] text-[#222222]">SMS</span>
+                    </label>
 
-                    <div className="flex items-center space-x-2">
+                    <label className={cn("flex items-center gap-3 cursor-pointer transition-opacity", !globalSettings.push && "opacity-50")}>
                       <input
                         type="checkbox"
-                        id={`${pref.id}-push`}
                         checked={pref.push && globalSettings.push}
                         onChange={(e) => handlePreferenceChange(pref.id, 'push', e.target.checked)}
                         disabled={!globalSettings.push}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        className="w-5 h-5 rounded border-[#B0B0B0] text-[#222222] focus:ring-[#222222] focus:ring-offset-0 transition-colors cursor-pointer accent-[#222222]"
                       />
-                      <Label
-                        htmlFor={`${pref.id}-push`}
-                        className={`text-xs sm:text-sm ${!globalSettings.push ? 'text-gray-400' : 'text-gray-700'}`}
-                      >
-                        Push
-                      </Label>
-                    </div>
+                      <span className="text-[15px] text-[#222222]">Push</span>
+                    </label>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      ))}
+          </section>
+        ))}
 
-      {/* Notification Schedule */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Bell className="h-5 w-5" />
-            <span>{s?.notificationSchedule || "Notification Schedule"}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        {/* ── Notification Schedule ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {s?.notificationSchedule || "Notification schedule"}
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
             {/* Quiet Hours */}
             <div>
-              <Label className="text-sm font-medium text-gray-700">{s?.quietHours || "Quiet Hours"}</Label>
-              <p className="text-xs sm:text-sm text-gray-500 mb-3">
-                {s?.quietHoursDesc || "Don't send push notifications during these hours"}
+              <h4 className="text-[16px] font-medium text-[#222222] mb-1">{s?.quietHours || "Quiet hours"}</h4>
+              <p className="text-[15px] text-[#717171] mb-4">
+                {s?.quietHoursDesc || "Pause push notifications during these hours."}
               </p>
-              <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                <div className="flex items-center space-x-2">
-                  <Label htmlFor="quiet-start" className="text-xs sm:text-sm whitespace-nowrap">{s?.from || "From:"}</Label>
-                  <input
-                    type="time"
-                    id="quiet-start"
-                    defaultValue="22:00"
-                    className="px-2 sm:px-3 py-1 sm:py-2 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
-                  />
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <Label htmlFor="quiet-start" className="text-[14px] text-[#222222] font-normal mb-2 block">{s?.from || "From"}</Label>
+                  <Input type="time" id="quiet-start" defaultValue="22:00" className={inputClasses} />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Label htmlFor="quiet-end" className="text-xs sm:text-sm whitespace-nowrap">{s?.to || "To:"}</Label>
-                  <input
-                    type="time"
-                    id="quiet-end"
-                    defaultValue="08:00"
-                    className="px-2 sm:px-3 py-1 sm:py-2 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
-                  />
+                <div className="flex-1">
+                  <Label htmlFor="quiet-end" className="text-[14px] text-[#222222] font-normal mb-2 block">{s?.to || "To"}</Label>
+                  <Input type="time" id="quiet-end" defaultValue="08:00" className={inputClasses} />
                 </div>
               </div>
             </div>
 
             {/* Digest Frequency */}
             <div>
-              <Label className="text-sm font-medium text-gray-700">{s?.digestFrequency || "Digest Frequency"}</Label>
-              <p className="text-xs sm:text-sm text-gray-500 mb-3">
+              <h4 className="text-[16px] font-medium text-[#222222] mb-1">{s?.digestFrequency || "Digest frequency"}</h4>
+              <p className="text-[15px] text-[#717171] mb-4">
                 {s?.digestFrequencyDesc || "How often would you like to receive summary emails?"}
               </p>
-              <select className="px-2 sm:px-3 py-1 sm:py-2 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
+              <select className={cn(inputClasses, "cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%23222222%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_16px_center] bg-no-repeat pr-12")}>
                 <option value="immediate">{s?.immediate || "Immediate"}</option>
                 <option value="daily">{s?.dailyDigest || "Daily digest"}</option>
                 <option value="weekly">{s?.weeklyDigest || "Weekly digest"}</option>
@@ -454,42 +403,43 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
               </select>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </section>
 
-      {/* Message Display */}
-      {message && (
-        <div className={`p-3 sm:p-4 rounded-md ${message.type === 'success'
-            ? 'bg-green-50 border border-green-200 text-green-800'
-            : 'bg-red-50 border border-red-200 text-red-800'
-          }`}>
-          <div className="flex items-center space-x-2">
-            {message.type === 'success' ? (
-              <Check className="h-4 w-4 flex-shrink-0" />
-            ) : (
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+      </div>
+
+      {/* ── Status Messages ── */}
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+              "fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-4 rounded-xl shadow-xl flex items-center gap-3 z-50 min-w-[300px]",
+              message.type === 'success' ? "bg-[#222222] text-white" : "bg-[#C2410C] text-white"
             )}
-            <span className="text-sm break-words">{message.text}</span>
-          </div>
-        </div>
-      )}
+          >
+            {message.type === 'success' ? (
+              <ShieldCheck className="h-5 w-5 shrink-0 stroke-[2]" />
+            ) : (
+              <AlertCircle className="h-5 w-5 shrink-0 stroke-[2]" />
+            )}
+            <span className="text-[15px] font-medium">{message.text}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Save Button */}
-      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg -lg sm:-none sm:bg-transparent sm:p-0 sm:static">
+      {/* ── Save Action ── */}
+      <div className="pt-8 border-t border-[#DDDDDD] flex justify-start">
         <Button
           onClick={handleSave}
           disabled={isLoading}
-          className="w-full sm:w-auto min-w-32"
-          size="lg"
+          className="w-full sm:w-auto h-12 px-8 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold text-[15px] transition-colors disabled:opacity-50"
         >
-          {isLoading ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          {isLoading ? (s?.saving || 'Saving...') : (s?.saveSettings || 'Save Settings')}
+          {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />}
+          {isLoading ? (s?.saving || 'Saving...') : (s?.saveChanges || 'Save changes')}
         </Button>
       </div>
+
     </div>
   );
 };

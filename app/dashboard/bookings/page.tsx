@@ -8,7 +8,7 @@ import { format, parseISO, differenceInDays } from 'date-fns';
 import {
     Calendar, MapPin, Users, Clock, Star, ChevronRight,
     AlertCircle, CheckCircle2, XCircle, Loader2, Filter,
-    BedDouble, RotateCcw, Check, X, LayoutGrid, List
+    BedDouble, RotateCcw, Check, X
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,24 +21,23 @@ import { cn } from '@/lib/utils';
 import { AppSidebar } from '@/components/dashboard/Sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
-import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Status helpers ────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<BookingStatus, { color: string; icon: React.ReactNode }> = {
-    [BookingStatus.PENDING]: { color: 'bg-amber-100/50 text-amber-700 border-amber-200', icon: <Clock className="h-3 w-3" /> },
-    [BookingStatus.CONFIRMED]: { color: 'bg-emerald-100/50 text-emerald-700 border-emerald-200', icon: <CheckCircle2 className="h-3 w-3" /> },
-    [BookingStatus.REJECTED]: { color: 'bg-red-100/50 text-red-700 border-red-200', icon: <XCircle className="h-3 w-3" /> },
-    [BookingStatus.CANCELLED]: { color: 'bg-slate-100/50 text-slate-600 border-slate-200', icon: <RotateCcw className="h-3 w-3" /> },
-    [BookingStatus.COMPLETED]: { color: 'bg-blue-100/50 text-blue-700 border-blue-200', icon: <CheckCircle2 className="h-3 w-3" /> },
-    [BookingStatus.NO_SHOW]: { color: 'bg-orange-100/50 text-orange-700 border-orange-200', icon: <AlertCircle className="h-3 w-3" /> },
+    [BookingStatus.PENDING]: { color: 'bg-[#F7F7F7] text-[#222222] border-[#DDDDDD]', icon: <Clock className="h-3.5 w-3.5" /> },
+    [BookingStatus.CONFIRMED]: { color: 'bg-white text-[#008A05] border-[#008A05]/30', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
+    [BookingStatus.REJECTED]: { color: 'bg-[#FFF8F8] text-[#E50000] border-[#FFDFDF]', icon: <XCircle className="h-3.5 w-3.5" /> },
+    [BookingStatus.CANCELLED]: { color: 'bg-[#F7F7F7] text-[#717171] border-[#DDDDDD]', icon: <RotateCcw className="h-3.5 w-3.5" /> },
+    [BookingStatus.COMPLETED]: { color: 'bg-[#F7F7F7] text-[#222222] border-[#DDDDDD]', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
+    [BookingStatus.NO_SHOW]: { color: 'bg-[#F7F7F7] text-[#717171] border-[#DDDDDD]', icon: <AlertCircle className="h-3.5 w-3.5" /> },
 };
 
 function StatusBadge({ status, label }: { status: BookingStatus, label: string }) {
     const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG[BookingStatus.PENDING];
     return (
-        <span className={`inline-flex items-center gap-1.5 rounded-lg border backdrop-blur-md px-3 py-1.5 text-xs font-semibold -none ${cfg.color}`}>
+        <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] font-semibold ${cfg.color}`}>
             {cfg.icon}
             {label}
         </span>
@@ -72,7 +71,6 @@ export default function BookingsPage() {
     const [filter, setFilter] = useState<string>('all');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [layoutMode, setLayoutMode] = useState<'card' | 'table'>('card');
 
     const [viewMode, setViewMode] = useState<'guest' | 'host' | 'admin'>(
         isAdmin ? 'admin' : isHost ? 'host' : 'guest'
@@ -138,9 +136,9 @@ export default function BookingsPage() {
     }
 
     const title = useMemo(() => {
-        if (viewMode === 'admin') return s.globalBookings || 'Global Bookings';
-        if (viewMode === 'host') return s.hostedBookings || 'Hosted Bookings';
-        return s.myStays || 'My Stays';
+        if (viewMode === 'admin') return s.globalBookings || 'Global bookings';
+        if (viewMode === 'host') return s.hostedBookings || 'Hosted bookings';
+        return s.myStays || 'My stays';
     }, [viewMode, s]);
 
     const badgeLabel = useMemo(() => {
@@ -151,54 +149,48 @@ export default function BookingsPage() {
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-[#FAFAFA]">
+            <div className="flex min-h-screen w-full bg-white">
                 <AppSidebar />
-                <SidebarInset className="bg-transparent">
+                <SidebarInset>
                     <NavDash />
-                    <main className="p-6 md:p-10 max-w-[1400px] mx-auto w-full space-y-8">
+                    <main className="p-6 md:p-10 max-w-7xl mx-auto w-full space-y-10">
 
                         {/* ── Header ── */}
                         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
                             <div>
-                                <div className="flex flex-wrap items-center gap-3.5 mb-2">
-                                    <div className="p-2.5 bg-blue-50/80 rounded-xl border border-blue-100/50 -none">
-                                        <BedDouble className="w-6 h-6 text-blue-600" />
-                                    </div>
-                                    <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">{title}</h1>
-                                    <Badge className="bg-blue-100/50 text-blue-700 border border-blue-200/50 hover:bg-blue-100/80 text-xs px-2.5 py-1 rounded-md -none font-semibold">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <h1 className="text-[32px] font-semibold tracking-tight text-[#222222]">{title}</h1>
+                                    <Badge className="bg-[#F7F7F7] text-[#717171] border border-[#DDDDDD] hover:bg-[#EBEBEB] text-[12px] px-2.5 py-1 rounded-md font-medium">
                                         {badgeLabel}
                                     </Badge>
                                 </div>
-                                <p className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
+                                <p className="text-[16px] text-[#717171]">
                                     {viewMode === 'guest' ? (s.guestDesc || 'Manage and review your upcoming travel stays.') : (s.hostDesc || 'Monitor short-term property bookings and guest requests.')}
                                 </p>
                             </div>
 
-                            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full lg:w-auto mt-4 lg:mt-0">
+                            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full lg:w-auto mt-2 lg:mt-0">
                                 {/* Role View Switcher */}
                                 {isHost && (
-                                    <div className="flex rounded-xl border border-slate-200/60 bg-white/60 backdrop-blur-sm p-1 -none w-full sm:w-auto">
+                                    <div className="flex bg-[#F7F7F7] rounded-xl border border-[#DDDDDD] p-1 w-full sm:w-auto">
                                         <Button
-                                            variant={viewMode === 'guest' ? 'secondary' : 'ghost'}
-                                            size="sm"
-                                            className={cn("h-9 text-xs font-semibold rounded-lg flex-1 sm:flex-none transition-all", viewMode === 'guest' ? "bg-white -none border border-slate-200/50 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50")}
+                                            variant="ghost"
+                                            className={cn("h-10 text-[14px] font-medium rounded-lg flex-1 sm:flex-none transition-all px-5", viewMode === 'guest' ? "bg-white shadow-sm text-[#222222]" : "text-[#717171] hover:text-[#222222]")}
                                             onClick={() => { setViewMode('guest'); setPage(1); }}
                                         >
                                             {s.asGuest || 'As Guest'}
                                         </Button>
                                         <Button
-                                            variant={viewMode === 'host' ? 'secondary' : 'ghost'}
-                                            size="sm"
-                                            className={cn("h-9 text-xs font-semibold rounded-lg flex-1 sm:flex-none transition-all", viewMode === 'host' ? "bg-white -none border border-slate-200/50 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50")}
+                                            variant="ghost"
+                                            className={cn("h-10 text-[14px] font-medium rounded-lg flex-1 sm:flex-none transition-all px-5", viewMode === 'host' ? "bg-white shadow-sm text-[#222222]" : "text-[#717171] hover:text-[#222222]")}
                                             onClick={() => { setViewMode('host'); setPage(1); }}
                                         >
                                             {s.asHost || 'As Host'}
                                         </Button>
                                         {isAdmin && (
                                             <Button
-                                                variant={viewMode === 'admin' ? 'secondary' : 'ghost'}
-                                                size="sm"
-                                                className={cn("h-9 text-xs font-semibold rounded-lg flex-1 sm:flex-none transition-all", viewMode === 'admin' ? "bg-blue-50 -none border border-blue-100/50 text-blue-700 hover:bg-blue-100/50" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50")}
+                                                variant="ghost"
+                                                className={cn("h-10 text-[14px] font-medium rounded-lg flex-1 sm:flex-none transition-all px-5", viewMode === 'admin' ? "bg-white shadow-sm text-[#222222]" : "text-[#717171] hover:text-[#222222]")}
                                                 onClick={() => { setViewMode('admin'); setPage(1); }}
                                             >
                                                 {s.adminMode || 'Admin Mode'}
@@ -207,43 +199,21 @@ export default function BookingsPage() {
                                     </div>
                                 )}
 
-                                <div className="flex items-center gap-2 w-full md:w-auto">
-                                    <div className="flex bg-slate-100/80 p-1 rounded-xl shrink-0">
-                                        <Button
-                                            variant={layoutMode === 'card' ? 'secondary' : 'ghost'}
-                                            size="sm"
-                                            className={cn("h-9 w-9 p-0 rounded-lg -none", layoutMode === 'card' ? "bg-white text-blue-600" : "text-slate-500 hover:text-slate-900")}
-                                            onClick={() => setLayoutMode('card')}
-                                            title={s.cardView || "Card View"}
-                                        >
-                                            <LayoutGrid className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant={layoutMode === 'table' ? 'secondary' : 'ghost'}
-                                            size="sm"
-                                            className={cn("h-9 w-9 p-0 rounded-lg -none", layoutMode === 'table' ? "bg-white text-blue-600" : "text-slate-500 hover:text-slate-900")}
-                                            onClick={() => setLayoutMode('table')}
-                                            title={s.tableView || "Table View"}
-                                        >
-                                            <List className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                    <div className="w-full md:w-[180px]">
-                                        <Select value={filter} onValueChange={(v) => { setFilter(v); setPage(1); }}>
-                                            <SelectTrigger className="h-11 w-full bg-white border border-slate-200/60 hover:border-slate-300 focus:bg-white focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all -none">
-                                                <div className="flex items-center">
-                                                    <Filter className="h-4 w-4 mr-2 text-slate-400" />
-                                                    <SelectValue placeholder={s.filterStatus || "Filter Status"} />
-                                                </div>
-                                            </SelectTrigger>
-                                            <SelectContent className="rounded-xl border-slate-200 -none">
-                                                <SelectItem value="all" className="rounded-lg">{s.allStays || 'All Stays'}</SelectItem>
-                                                {Object.values(BookingStatus).map((stat) => (
-                                                    <SelectItem key={stat} value={stat} className="rounded-lg">{getStatusLabel(stat)}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+                                <div className="flex items-center w-full md:w-[200px]">
+                                    <Select value={filter} onValueChange={(v) => { setFilter(v); setPage(1); }}>
+                                        <SelectTrigger className="h-12 w-full bg-white border border-[#DDDDDD] text-[#222222] text-[15px] font-medium hover:border-blue-600 focus:ring-0 focus:ring-offset-0 rounded-xl transition-colors">
+                                            <div className="flex items-center">
+                                                <Filter className="h-4 w-4 mr-2 text-[#717171] stroke-[2]" />
+                                                <SelectValue placeholder={s.filterStatus || "Filter Status"} />
+                                            </div>
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl border-[#DDDDDD] shadow-lg">
+                                            <SelectItem value="all" className="focus:bg-[#F7F7F7] cursor-pointer text-[14px]">{s.allStays || 'All stays'}</SelectItem>
+                                            {Object.values(BookingStatus).map((stat) => (
+                                                <SelectItem key={stat} value={stat} className="focus:bg-[#F7F7F7] cursor-pointer text-[14px]">{getStatusLabel(stat)}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                         </div>
@@ -251,85 +221,92 @@ export default function BookingsPage() {
                         {/* ── Content ── */}
                         {loading ? (
                             <div className="flex flex-col items-center justify-center py-40 gap-4">
-                                <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
-                                <p className="text-sm font-medium text-slate-500 animate-pulse">{s.loading || 'Loading bookings data...'}</p>
+                                <Loader2 className="h-8 w-8 animate-spin text-[#222222]" />
+                                <p className="text-[15px] font-medium text-[#717171] animate-pulse">{s.loading || 'Loading bookings...'}</p>
                             </div>
                         ) : bookings.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-10 sm:p-20 text-center -none">
-                                <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                                    <BedDouble className="h-10 w-10 text-slate-300" />
+                            <div className="flex flex-col items-center justify-center rounded-2xl bg-[#F7F7F7] border border-[#DDDDDD] py-24 px-6 text-center">
+                                <div className="h-16 w-16 bg-white border border-[#DDDDDD] rounded-full flex items-center justify-center mb-6 shadow-sm">
+                                    <BedDouble className="h-7 w-7 text-[#222222] stroke-[1.5]" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-slate-900">{s.noBookings || 'No bookings found'}</h3>
-                                <p className="mt-2 text-sm text-slate-500 max-w-sm">
+                                <h3 className="text-[22px] font-semibold text-[#222222] mb-2">{s.noBookings || 'No bookings found'}</h3>
+                                <p className="text-[16px] text-[#717171] max-w-md">
                                     {viewMode === 'guest' ? (s.noStaysGuest || 'Looks like you don\'t have any upcoming stays booked yet. Start exploring properties to plan your next trip!') : (s.noStaysHost || 'We couldn\'t find any reservations matching your current criteria.')}
                                 </p>
                                 {viewMode === 'guest' && (
-                                    <Button className="mt-8 h-12 px-8 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 -none text-white transition-all hover:-translate-y-0.5" onClick={() => router.push('/properties?listingType=short_term')}>
-                                        {s.browseStays || 'Browse Short-Term Stays'}
+                                    <Button className="mt-8 h-12 px-8 rounded-lg font-semibold text-[15px] blue-blue-600 blue-blue-700 text-white transition-colors" onClick={() => router.push('/properties?listingType=short_term')}>
+                                        {s.browseStays || 'Start searching'}
                                     </Button>
                                 )}
                             </div>
                         ) : (
-                            <div className="space-y-5">
-                                {layoutMode === 'card' ? (
-                                    bookings.map((booking) => (
-                                        <BookingCard
+                            <div className="space-y-6">
+
+                                {/* ── Mobile: stacked cards (hidden on md+) ── */}
+                                <div className="flex flex-col gap-4 md:hidden">
+                                    {bookings.map((booking) => (
+                                        <BookingMobileCard
                                             key={booking._id}
                                             booking={booking}
                                             viewMode={viewMode}
                                             getStatusLabel={getStatusLabel}
+                                            s={s}
                                             onViewDetail={() => router.push(`/dashboard/bookings/${booking._id}`)}
                                             onAction={(action) => {
                                                 setSelectedBooking(booking);
                                                 setActionDialogOpen(action);
                                                 setNote('');
                                             }}
-                                            s={s}
                                         />
-                                    ))
-                                ) : (
-                                    <div className="bg-white rounded-2xl border border-slate-200 -none overflow-hidden overflow-x-auto w-full">
-                                        <table className="w-full text-sm text-left">
-                                            <thead className="bg-slate-50/80 text-xs text-slate-500 uppercase font-semibold border-b border-slate-200">
-                                                <tr>
-                                                    <th className="px-6 py-4 rounded-tl-2xl">{s.tableProperty || 'Property'}</th>
-                                                    <th className="px-6 py-4">{viewMode === 'guest' ? (s.tableHost || 'Host') : (s.tableGuest || 'Guest')}</th>
-                                                    <th className="px-6 py-4">{s.tableDates || 'Dates & Duration'}</th>
-                                                    <th className="px-6 py-4">{s.tablePrice || 'Total Price'}</th>
-                                                    <th className="px-6 py-4 text-center">{s.tableStatus || 'Status'}</th>
-                                                    <th className="px-6 py-4 text-right rounded-tr-2xl">{s.tableActions || 'Actions'}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-100">
-                                                {bookings.map((booking) => (
-                                                    <BookingTableRow
-                                                        key={booking._id}
-                                                        booking={booking}
-                                                        viewMode={viewMode}
-                                                        getStatusLabel={getStatusLabel}
-                                                        s={s}
-                                                        onViewDetail={() => router.push(`/dashboard/bookings/${booking._id}`)}
-                                                        onAction={(action) => {
-                                                            setSelectedBooking(booking);
-                                                            setActionDialogOpen(action);
-                                                            setNote('');
-                                                        }}
-                                                    />
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
+                                    ))}
+                                </div>
+
+                                {/* ── Desktop: table (hidden on mobile) ── */}
+                                <div className="hidden md:block bg-white rounded-2xl border border-[#DDDDDD] overflow-x-auto w-full">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead className="bg-[#F7F7F7] border-b border-[#DDDDDD]">
+                                            <tr>
+                                                <th className="px-5 py-4 text-[12px] font-semibold text-[#717171] uppercase tracking-wider">{s.tableProperty || 'Property'}</th>
+                                                <th className="px-5 py-4 text-[12px] font-semibold text-[#717171] uppercase tracking-wider">{viewMode === 'guest' ? (s.tableHost || 'Host') : (s.tableGuest || 'Guest')}</th>
+                                                <th className="px-5 py-4 text-[12px] font-semibold text-[#717171] uppercase tracking-wider">{s.tableDates || 'Dates'}</th>
+                                                <th className="px-5 py-4 text-[12px] font-semibold text-[#717171] uppercase tracking-wider">{s.tablePrice || 'Total'}</th>
+                                                <th className="px-5 py-4 text-[12px] font-semibold text-[#717171] uppercase tracking-wider">{s.tableStatus || 'Status'}</th>
+                                                <th className="px-5 py-4 text-[12px] font-semibold text-[#717171] uppercase tracking-wider text-right">{s.tableActions || 'Actions'}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-[#DDDDDD]">
+                                            {bookings.map((booking) => (
+                                                <BookingTableRow
+                                                    key={booking._id}
+                                                    booking={booking}
+                                                    viewMode={viewMode}
+                                                    getStatusLabel={getStatusLabel}
+                                                    s={s}
+                                                    onViewDetail={() => router.push(`/dashboard/bookings/${booking._id}`)}
+                                                    onAction={(action) => {
+                                                        setSelectedBooking(booking);
+                                                        setActionDialogOpen(action);
+                                                        setNote('');
+                                                    }}
+                                                />
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
 
                                 {/* Pagination */}
                                 {totalPages > 1 && (
-                                    <div className="flex items-center justify-between border-t border-slate-200/60 pt-6 mt-6">
-                                        <p className="text-sm text-slate-500 font-medium">
-                                            {s.showingPage || 'Showing page'} <span className="font-semibold text-slate-900">{page}</span> {s.of || 'of'} <span className="font-semibold text-slate-900">{totalPages}</span>
+                                    <div className="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-[#DDDDDD] gap-4">
+                                        <p className="text-[15px] text-[#717171] font-medium order-2 sm:order-1">
+                                            {s.showingPage || 'Showing page'} <span className="text-[#222222] font-semibold">{page}</span> {s.of || 'of'} <span className="text-[#222222] font-semibold">{totalPages}</span>
                                         </p>
-                                        <div className="flex items-center gap-2">
-                                            <Button variant="outline" className="h-10 rounded-xl font-semibold border-slate-200" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>{s.previous || 'Previous'}</Button>
-                                            <Button variant="outline" className="h-10 rounded-xl font-semibold border-slate-200" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>{s.next || 'Next'}</Button>
+                                        <div className="flex items-center gap-3 order-1 sm:order-2 w-full sm:w-auto">
+                                            <Button variant="outline" className="flex-1 sm:flex-none h-11 px-5 rounded-lg font-semibold text-[15px] border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] hover:border-blue-600" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
+                                                {s.previous || 'Previous'}
+                                            </Button>
+                                            <Button variant="outline" className="flex-1 sm:flex-none h-11 px-5 rounded-lg font-semibold text-[15px] border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] hover:border-blue-600" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+                                                {s.next || 'Next'}
+                                            </Button>
                                         </div>
                                     </div>
                                 )}
@@ -339,50 +316,47 @@ export default function BookingsPage() {
                 </SidebarInset>
             </div>
 
-            {/* ── Action dialog (Cancel/Confirm/Reject) ── */}
+            {/* ── Action dialog ── */}
             <Dialog open={!!actionDialogOpen} onOpenChange={(open) => !open && setActionDialogOpen(null)}>
-                <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)] mx-auto rounded-2xl border-slate-200 p-0 overflow-hidden -none">
-                    <div className="p-6 sm:p-8">
+                <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)] mx-auto rounded-2xl border-[#DDDDDD] p-0 overflow-hidden shadow-2xl">
+                    <div className="p-8">
                         <DialogHeader className="space-y-4 mb-6 text-left">
-                            <div className={cn(
-                                "w-14 h-14 rounded-2xl flex items-center justify-center",
-                                actionDialogOpen === 'cancel' || actionDialogOpen === 'reject' ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"
-                            )}>
-                                {actionDialogOpen === 'cancel' && <AlertCircle className="h-7 w-7" />}
-                                {actionDialogOpen === 'confirm' && <CheckCircle2 className="h-7 w-7" />}
-                                {actionDialogOpen === 'reject' && <XCircle className="h-7 w-7" />}
+                            <div className="w-12 h-12 bg-[#F7F7F7] border border-[#DDDDDD] rounded-full flex items-center justify-center">
+                                {actionDialogOpen === 'cancel' && <AlertCircle className="h-6 w-6 text-[#222222] stroke-[1.5]" />}
+                                {actionDialogOpen === 'confirm' && <CheckCircle2 className="h-6 w-6 text-[#222222] stroke-[1.5]" />}
+                                {actionDialogOpen === 'reject' && <XCircle className="h-6 w-6 text-[#222222] stroke-[1.5]" />}
                             </div>
                             <div>
-                                <DialogTitle className="text-2xl font-bold text-slate-900 tracking-tight capitalize">
-                                    {actionDialogOpen === 'cancel' ? (s.dialogTokens?.cancel || 'cancel') : actionDialogOpen === 'confirm' ? (s.dialogTokens?.confirm || 'confirm') : (s.dialogTokens?.reject || 'reject')} {s.dialogReservation || 'Reservation'}
+                                <DialogTitle className="text-[22px] font-semibold text-[#222222] tracking-tight capitalize">
+                                    {actionDialogOpen === 'cancel' ? (s.dialogTokens?.cancel || 'cancel') : actionDialogOpen === 'confirm' ? (s.dialogTokens?.confirm || 'confirm') : (s.dialogTokens?.reject || 'reject')} {s.dialogReservation || 'reservation'}
                                 </DialogTitle>
-                                <p className="text-slate-500 mt-2 text-sm leading-relaxed">
-                                    {s.dialogAreYouSure || 'Are you sure you want to'} <span className="font-bold text-slate-900">{actionDialogOpen === 'cancel' ? (s.dialogTokens?.cancel || 'cancel') : actionDialogOpen === 'confirm' ? (s.dialogTokens?.confirm || 'confirm') : (s.dialogTokens?.reject || 'reject')}</span> {s.dialogThisBookingFor || 'this booking for'}{' '}
-                                    <span className="font-bold text-slate-900">{selectedBooking?.propertyId?.title}</span>?
+                                <p className="text-[#717171] mt-2 text-[15px] leading-relaxed">
+                                    {s.dialogAreYouSure || 'Are you sure you want to'} <span className="font-semibold text-[#222222]">{actionDialogOpen === 'cancel' ? (s.dialogTokens?.cancel || 'cancel') : actionDialogOpen === 'confirm' ? (s.dialogTokens?.confirm || 'confirm') : (s.dialogTokens?.reject || 'reject')}</span> {s.dialogThisBookingFor || 'this booking for'}{' '}
+                                    <span className="font-semibold text-[#222222]">{selectedBooking?.propertyId?.title}</span>?
                                 </p>
                             </div>
                         </DialogHeader>
 
                         <div className="space-y-3 mb-8">
-                            <label className="text-sm font-semibold text-slate-700">
-                                {actionDialogOpen === 'confirm' ? (s.dialogAddMessage || 'Add a message to the guest (Optional)') : (s.dialogReason || 'Reason (Optional)')}
+                            <label className="text-[14px] font-semibold text-[#222222]">
+                                {actionDialogOpen === 'confirm' ? (s.dialogAddMessage || 'Message to guest (optional)') : (s.dialogReason || 'Reason (optional)')}
                             </label>
                             <Textarea
                                 placeholder={actionDialogOpen === 'confirm' ? (s.dialogMessagePlaceholder || 'E.g. "Looking forward to hosting you!"') : (s.dialogReasonPlaceholder || 'E.g. "We need to cancel due to unforeseen maintenance..."')}
                                 value={note}
                                 onChange={(e) => setNote(e.target.value)}
-                                className="min-h-[100px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-blue-500 focus-visible:bg-white transition-all resize-none -none"
+                                className="min-h-[120px] rounded-xl border-[#DDDDDD] bg-white p-4 text-[15px] text-[#222222] placeholder:text-[#717171] focus-visible:ring-1 focus-visible:ring-[#222222] focus-visible:border-blue-600 resize-none"
                             />
                         </div>
 
                         <DialogFooter className="gap-3 sm:space-x-0 sm:flex-nowrap mt-4">
-                            <Button variant="outline" className="rounded-xl h-12 w-full sm:w-1/2 font-semibold border-slate-200 hover:bg-slate-50 -none" onClick={() => setActionDialogOpen(null)}>
-                                {s.goBack || 'Go Back'}
+                            <Button variant="outline" className="rounded-lg h-12 w-full sm:w-1/2 text-[15px] font-semibold border-blue-600 text-[#222222] hover:bg-[#F7F7F7]" onClick={() => setActionDialogOpen(null)}>
+                                {s.goBack || 'Cancel'}
                             </Button>
                             <Button
                                 className={cn(
-                                    "rounded-xl h-12 w-full sm:w-1/2 font-semibold -none text-white transition-all",
-                                    actionDialogOpen === 'confirm' ? "bg-blue-600 hover:bg-blue-700" : "bg-red-600 hover:bg-red-700"
+                                    "rounded-lg h-12 w-full sm:w-1/2 text-[15px] font-semibold text-white transition-colors",
+                                    actionDialogOpen === 'confirm' ? "bg-blue-600 hover:bg-blue-700" : "blue-blue-600 blue-blue-700"
                                 )}
                                 onClick={handleAction}
                                 disabled={submitting}
@@ -395,131 +369,6 @@ export default function BookingsPage() {
                 </DialogContent>
             </Dialog>
         </SidebarProvider>
-    );
-}
-
-// ─── Booking card sub-component ───────────────────────────────────────────────
-
-function BookingCard({
-    booking, onViewDetail, onAction, viewMode, getStatusLabel, s
-}: {
-    booking: Booking;
-    onViewDetail: () => void;
-    onAction: (type: 'cancel' | 'confirm' | 'reject') => void;
-    viewMode: 'guest' | 'host' | 'admin';
-    getStatusLabel: (s: BookingStatus) => string;
-    s: any;
-}) {
-    const prop = booking.propertyId;
-    const nights = booking.nights ?? differenceInDays(parseISO(booking.checkOut), parseISO(booking.checkIn));
-
-    const isPending = booking.status === BookingStatus.PENDING;
-    const isConfirmed = booking.status === BookingStatus.CONFIRMED;
-
-    const showHostActions = (viewMode === 'host' || viewMode === 'admin') && isPending;
-    const canCancel = (viewMode === 'guest' && (isPending || isConfirmed)) ||
-        ((viewMode === 'host' || viewMode === 'admin') && isConfirmed);
-
-    return (
-        <div className="group relative overflow-hidden flex flex-col md:flex-row bg-white rounded-2xl border border-slate-200 -none hover:border-blue-200 transition-all duration-300">
-            {/* Image */}
-            <div className="relative h-48 md:h-auto md:w-64 shrink-0 bg-slate-100 overflow-hidden">
-                {prop?.images?.[0]?.url ? (
-                    <img src={prop.images[0].url} alt={prop.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                ) : (
-                    <div className="flex h-full min-h-[160px] items-center justify-center">
-                        <BedDouble className="h-10 w-10 text-slate-300" />
-                    </div>
-                )}
-                <div className="absolute top-4 left-4 sm:hidden">
-                    <StatusBadge status={booking.status} label={getStatusLabel(booking.status)} />
-                </div>
-            </div>
-
-            {/* Body */}
-            <div className="flex flex-1 flex-col justify-between p-6 sm:p-7 bg-white">
-                <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-4">
-                    <div>
-                        <h3 className="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">{prop?.title}</h3>
-                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
-                            {prop?.city && (
-                                <p className="flex items-center gap-1.5 text-sm font-medium text-slate-500">
-                                    <MapPin className="h-4 w-4 text-blue-400" />{prop.city}
-                                </p>
-                            )}
-                            <p className="flex items-center gap-1.5 text-sm font-medium text-slate-500">
-                                <Users className="h-4 w-4 text-emerald-500/80" />
-                                {viewMode === 'guest' ? <><span className="text-slate-400 font-normal">{s.cardHost || 'Host'}:</span> {booking.hostId?.name}</> : <><span className="text-slate-400 font-normal">{s.cardGuest || 'Guest'}:</span> {booking.guestId?.name}</>}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="hidden sm:block">
-                        <StatusBadge status={booking.status} label={getStatusLabel(booking.status)} />
-                    </div>
-                </div>
-
-                <Separator className="my-4 md:my-5 bg-slate-100" />
-
-                {/* Dates + guests */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-5">
-                    <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Calendar className="h-3 w-3 text-blue-400" /> {s.cardDates || 'Dates'}</p>
-                        <p className="text-sm font-semibold text-slate-900">
-                            {format(parseISO(booking.checkIn), 'MMM d')} — {format(parseISO(booking.checkOut), 'MMM d')}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Clock className="h-3 w-3 text-blue-400" /> {s.cardDuration || 'Duration'}</p>
-                        <p className="text-sm font-semibold text-slate-900">{nights} {nights !== 1 ? (s.cardNights || 'nights') : (s.cardNight || 'night')}</p>
-                    </div>
-                    <div className="col-span-2 md:col-span-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Users className="h-3 w-3 text-blue-400" /> {s.cardParty || 'Party'}</p>
-                        <p className="text-sm font-semibold text-slate-900">{(booking.guests?.adults ?? 1) + (booking.guests?.children ?? 0)} {(booking.guests?.adults ?? 1) > 1 || (booking.guests?.children ?? 0) > 0 ? (s.cardGuests || 'guests') : (s.cardGuestText || 'guest')}</p>
-                    </div>
-                </div>
-
-                {/* Footer Controls */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto pt-2">
-                    <div className="bg-slate-50/80 px-4 py-2.5 rounded-xl border border-slate-100 w-full sm:w-auto">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{s.totalPrice || 'Total Price'}</p>
-                        <p className="text-lg font-bold text-slate-900 -mt-0.5">
-                            {booking.priceBreakdown?.totalAmount?.toLocaleString()} <span className="text-xs font-semibold text-slate-500">{booking.currency ?? 'XAF'}</span>
-                        </p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-                        {showHostActions && (
-                            <>
-                                <Button size="sm" variant="outline" className="h-10 px-4 rounded-xl font-semibold border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"
-                                    onClick={() => onAction('confirm')}>
-                                    <Check className="mr-1.5 h-4 w-4" /> {s.actionConfirm || 'Confirm'}
-                                </Button>
-                                <Button size="sm" variant="outline" className="h-10 px-4 rounded-xl font-semibold border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 transition-colors"
-                                    onClick={() => onAction('reject')}>
-                                    <X className="mr-1.5 h-4 w-4" /> {s.actionDecline || 'Decline'}
-                                </Button>
-                            </>
-                        )}
-
-                        {booking.status === BookingStatus.COMPLETED && !booking.guestReviewLeft && viewMode === 'guest' && (
-                            <Button size="sm" variant="outline" className="h-10 px-4 rounded-xl font-semibold border-amber-200 bg-amber-50/50 text-amber-700 hover:bg-amber-100 transition-colors"
-                                onClick={() => onViewDetail()}>
-                                <Star className="mr-1.5 h-4 w-4 fill-amber-500/20 text-amber-500" /> {s.actionReview || 'Review'}
-                            </Button>
-                        )}
-                        {canCancel && (
-                            <Button size="sm" variant="ghost" className="h-10 px-4 rounded-xl font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
-                                onClick={(e) => { e.stopPropagation(); onAction('cancel'); }}>
-                                {s.actionCancel || 'Cancel'}
-                            </Button>
-                        )}
-                        <Button size="sm" variant="ghost" className="h-10 px-4 rounded-xl font-semibold hover:bg-slate-100 text-slate-600 transition-all flex items-center group-hover:text-blue-600" onClick={onViewDetail}>
-                            {s.actionDetails || 'Details'} <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        </div>
     );
 }
 
@@ -546,89 +395,202 @@ function BookingTableRow({
         ((viewMode === 'host' || viewMode === 'admin') && isConfirmed);
 
     return (
-        <tr className="hover:bg-slate-50/50 transition-colors group">
+        <tr className="hover:bg-[#F7F7F7] transition-colors group">
             {/* Property */}
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-6 py-5 whitespace-nowrap">
                 <div className="flex items-center gap-4">
-                    <div className="h-12 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0">
+                    <div className="h-12 w-16 bg-[#F7F7F7] border border-[#DDDDDD] rounded-lg overflow-hidden shrink-0">
                         {prop?.images?.[0]?.url ? (
                             <img src={prop.images[0].url} alt={prop.title} className="h-full w-full object-cover" />
                         ) : (
                             <div className="flex h-full items-center justify-center">
-                                <BedDouble className="h-5 w-5 text-slate-300" />
+                                <BedDouble className="h-5 w-5 text-[#DDDDDD]" />
                             </div>
                         )}
                     </div>
                     <div>
-                        <p className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors truncate max-w-[180px] lg:max-w-xs">{prop?.title}</p>
-                        <p className="text-xs text-slate-500 mt-0.5 max-w-[150px] truncate">{prop?.city}</p>
+                        <p className="font-semibold text-[15px] text-[#222222] truncate max-w-[180px] lg:max-w-xs">{prop?.title}</p>
+                        <p className="text-[13px] text-[#717171] mt-0.5 truncate max-w-[150px]">{prop?.city}</p>
                     </div>
                 </div>
             </td>
 
             {/* Guest/Host */}
-            <td className="px-6 py-4 whitespace-nowrap">
-                <p className="font-medium text-slate-900">
+            <td className="px-6 py-5 whitespace-nowrap">
+                <p className="font-medium text-[15px] text-[#222222]">
                     {viewMode === 'guest' ? booking.hostId?.name : booking.guestId?.name}
                 </p>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-[13px] text-[#717171] mt-0.5">
                     {(booking.guests?.adults ?? 1) + (booking.guests?.children ?? 0)} {(booking.guests?.adults ?? 1) > 1 || (booking.guests?.children ?? 0) > 0 ? (s.cardGuests || 'guests') : (s.cardGuestText || 'guest')}
                 </p>
             </td>
 
             {/* Dates */}
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                <p className="font-medium text-slate-900">
+            <td className="px-6 py-5 whitespace-nowrap">
+                <p className="font-medium text-[15px] text-[#222222]">
                     {format(parseISO(booking.checkIn), 'MMM d, yyyy')}
                 </p>
-                <p className="text-xs text-slate-500 mt-0.5">
-                    {nights} {nights !== 1 ? (s.cardNights || 'nights') : (s.cardNight || 'night')} ({s.tableUntil || 'until'} {format(parseISO(booking.checkOut), 'MMM d')})
+                <p className="text-[13px] text-[#717171] mt-0.5">
+                    {nights} {nights !== 1 ? (s.cardNights || 'nights') : (s.cardNight || 'night')}
                 </p>
             </td>
 
             {/* Total Price */}
-            <td className="px-6 py-4 whitespace-nowrap">
-                <p className="font-semibold text-slate-900">
-                    {booking.priceBreakdown?.totalAmount?.toLocaleString()} <span className="text-xs text-slate-500 font-normal">{booking.currency ?? 'XAF'}</span>
+            <td className="px-6 py-5 whitespace-nowrap">
+                <p className="font-semibold text-[15px] text-[#222222]">
+                    {booking.priceBreakdown?.totalAmount?.toLocaleString()} <span className="text-[13px] text-[#717171] font-normal">{booking.currency ?? 'XAF'}</span>
                 </p>
             </td>
 
             {/* Status */}
-            <td className="px-6 py-4 whitespace-nowrap text-center">
+            <td className="px-6 py-5 whitespace-nowrap">
                 <StatusBadge status={booking.status} label={getStatusLabel(booking.status)} />
             </td>
 
             {/* Actions */}
-            <td className="px-6 py-4 whitespace-nowrap text-right">
-                <div className="flex items-center justify-end gap-2">
+            <td className="px-6 py-5 whitespace-nowrap text-right">
+                <div className="flex items-center justify-end gap-3">
                     {showHostActions && (
                         <>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); onAction('confirm'); }} title={s.actionAccept || "Accept"}>
-                                <Check className="h-4 w-4" />
+                            <Button size="icon" variant="ghost" className="h-9 w-9 text-[#222222] border border-[#DDDDDD] hover:border-blue-600 hover:bg-white rounded-full" onClick={(e) => { e.stopPropagation(); onAction('confirm'); }} title={s.actionAccept || "Accept"}>
+                                <Check className="h-4 w-4 stroke-[2]" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); onAction('reject'); }} title={s.actionDecline || "Decline"}>
-                                <X className="h-4 w-4" />
+                            <Button size="icon" variant="ghost" className="h-9 w-9 text-[#E50000] border border-[#DDDDDD] hover:border-[#E50000] hover:bg-[#FFF8F8] rounded-full" onClick={(e) => { e.stopPropagation(); onAction('reject'); }} title={s.actionDecline || "Decline"}>
+                                <X className="h-4 w-4 stroke-[2]" />
                             </Button>
                         </>
                     )}
 
                     {booking.status === BookingStatus.COMPLETED && !booking.guestReviewLeft && viewMode === 'guest' && (
-                        <Button size="sm" variant="outline" className="h-8 px-3 rounded-lg text-xs font-semibold border-amber-200 bg-amber-50/50 text-amber-700 hover:bg-amber-100" onClick={(e) => { e.stopPropagation(); onViewDetail(); }}>
-                            <Star className="mr-1 h-3 w-3 fill-amber-500/20 text-amber-500" /> {s.actionReview || 'Review'}
+                        <Button size="sm" variant="outline" className="h-9 px-4 rounded-lg text-[13px] font-semibold border-blue-600 text-[#222222] hover:bg-[#F7F7F7]" onClick={(e) => { e.stopPropagation(); onViewDetail(); }}>
+                            {s.actionReview || 'Review'}
                         </Button>
                     )}
 
                     {canCancel && (
-                        <Button size="sm" variant="ghost" className="h-8 px-3 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700" onClick={(e) => { e.stopPropagation(); onAction('cancel'); }}>
+                        <Button size="sm" variant="ghost" className="h-9 px-0 text-[14px] font-semibold text-[#222222] underline hover:bg-transparent hover:text-black" onClick={(e) => { e.stopPropagation(); onAction('cancel'); }}>
                             {s.actionCancel || 'Cancel'}
                         </Button>
                     )}
 
-                    <Button size="sm" variant="ghost" className="h-8 px-3 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 group-hover:text-blue-600" onClick={onViewDetail}>
+                    <Button size="sm" className="h-9 px-4 rounded-lg text-[13px] font-semibold bg-blue-600 text-white hover:bg-blue-700 ml-2" onClick={onViewDetail}>
                         {s.actionDetails || 'Details'}
                     </Button>
                 </div>
             </td>
         </tr>
+    );
+}
+
+// ─── Mobile booking card ───────────────────────────────────────────────────────
+
+function BookingMobileCard({
+    booking, onViewDetail, onAction, viewMode, getStatusLabel, s
+}: {
+    booking: Booking;
+    onViewDetail: () => void;
+    onAction: (type: 'cancel' | 'confirm' | 'reject') => void;
+    viewMode: 'guest' | 'host' | 'admin';
+    getStatusLabel: (s: BookingStatus) => string;
+    s: any;
+}) {
+    const prop = booking.propertyId;
+    const nights = booking.nights ?? differenceInDays(parseISO(booking.checkOut), parseISO(booking.checkIn));
+    const isPending = booking.status === BookingStatus.PENDING;
+    const isConfirmed = booking.status === BookingStatus.CONFIRMED;
+    const showHostActions = (viewMode === 'host' || viewMode === 'admin') && isPending;
+    const canCancel = (viewMode === 'guest' && (isPending || isConfirmed)) ||
+        ((viewMode === 'host' || viewMode === 'admin') && isConfirmed);
+
+    return (
+        <div className="bg-white border border-[#DDDDDD] rounded-2xl overflow-hidden">
+            {prop?.images?.[0]?.url && (
+                <div className="h-44 w-full overflow-hidden">
+                    <img src={prop.images[0].url} alt={prop.title} className="h-full w-full object-cover" />
+                </div>
+            )}
+
+            <div className="p-4 space-y-4">
+                {/* Title + status */}
+                <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                        <p className="font-semibold text-[16px] text-[#222222] leading-tight truncate">{prop?.title}</p>
+                        <p className="text-[13px] text-[#717171] mt-0.5">{prop?.city}</p>
+                    </div>
+                    <div className="shrink-0">
+                        <StatusBadge status={booking.status} label={getStatusLabel(booking.status)} />
+                    </div>
+                </div>
+
+                {/* Details grid */}
+                <div className="grid grid-cols-2 gap-3 border-t border-[#EBEBEB] pt-4">
+                    <div>
+                        <p className="text-[11px] font-semibold text-[#717171] uppercase tracking-wider mb-1 flex items-center gap-1">
+                            <Calendar className="h-3 w-3" /> Dates
+                        </p>
+                        <p className="text-[14px] font-medium text-[#222222]">
+                            {format(parseISO(booking.checkIn), 'MMM d')} – {format(parseISO(booking.checkOut), 'MMM d')}
+                        </p>
+                        <p className="text-[12px] text-[#717171]">{nights} {nights !== 1 ? (s.cardNights || 'nights') : (s.cardNight || 'night')}</p>
+                    </div>
+                    <div>
+                        <p className="text-[11px] font-semibold text-[#717171] uppercase tracking-wider mb-1 flex items-center gap-1">
+                            <Users className="h-3 w-3" /> {viewMode === 'guest' ? (s.tableHost || 'Host') : (s.tableGuest || 'Guest')}
+                        </p>
+                        <p className="text-[14px] font-medium text-[#222222] truncate">
+                            {viewMode === 'guest' ? booking.hostId?.name : booking.guestId?.name}
+                        </p>
+                        <p className="text-[12px] text-[#717171]">
+                            {(booking.guests?.adults ?? 1) + (booking.guests?.children ?? 0)}{' '}
+                            {(booking.guests?.adults ?? 1) > 1 ? (s.cardGuests || 'guests') : (s.cardGuestText || 'guest')}
+                        </p>
+                    </div>
+                    <div className="col-span-2">
+                        <p className="text-[11px] font-semibold text-[#717171] uppercase tracking-wider mb-1">Total</p>
+                        <p className="text-[18px] font-semibold text-[#222222]">
+                            {booking.priceBreakdown?.totalAmount?.toLocaleString()}{' '}
+                            <span className="text-[13px] font-normal text-[#717171]">{booking.currency ?? 'XAF'}</span>
+                        </p>
+                    </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-wrap gap-2 border-t border-[#EBEBEB] pt-4">
+                    {showHostActions && (
+                        <>
+                            <Button size="sm" variant="outline"
+                                className="flex-1 h-10 rounded-xl text-[14px] font-semibold border-blue-600 text-[#222222] hover:bg-[#F7F7F7]"
+                                onClick={() => onAction('confirm')}>
+                                <Check className="mr-1.5 h-4 w-4 stroke-[2]" /> {s.actionConfirm || 'Accept'}
+                            </Button>
+                            <Button size="sm" variant="outline"
+                                className="flex-1 h-10 rounded-xl text-[14px] font-semibold border-[#FFDFDF] text-[#E50000] hover:bg-[#FFF8F8]"
+                                onClick={() => onAction('reject')}>
+                                <X className="mr-1.5 h-4 w-4 stroke-[2]" /> {s.actionDecline || 'Decline'}
+                            </Button>
+                        </>
+                    )}
+                    {booking.status === BookingStatus.COMPLETED && !booking.guestReviewLeft && viewMode === 'guest' && (
+                        <Button size="sm" variant="outline"
+                            className="h-10 px-4 rounded-xl text-[14px] font-semibold border-blue-600 text-[#222222] hover:bg-[#F7F7F7]"
+                            onClick={onViewDetail}>
+                            {s.actionReview || 'Leave review'}
+                        </Button>
+                    )}
+                    {canCancel && (
+                        <Button size="sm" variant="ghost"
+                            className="h-10 px-3 text-[14px] font-semibold text-[#222222] underline hover:bg-transparent"
+                            onClick={() => onAction('cancel')}>
+                            {s.actionCancel || 'Cancel'}
+                        </Button>
+                    )}
+                    <Button size="sm"
+                        className="flex-1 h-10 rounded-xl text-[14px] font-semibold bg-blue-600 text-white hover:bg-blue-700"
+                        onClick={onViewDetail}>
+                        {s.actionDetails || 'View details'}
+                    </Button>
+                </div>
+            </div>
+        </div>
     );
 }

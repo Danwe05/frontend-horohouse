@@ -31,10 +31,10 @@ export default function OnboardingPage() {
 
   if (isLoading || isOnboardingLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-emerald-100">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Loading onboarding...</p>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center flex flex-col items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#222222] mb-4 stroke-[2.5]" />
+          <p className="text-[15px] font-semibold text-[#222222]">Loading...</p>
         </div>
       </div>
     );
@@ -42,7 +42,7 @@ export default function OnboardingPage() {
 
   return (
     <OnboardingProvider>
-      <div className="min-h-screen bg-linear-to-br from-blue-50 to-emerald-100">
+      <div className="min-h-screen bg-white">
         <OnboardingFlow />
       </div>
     </OnboardingProvider>

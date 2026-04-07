@@ -433,9 +433,9 @@ export const AppSidebar = () => {
             <div className="flex items-center gap-2">
               <div className={cn(
                 "p-1.5 rounded-lg text-white transition-colors",
-                isAdmin ? "bg-red-500    group-hover/quick:bg-red-600" :
-                  isStudent ? "bg-purple-500 group-hover/quick:bg-purple-600" :
-                    "bg-blue-500   group-hover/quick:bg-blue-600"
+                isAdmin ? "text-red-600 group-hover/quick:text-red-700" :
+                  isStudent ? "text-purple-600 group-hover/quick:text-purple-700" :
+                    "text-blue-600 group-hover/quick:text-blue-700"
               )}>
                 <Zap className="w-3.5 h-3.5" />
               </div>
@@ -467,7 +467,7 @@ export const AppSidebar = () => {
                     "w-full flex items-center gap-3 px-3 py-2.5 text-foreground rounded-lg transition-all duration-200 group/action hover:translate-x-1 cursor-pointer",
                     isAdmin ? "hover:bg-red-50    hover:text-red-700" :
                       isStudent ? "hover:bg-purple-50 hover:text-purple-700" :
-                        "hover:bg-blue-50   hover:text-blue-700"
+                        "hover:text-blue-50   hover:text-blue-700"
                   )}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
@@ -475,7 +475,7 @@ export const AppSidebar = () => {
                     "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
                     isAdmin ? "bg-red-50    group-hover/action:bg-red-100" :
                       isStudent ? "bg-purple-50 group-hover/action:bg-purple-100" :
-                        "bg-blue-50   group-hover/action:bg-blue-100"
+                        "text-blue-600 group-hover/action:text-blue-700"
                   )}>
                     <action.icon className={cn(
                       "w-3.5 h-3.5",
@@ -505,7 +505,7 @@ export const AppSidebar = () => {
             const hasActiveChild = group.items.some(item => isItemActive(item));
 
             const accentActive = isAdminGroup ? "text-red-700" : isStudentGroup ? "text-purple-700" : "text-blue-700";
-            const accentIconBg = isAdminGroup ? "bg-red-100 text-red-600" : isStudentGroup ? "bg-purple-100 text-purple-600" : "bg-blue-500 text-white";
+            const accentIconBg = isAdminGroup ? "bg-red-100 text-red-600" : isStudentGroup ? "bg-purple-100 text-purple-600" : "text-blue-600";
             const accentDot = isAdminGroup ? "bg-red-500" : isStudentGroup ? "bg-purple-500" : "bg-blue-500";
             const accentItemBg = isAdminGroup ? "bg-red-50 text-red-700" : isStudentGroup ? "bg-purple-50 text-purple-700" : "bg-blue-50 text-blue-700";
             const accentTreeLine = isAdminGroup ? "border-red-100" : isStudentGroup ? "border-purple-100" : "border-border/50";
@@ -527,7 +527,7 @@ export const AppSidebar = () => {
                       "flex items-center justify-center w-7 h-7 rounded-md shrink-0 transition-colors duration-200",
                       hasActiveChild
                         ? accentIconBg
-                        : "bg-muted/70 text-muted-foreground group-hover/trigger:bg-muted group-hover/trigger:text-foreground"
+                        : "bg-dmuted/70 text-muted-foreground group-hover/trigger:bg-muted group-hover/trigger:text-foreground"
                     )}>
                       <GroupIcon className="w-3.5 h-3.5" />
                     </div>

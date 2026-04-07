@@ -261,11 +261,11 @@ const InquiryDetailPage = () => {
   const userRole = user?.role?.toUpperCase();
   const userId = user?._id || user?.id || (user as any)?._id;
   const agentId = inquiry.agentId;
-  
+
   // Check if user can respond (agent or admin)
   const canRespond = Boolean(user && (
-    userRole === 'ADMIN' || 
-    userRole === 'AGENT' || 
+    userRole === 'ADMIN' ||
+    userRole === 'AGENT' ||
     String(agentId) === String(userId)
   ));
 
@@ -293,7 +293,7 @@ const InquiryDetailPage = () => {
 
   return (
     <div className="space-y-6 p-6">
-    
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -488,7 +488,7 @@ const InquiryDetailPage = () => {
 
                 {canRespond && (
                   <div className="flex space-x-2">
-                    <a 
+                    <a
                       href={`mailto:${inquiry.contactEmail || inquiry.userId.email}`}
                       className="flex-1"
                     >
@@ -502,7 +502,7 @@ const InquiryDetailPage = () => {
                       </Button>
                     </a>
                     {(inquiry.contactPhone || inquiry.userId.phoneNumber) && (
-                      <a 
+                      <a
                         href={`tel:${inquiry.contactPhone || inquiry.userId.phoneNumber}`}
                         className="flex-1"
                       >

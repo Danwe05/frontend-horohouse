@@ -30,7 +30,9 @@ import { NavDash } from '@/components/dashboard/NavDash';
 import { PropertyCard } from '@/components/dashboard/PropertyCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import PropertyCardSkeleton from '@/components/property/PropertyCardSkeleton';
+import { cn } from '@/lib/utils';
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface Property {
   _id: string;
   id?: string;
@@ -173,57 +175,28 @@ export default function SavedSearchDetailPage() {
   const formatCriteriaPills = (criteria: SavedSearch['searchCriteria']) => {
     const pills = [];
 
-    if (criteria.city) {
-      pills.push(
-        <div key="city" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
-          <MapPin className="w-3 h-3 text-indigo-500" />
-          {criteria.city}
-        </div>
-      );
-    }
-    if (criteria.listingType) {
-      pills.push(
-        <div key="type" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
-          <HomeIcon className="w-3 h-3 text-indigo-500" />
-          {criteria.listingType === 'sale' ? 'Buy' : 'Rent'}
-        </div>
-      );
-    }
-    if (criteria.propertyType) {
-      pills.push(
-        <div key="ptype" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
-          <Home className="w-3 h-3 text-indigo-500" />
-          {criteria.propertyType}
-        </div>
-      );
-    }
+    const PillWrap = ({ icon: Icon, children }: { icon: any, children: React.ReactNode }) => (
+      <div className="flex items-center gap-1.5 bg-white border border-[#DDDDDD] text-[#222222] text-[12px] font-medium px-3 py-1.5 rounded-full">
+        <Icon className="w-3.5 h-3.5 text-[#222222]" />
+        {children}
+      </div>
+    );
+
+    if (criteria.city) pills.push(<PillWrap key="city" icon={MapPin}>{criteria.city}</PillWrap>);
+    if (criteria.listingType) pills.push(<PillWrap key="type" icon={HomeIcon}>{criteria.listingType === 'sale' ? 'Buy' : 'Rent'}</PillWrap>);
+    if (criteria.propertyType) pills.push(<PillWrap key="ptype" icon={Home}>{criteria.propertyType}</PillWrap>);
     if (criteria.minPrice || criteria.maxPrice) {
       pills.push(
-        <div key="price" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
-          <Banknote className="w-3 h-3 text-emerald-500" />
+        <PillWrap key="price" icon={Banknote}>
           {criteria.minPrice ? formatPrice(criteria.minPrice) : 'Any'} - {criteria.maxPrice ? formatPrice(criteria.maxPrice) : 'Any'}
-        </div>
+        </PillWrap>
       );
     }
-    if (criteria.bedrooms) {
-      pills.push(
-        <div key="beds" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
-          <Bed className="w-3 h-3 text-blue-500" />
-          {criteria.bedrooms}+ Beds
-        </div>
-      );
-    }
-    if (criteria.bathrooms) {
-      pills.push(
-        <div key="baths" className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2 py-1 rounded-md -sm">
-          <Bath className="w-3 h-3 text-cyan-500" />
-          {criteria.bathrooms}+ Baths
-        </div>
-      );
-    }
+    if (criteria.bedrooms) pills.push(<PillWrap key="beds" icon={Bed}>{criteria.bedrooms}+ Beds</PillWrap>);
+    if (criteria.bathrooms) pills.push(<PillWrap key="baths" icon={Bath}>{criteria.bathrooms}+ Baths</PillWrap>);
 
     if (pills.length === 0) {
-      return <span className="text-xs text-slate-400 italic">No specific criteria</span>;
+      return <span className="text-[14px] text-[#717171] italic">No specific criteria</span>;
     }
 
     return pills;
@@ -254,50 +227,45 @@ export default function SavedSearchDetailPage() {
   if (loading && !search) {
     return (
       <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-[#f8fafc]">
+        <div className="flex min-h-screen w-full bg-white">
           <AppSidebar />
           <SidebarInset>
             <NavDash />
-            <main className="p-4 lg:p-8">
-              <div className="max-w-7xl mx-auto space-y-6">
+            <main className="p-6 lg:p-10">
+              <div className="max-w-7xl mx-auto space-y-10">
                 {/* Header Skeleton */}
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                   <div className="space-y-4 w-full">
-                    <Skeleton className="h-4 w-40 rounded-md ml-1" />
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="w-10 h-10 rounded-xl flex-shrink-0" />
-                      <Skeleton className="h-8 w-64 rounded-md" />
-                    </div>
-                    <div className="pl-11 pr-4 flex gap-2">
-                      <Skeleton className="h-6 w-20 rounded-md" />
-                      <Skeleton className="h-6 w-16 rounded-md" />
-                      <Skeleton className="h-6 w-24 rounded-md" />
+                    <Skeleton className="h-4 w-40 rounded-md" />
+                    <Skeleton className="h-10 w-80 rounded-lg" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-8 w-24 rounded-full" />
+                      <Skeleton className="h-8 w-20 rounded-full" />
+                      <Skeleton className="h-8 w-28 rounded-full" />
                     </div>
                   </div>
-                  <Skeleton className="h-10 w-32 rounded-md md:mt-12" />
+                  <Skeleton className="h-12 w-32 rounded-lg" />
                 </div>
 
                 {/* Statistics Cards Skeleton */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4">
-                      <Skeleton className="w-12 h-12 rounded-xl" />
-                      <div className="space-y-2 flex-1 mt-1">
-                        <Skeleton className="h-3 w-24 rounded-md" />
-                        <Skeleton className="h-6 w-12 rounded-md" />
-                        <Skeleton className="h-3 w-32 rounded-md" />
+                    <div key={i} className="bg-white rounded-2xl p-6 border border-[#DDDDDD] flex flex-col gap-4">
+                      <Skeleton className="w-10 h-10 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-24 rounded" />
+                        <Skeleton className="h-8 w-16 rounded" />
+                        <Skeleton className="h-3 w-32 rounded" />
                       </div>
                     </div>
                   ))}
                 </div>
 
                 {/* Properties Display Skeleton */}
-                <div className="mt-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {[...Array(6)].map((_, i) => (
-                      <PropertyCardSkeleton key={i} />
-                    ))}
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {[...Array(6)].map((_, i) => (
+                    <PropertyCardSkeleton key={i} />
+                  ))}
                 </div>
               </div>
             </main>
@@ -310,20 +278,20 @@ export default function SavedSearchDetailPage() {
   if (!search) {
     return (
       <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-[#f8fafc]">
+        <div className="flex min-h-screen w-full bg-white">
           <AppSidebar />
           <SidebarInset>
             <NavDash />
-            <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 mx-4 lg:mx-8 my-8 flex flex-col items-center text-center px-4">
-              <div className="p-6 bg-slate-100 text-slate-400 rounded-full mb-6">
-                <Search className="w-12 h-12" />
+            <div className="bg-[#F7F7F7] rounded-2xl border border-[#DDDDDD] py-24 mx-6 lg:mx-10 my-10 flex flex-col items-center text-center px-6">
+              <div className="w-16 h-16 bg-white border border-[#DDDDDD] text-[#222222] rounded-full flex items-center justify-center mb-6 shadow-sm">
+                <Search className="w-7 h-7 stroke-[1.5]" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Search not found</h3>
-              <p className="text-slate-500 max-w-sm mb-8">
+              <h3 className="text-[22px] font-semibold text-[#222222] mb-2">Search not found</h3>
+              <p className="text-[16px] text-[#717171] max-w-sm mb-8">
                 We couldn't find the saved search you are looking for. It may have been deleted.
               </p>
-              <Button onClick={() => router.push('/dashboard/saved-searches')} className="rounded-full px-8 bg-indigo-600 hover:bg-indigo-700 h-11">
-                Back to Saved Searches
+              <Button onClick={() => router.push('/dashboard/saved-searches')} className="rounded-lg px-8 bg-blue-600 hover:bg-blue-700 text-white h-12 text-[15px] font-semibold">
+                Back to saved searches
               </Button>
             </div>
           </SidebarInset>
@@ -334,93 +302,92 @@ export default function SavedSearchDetailPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#f8fafc]">
+      <div className="flex min-h-screen w-full bg-white">
         <AppSidebar />
         <SidebarInset>
           <NavDash />
 
-          <main className="p-4 lg:p-8">
-            <div className="max-w-7xl mx-auto space-y-6">
+          <main className="p-6 lg:p-10">
+            <div className="max-w-7xl mx-auto space-y-10">
 
-              {/* HEADER SECTION */}
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              {/* ── HEADER SECTION ── */}
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                 <div className="space-y-4">
                   <Button
                     variant="ghost"
                     onClick={() => router.push('/dashboard/saved-searches')}
-                    className="gap-2 text-slate-500 hover:text-slate-900 -ml-3"
+                    className="gap-2 text-[#717171] hover:text-[#222222] hover:bg-[#F7F7F7] -ml-4 rounded-lg px-4 h-10 font-medium"
                   >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to Saved Searches
+                    <ArrowLeft className="h-4 w-4 stroke-[2]" />
+                    Back to saved searches
                   </Button>
 
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50">
-                      <BellRing className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h1 className="text-3xl font-bold tracking-tight text-slate-900">{search.name}</h1>
-                    </div>
-                  </div>
+                  <h1 className="text-[32px] font-semibold tracking-tight text-[#222222]">{search.name}</h1>
 
-                  <div className="pl-11 pr-4">
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {formatCriteriaPills(search.searchCriteria)}
-                    </div>
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {formatCriteriaPills(search.searchCriteria)}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 md:mt-12">
-                  <Button onClick={() => setShowEditModal(true)} variant="outline" className="-sm border-slate-200 hover:bg-slate-50 transition-all">
-                    <Edit className="w-4 h-4 mr-2" /> Edit Search
+                <div className="flex items-center pt-2">
+                  <Button
+                    onClick={() => setShowEditModal(true)}
+                    variant="outline"
+                    className="border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] hover:border-blue-600 transition-colors rounded-lg h-11 px-6 font-semibold text-[15px]"
+                  >
+                    <Edit className="w-4 h-4 mr-2 stroke-[2]" /> Edit Search
                   </Button>
                 </div>
               </div>
 
-              {/* Statistics Cards */}
+              {/* ── Statistics Cards ── */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
-                  <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-                    <Home className="w-6 h-6" />
+                <div className="bg-white rounded-xl p-6 border border-[#DDDDDD] flex flex-col hover:border-blue-600 transition-colors duration-200">
+                  <div className="mb-4 text-[#222222]">
+                    <HomeIcon className="w-7 h-7 stroke-[1.5]" />
                   </div>
                   <div>
-                    <p className="text-slate-500 font-medium text-sm mb-1">Total Results</p>
-                    <h3 className="text-2xl font-bold text-slate-800">{search.resultsCount}</h3>
-                    <p className="text-xs text-slate-400 mt-1">Matching properties found</p>
+                    <p className="text-[14px] font-medium text-[#717171] mb-1">Total Results</p>
+                    <h3 className="text-3xl font-semibold text-[#222222] tracking-tight">{search.resultsCount}</h3>
+                    <p className="text-[14px] text-[#717171] mt-2">Matching properties found</p>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
-                  <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                    <TrendingUp className="w-6 h-6" />
+                <div className="bg-white rounded-xl p-6 border border-[#DDDDDD] flex flex-col hover:border-blue-600 transition-colors duration-200">
+                  <div className="mb-4 text-[#222222]">
+                    <TrendingUp className="w-7 h-7 stroke-[1.5]" />
                   </div>
                   <div>
-                    <p className="text-slate-500 font-medium text-sm mb-1">New Matches</p>
-                    <h3 className="text-2xl font-bold text-slate-800 text-emerald-600">{search.newMatchingProperties.length}</h3>
-                    <p className="text-xs text-slate-400 mt-1">Since your last check</p>
+                    <p className="text-[14px] font-medium text-[#717171] mb-1">New Matches</p>
+                    <h3 className="text-3xl font-semibold tracking-tight text-[#FF385C]">{search.newMatchingProperties.length}</h3>
+                    <p className="text-[14px] text-[#717171] mt-2">Since your last check</p>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 -sm border border-slate-100 flex items-start gap-4 transition-all hover:-md">
-                  <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-                    <Bell className="w-6 h-6" />
+                <div className="bg-white rounded-xl p-6 border border-[#DDDDDD] flex flex-col hover:border-blue-600 transition-colors duration-200">
+                  <div className="mb-4 text-[#222222]">
+                    <Bell className="w-7 h-7 stroke-[1.5]" />
                   </div>
                   <div>
-                    <p className="text-slate-500 font-medium text-sm mb-1">Alert Status</p>
+                    <p className="text-[14px] font-medium text-[#717171] mb-1">Alert Status</p>
                     <div className="flex items-center gap-2 mt-1">
                       {search.isActive ? (
-                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-none px-2 py-0 h-5 text-[10px] font-semibold uppercase tracking-wider">Active</Badge>
+                        <span className="bg-[#ECFDF5] text-[#008A05] border border-[#008A05]/20 px-2.5 py-1 rounded-full text-[12px] font-semibold">
+                          Active
+                        </span>
                       ) : (
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-500 hover:bg-slate-200 border-none px-2 py-0 h-5 text-[10px] font-semibold uppercase tracking-wider">Paused</Badge>
+                        <span className="bg-[#F7F7F7] text-[#717171] border border-[#DDDDDD] px-2.5 py-1 rounded-full text-[12px] font-semibold">
+                          Paused
+                        </span>
                       )}
-                      <span className="text-lg font-bold text-slate-800 capitalize">{search.notificationFrequency}</span>
+                      <span className="text-[20px] font-semibold text-[#222222] capitalize ml-1">{search.notificationFrequency}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Properties Display */}
-              <div className="mt-8">
+              {/* ── Properties Display ── */}
+              <div>
                 {loading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
@@ -428,16 +395,20 @@ export default function SavedSearchDetailPage() {
                     ))}
                   </div>
                 ) : properties.length === 0 ? (
-                  <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
-                    <div className="p-6 bg-slate-50 text-slate-400 rounded-full mb-6">
-                      <HomeIcon className="w-12 h-12" />
+                  <div className="bg-[#F7F7F7] rounded-2xl border border-[#DDDDDD] py-24 flex flex-col items-center text-center px-6">
+                    <div className="w-16 h-16 bg-white border border-[#DDDDDD] text-[#222222] rounded-full flex items-center justify-center mb-6">
+                      <HomeIcon className="w-7 h-7 stroke-[1.5]" />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">No properties match your criteria</h3>
-                    <p className="text-slate-500 max-w-sm mb-8">
+                    <h3 className="text-[22px] font-semibold text-[#222222] mb-2">No properties match your criteria</h3>
+                    <p className="text-[16px] text-[#717171] max-w-md mb-8">
                       We currently don't have any properties matching this specific hunt. We'll automatically notify you the moment a new one hits the market!
                     </p>
-                    <Button onClick={() => setShowEditModal(true)} variant="outline" className="rounded-full px-8 h-11 border-dashed">
-                      <Search className="w-4 h-4 mr-2" /> Adjust Criteria
+                    <Button
+                      onClick={() => setShowEditModal(true)}
+                      variant="outline"
+                      className="border-blue-600 text-[#222222] hover:bg-blue-600 hover:text-white transition-colors rounded-xl h-12 px-8 font-semibold text-[15px]"
+                    >
+                      <Search className="w-4 h-4 mr-2 stroke-[2]" /> Adjust Criteria
                     </Button>
                   </div>
                 ) : (
@@ -449,10 +420,10 @@ export default function SavedSearchDetailPage() {
                             {...transformPropertyProps(property)}
                             onUpdate={fetchProperties}
                           />
-                          {/* New Match Badge Overlay */}
+                          {/* Updated Blue New Match Badge Overlay */}
                           {search.newMatchingProperties.includes(property._id) && (
                             <div className="absolute top-4 left-4 z-20 pointer-events-none">
-                              <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white -md border-1 border-white font-bold px-3 py-1">
+                              <Badge className="blue-blue-600 hover:blue-blue-600 text-white rounded-md border-none font-bold px-3 py-1 text-[11px] tracking-wider">
                                 NEW MATCH
                               </Badge>
                             </div>
@@ -463,23 +434,23 @@ export default function SavedSearchDetailPage() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="flex items-center justify-center gap-4 mt-12 bg-white p-4 rounded-2xl -sm border border-slate-100 w-fit mx-auto">
+                      <div className="flex items-center justify-center gap-4 mt-12 w-fit mx-auto">
                         <Button
                           variant="outline"
                           onClick={() => setPage(p => Math.max(1, p - 1))}
                           disabled={page === 1}
-                          className="rounded-xl border-slate-200"
+                          className="rounded-xl border-[#DDDDDD] hover:border-blue-600 text-[#222222] hover:bg-[#F7F7F7] font-semibold h-11 px-6"
                         >
                           Previous
                         </Button>
-                        <span className="text-sm font-semibold text-slate-600 px-2">
-                          Page <span className="text-indigo-600">{page}</span> of {totalPages}
+                        <span className="text-[15px] font-medium text-[#717171] px-2">
+                          <span className="text-[#222222] font-semibold">{page}</span> of {totalPages}
                         </span>
                         <Button
                           variant="outline"
                           onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                           disabled={page === totalPages}
-                          className="rounded-xl border-slate-200"
+                          className="rounded-xl border-[#DDDDDD] hover:border-blue-600 text-[#222222] hover:bg-[#F7F7F7] font-semibold h-11 px-6"
                         >
                           Next
                         </Button>
@@ -489,7 +460,7 @@ export default function SavedSearchDetailPage() {
                 )}
               </div>
 
-              {/* Edit Modal */}
+              {/* ── Edit Modal ── */}
               <SaveSearchModal
                 isOpen={showEditModal}
                 onClose={() => setShowEditModal(false)}

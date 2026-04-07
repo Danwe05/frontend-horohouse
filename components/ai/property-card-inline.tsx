@@ -54,7 +54,7 @@ export function PropertyCardInline({ properties }: PropertyCardInlineProps) {
       {/* Results Header */}
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+          <div className="h-2 w-2 rounded-full bg-muted animate-pulse" />
           <span className="text-sm font-medium text-muted-foreground">
             {properties.length} propriété{properties.length > 1 ? "s" : ""} trouvée{properties.length > 1 ? "s" : ""}
           </span>
@@ -169,7 +169,7 @@ function PropertyMiniCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
         {/* Price Badge */}
-        <Badge className="absolute left-3 top-3 bg-accent text-accent-foreground font-bold -lg">
+        <Badge className="absolute left-3 top-3 bg-muted text-accent-foreground font-bold -lg">
           {formatPrice(property.price)} {property.currency || "FCFA"}
         </Badge>
 
@@ -209,7 +209,7 @@ function PropertyMiniCard({
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 h-8 text-xs border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent"
+              className="flex-1 h-8 text-xs border-accent text-accent hover:bg-muted hover:text-accent-foreground bg-transparent"
               asChild
             >
               <a href={`tel:${agentPhone}`}>

@@ -79,23 +79,23 @@ type LeadStats = {
 const STATUS_CONFIG: Record<LeadStatus, {
   label: string; bg: string; text: string; dot: string; border: string; hoverBg: string;
 }> = {
-  new: { label: 'New', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-400', border: 'border-blue-200', hoverBg: 'hover:bg-blue-100' },
-  contacted: { label: 'Contacted', bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400', border: 'border-amber-200', hoverBg: 'hover:bg-amber-100' },
-  qualified: { label: 'Qualified', bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', border: 'border-emerald-200', hoverBg: 'hover:bg-emerald-100' },
-  lost: { label: 'Lost', bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-200', hoverBg: 'hover:bg-slate-100' },
+  new: { label: 'New', bg: 'bg-white', text: 'text-[#222222]', dot: 'bg-blue-600', border: 'border-[#DDDDDD]', hoverBg: 'hover:bg-[#F7F7F7]' },
+  contacted: { label: 'Contacted', bg: 'bg-white', text: 'text-[#222222]', dot: 'bg-blue-600', border: 'border-[#DDDDDD]', hoverBg: 'hover:bg-[#F7F7F7]' },
+  qualified: { label: 'Qualified', bg: 'bg-white', text: 'text-[#222222]', dot: 'bg-blue-600', border: 'border-[#DDDDDD]', hoverBg: 'hover:bg-[#F7F7F7]' },
+  lost: { label: 'Lost', bg: 'bg-white', text: 'text-[#717171]', dot: 'bg-[#DDDDDD]', border: 'border-[#DDDDDD]', hoverBg: 'hover:bg-[#F7F7F7]' },
 };
 
 const PRIORITY_CONFIG: Record<LeadPriority, { label: string; bg: string; text: string; dot: string }> = {
-  high: { label: 'High', bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-400' },
-  medium: { label: 'Medium', bg: 'bg-yellow-50', text: 'text-yellow-700', dot: 'bg-yellow-400' },
-  low: { label: 'Low', bg: 'bg-slate-50', text: 'text-slate-500', dot: 'bg-slate-300' },
+  high: { label: 'High', bg: 'bg-white', text: 'text-[#222222]', dot: 'bg-blue-600' },
+  medium: { label: 'Medium', bg: 'bg-white', text: 'text-[#222222]', dot: 'bg-blue-600' },
+  low: { label: 'Low', bg: 'bg-white', text: 'text-[#717171]', dot: 'bg-[#DDDDDD]' },
 };
 
 const SOURCE_CONFIG: Record<LeadSource, { label: string; bg: string; text: string }> = {
-  website: { label: 'Website', bg: 'bg-indigo-50', text: 'text-indigo-700' },
-  referral: { label: 'Referral', bg: 'bg-violet-50', text: 'text-violet-700' },
-  message: { label: 'Message', bg: 'bg-pink-50', text: 'text-pink-700' },
-  campaign: { label: 'Campaign', bg: 'bg-cyan-50', text: 'text-cyan-700' },
+  website: { label: 'Website', bg: 'bg-white border border-[#DDDDDD]', text: 'text-[#222222]' },
+  referral: { label: 'Referral', bg: 'bg-white border border-[#DDDDDD]', text: 'text-[#222222]' },
+  message: { label: 'Message', bg: 'bg-white border border-[#DDDDDD]', text: 'text-[#222222]' },
+  campaign: { label: 'Campaign', bg: 'bg-white border border-[#DDDDDD]', text: 'text-[#222222]' },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -117,21 +117,6 @@ function getInitials(name: string) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
-const AVATAR_COLORS = [
-  'from-blue-400 to-indigo-600',
-  'from-violet-400 to-purple-600',
-  'from-pink-400 to-rose-600',
-  'from-amber-400 to-orange-500',
-  'from-emerald-400 to-teal-600',
-  'from-cyan-400 to-sky-600',
-];
-
-function getAvatarColor(name: string) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-}
-
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: LeadStatus }) {
@@ -148,7 +133,7 @@ function StatusBadge({ status }: { status: LeadStatus }) {
 }
 
 function PriorityBadge({ priority }: { priority?: LeadPriority }) {
-  if (!priority) return <span className="text-slate-300 text-xs">—</span>;
+  if (!priority) return <span className="text-[#DDDDDD] text-xs">—</span>;
   const cfg = PRIORITY_CONFIG[priority];
   return (
     <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold', cfg.bg, cfg.text)}>
@@ -159,12 +144,11 @@ function PriorityBadge({ priority }: { priority?: LeadPriority }) {
 }
 
 function AvatarBubble({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {
-  const gradient = getAvatarColor(name);
   const sizeClass = { sm: 'w-7 h-7 text-[10px]', md: 'w-9 h-9 text-xs', lg: 'w-11 h-11 text-sm' }[size];
   return (
     <div className={cn(
-      'rounded-full bg-gradient-to-br flex items-center justify-center font-bold text-white -sm flex-shrink-0',
-      sizeClass, gradient
+      'rounded-full bg-[#F7F7F7] border border-[#DDDDDD] flex items-center justify-center font-bold text-[#222222] flex-shrink-0',
+      sizeClass
     )}>
       {getInitials(name)}
     </div>
@@ -190,7 +174,7 @@ function LeadCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.25, delay: idx * 0.04 }}
-      className="group bg-white rounded-2xl border border-slate-200 -sm hover:-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden cursor-pointer"
+      className="group bg-white rounded-2xl border border-[#DDDDDD] hover:border-blue-600 transition-colors duration-300 overflow-hidden cursor-pointer"
       onClick={() => onNavigate(lead)}
     >
       {/* Status accent bar */}
@@ -277,8 +261,8 @@ function LeadCard({
         {/* Budget chip */}
         {lead.budget && (
           <div className="mt-3 text-right">
-            <span className="text-xs font-black text-slate-700">
-              {lead.budget.toLocaleString()} <span className="font-semibold text-slate-400 text-[10px]">XAF budget</span>
+            <span className="text-xs font-semibold text-[#222222]">
+              {lead.budget.toLocaleString()} <span className="font-semibold text-[#717171] text-[10px]">XAF budget</span>
             </span>
           </div>
         )}
@@ -297,8 +281,8 @@ function LeadFormFields({
   saving: boolean;
 }) {
   const field = (label: string, required = false) => (
-    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-      {label}{required && <span className="text-rose-400 ml-0.5">*</span>}
+    <span className="text-xs font-semibold text-[#717171] uppercase tracking-wider">
+      {label}{required && <span className="text-[#E50000] ml-0.5">*</span>}
     </span>
   );
 
@@ -312,7 +296,7 @@ function LeadFormFields({
           onChange={e => setData({ ...data, name: e.target.value })}
           placeholder="e.g. Jean Dupont"
           disabled={saving}
-          className="h-10 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
+          className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222]"
         />
       </div>
 
@@ -324,7 +308,7 @@ function LeadFormFields({
           onValueChange={v => setData({ ...data, source: v as LeadSource })}
           disabled={saving}
         >
-          <SelectTrigger className="h-10 rounded-xl bg-slate-50 border-slate-200">
+          <SelectTrigger className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:ring-0">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -336,7 +320,7 @@ function LeadFormFields({
         </Select>
       </div>
 
-      <div className="col-span-full h-px bg-slate-100" />
+      <div className="col-span-full h-px bg-[#EBEBEB]" />
 
       {/* Email */}
       <div className="space-y-1.5">
@@ -347,7 +331,7 @@ function LeadFormFields({
           onChange={e => setData({ ...data, email: e.target.value })}
           placeholder="jean@example.com"
           disabled={saving}
-          className="h-10 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
+          className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222]"
         />
       </div>
 
@@ -359,7 +343,7 @@ function LeadFormFields({
           onChange={e => setData({ ...data, phone: e.target.value })}
           placeholder="+237..."
           disabled={saving}
-          className="h-10 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
+          className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222]"
         />
       </div>
 
@@ -371,7 +355,7 @@ function LeadFormFields({
           onChange={e => setData({ ...data, location: e.target.value })}
           placeholder="City or neighborhood"
           disabled={saving}
-          className="h-10 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
+          className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222]"
         />
       </div>
 
@@ -384,17 +368,17 @@ function LeadFormFields({
           onChange={e => setData({ ...data, budget: e.target.value ? Number(e.target.value) : undefined })}
           placeholder="e.g. 5000000"
           disabled={saving}
-          className="h-10 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
+          className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222]"
         />
       </div>
 
-      <div className="col-span-full h-px bg-slate-100" />
+      <div className="col-span-full h-px bg-[#EBEBEB]" />
 
       {/* Status */}
       <div className="space-y-1.5">
         {field('Status')}
         <Select value={data.status ?? 'new'} onValueChange={v => setData({ ...data, status: v as LeadStatus })} disabled={saving}>
-          <SelectTrigger className="h-10 rounded-xl bg-slate-50 border-slate-200">
+          <SelectTrigger className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:ring-0">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -410,7 +394,7 @@ function LeadFormFields({
       <div className="space-y-1.5">
         {field('Priority')}
         <Select value={data.priority ?? ''} onValueChange={v => setData({ ...data, priority: v as LeadPriority || undefined })} disabled={saving}>
-          <SelectTrigger className="h-10 rounded-xl bg-slate-50 border-slate-200">
+          <SelectTrigger className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:ring-0">
             <SelectValue placeholder="Select priority" />
           </SelectTrigger>
           <SelectContent>
@@ -429,7 +413,7 @@ function LeadFormFields({
           onChange={e => setData({ ...data, propertyType: e.target.value })}
           placeholder="Apartment, villa, land…"
           disabled={saving}
-          className="h-10 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
+          className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222]"
         />
       </div>
 
@@ -441,7 +425,7 @@ function LeadFormFields({
           onChange={e => setData({ ...data, assignedAgent: e.target.value })}
           placeholder="Agent name or ID"
           disabled={saving}
-          className="h-10 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
+          className="h-10 rounded-xl bg-white border-[#DDDDDD] hover:border-blue-600 focus:border-blue-600 focus-visible:ring-1 focus-visible:ring-[#222222]"
         />
       </div>
 
@@ -454,7 +438,7 @@ function LeadFormFields({
           placeholder="What is this lead looking for? Any specific requirements…"
           disabled={saving}
           rows={3}
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+          className="w-full rounded-xl border border-[#DDDDDD] hover:border-blue-600 bg-white px-3 py-2.5 text-sm resize-none focus:outline-none focus:border-blue-600 transition-colors disabled:opacity-50"
         />
       </div>
     </div>
@@ -588,17 +572,17 @@ export default function LeadsPage() {
   // ─── Stats cards ─────────────────────────────────────────────────────────────
 
   const statsCards = [
-    { title: 'Total Leads', value: stats?.total ?? 0, icon: Users, gradient: 'from-blue-50d0 to-indigo-600', bg: 'bg-blue-50', text: 'text-blue-600' },
-    { title: 'New This Week', value: stats?.newThisWeek ?? 0, icon: UserPlus, gradient: 'from-amber-400 to-orange-500', bg: 'bg-amber-50', text: 'text-amber-600' },
-    { title: 'Qualified', value: stats?.qualified ?? 0, icon: CheckCircle2, gradient: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-50', text: 'text-emerald-600' },
-    { title: 'Conversion', value: `${stats?.conversionRate ?? 0}%`, icon: TrendingUp, gradient: 'from-violet-500 to-purple-600', bg: 'bg-violet-50', text: 'text-violet-600' },
+    { title: 'Total Leads', value: stats?.total ?? 0, icon: Users, bg: 'bg-[#F7F7F7]', text: 'text-[#222222]' },
+    { title: 'New This Week', value: stats?.newThisWeek ?? 0, icon: UserPlus, bg: 'bg-[#F7F7F7]', text: 'text-[#222222]' },
+    { title: 'Qualified', value: stats?.qualified ?? 0, icon: CheckCircle2, bg: 'bg-[#F7F7F7]', text: 'text-[#222222]' },
+    { title: 'Conversion', value: `${stats?.conversionRate ?? 0}%`, icon: TrendingUp, bg: 'bg-[#F7F7F7]', text: 'text-[#222222]' },
   ];
 
   const hasFilters = query || statusFilter !== 'all' || priorityFilter !== 'all';
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#f8fafc]">
+      <div className="flex min-h-screen w-full bg-white">
         <AppSidebar />
         <SidebarInset>
           <NavDash />
@@ -611,24 +595,21 @@ export default function LeadsPage() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-                        <Users className="w-6 h-6" />
-                      </div>
                       <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Client Leads</h1>
-                        <p className="text-slate-500 text-sm mt-0.5">Track, qualify, and convert your prospects</p>
+                        <h1 className="text-3xl font-semibold tracking-tight text-[#222222]">Client Leads</h1>
+                        <p className="text-[#717171] text-sm mt-0.5">Track, qualify, and convert your prospects</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     {/* View toggle */}
-                    <div className="flex items-center bg-slate-100 rounded-lg p-1">
+                    <div className="flex items-center bg-[#F7F7F7] rounded-full p-1 border border-[#EBEBEB]">
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => setView('list')}
-                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'list' ? 'bg-white -sm text-slate-900' : 'text-slate-400 hover:text-slate-700')}
+                            className={cn('p-1.5 rounded-full transition-colors cursor-pointer', view === 'list' ? 'bg-white shadow-sm text-[#222222]' : 'text-[#717171] hover:text-[#222222]')}
                           >
                             <List className="w-4 h-4" />
                           </button>
@@ -639,7 +620,7 @@ export default function LeadsPage() {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => setView('grid')}
-                            className={cn('p-1.5 rounded-md transition-colors cursor-pointer', view === 'grid' ? 'bg-white -sm text-slate-900' : 'text-slate-400 hover:text-slate-700')}
+                            className={cn('p-1.5 rounded-full transition-colors cursor-pointer', view === 'grid' ? 'bg-white shadow-sm text-[#222222]' : 'text-[#717171] hover:text-[#222222]')}
                           >
                             <LayoutGrid className="w-4 h-4" />
                           </button>
@@ -650,7 +631,7 @@ export default function LeadsPage() {
 
                     <Button
                       variant="outline"
-                      className="gap-2 rounded-full"
+                      className="gap-2 rounded-xl text-[#222222] border-[#DDDDDD] hover:bg-[#F7F7F7]"
                       onClick={() => router.push('/dashboard/appointments')}
                     >
                       <Calendar className="w-4 h-4" />
@@ -658,7 +639,7 @@ export default function LeadsPage() {
                     </Button>
 
                     <Button
-                      className="rounded-full px-5 bg-blue-600 hover:bg-blue-700 -sm gap-2"
+                      className="rounded-xl px-5 bg-blue-600 hover:bg-blue-700 text-white shadow-none gap-2"
                       onClick={() => { setNewLead({ ...emptyLead }); setIsAddOpen(true); }}
                     >
                       <Plus className="w-4 h-4" />
@@ -671,7 +652,7 @@ export default function LeadsPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {isStatsLoading
                     ? Array.from({ length: 4 }).map((_, i) => (
-                      <Card key={i} className="rounded-2xl border-slate-200 -sm">
+                      <Card key={i} className="rounded-2xl border border-[#DDDDDD] shadow-none">
                         <CardContent className="p-5"><Skeleton className="h-4 w-24 mb-3" /><Skeleton className="h-8 w-16" /></CardContent>
                       </Card>
                     ))
@@ -682,15 +663,14 @@ export default function LeadsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.07 }}
                       >
-                        <Card className="rounded-2xl border-none -sm hover:-md transition-all duration-300 overflow-hidden relative">
-                          <div className={cn('absolute top-0 left-0 w-1 h-full')} />
+                        <Card className="rounded-2xl border border-[#DDDDDD] shadow-none hover:border-blue-600 transition-colors duration-200 overflow-hidden relative">
                           <CardContent className="p-5 flex items-center gap-4">
                             <div className={cn('p-3 rounded-2xl', card.bg)}>
                               <card.icon className={cn('w-5 h-5', card.text)} />
                             </div>
                             <div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{card.title}</p>
-                              <p className="text-2xl font-black text-slate-900 tracking-tight">{card.value}</p>
+                              <p className="text-[10px] font-bold text-[#717171] uppercase tracking-widest">{card.title}</p>
+                              <p className="text-2xl font-semibold text-[#222222] tracking-tight">{card.value}</p>
                             </div>
                           </CardContent>
                         </Card>
@@ -700,16 +680,16 @@ export default function LeadsPage() {
                 </div>
 
                 {/* ── Filters ── */}
-                <div className="bg-white p-3 rounded-2xl -sm border border-slate-200 space-y-3">
+                <div className="bg-white p-3 rounded-2xl border border-[#DDDDDD] space-y-3 shadow-none">
                   <div className="flex flex-col lg:flex-row gap-3">
                     {/* Search */}
                     <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AAAAAA] pointer-events-none" />
                       <Input
                         value={query}
                         onChange={e => setQuery(e.target.value)}
                         placeholder="Search by name, email, interest, location…"
-                        className="pl-9 border-none bg-slate-50 h-10 rounded-xl"
+                        className="pl-9 border border-[#DDDDDD] focus:border-blue-600 bg-white h-10 rounded-full"
                       />
                       {query && (
                         <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer">
@@ -722,9 +702,9 @@ export default function LeadsPage() {
 
                     {/* Status tabs */}
                     <Tabs value={statusFilter} onValueChange={v => setStatusFilter(v as any)}>
-                      <TabsList className="bg-slate-50/80 h-10 rounded-xl p-1">
+                      <TabsList className="bg-[#F7F7F7] h-10 rounded-full p-1 border border-[#EBEBEB]">
                         {(['all', 'new', 'contacted', 'qualified', 'lost'] as const).map(s => (
-                          <TabsTrigger key={s} value={s} className="h-8 rounded-lg text-xs px-3 capitalize">
+                          <TabsTrigger key={s} value={s} className="h-8 rounded-full text-xs px-4 capitalize data-[state=active]:bg-white data-[state=active]:text-[#222222] data-[state=active]:shadow-sm font-medium text-[#717171]">
                             {s === 'all' ? `All (${counts.all})` : `${STATUS_CONFIG[s].label} (${counts[s]})`}
                           </TabsTrigger>
                         ))}
@@ -733,8 +713,8 @@ export default function LeadsPage() {
 
                     {/* Priority filter */}
                     <Select value={priorityFilter} onValueChange={v => setPriorityFilter(v as any)}>
-                      <SelectTrigger className="w-[140px] h-10 border-none bg-slate-50 rounded-xl text-sm">
-                        <Star className="w-4 h-4 mr-1.5 text-slate-400" />
+                      <SelectTrigger className="w-[140px] h-10 border border-[#DDDDDD] hover:border-blue-600 focus:ring-0 bg-white rounded-full text-sm font-medium">
+                        <Star className="w-4 h-4 mr-1.5 text-[#AAAAAA]" />
                         <SelectValue placeholder="Priority" />
                       </SelectTrigger>
                       <SelectContent>
@@ -748,9 +728,9 @@ export default function LeadsPage() {
 
                   {hasFilters && (
                     <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
-                      <span className="text-xs text-slate-400">{filtered.length} result{filtered.length !== 1 ? 's' : ''}</span>
+                      <span className="text-xs text-[#717171]">{filtered.length} result{filtered.length !== 1 ? 's' : ''}</span>
                       <Button variant="ghost" size="sm" onClick={() => { setQuery(''); setStatusFilter('all'); setPriorityFilter('all'); }}
-                        className="h-7 text-xs text-slate-500 ml-auto px-2 hover:text-slate-900">
+                        className="h-7 text-xs text-[#555555] ml-auto px-2 hover:text-[#222222]">
                         <X className="w-3.5 h-3.5 mr-1" /> Clear filters
                       </Button>
                     </div>
@@ -796,15 +776,15 @@ export default function LeadsPage() {
                       <div className="bg-white rounded-2xl -sm border border-slate-200 overflow-hidden">
                         <div className="overflow-x-auto">
                           <Table>
-                            <TableHeader className="bg-slate-50/50 border-b">
-                              <TableRow className="hover:bg-transparent">
-                                <TableHead className="font-semibold text-slate-500 h-11 text-xs uppercase tracking-wider">Lead</TableHead>
-                                <TableHead className="hidden md:table-cell font-semibold text-slate-500 h-11 text-xs uppercase tracking-wider">Interest</TableHead>
-                                <TableHead className="hidden lg:table-cell font-semibold text-slate-500 h-11 text-xs uppercase tracking-wider">Location</TableHead>
-                                <TableHead className="font-semibold text-slate-500 h-11 text-xs uppercase tracking-wider">Status</TableHead>
-                                <TableHead className="hidden md:table-cell font-semibold text-slate-500 h-11 text-xs uppercase tracking-wider">Priority</TableHead>
-                                <TableHead className="hidden lg:table-cell font-semibold text-slate-500 h-11 text-xs uppercase tracking-wider">Last Contact</TableHead>
-                                <TableHead className="text-right font-semibold text-slate-500 h-11 text-xs uppercase tracking-wider">Actions</TableHead>
+                            <TableHeader className="bg-[#F7F7F7] border-b border-[#EBEBEB]">
+                              <TableRow className="hover:bg-transparent border-[#EBEBEB]">
+                                <TableHead className="font-semibold text-[#717171] h-11 text-xs uppercase tracking-wider">Lead</TableHead>
+                                <TableHead className="hidden md:table-cell font-semibold text-[#717171] h-11 text-xs uppercase tracking-wider">Interest</TableHead>
+                                <TableHead className="hidden lg:table-cell font-semibold text-[#717171] h-11 text-xs uppercase tracking-wider">Location</TableHead>
+                                <TableHead className="font-semibold text-[#717171] h-11 text-xs uppercase tracking-wider">Status</TableHead>
+                                <TableHead className="hidden md:table-cell font-semibold text-[#717171] h-11 text-xs uppercase tracking-wider">Priority</TableHead>
+                                <TableHead className="hidden lg:table-cell font-semibold text-[#717171] h-11 text-xs uppercase tracking-wider">Last Contact</TableHead>
+                                <TableHead className="text-right font-semibold text-[#717171] h-11 text-xs uppercase tracking-wider">Actions</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -897,7 +877,7 @@ export default function LeadsPage() {
                                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 cursor-pointer"
+                                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-[#717171] hover:text-[#222222] hover:bg-[#EBEBEB] cursor-pointer"
                                                 onClick={() => openEdit(l)}>
                                                 <Pencil className="w-3.5 h-3.5" />
                                               </Button>
@@ -906,14 +886,14 @@ export default function LeadsPage() {
                                           </Tooltip>
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
+                                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-[#717171] hover:text-[#E50000] hover:bg-[#FFF8F8] cursor-pointer"
                                                 onClick={() => openDelete(l)}>
                                                 <Trash2 className="w-3.5 h-3.5" />
                                               </Button>
                                             </TooltipTrigger>
                                             <TooltipContent>Delete Lead</TooltipContent>
                                           </Tooltip>
-                                          <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-lg text-xs font-semibold border-slate-200 hidden sm:inline-flex"
+                                          <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-lg text-xs font-semibold border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] hidden sm:inline-flex"
                                             onClick={() => router.push('/dashboard/inquiry')}>
                                             <MessageSquare className="w-3.5 h-3.5" />
                                             Message
@@ -951,18 +931,16 @@ export default function LeadsPage() {
 
       {/* ── Add Lead Dialog ── */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none -2xl rounded-2xl">
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-7 text-white relative overflow-hidden">
-            <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-            <div className="absolute -bottom-12 -left-8 w-32 h-32 bg-white/5 rounded-full blur-xl" />
-            <DialogHeader className="relative z-10">
+        <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-[#DDDDDD] rounded-2xl shadow-xl">
+          <div className="bg-white p-7 border-b border-[#EBEBEB]">
+            <DialogHeader>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                <div className="p-2 bg-[#F7F7F7] border border-[#EBEBEB] text-[#222222] rounded-xl">
                   <UserPlus className="w-5 h-5" />
                 </div>
-                <DialogTitle className="text-xl font-bold">New Prospect</DialogTitle>
+                <DialogTitle className="text-xl font-bold text-[#222222]">New Prospect</DialogTitle>
               </div>
-              <DialogDescription className="text-blue-100/80">
+              <DialogDescription className="text-[#717171]">
                 Register a new lead and begin tracking their journey through your pipeline.
               </DialogDescription>
             </DialogHeader>
@@ -972,14 +950,14 @@ export default function LeadsPage() {
             <LeadFormFields data={newLead} setData={setNewLead} saving={isSaving} />
           </div>
 
-          <DialogFooter className="px-6 py-4 bg-slate-50 border-t border-slate-100 gap-2">
-            <Button variant="ghost" onClick={() => setIsAddOpen(false)} disabled={isSaving} className="rounded-xl font-semibold">
+          <DialogFooter className="px-6 py-4 bg-white border-t border-[#EBEBEB] gap-2">
+            <Button variant="outline" onClick={() => setIsAddOpen(false)} disabled={isSaving} className="rounded-xl font-semibold border-[#DDDDDD] text-[#222222]">
               Cancel
             </Button>
             <Button
               onClick={handleAdd}
               disabled={!newLead.name || isSaving}
-              className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 -md -blue-500/20 gap-2"
+              className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 gap-2 shadow-none"
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
               {isSaving ? 'Registering…' : 'Register Lead'}
@@ -990,17 +968,16 @@ export default function LeadsPage() {
 
       {/* ── Edit Lead Dialog ── */}
       <Dialog open={isEditOpen} onOpenChange={o => { setIsEditOpen(o); if (!o) setEditLead(null); }}>
-        <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-none -2xl rounded-2xl">
-          <div className="bg-gradient-to-br from-violet-600 to-indigo-700 p-7 text-white relative overflow-hidden">
-            <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-            <DialogHeader className="relative z-10">
+        <DialogContent className="sm:max-w-[620px] p-0 overflow-hidden border-[#DDDDDD] rounded-2xl shadow-xl">
+          <div className="bg-white p-7 border-b border-[#EBEBEB]">
+            <DialogHeader>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                <div className="p-2 bg-[#F7F7F7] border border-[#EBEBEB] text-[#222222] rounded-xl">
                   <Pencil className="w-5 h-5" />
                 </div>
-                <DialogTitle className="text-xl font-bold">Update Lead</DialogTitle>
+                <DialogTitle className="text-xl font-bold text-[#222222]">Update Lead</DialogTitle>
               </div>
-              <DialogDescription className="text-violet-100/80">
+              <DialogDescription className="text-[#717171]">
                 Modify lead details, status, and priority to keep your records accurate.
               </DialogDescription>
             </DialogHeader>
@@ -1016,14 +993,14 @@ export default function LeadsPage() {
             )}
           </div>
 
-          <DialogFooter className="px-6 py-4 bg-slate-50 border-t border-slate-100 gap-2">
-            <Button variant="ghost" onClick={() => setIsEditOpen(false)} disabled={isUpdating} className="rounded-xl font-semibold">
+          <DialogFooter className="px-6 py-4 bg-white border-t border-[#EBEBEB] gap-2">
+            <Button variant="outline" onClick={() => setIsEditOpen(false)} disabled={isUpdating} className="rounded-xl font-semibold border-[#DDDDDD] text-[#222222]">
               Cancel
             </Button>
             <Button
               onClick={handleEdit}
               disabled={!editLead?.name || isUpdating}
-              className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold px-7 -md -violet-500/20 gap-2"
+              className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 shadow-none gap-2"
             >
               {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
               {isUpdating ? 'Saving…' : 'Save Changes'}
@@ -1034,24 +1011,24 @@ export default function LeadsPage() {
 
       {/* ── Delete Confirm ── */}
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <AlertDialogContent className="rounded-2xl border-none -2xl">
+        <AlertDialogContent className="rounded-2xl border-[#DDDDDD] shadow-xl">
           <AlertDialogHeader>
-            <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mb-3">
-              <Trash2 className="w-6 h-6 text-red-500" />
+            <div className="w-12 h-12 bg-[#FFF8F8] border border-[#FFDFDF] rounded-full flex items-center justify-center mb-3">
+              <Trash2 className="w-5 h-5 text-[#E50000]" />
             </div>
-            <AlertDialogTitle className="text-xl font-bold">Delete Lead</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-500 mt-1">
+            <AlertDialogTitle className="text-xl font-bold text-[#222222]">Delete Lead</AlertDialogTitle>
+            <AlertDialogDescription className="text-[#717171] mt-1">
               Are you sure you want to permanently delete{' '}
-              <strong className="text-slate-700">{deleteLead?.name}</strong>?
+              <strong className="text-[#222222]">{deleteLead?.name}</strong>?
               This action cannot be undone and all associated notes will be lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4 gap-2">
-            <AlertDialogCancel className="rounded-xl border-slate-200 font-semibold">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] font-semibold">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
-              className="rounded-xl bg-red-600 hover:bg-red-700 font-bold -md -red-500/20 gap-2"
+              className="rounded-xl bg-[#E50000] hover:bg-[#C00000] text-white font-bold shadow-none gap-2"
             >
               {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
               {isDeleting ? 'Deleting…' : 'Delete Lead'}
@@ -1072,23 +1049,23 @@ function EmptyState({ onClear, hasFilters, onAdd }: { onClear: () => void; hasFi
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center justify-center py-16 text-center"
     >
-      <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 rounded-full flex items-center justify-center mb-5 border border-slate-100">
-        <Users className="w-9 h-9 text-slate-200" />
+      <div className="w-20 h-20 bg-[#F7F7F7] rounded-full flex items-center justify-center mb-5 border border-[#EBEBEB]">
+        <Users className="w-9 h-9 text-[#AAAAAA]" />
       </div>
-      <h3 className="text-lg font-bold text-slate-900 mb-1">
+      <h3 className="text-lg font-semibold text-[#222222] mb-1">
         {hasFilters ? 'No leads match your filters' : 'No leads yet'}
       </h3>
-      <p className="text-sm text-slate-400 max-w-xs mb-6">
+      <p className="text-sm text-[#717171] max-w-xs mb-6">
         {hasFilters
           ? 'Try adjusting your search or clearing the active filters to see all leads.'
           : "Start building your pipeline by adding your first prospect."}
       </p>
       {hasFilters ? (
-        <Button variant="outline" onClick={onClear} className="rounded-xl font-semibold">
+        <Button variant="outline" onClick={onClear} className="rounded-xl font-semibold border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7]">
           <X className="w-4 h-4 mr-1.5" /> Clear Filters
         </Button>
       ) : (
-        <Button onClick={onAdd} className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2">
+        <Button onClick={onAdd} className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2 shadow-none">
           <Plus className="w-4 h-4" /> Add First Lead
         </Button>
       )}

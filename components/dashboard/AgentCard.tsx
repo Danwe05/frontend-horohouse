@@ -135,7 +135,7 @@ const AgentCard = ({
               <Phone size={16} />
               Call
             </button>
-            <button className="flex items-center justify-center flex-1 bg-black text-white rounded-lg py-2.5 hover:bg-gray-800 transition-colors font-semibold text-sm gap-2 -sm">
+            <button className="flex items-center justify-center flex-1 bg-blue-700 text-white rounded-lg py-2.5 hover:bg-gray-800 transition-colors font-semibold text-sm gap-2 -sm">
               <Mail size={16} />
               Message
             </button>
@@ -231,7 +231,7 @@ const AgentCard = ({
                 <Phone size={18} />
                 Call
               </button>
-              <button className="flex-1 bg-black text-white rounded-lg py-3 hover:bg-gray-800 transition-colors font-semibold flex items-center justify-center gap-2 -md">
+              <button className="flex-1 bg-blue-700 text-white rounded-lg py-3 hover:bg-gray-800 transition-colors font-semibold flex items-center justify-center gap-2 -md">
                 <Mail size={18} />
                 Email
               </button>

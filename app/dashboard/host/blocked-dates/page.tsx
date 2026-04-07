@@ -9,8 +9,7 @@ import {
 import { format, parseISO } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import AvailabilityCalendar from '@/components/dashboard/AvailabilityCalendar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
@@ -106,116 +105,105 @@ export default function BlockedDatesPage() {
 
     return (
         <SidebarProvider>
-            {/* Soft Neutral Background */}
-            <div className="flex min-h-screen w-full bg-[#fafafa] text-zinc-900">
+            <div className="flex min-h-screen w-full bg-white text-[#222222]">
                 <AppSidebar />
-                <SidebarInset className="bg-transparent">
+                <SidebarInset>
                     <NavDash />
-                    <div className="p-4 md:p-8 lg:p-12 max-w-[1600px] mx-auto w-full space-y-10">
+                    <div className="p-6 md:p-10 max-w-7xl mx-auto w-full space-y-10">
 
-                        {/* ── Header: Sophisticated & Clean ── */}
-                        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-200 pb-8">
+                        {/* ── Header ── */}
+                        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-6 border-b border-[#DDDDDD]">
                             <div>
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="p-2.5 bg-emerald-600 rounded-xl -lg -emerald-200">
-                                        <CalendarIcon className="w-5 h-5 text-white" />
-                                    </div>
-                                    <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Availability</h1>
-                                </div>
-                                <p className="text-zinc-500 text-sm font-medium">Manage blackout dates and seasonal closures.</p>
+                                <h1 className="text-[32px] font-semibold tracking-tight text-[#222222] mb-1">Availability</h1>
+                                <p className="text-[16px] text-[#717171]">Manage blackout dates and seasonal closures for your properties.</p>
                             </div>
-                            <Badge variant="outline" className="w-fit px-3 py-1 border-zinc-300 text-zinc-600 font-medium bg-white">
-                                Host Dashboard
-                            </Badge>
                         </div>
 
                         {/* ── Main Layout ── */}
-                        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
                             {/* Sidebar Area: Property & List (4 cols) */}
                             <div className="space-y-8 lg:col-span-4">
-                                <section className="space-y-3">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 ml-1">Select Property</label>
-                                    <Card className="border-zinc-200 -sm rounded-2xl overflow-hidden">
-                                        <CardContent className="p-4">
-                                            {loadingProperties ? (
-                                                <div className="flex justify-center py-2"><Loader2 className="h-5 w-5 animate-spin text-emerald-600" /></div>
-                                            ) : (
-                                                <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
-                                                    <SelectTrigger className="w-full border-none bg-zinc-50 hover:bg-zinc-100 transition-colors focus:ring-0 -none h-12">
-                                                        <SelectValue placeholder="Choose a property" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="rounded-xl border-zinc-200">
-                                                        {properties.map(p => (
-                                                            <SelectItem key={p._id} value={p._id} className="py-3 focus:bg-emerald-50 focus:text-emerald-700">
-                                                                {p.title}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            )}
-                                        </CardContent>
-                                    </Card>
+                                <section className="space-y-4">
+                                    <label className="text-[16px] font-semibold text-[#222222]">Select property</label>
+                                    {loadingProperties ? (
+                                        <div className="h-14 border border-[#DDDDDD] rounded-xl flex items-center justify-center bg-[#F7F7F7]">
+                                            <Loader2 className="h-5 w-5 animate-spin text-[#222222]" />
+                                        </div>
+                                    ) : (
+                                        <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
+                                            <SelectTrigger className="w-full h-14 bg-white border-[#DDDDDD] hover:border-blue-600 text-[15px] text-[#222222] rounded-xl focus:ring-0 focus:ring-offset-0 transition-colors">
+                                                <SelectValue placeholder="Choose a property" />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl border-[#DDDDDD] shadow-lg">
+                                                {properties.map(p => (
+                                                    <SelectItem key={p._id} value={p._id} className="py-3 text-[15px] focus:bg-[#F7F7F7] cursor-pointer">
+                                                        {p.title}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
                                 </section>
 
-                                <section className="space-y-3">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 ml-1">Current Restrictions</label>
-                                    <Card className="border-zinc-200 -sm rounded-2xl overflow-hidden bg-white">
-                                        <CardContent className="p-0">
-                                            {loadingRanges ? (
-                                                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-zinc-300" /></div>
-                                            ) : blockedRanges.length === 0 ? (
-                                                <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-                                                    <div className="w-12 h-12 bg-zinc-50 rounded-full flex items-center justify-center mb-4">
-                                                        <CheckCircle2 className="h-6 w-6 text-zinc-300" />
-                                                    </div>
-                                                    <p className="text-sm text-zinc-400 font-medium">Fully available</p>
+                                <section className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-[16px] font-semibold text-[#222222]">Current restrictions</label>
+                                        <span className="text-[14px] text-[#717171]">{blockedRanges.length} active</span>
+                                    </div>
+
+                                    <div className="border border-[#DDDDDD] rounded-2xl overflow-hidden bg-white shadow-sm">
+                                        {loadingRanges ? (
+                                            <div className="flex justify-center py-16">
+                                                <Loader2 className="h-6 w-6 animate-spin text-[#222222]" />
+                                            </div>
+                                        ) : blockedRanges.length === 0 ? (
+                                            <div className="flex flex-col items-center justify-center py-16 text-center px-6 bg-[#F7F7F7]">
+                                                <div className="w-12 h-12 bg-white border border-[#DDDDDD] rounded-full flex items-center justify-center mb-4 shadow-sm">
+                                                    <CheckCircle2 className="h-5 w-5 text-[#008A05] stroke-[2]" />
                                                 </div>
-                                            ) : (
-                                                <div className="divide-y divide-zinc-100 max-h-[500px] overflow-y-auto">
-                                                    {blockedRanges.map((range, idx) => (
-                                                        <div key={idx} className="flex items-center justify-between p-5 hover:bg-zinc-50/80 transition-all group">
-                                                            <div className="space-y-1">
-                                                                <p className="text-sm font-bold text-zinc-800">
-                                                                    {format(parseISO(range.from), 'MMM d')} – {format(parseISO(range.to), 'MMM d')}
-                                                                </p>
-                                                                <div className="flex items-center gap-2">
-                                                                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-300" />
-                                                                    <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-tighter">
-                                                                        {range.reason || 'Manual Block'}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => handleUnblock(range.from)}
-                                                                className="h-9 w-9 p-0 text-zinc-300 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
+                                                <p className="text-[15px] text-[#222222] font-semibold">Fully available</p>
+                                                <p className="text-[14px] text-[#717171] mt-1">No manually blocked dates.</p>
+                                            </div>
+                                        ) : (
+                                            <div className="divide-y divide-[#DDDDDD] max-h-[400px] overflow-y-auto">
+                                                {blockedRanges.map((range, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between p-5 hover:bg-[#F7F7F7] transition-colors group">
+                                                        <div className="space-y-1.5">
+                                                            <p className="text-[15px] font-semibold text-[#222222]">
+                                                                {format(parseISO(range.from), 'MMM d')} – {format(parseISO(range.to), 'MMM d')}
+                                                            </p>
+                                                            <p className="text-[13px] text-[#717171] line-clamp-1 max-w-[200px]">
+                                                                {range.reason || 'Manual block'}
+                                                            </p>
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </CardContent>
-                                    </Card>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => handleUnblock(range.from)}
+                                                            className="h-10 w-10 rounded-full text-[#717171] hover:text-[#E50000] hover:bg-[#FFF8F8] transition-colors"
+                                                            title="Unblock dates"
+                                                        >
+                                                            <Trash2 className="h-4 w-4 stroke-[2]" />
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </section>
                             </div>
 
                             {/* Main Content: Calendar Area (8 cols) */}
-                            <div className="lg:col-span-8 space-y-6">
-                                <Card className="border-zinc-200 -xl -zinc-200/50 rounded-[2rem] bg-white overflow-hidden">
-                                    <CardHeader className="bg-zinc-50/50 border-b border-zinc-100 p-8">
-                                        <div className="flex items-center justify-between">
-                                            <CardTitle className="text-xl font-bold text-zinc-800">Availability Grid</CardTitle>
-                                            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 uppercase text-[10px] px-2">Live Sync</Badge>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="p-8">
+                            <div className="lg:col-span-8 space-y-8">
+                                <div className="border border-[#DDDDDD] rounded-2xl bg-white shadow-sm overflow-hidden">
+                                    <div className="p-6 border-b border-[#DDDDDD] flex items-center justify-between bg-white">
+                                        <h2 className="text-[18px] font-semibold text-[#222222]">Calendar grid</h2>
+                                    </div>
+                                    <div className="p-6 sm:p-8">
                                         {selectedPropertyId ? (
-                                            <div className="space-y-10">
-                                                <div className="calendar-modern-wrapper">
+                                            <div className="space-y-8">
+                                                <div>
                                                     <AvailabilityCalendar
                                                         key={selectedPropertyId}
                                                         propertyId={selectedPropertyId}
@@ -225,60 +213,64 @@ export default function BlockedDatesPage() {
                                                 </div>
 
                                                 {selection && (
-                                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 rounded-[1.5rem] bg-zinc-900 text-white -2xl animate-in zoom-in-95 duration-300">
+                                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 rounded-2xl border border-[#DDDDDD] bg-[#F7F7F7] animate-in zoom-in-95 duration-300">
                                                         <div className="flex items-center gap-4">
-                                                            <div className="h-12 w-12 rounded-xl bg-emerald-500 flex items-center justify-center">
-                                                                <Plus className="h-6 w-6 text-white" />
+                                                            <div className="h-12 w-12 rounded-full bg-white border border-[#DDDDDD] flex items-center justify-center shadow-sm">
+                                                                <CalendarIcon className="h-5 w-5 text-[#222222] stroke-[1.5]" />
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm font-bold text-zinc-100 uppercase tracking-widest text-[10px]">Blocking Selection</p>
-                                                                <p className="text-lg font-medium text-white">
+                                                                <p className="text-[12px] font-semibold text-[#717171] uppercase tracking-wider mb-0.5">Selected dates</p>
+                                                                <p className="text-[16px] font-semibold text-[#222222]">
                                                                     {format(selection[0], 'MMM d')} – {format(selection[1], 'MMM d, yyyy')}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-3 w-full sm:w-auto">
-                                                            <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-white/10" onClick={() => setSelection(null)}>Discard</Button>
+                                                            <Button variant="ghost" className="h-12 px-6 rounded-lg text-[#222222] hover:bg-white font-semibold text-[15px]" onClick={() => setSelection(null)}>
+                                                                Clear
+                                                            </Button>
                                                             <Button
-                                                                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 rounded-xl h-12 -lg -emerald-900/20"
+                                                                className="h-12 px-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] transition-colors"
                                                                 onClick={() => setBlockDialogOpen(true)}
                                                             >
-                                                                Restrict Dates
+                                                                Block dates
                                                             </Button>
                                                         </div>
                                                     </div>
                                                 )}
                                             </div>
                                         ) : (
-                                            <div className="flex flex-col items-center justify-center py-24 text-center">
-                                                <Building2 className="h-20 w-20 text-zinc-100 mb-6" />
-                                                <p className="text-zinc-400 font-medium">Select a property to view availability.</p>
+                                            <div className="flex flex-col items-center justify-center py-32 text-center bg-[#F7F7F7] rounded-xl border border-[#DDDDDD]">
+                                                <Building2 className="h-12 w-12 text-[#717171] mb-4 stroke-[1.5]" />
+                                                <p className="text-[#222222] font-semibold text-[16px]">No property selected</p>
+                                                <p className="text-[#717171] text-[14px] mt-1">Please select a property from the sidebar to view its calendar.</p>
                                             </div>
                                         )}
-                                    </CardContent>
-                                </Card>
+                                    </div>
+                                </div>
 
                                 {/* Bottom Info Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="p-6 rounded-[2rem] bg-amber-50/40 border border-amber-100">
-                                        <div className="flex items-center gap-3 mb-3">
-                                            <AlertCircle className="h-5 w-5 text-amber-600" />
-                                            <h3 className="text-sm font-bold text-amber-900">Why block dates?</h3>
+                                    <div className="p-6 rounded-2xl border border-[#DDDDDD] bg-white shadow-sm">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <AlertCircle className="h-5 w-5 text-[#222222] stroke-[2]" />
+                                            <h3 className="text-[16px] font-semibold text-[#222222]">Why block dates?</h3>
                                         </div>
-                                        <ul className="text-xs text-amber-800/80 space-y-2 font-medium">
-                                            <li>• Maintain the property or perform cleaning</li>
-                                            <li>• Sync dates from offline booking sources</li>
-                                            <li>• Reserve specific weeks for personal use</li>
+                                        <ul className="text-[14px] text-[#717171] space-y-3">
+                                            <li className="flex items-start gap-2"><span className="text-[#222222]">•</span> Maintain the property or perform cleaning</li>
+                                            <li className="flex items-start gap-2"><span className="text-[#222222]">•</span> Sync dates from offline booking sources</li>
+                                            <li className="flex items-start gap-2"><span className="text-[#222222]">•</span> Reserve specific weeks for personal use</li>
                                         </ul>
                                     </div>
-                                    <div className="p-6 rounded-[2rem] bg-zinc-100/50 border border-zinc-200">
-                                        <div className="flex items-center gap-3 mb-3">
-                                            <CheckCircle2 className="h-5 w-5 text-zinc-600" />
-                                            <h3 className="text-sm font-bold text-zinc-900">Syncing</h3>
+
+                                    <div className="p-6 rounded-2xl border border-[#DDDDDD] bg-white shadow-sm">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <CheckCircle2 className="h-5 w-5 text-[#222222] stroke-[2]" />
+                                            <h3 className="text-[16px] font-semibold text-[#222222]">How it works</h3>
                                         </div>
-                                        <p className="text-xs text-zinc-600 leading-relaxed font-medium">
-                                            Blocked dates are immediately removed from your public listing.
-                                            Existing confirmed guest bookings take priority and cannot be manually blocked.
+                                        <p className="text-[14px] text-[#717171] leading-relaxed">
+                                            Blocked dates are immediately removed from your public listing's availability.
+                                            Existing confirmed guest bookings take priority and cannot be manually blocked over.
                                         </p>
                                     </div>
                                 </div>
@@ -288,38 +280,42 @@ export default function BlockedDatesPage() {
                 </SidebarInset>
             </div>
 
-            {/* ── Block Dialog: Polished ── */}
+            {/* ── Block Dialog ── */}
             <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
-                <DialogContent className="sm:max-w-md rounded-[2rem] p-8 border-none -2xl">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold">Add Note</DialogTitle>
-                        <DialogDescription className="text-zinc-500">
-                            Provide a reason for this blackout. This is for your records only.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-6">
-                        <Textarea
-                            placeholder="e.g. Roof repair, Family visiting..."
-                            value={blockReason}
-                            onChange={(e) => setBlockReason(e.target.value)}
-                            className="resize-none border-zinc-200 bg-zinc-50 focus-visible:ring-emerald-500 rounded-xl p-4"
-                            rows={3}
-                        />
+                <DialogContent className="sm:max-w-md rounded-2xl p-0 border-[#DDDDDD] shadow-2xl overflow-hidden">
+                    <div className="p-8">
+                        <DialogHeader className="mb-6 text-left space-y-2">
+                            <DialogTitle className="text-[22px] font-semibold text-[#222222]">Block dates</DialogTitle>
+                            <DialogDescription className="text-[15px] text-[#717171]">
+                                Provide a reason for this blackout. This is for your records only and won't be shown to guests.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="mb-8">
+                            <label className="text-[14px] font-semibold text-[#222222] mb-2 block">Reason (Optional)</label>
+                            <Textarea
+                                placeholder="e.g., Roof repair, Family visiting..."
+                                value={blockReason}
+                                onChange={(e) => setBlockReason(e.target.value)}
+                                className="resize-none h-28 border-[#DDDDDD] bg-white text-[15px] p-4 placeholder:text-[#717171] focus-visible:ring-1 focus-visible:ring-[#222222] focus-visible:border-blue-600 rounded-xl"
+                            />
+                        </div>
+
+                        <DialogFooter className="gap-3 sm:space-x-0">
+                            <Button variant="outline" className="w-full sm:w-1/2 h-12 rounded-lg font-semibold text-[15px] border-blue-600 text-[#222222] hover:bg-[#F7F7F7]" onClick={() => setBlockDialogOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button
+                                className="w-full sm:w-1/2 h-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] transition-colors"
+                                onClick={handleBlock}
+                                disabled={blocking}
+                            >
+                                {blocking ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : 'Confirm block'}
+                            </Button>
+                        </DialogFooter>
                     </div>
-                    <DialogFooter className="gap-2">
-                        <Button variant="ghost" className="rounded-xl font-bold text-zinc-500" onClick={() => setBlockDialogOpen(false)}>Cancel</Button>
-                        <Button
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-bold"
-                            onClick={handleBlock}
-                            disabled={blocking}
-                        >
-                            {blocking && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                            Confirm
-                        </Button>
-                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </SidebarProvider>
     );
-
 }

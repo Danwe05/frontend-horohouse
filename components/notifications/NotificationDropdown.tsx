@@ -24,24 +24,22 @@ export default function PremiumNotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Track mobile breakpoint with JS — Tailwind sm: classes are unreliable inside portals
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640);
+    const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // fixed positioning is viewport-relative — no scrollY needed
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
     setDropdownPos({
-      top: rect.bottom + 12,
+      top: rect.bottom + 14, // slightly more offset for breathing room
       right: window.innerWidth - rect.right,
     });
   }, []);
@@ -57,7 +55,6 @@ export default function PremiumNotificationDropdown() {
     loadNotifications,
   } = useNotifications();
 
-  // Lock body scroll on mobile
   useEffect(() => {
     if (isOpen && isMobile) {
       document.body.style.overflow = 'hidden';
@@ -67,7 +64,6 @@ export default function PremiumNotificationDropdown() {
     return () => { document.body.style.overflow = ''; };
   }, [isOpen, isMobile]);
 
-  // Outside click — must include both trigger and portal panel refs
   useEffect(() => {
     if (!isOpen) return;
     const handleClick = (e: MouseEvent) => {
@@ -80,23 +76,23 @@ export default function PremiumNotificationDropdown() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [isOpen]);
 
-  const typeStyles: Record<string, { icon: any; color: string; bg: string }> = {
-    [NotificationType.INQUIRY]: { icon: MessageSquare, color: 'text-violet-500', bg: 'bg-violet-500/10' },
-    [NotificationType.FAVORITE]: { icon: Heart, color: 'text-rose-500', bg: 'bg-rose-500/10' },
-    [NotificationType.SYSTEM]: { icon: ShieldCheck, color: 'text-zinc-500', bg: 'bg-zinc-500/10' },
-    [NotificationType.PROPERTY_UPDATE]: { icon: Bell, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    [NotificationType.BOOKING_REQUEST]: { icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    [NotificationType.BOOKING_CONFIRMED]: { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    [NotificationType.BOOKING_REJECTED]: { icon: XCircle, color: 'text-rose-500', bg: 'bg-rose-500/10' },
-    [NotificationType.BOOKING_CANCELLED]: { icon: XCircle, color: 'text-zinc-500', bg: 'bg-zinc-500/10' },
-    [NotificationType.BOOKING_REMINDER]: { icon: Bell, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    [NotificationType.BOOKING_COMPLETED]: { icon: CheckCircle2, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
-    [NotificationType.REVIEW_REQUEST]: { icon: Star, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    [NotificationType.REVIEW_RECEIVED]: { icon: Star, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    [NotificationType.REVIEW_PUBLISHED]: { icon: Star, color: 'text-blue-600', bg: 'bg-blue-600/10' },
-    [NotificationType.PAYMENT_RECEIVED]: { icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-600/10' },
-    [NotificationType.REFUND_PROCESSED]: { icon: RefreshCw, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    default: { icon: Bell, color: 'text-zinc-400', bg: 'bg-zinc-500/10' },
+  const typeStyles: Record<string, { icon: any }> = {
+    [NotificationType.INQUIRY]: { icon: MessageSquare },
+    [NotificationType.FAVORITE]: { icon: Heart },
+    [NotificationType.SYSTEM]: { icon: ShieldCheck },
+    [NotificationType.PROPERTY_UPDATE]: { icon: Bell },
+    [NotificationType.BOOKING_REQUEST]: { icon: Calendar },
+    [NotificationType.BOOKING_CONFIRMED]: { icon: CheckCircle2 },
+    [NotificationType.BOOKING_REJECTED]: { icon: XCircle },
+    [NotificationType.BOOKING_CANCELLED]: { icon: XCircle },
+    [NotificationType.BOOKING_REMINDER]: { icon: Bell },
+    [NotificationType.BOOKING_COMPLETED]: { icon: CheckCircle2 },
+    [NotificationType.REVIEW_REQUEST]: { icon: Star },
+    [NotificationType.REVIEW_RECEIVED]: { icon: Star },
+    [NotificationType.REVIEW_PUBLISHED]: { icon: Star },
+    [NotificationType.PAYMENT_RECEIVED]: { icon: DollarSign },
+    [NotificationType.REFUND_PROCESSED]: { icon: RefreshCw },
+    default: { icon: Bell },
   };
 
   const handleNotificationClick = (n: any) => {
@@ -111,32 +107,32 @@ export default function PremiumNotificationDropdown() {
   const panel = (
     <div
       ref={panelRef}
-      className="overflow-hidden rounded-3xl border border-zinc-200 bg-white/95 backdrop-blur-xl -[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col"
+      className="overflow-hidden sm:rounded-2xl border border-[#DDDDDD] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.18)] flex flex-col w-full h-full sm:h-auto"
     >
       {/* Header */}
-      <div className="px-6 py-5 border-b border-zinc-100/80 bg-zinc-50/50 flex items-center justify-between flex-shrink-0">
+      <div className="px-6 py-5 border-b border-[#DDDDDD] bg-white flex items-center justify-between flex-shrink-0">
         <div>
-          <h3 className="text-sm font-bold text-zinc-900 tracking-tight uppercase">Notifications</h3>
+          <h3 className="text-[16px] font-semibold text-[#222222] tracking-tight">Notifications</h3>
           <div className="flex items-center gap-1.5 mt-1">
-            <div className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 -[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300'}`} />
-            <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">
-              {isConnected ? 'Real-time' : 'Reconnecting'}
+            <div className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-[#008A05]' : 'bg-[#DDDDDD]'}`} />
+            <span className="text-[12px] font-medium text-[#717171]">
+              {isConnected ? 'Real-time' : 'Reconnecting...'}
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <button
             onClick={markAllAsRead}
-            className="text-[11px] font-bold text-violet-600 hover:text-violet-700 bg-violet-50 px-3 py-1.5 rounded-full transition-colors"
+            className="text-[14px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none"
           >
-            Mark all read
+            Mark all as read
           </button>
           {isMobile && (
             <button
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 hover:bg-zinc-200 transition-colors"
+              className="flex items-center justify-center p-2 -mr-2 rounded-full hover:bg-[#F7F7F7] transition-colors focus:outline-none"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5 text-[#222222]" />
             </button>
           )}
         </div>
@@ -144,21 +140,19 @@ export default function PremiumNotificationDropdown() {
 
       {/* List */}
       <div
-        className="overflow-y-auto overflow-x-hidden"
-        style={{ maxHeight: isMobile ? 'calc(100dvh - 220px)' : '440px' }}
+        className="overflow-y-auto overflow-x-hidden bg-white custom-scrollbar"
+        style={{ maxHeight: isMobile ? 'calc(100dvh - 140px)' : '440px' }}
       >
         {notifications.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center text-center px-10">
-            <div className="w-12 h-12 bg-zinc-50 rounded-2xl flex items-center justify-center mb-4 border border-zinc-100">
-              <Bell className="w-6 h-6 text-zinc-300" />
-            </div>
-            <p className="text-sm font-medium text-zinc-900">Quiet for now</p>
-            <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-              We'll let you know when something important happens.
+            <Bell className="w-8 h-8 text-[#DDDDDD] mb-4 stroke-[1.5]" />
+            <p className="text-[16px] font-semibold text-[#222222]">You're all caught up</p>
+            <p className="text-[14px] text-[#717171] mt-2 leading-relaxed">
+              We'll let you know when important account activity happens.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-zinc-50">
+          <div className="divide-y divide-[#DDDDDD]">
             {notifications.map((n) => {
               const style = typeStyles[n.type] ?? typeStyles.default;
               const Icon = style.icon;
@@ -166,32 +160,32 @@ export default function PremiumNotificationDropdown() {
                 <div
                   key={n._id}
                   onClick={() => handleNotificationClick(n)}
-                  className={`group relative px-5 py-4 flex gap-4 transition-all duration-300 hover:bg-zinc-50/80 cursor-pointer active:bg-zinc-100 ${!n.read ? 'bg-violet-50/30' : ''
+                  className={`group relative px-6 py-5 flex gap-4 transition-colors cursor-pointer ${!n.read ? 'bg-white hover:bg-[#F7F7F7]' : 'bg-white hover:bg-[#F7F7F7] opacity-75 hover:opacity-100'
                     }`}
                 >
                   {!n.read && (
-                    <div className="absolute left-0 top-6 bottom-6 w-1 bg-violet-600 rounded-r-full" />
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 blue-blue-600 rounded-full" />
                   )}
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center transition-transform group-hover:scale-110`}>
-                    <Icon className={`w-5 h-5 ${style.color}`} />
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#F7F7F7] border border-[#DDDDDD] flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-[#222222] stroke-[1.5]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <h4 className={`text-[13px] font-bold truncate ${!n.read ? 'text-zinc-900' : 'text-zinc-500'}`}>
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <h4 className={`text-[15px] ${!n.read ? 'font-semibold text-[#222222]' : 'font-medium text-[#222222]'}`}>
                         {n.title}
                       </h4>
-                      <span className="text-[10px] font-bold text-zinc-400 uppercase tabular-nums flex-shrink-0">
+                      <span className="text-[12px] text-[#717171] whitespace-nowrap pt-0.5">
                         {formatTime(n.createdAt)}
                       </span>
                     </div>
-                    <p className="text-[13px] text-zinc-500 leading-snug line-clamp-2">{n.message}</p>
-                    <div className="mt-3 flex items-center gap-3 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                      <button className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-900 hover:text-violet-600 transition-colors">
-                        View <ArrowRight className="w-3 h-3" />
+                    <p className="text-[14px] text-[#717171] leading-snug line-clamp-2">{n.message}</p>
+                    <div className="mt-3 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <button className="flex items-center text-[13px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none">
+                        View details
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); deleteNotification(n._id); }}
-                        className="text-[11px] font-bold text-zinc-400 hover:text-rose-500"
+                        className="text-[13px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none"
                       >
                         Archive
                       </button>
@@ -205,75 +199,104 @@ export default function PremiumNotificationDropdown() {
       </div>
 
       {/* Footer */}
-      <div className="p-4 bg-zinc-50/80 border-t border-zinc-100 flex items-center justify-between flex-shrink-0">
-        <div className="flex gap-4">
+      <div className="px-6 py-4 bg-white border-t border-[#DDDDDD] flex items-center justify-between flex-shrink-0">
+        <div className="flex gap-2">
           <button
             onClick={loadNotifications}
-            className="p-2 text-zinc-400 hover:text-zinc-900 hover:bg-white rounded-lg transition-all border border-transparent hover:border-zinc-200"
+            className="p-2 -ml-2 text-[#222222] hover:bg-[#F7F7F7] rounded-full transition-colors focus:outline-none"
+            aria-label="Refresh"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-5 h-5 stroke-[1.5] ${isLoading ? 'animate-spin' : ''}`} />
           </button>
-          <button className="p-2 text-zinc-400 hover:text-zinc-900 hover:bg-white rounded-lg transition-all border border-transparent hover:border-zinc-200">
-            <Settings className="w-4 h-4" />
+          <button className="p-2 text-[#222222] hover:bg-[#F7F7F7] rounded-full transition-colors focus:outline-none" aria-label="Settings">
+            <Settings className="w-5 h-5 stroke-[1.5]" />
           </button>
         </div>
-        <button className="text-[11px] font-bold text-zinc-500 hover:text-zinc-900 flex items-center gap-1">
-          See all activity <MoreHorizontal className="w-4 h-4" />
+        <button className="text-[14px] font-semibold text-[#222222] hover:underline transition-colors flex items-center gap-1 focus:outline-none">
+          See all activity <MoreHorizontal className="w-4 h-4 ml-1" />
         </button>
       </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #DDDDDD;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #717171;
+        }
+      `}</style>
     </div>
   );
 
   return (
     <>
-      {/* Bell trigger */}
-      <button
-        ref={triggerRef}
-        onClick={() => {
-          updatePosition();
-          setIsOpen((prev) => !prev);
-        }}
-        className={`group relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${isOpen
-            ? 'bg-zinc-900 text-white ring-4 ring-zinc-900/10'
-            : 'bg-white text-zinc-600 border border-zinc-200 hover:border-zinc-300 hover:-md'
-          }`}
-      >
-        <Bell className={`w-5 h-5 transition-transform duration-500 ${isOpen ? 'rotate-[15deg]' : 'group-hover:scale-110'}`} />
-        {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-violet-600 ring-2 ring-white" />
-        )}
-      </button>
+      {/* Wrap both triggers in a single DIV and attach the triggerRef to it.
+        This ensures getBoundingClientRect() calculates properly on large displays
+        instead of targeting the hidden mobile button.
+      */}
+      <div ref={triggerRef} className="relative flex items-center justify-center">
 
-      {/* Portal renders in document.body — fully outside navbar stacking context */}
+        {/* Desktop Bell Trigger */}
+        <button
+          onClick={() => {
+            updatePosition();
+            setIsOpen((prev) => !prev);
+          }}
+          className={`relative hidden md:flex items-center justify-center w-10 h-10 rounded-full transition-colors focus:outline-none ${isOpen ? 'bg-[#F7F7F7] text-[#222222]' : 'bg-white text-[#222222] hover:bg-[#F7F7F7]'
+            }`}
+          aria-label="Notifications"
+        >
+          <Bell className="w-5 h-5 stroke-[1.5]" />
+          {unreadCount > 0 && (
+            <span className="absolute top-2 right-2.5 block h-2.5 w-2.5 rounded-full blue-blue-600 border-2 border-white" />
+          )}
+        </button>
+
+        {/* Mobile Bell Trigger */}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="md:hidden flex items-center justify-center p-2 rounded-full hover:bg-[#F7F7F7] text-[#222222] relative focus:outline-none"
+          aria-label="Notifications"
+        >
+          <Bell className="w-5 h-5 stroke-[2]" />
+          {unreadCount > 0 && (
+            <span className="absolute top-2 right-2.5 block h-2.5 w-2.5 rounded-full blue-blue-600 border-2 border-white" />
+          )}
+        </button>
+
+      </div>
+
+      {/* Portal */}
       {isOpen && typeof document !== 'undefined' && createPortal(
         isMobile ? (
           <>
-            {/* Mobile backdrop */}
             <div
               onClick={() => setIsOpen(false)}
-              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', zIndex: 9998 }}
+              className="fixed inset-0 bg-blue-700/50 backdrop-blur-sm z-[9998]"
             />
-            {/* Mobile bottom sheet */}
-            <div style={{
-              position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999,
-              borderRadius: '1.5rem 1.5rem 0 0', overflow: 'hidden',
-             
-            }}>
-              {/* Drag handle */}
-              <div style={{
-                position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
-                width: 40, height: 4, background: '#d4d4d8', borderRadius: 9999,
-              }} />
-              <div style={{ paddingTop: 24 }}>{panel}</div>
+            <div
+              className="fixed bottom-0 left-0 right-0 z-[9999] bg-white rounded-t-3xl overflow-hidden shadow-[0_-4px_16px_rgba(0,0,0,0.15)]"
+              style={{ height: '90vh' }}
+            >
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-[#DDDDDD] rounded-full z-10" />
+              <div className="pt-8 h-full">
+                {panel}
+              </div>
             </div>
           </>
         ) : (
-          // Desktop: fixed, anchored to trigger button
           <div style={{
             position: 'fixed',
             top: dropdownPos.top,
             right: dropdownPos.right,
-            width: 380,
+            width: 420,
             zIndex: 9999,
           }}>
             {panel}

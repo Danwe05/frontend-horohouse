@@ -104,7 +104,7 @@ function StatCard({ label, value, icon: Icon, color }: {
 function IdImageModal({ url, name, onClose }: { url: string; name: string; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-blue-700/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl -2xl overflow-hidden max-w-lg w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div>
@@ -167,7 +167,7 @@ function ReviewModal({
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+        <div className="absolute inset-0 bg-blue-700/40 backdrop-blur-sm" onClick={onClose} />
 
         <div className="relative bg-white rounded-2xl -2xl w-full max-w-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
           {/* Header */}

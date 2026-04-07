@@ -99,14 +99,12 @@ export default function StudentsPage() {
     return value !== undefined && value !== null && value !== '';
   }).length + (searchQuery.trim() ? 1 : 0);
 
-
   return (
-    <div className="min-h-screen bg-white text-slate-950 font-sans selection:bg-blue-100">
+    <div className="min-h-screen bg-white text-[#222222] font-sans selection:bg-blue-600 selection:text-white">
       <Navbar />
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <div className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-gray-900">
-
+      <div className="relative w-full min-h-[75vh] flex items-center justify-center overflow-hidden bg-[#222222] pt-20">
         {/* Background Image & Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <img
@@ -114,90 +112,87 @@ export default function StudentsPage() {
             alt="African students on campus"
             className="w-full h-full object-cover object-top"
           />
-          {/* Darker gradient overlay for high text contrast, similar to Amber */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
+          <div className="absolute inset-0 bg-black/50"></div>
         </div>
 
-        {/* Centeblue Content Wrapper */}
-        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-12 flex flex-col items-center text-center">
-
+        {/* Center Content Wrapper */}
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 py-16 flex flex-col items-center text-center mt-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="w-full flex flex-col items-center"
           >
-            {/* Trust Rating (Amber style) */}
+            {/* Trust Rating */}
             <div className="flex items-center gap-2 mb-6">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="w-5 h-5 fill-green-500 text-green-500" />
+                  <Star key={star} className="w-4 h-4 fill-white text-white" />
                 ))}
               </div>
-              <span className="text-white font-medium text-sm sm:text-base ml-2">
-                {s.rating || '4.8/5'} <span className="text-gray-300 font-normal">{s.ratedBy || 'Rated by Students'}</span>
+              <span className="text-white font-semibold text-[14px] ml-2">
+                {s.rating || '4.8/5'} <span className="text-white/80 font-normal">{s.ratedBy || 'Rated by Students'}</span>
               </span>
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-5">
-              {s.headline || 'Home away from home'}
+            <h1 className="text-[40px] sm:text-[56px] md:text-[64px] font-semibold text-white tracking-tight leading-[1.1] mb-6 max-w-4xl">
+              {s.headline || 'Home away from home.'}
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg sm:text-xl text-gray-200 mb-10 max-w-3xl font-normal">
+            <p className="text-[16px] sm:text-[18px] text-white/90 mb-12 max-w-2xl font-normal leading-relaxed">
               {s.subheadline || 'Book your perfect student accommodation near your campus with verified power and water sources.'}
             </p>
 
-            {/* Chunky Search Bar (Amber style) */}
-            <form onSubmit={handleSearch} className="w-full max-w-4xl mb-8">
-              <div className="flex flex-col sm:flex-row bg-white rounded-lg sm:rounded-full p-2 -2xl">
-                <div className="flex items-center flex-1 px-4 sm:px-6 h-14 sm:h-16 border-b sm:border-b-0 sm:border-r border-gray-200">
-                  <MapPin className="w-6 h-6 text-blue-500 mr-3 shrink-0" />
+            {/* Chunky Search Bar */}
+            <form onSubmit={handleSearch} className="w-full max-w-3xl mb-12">
+              <div className="flex flex-col sm:flex-row bg-white rounded-full p-2.5 shadow-lg">
+                <div className="flex items-center flex-1 px-6 h-14">
+                  <MapPin className="w-5 h-5 text-[#222222] mr-3 shrink-0 stroke-[2]" />
                   <Input
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={s.searchPlaceholder || "Search by city, university or property..."}
-                    className="border-0 bg-transparent -none focus-visible:ring-0 text-gray-900 w-full text-base sm:text-lg p-0 placeholder:text-gray-500 font-medium"
+                    className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-[#222222] w-full text-[16px] p-0 placeholder:text-[#717171] font-medium h-full"
                   />
                 </div>
                 <Button
                   type="submit"
-                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-md sm:rounded-full px-10 h-14 sm:h-16 sm:ml-2 font-bold text-lg w-full sm:w-auto transition-colors"
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 h-14 font-semibold text-[16px] w-full sm:w-auto transition-colors mt-2 sm:mt-0 active:scale-[0.98]"
                 >
-                  <Search className="w-5 h-5 mr-2" />
+                  <Search className="w-5 h-5 mr-2 stroke-[2]" />
                   {s.searchBtn || 'Search'}
                 </Button>
               </div>
             </form>
 
-            {/* Trust USPs / Perks Row (Amber style) */}
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-10 text-white text-sm sm:text-base font-medium">
+            {/* Trust USPs */}
+            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-white text-[14px] font-medium">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-green-400" />
+                <ShieldCheck className="w-5 h-5" />
                 <span>{s.usp1 || '100% Verified Properties'}</span>
               </div>
-              <div className="hidden sm:block w-1 h-1 rounded-full bg-gray-400"></div>
+              <div className="hidden sm:block w-1 h-1 rounded-full bg-white/50"></div>
               <div className="flex items-center gap-2">
-                <Tag className="w-5 h-5 text-blue-400" />
+                <Tag className="w-5 h-5" />
                 <span>{s.usp2 || 'Price Match Guarantee'}</span>
               </div>
-              <div className="hidden md:block w-1 h-1 rounded-full bg-gray-400"></div>
+              <div className="hidden md:block w-1 h-1 rounded-full bg-white/50"></div>
               <div className="flex items-center gap-2">
-                <HeadphonesIcon className="w-5 h-5 text-yellow-400" />
+                <HeadphonesIcon className="w-5 h-5" />
                 <span>{s.usp3 || '24x7 Personal Assistance'}</span>
               </div>
             </div>
-
           </motion.div>
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2">{s.availableHousing || 'Available Housing'}</h2>
-            <p className="text-slate-400 font-medium">{(s.showingVerifications || 'Showing {count} verified listings').replace('{count}', properties.length.toString())}</p>
+      <main className="max-w-[1440px] mx-auto px-6 sm:px-10 py-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-[#EBEBEB]">
+          <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+            <h2 className="text-[32px] font-semibold text-[#222222] tracking-tight mb-2">{s.availableHousing || 'Available housing'}</h2>
+            <p className="text-[#717171] text-[16px]">{(s.showingVerifications || 'Showing {count} verified listings').replace('{count}', properties.length.toString())}</p>
           </motion.div>
           <div className="flex items-center gap-3">
             <StudentVerificationBanner />
@@ -212,13 +207,13 @@ export default function StudentsPage() {
         />
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="aspect-[4/5] bg-slate-100 rounded-[40px] animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10 mt-8">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="aspect-[4/3] bg-[#F7F7F7] rounded-xl animate-pulse" />
             ))}
           </div>
         ) : properties.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10 mt-8">
             {properties.map((p, idx) => (
               <StudentPropertyCard
                 key={p._id || p.id}
@@ -229,62 +224,63 @@ export default function StudentsPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-32 bg-slate-50 rounded-[48px] border border-slate-100">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 -xl -slate-200">
-              <Search className="w-10 h-10 text-slate-300" />
+          <div className="text-center py-24 bg-white border border-[#DDDDDD] rounded-2xl mt-8">
+            <div className="w-16 h-16 bg-[#F7F7F7] rounded-full flex items-center justify-center mx-auto mb-6">
+              <Search className="w-8 h-8 text-[#717171] stroke-[1.5]" />
             </div>
-            <h3 className="text-2xl font-black text-slate-900 mb-2">{s.noListings || 'No listings found'}</h3>
-            <p className="text-slate-400 font-medium max-w-sm mx-auto">{s.noListingsDesc || 'Try adjusting your filters or searching in a different area.'}</p>
+            <h3 className="text-[22px] font-semibold text-[#222222] mb-2">{s.noListings || 'No listings found'}</h3>
+            <p className="text-[#717171] text-[16px] max-w-md mx-auto mb-8">{s.noListingsDesc || 'Try adjusting your filters or searching in a different area.'}</p>
             <Button
               variant="outline"
               onClick={resetFilters}
-              className="mt-8 rounded-full px-8 font-black uppercase tracking-widest text-[10px]"
+              className="h-12 px-8 rounded-lg border-[#222222] text-[#222222] hover:bg-[#F7F7F7] font-semibold"
             >
-              {s.resetFilters || 'Reset Filters'}
+              {s.resetFilters || 'Reset filters'}
             </Button>
           </div>
         )}
 
+        {/* Bottom CTA Banner */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-32 p-8 sm:p-16 rounded-[64px] bg-blue-600 text-white overflow-hidden relative -2xl -blue-900/40"
+          className="mt-24 p-10 sm:p-16 rounded-2xl bg-[#222222] text-white flex flex-col lg:flex-row items-center justify-between gap-12"
         >
-          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] rounded-full bg-blue-500/20 blur-[100px]" />
-          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12 text-center lg:text-left">
-            <div className="flex-1">
-              <h2 className="text-5xl sm:text-7xl font-black tracking-[-0.04em] leading-[0.95] mb-8">{s.dontLiveAlone || "Don't Live Alone."}</h2>
-              <p className="text-blue-100/90 text-lg sm:text-2xl font-medium tracking-tight max-w-xl mx-auto lg:mx-0 mb-10 leading-tight">
-                {s.joinPool1 || "Join the roommate pool. Match with"} <br className="hidden sm:block" /> {s.joinPool2 || "verified students from your campus."}
-              </p>
-              <div className="flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start">
-                <Link href="/students/roommates">
-                  <Button className="bg-white hover:bg-slate-50 text-blue-600 rounded-full px-12 h-16 font-black text-sm uppercase tracking-widest -2xl -blue-900/40">
-                    {s.browseMatches || 'Browse Matches'}
-                  </Button>
-                </Link>
-                <div className="flex -space-x-4">
+          <div className="flex-1 max-w-2xl text-center lg:text-left">
+            <h2 className="text-[36px] sm:text-[48px] font-semibold tracking-tight leading-[1.1] mb-6">
+              {s.dontLiveAlone || "Don't live alone."}
+            </h2>
+            <p className="text-[18px] text-white/80 font-normal leading-relaxed mb-10">
+              {s.joinPool1 || "Join the roommate pool. Match with"} {s.joinPool2 || "verified students from your campus."}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start">
+              <Link href="/students/roommates">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-8 h-14 font-semibold text-[16px] active:scale-[0.98] transition-transform">
+                  {s.browseMatches || 'Browse matches'}
+                </Button>
+              </Link>
+              <div className="flex items-center">
+                <div className="flex -space-x-3 mr-4">
                   {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-12 h-12 rounded-full border-4 border-blue-600 bg-blue-400 overflow-hidden -xl">
-                      <img src={`https://i.pravatar.cc/150?u=${i + 10}`} alt="User" />
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-[#222222] bg-[#F7F7F7] overflow-hidden">
+                      <img src={`https://i.pravatar.cc/150?u=${i + 10}`} alt="User" className="w-full h-full object-cover" />
                     </div>
                   ))}
-                  <div className="w-12 h-12 rounded-full border-4 border-blue-600 bg-blue-500 flex items-center justify-center text-[10px] font-black -xl">
-                    +2.4k
-                  </div>
                 </div>
+                <span className="text-[14px] font-semibold text-white/90">2.4k+ joined</span>
               </div>
             </div>
-            <div className="w-full lg:w-80 space-y-4">
-              <div className="p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/10">
-                <p className="font-black uppercase tracking-widest text-[10px] text-blue-200 mb-2">{s.benefit1 || 'Benefit 01'}</p>
-                <p className="font-bold text-lg">{s.verifiedOnly || 'Verified Only'}</p>
-              </div>
-              <div className="p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/10">
-                <p className="font-black uppercase tracking-widest text-[10px] text-blue-200 mb-2">{s.benefit2 || 'Benefit 02'}</p>
-                <p className="font-bold text-lg">{s.secureMatch || 'Secure Match'}</p>
-              </div>
+          </div>
+          
+          <div className="w-full lg:w-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+            <div className="p-6 rounded-xl bg-white/10 border border-white/20">
+              <p className="text-[13px] font-bold uppercase tracking-widest text-blue-600 mb-2">{s.benefit1 || 'Benefit 01'}</p>
+              <p className="text-[18px] font-semibold">{s.verifiedOnly || 'Verified Students Only'}</p>
+            </div>
+            <div className="p-6 rounded-xl bg-white/10 border border-white/20">
+              <p className="text-[13px] font-bold uppercase tracking-widest text-blue-600 mb-2">{s.benefit2 || 'Benefit 02'}</p>
+              <p className="text-[18px] font-semibold">{s.secureMatch || 'Secure Match Algorithm'}</p>
             </div>
           </div>
         </motion.div>

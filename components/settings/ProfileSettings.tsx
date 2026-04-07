@@ -1,34 +1,21 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-  Camera,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Building,
-  Calendar,
-  Save,
   Upload,
-  X,
   Check,
   AlertCircle,
-  Briefcase,
-  Globe,
   ArrowRightLeft
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import apiClient from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface User {
   id: string;
@@ -89,11 +76,13 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
 
     try {
       setUploadingImage(true);
+      setMessage(null);
       await apiClient.uploadProfilePicture(file);
       await refreshAuth();
-      setMessage({ type: 'success', text: 'Profile picture updated successfully' });
+      setMessage({ type: 'success', text: 'Profile photo updated.' });
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to upload profile picture' });
+      setMessage({ type: 'error', text: 'Failed to update photo.' });
     } finally {
       setUploadingImage(false);
     }
@@ -107,10 +96,11 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
       await apiClient.updateProfile(formData);
       await refreshAuth();
 
-      setMessage({ type: 'success', text: 'Profile updated successfully' });
+      setMessage({ type: 'success', text: 'Profile updated successfully.' });
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error('Failed to update profile:', error);
-      setMessage({ type: 'error', text: 'Failed to update profile' });
+      setMessage({ type: 'error', text: 'Failed to save changes.' });
     } finally {
       setIsLoading(false);
     }
@@ -124,10 +114,11 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
       await apiClient.toggleRole();
       await refreshAuth();
 
-      setMessage({ type: 'success', text: 'Account role switched successfully' });
+      setMessage({ type: 'success', text: 'Account role switched.' });
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error('Failed to switch role:', error);
-      setMessage({ type: 'error', text: 'Failed to switch role' });
+      setMessage({ type: 'error', text: 'Failed to switch role.' });
     } finally {
       setIsLoading(false);
     }
@@ -144,392 +135,329 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
 
   const formatRole = (role: string) => {
     switch (role) {
-      case 'registered_user':
-        return s?.regularUser || 'Regular User';
-      case 'agent':
-        return s?.realEstateAgent || 'Real Estate Agent';
-      case 'admin':
-        return s?.administrator || 'Administrator';
-      default:
-        return role;
+      case 'registered_user': return s?.regularUser || 'Regular User';
+      case 'agent': return s?.realEstateAgent || 'Real Estate Agent';
+      case 'admin': return s?.administrator || 'Administrator';
+      default: return role;
     }
   };
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return 'bg-red-100 text-red-800';
-      case 'agent':
-        return 'bg-blue-100 text-blue-800';
-      case 'registered_user':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  // Airbnb specific input styling
+  const inputClasses = "flex h-14 w-full rounded-lg border border-[#B0B0B0] bg-white px-4 py-2 text-[16px] text-[#222222] placeholder:text-[#717171] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] focus-visible:border-transparent transition-all";
+  const labelClasses = "block text-[15px] font-medium text-[#222222] mb-2";
 
   return (
-    <div className="space-y-6 lg:p-0">
-      {/* Profile Picture Section */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
-          <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
-            <CardTitle className="flex items-center space-x-2 text-gray-800">
-              <Camera className="h-5 w-5 text-gray-400" />
-              <span>{s?.profilePicture || "Profile Picture"}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+    <div className="w-full animate-in fade-in duration-300">
+      
+      {/* ── Page Header ── */}
+      <div className="mb-10">
+        <h2 className="text-[32px] font-semibold text-[#222222] tracking-tight">
+          {s?.personalInfo || "Personal info"}
+        </h2>
+        <p className="text-[16px] text-[#717171] mt-2">
+          Manage your personal details, contact information, and professional profile.
+        </p>
+      </div>
+
+      <div className="space-y-0">
+        
+        {/* ── Profile Picture ── */}
+        <section className="py-8 border-t border-[#DDDDDD]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div>
+              <h3 className="text-[18px] font-semibold text-[#222222]">
+                {s?.profilePicture || "Profile photo"}
+              </h3>
+              <p className="text-[15px] text-[#717171] mt-1 max-w-sm">
+                {s?.uploadNewProfilePicture || "A clear photo helps people recognize you. Recommended size: 400x400px."}
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-6">
               <div className="relative flex-shrink-0">
-                <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
-                  <AvatarImage src={user.profilePicture} alt={user.name} />
-                  <AvatarFallback className="text-lg sm:text-xl">
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border border-[#DDDDDD]">
+                  <AvatarImage src={user.profilePicture} alt={user.name} className="object-cover" />
+                  <AvatarFallback className="text-2xl bg-[#F7F7F7] text-[#222222] font-semibold">
                     {getUserInitials(user.name)}
                   </AvatarFallback>
                 </Avatar>
                 {uploadingImage && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/20 rounded-full flex items-center justify-center backdrop-blur-[2px]">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                   </div>
                 )}
               </div>
-
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-900 text-base sm:text-lg truncate">{user.name}</h3>
-                <Badge className={`mt-1 ${getRoleBadgeColor(user.role)}`}>
-                  {formatRole(user.role)}
-                </Badge>
-                <p className="text-sm text-gray-500 mt-2">
-                  {s?.uploadNewProfilePicture || "Upload a new profile picture. Recommended size: 400x400px"}
-                </p>
-
-                <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 mt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadingImage}
-                    className="w-full sm:w-auto"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {uploadingImage ? (s?.uploading || 'Uploading...') : (s?.uploadNew || 'Upload New')}
-                  </Button>
-
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Basic Information */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
-          <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
-            <CardTitle className="flex items-center space-x-2 text-gray-800">
-              <User className="h-5 w-5 text-gray-400" />
-              <span>{s?.basicInformation || "Basic Information"}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">{s?.fullName || "Full Name"}</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter your full name"
-                  className="w-full"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">{s?.emailAddress || "Email Address"}</Label>
-                <div className="relative">
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    placeholder="Enter your email"
-                    className="w-full pr-10"
-                  />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    {user.emailVerified ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <AlertCircle className="h-4 w-4 text-yellow-500" />
-                    )}
-                  </div>
-                </div>
-                {!user.emailVerified && (
-                  <p className="text-xs text-yellow-600">{s?.emailNotVerified || "Email not verified"}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">{s?.phoneNumber || "Phone Number"}</Label>
-                <div className="relative">
-                  <Input
-                    id="phone"
-                    value={formData.phoneNumber}
-                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                    placeholder="Enter your phone number"
-                    className="w-full pr-10"
-                  />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    {user.phoneVerified ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <AlertCircle className="h-4 w-4 text-yellow-500" />
-                    )}
-                  </div>
-                </div>
-                {!user.phoneVerified && (
-                  <p className="text-xs text-yellow-600">{s?.phoneNotVerified || "Phone not verified"}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="website">{s?.website || "Website"}</Label>
-                <Input
-                  id="website"
-                  value={formData.website}
-                  onChange={(e) => handleInputChange('website', e.target.value)}
-                  placeholder="https://yourwebsite.com"
-                  className="w-full"
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                  className="h-10 px-5 rounded-lg border-[#222222] text-[#222222] font-semibold text-[14px] hover:bg-[#F7F7F7] focus:outline-none"
+                >
+                  {uploadingImage ? (s?.uploading || 'Uploading...') : (s?.uploadNew || 'Update photo')}
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
                 />
               </div>
             </div>
+          </div>
+        </section>
 
-            <div className="space-y-2">
-              <Label htmlFor="bio">{s?.bio || "Bio"}</Label>
+        {/* ── Basic Info ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {s?.basicInformation || "Basic info"}
+          </h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="sm:col-span-2">
+              <label htmlFor="name" className={labelClasses}>{s?.fullName || "Legal name"}</label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="First Last"
+                className={inputClasses}
+              />
+              <p className="text-[13px] text-[#717171] mt-1.5">This is the name on your travel document, which could be a license or a passport.</p>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label htmlFor="bio" className={labelClasses}>{s?.bio || "About"}</label>
               <textarea
                 id="bio"
                 value={formData.bio}
                 onChange={(e) => handleInputChange('bio', e.target.value)}
-                placeholder={s?.tellUsAboutYourself || "Tell us about yourself..."}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
-                rows={3}
+                placeholder={s?.tellUsAboutYourself || "Tell us a little about yourself..."}
+                className="w-full px-4 py-3 border border-[#B0B0B0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#222222] focus:border-transparent resize-none text-[16px] text-[#222222] placeholder:text-[#717171] transition-all"
+                rows={4}
                 maxLength={500}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-[13px] text-[#717171] mt-1.5">
                 {formData.bio.length}/500 {s?.characters || "characters"}
               </p>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+          </div>
+        </section>
 
-      {/* Location Information */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
-          <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
-            <CardTitle className="flex items-center space-x-2 text-gray-800">
-              <MapPin className="h-5 w-5 text-gray-400" />
-              <span>{s?.location || "Location"}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="address">{s?.address || "Address"}</Label>
+        {/* ── Contact Info ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {s?.contactInfo || "Contact info"}
+          </h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <div className="flex justify-between items-baseline mb-2">
+                <label htmlFor="email" className="text-[15px] font-medium text-[#222222] block">{s?.emailAddress || "Email address"}</label>
+                {user.emailVerified && <span className="text-[12px] font-semibold text-[#008A05] flex items-center gap-1"><Check className="w-3 h-3 stroke-[3]" /> Verified</span>}
+              </div>
+              <div className="relative">
                 <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="Street address"
-                  className="w-full"
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="jane@example.com"
+                  className={cn(inputClasses, !user.emailVerified && "pr-10")}
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="city">{s?.city || "City"}</Label>
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => handleInputChange('city', e.target.value)}
-                  placeholder="City"
-                  className="w-full"
-                />
-              </div>
-
-              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
-                <Label htmlFor="country">{s?.country || "Country"}</Label>
-                <Input
-                  id="country"
-                  value={formData.country}
-                  onChange={(e) => handleInputChange('country', e.target.value)}
-                  placeholder="Country"
-                  className="w-full"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Professional Information (for agents) */}
-      {user.role === 'agent' && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-          <Card className="rounded-2xl border-gray-100 -sm overflow-hidden">
-            <CardHeader className="bg-white pb-4 border-b border-gray-50/50">
-              <CardTitle className="flex items-center space-x-2 text-gray-800">
-                <Briefcase className="h-5 w-5 text-gray-400" />
-                <span>{s?.professionalInformation || "Professional Information"}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="agency">{s?.agency || "Agency"}</Label>
-                  <Input
-                    id="agency"
-                    value={formData.agency}
-                    onChange={(e) => handleInputChange('agency', e.target.value)}
-                    placeholder="Real estate agency"
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="license">{s?.licenseNumber || "License Number"}</Label>
-                  <Input
-                    id="license"
-                    value={formData.licenseNumber}
-                    onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
-                    placeholder="Professional license number"
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-
-      {/* Account Information */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: user.role === 'agent' ? 0.3 : 0.25 }}>
-        <Card className="rounded-2xl border-gray-100 -sm overflow-hidden bg-gray-50/30">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center space-x-2 text-gray-800">
-              <Calendar className="h-5 w-5 text-gray-400" />
-              <span>{s?.accountInformation || "Account Information"}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <Label className="text-sm font-medium text-gray-700">{s?.accountId || "Account ID"}</Label>
-                <p className="text-sm text-gray-900 font-mono mt-1 break-all">{user.id}</p>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium text-gray-700">{s?.memberSince || "Member Since"}</Label>
-                <p className="text-sm text-gray-900 mt-1">
-                  {user.dateJoined ? new Date(user.dateJoined).toLocaleDateString() : 'N/A'}
-                </p>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium text-gray-700">{s?.accountType || "Account Type"}</Label>
-                <div className="flex items-center gap-3 mt-1">
-                  <Badge className={getRoleBadgeColor(user.role)}>
-                    {formatRole(user.role)}
-                  </Badge>
-                  {user.role !== 'admin' && (
-                    <Button
-                      variant={user.role === 'agent' ? "outline" : "default"}
-                      className={`h-9 px-4 text-sm font-semibold transition-all flex items-center gap-2 -sm hover:-md rounded-lg ${user.role === 'agent' ? 'border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
-                      onClick={handleToggleRole}
-                      disabled={isLoading}
-                    >
-                      <ArrowRightLeft className="w-4 h-4" />
-                      {isLoading ? (s?.switching || 'Switching...') : (s?.switchRole ? s.switchRole.replace('{role}', user.role === 'agent' ? (s?.regularUser || 'Regular User') : (s?.agentMode || 'Agent Mode')) : `Switch to ${user.role === 'agent' ? 'Regular User' : 'Agent Mode'}`)}
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium text-gray-700">{s?.verificationStatus || "Verification Status"}</Label>
-                <div className="flex items-center space-x-4 mt-1">
-                  <div className="flex items-center space-x-1">
-                    {user.emailVerified ? (
-                      <Check className="h-3 w-3 text-green-500" />
-                    ) : (
-                      <X className="h-3 w-3 text-red-500" />
-                    )}
-                    <span className="text-xs">{s?.email || "Email"}</span>
+                {!user.emailVerified && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <AlertCircle className="h-5 w-5 text-[#C2410C] stroke-[2]" />
                   </div>
-                  <div className="flex items-center space-x-1">
-                    {user.phoneVerified ? (
-                      <Check className="h-3 w-3 text-green-500" />
-                    ) : (
-                      <X className="h-3 w-3 text-red-500" />
-                    )}
-                    <span className="text-xs">{s?.phone || "Phone"}</span>
-                  </div>
-                </div>
+                )}
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Message Display */}
-      <AnimatePresence>
-        {message && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, height: 0 }}
-            className={`p-4 rounded-xl -sm ${message.type === 'success'
-              ? 'bg-green-50 border border-green-200 text-green-800'
-              : 'bg-red-50 border border-red-200 text-red-800'
-              }`}>
-            <div className="flex items-center space-x-2">
-              {message.type === 'success' ? (
-                <Check className="h-4 w-4 flex-shrink-0" />
-              ) : (
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              {!user.emailVerified && (
+                <p className="text-[13px] text-[#C2410C] mt-1.5 font-medium">{s?.emailNotVerified || "Email not verified"}</p>
               )}
-              <span className="text-sm break-words">{message.text}</span>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Save Button */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="flex justify-end sticky bottom-4 bg-white/80 backdrop-blur-md p-4 rounded-2xl -lg sm:-none sm:bg-transparent sm:p-0 sm:static border border-gray-100 sm:border-none"
-      >
-        <Button
-          onClick={handleSave}
-          disabled={isLoading}
-          className="min-w-32 w-full sm:w-auto rounded-xl -sm hover:-md transition-all"
-          size="lg"
-        >
-          {isLoading ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          {isLoading ? (s?.saving || 'Saving...') : (s?.saveChanges || 'Save Changes')}
-        </Button>
-      </motion.div>
-    </div >
+            <div>
+              <div className="flex justify-between items-baseline mb-2">
+                <label htmlFor="phone" className="text-[15px] font-medium text-[#222222] block">{s?.phoneNumber || "Phone number"}</label>
+                {user.phoneVerified && <span className="text-[12px] font-semibold text-[#008A05] flex items-center gap-1"><Check className="w-3 h-3 stroke-[3]" /> Verified</span>}
+              </div>
+              <div className="relative">
+                <Input
+                  id="phone"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                  placeholder="+1 (555) 000-0000"
+                  className={cn(inputClasses, !user.phoneVerified && "pr-10")}
+                />
+                {!user.phoneVerified && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <AlertCircle className="h-5 w-5 text-[#C2410C] stroke-[2]" />
+                  </div>
+                )}
+              </div>
+              {!user.phoneVerified && (
+                <p className="text-[13px] text-[#C2410C] mt-1.5 font-medium">{s?.phoneNotVerified || "Phone not verified"}</p>
+              )}
+            </div>
+
+            <div className="sm:col-span-2">
+              <label htmlFor="website" className={labelClasses}>{s?.website || "Website"}</label>
+              <Input
+                id="website"
+                value={formData.website}
+                onChange={(e) => handleInputChange('website', e.target.value)}
+                placeholder="https://yourwebsite.com"
+                className={inputClasses}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ── Location ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {s?.location || "Location"}
+          </h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="sm:col-span-2">
+              <label htmlFor="address" className={labelClasses}>{s?.address || "Address"}</label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                placeholder="Street address"
+                className={inputClasses}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="city" className={labelClasses}>{s?.city || "City"}</label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => handleInputChange('city', e.target.value)}
+                placeholder="City"
+                className={inputClasses}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="country" className={labelClasses}>{s?.country || "Country"}</label>
+              <Input
+                id="country"
+                value={formData.country}
+                onChange={(e) => handleInputChange('country', e.target.value)}
+                placeholder="Country"
+                className={inputClasses}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ── Professional Info (Agents Only) ── */}
+        {user.role === 'agent' && (
+          <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+            <h3 className="text-[18px] font-semibold text-[#222222]">
+              {s?.professionalInformation || "Professional details"}
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="agency" className={labelClasses}>{s?.agency || "Agency"}</label>
+                <Input
+                  id="agency"
+                  value={formData.agency}
+                  onChange={(e) => handleInputChange('agency', e.target.value)}
+                  placeholder="Real estate agency"
+                  className={inputClasses}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="license" className={labelClasses}>{s?.licenseNumber || "License number"}</label>
+                <Input
+                  id="license"
+                  value={formData.licenseNumber}
+                  onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
+                  placeholder="Professional license number"
+                  className={inputClasses}
+                />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── Account Security & Status ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {s?.accountInformation || "Account details"}
+          </h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div>
+              <h4 className="text-[15px] font-medium text-[#222222] mb-1">{s?.accountType || "Account type"}</h4>
+              <div className="flex flex-col items-start gap-3 mt-1.5">
+                <Badge className="bg-[#F7F7F7] text-[#222222] border border-[#DDDDDD] px-2.5 py-1 rounded-md text-[13px] font-semibold hover:bg-[#F7F7F7]">
+                  {formatRole(user.role)}
+                </Badge>
+                {user.role !== 'admin' && (
+                  <button
+                    className="flex items-center gap-2 text-[14px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none disabled:opacity-50 mt-1"
+                    onClick={handleToggleRole}
+                    disabled={isLoading}
+                  >
+                    <ArrowRightLeft className="w-4 h-4 stroke-[2]" />
+                    {isLoading 
+                      ? (s?.switching || 'Switching...') 
+                      : (s?.switchRole ? s.switchRole.replace('{role}', user.role === 'agent' ? (s?.regularUser || 'Regular User') : (s?.agentMode || 'Agent Mode')) : `Switch to ${user.role === 'agent' ? 'User' : 'Agent'}`)}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-[15px] font-medium text-[#222222] mb-1">{s?.accountId || "Account ID"}</h4>
+              <p className="text-[15px] text-[#717171] font-mono break-all mt-1.5">{user.id}</p>
+            </div>
+
+            <div className="sm:col-span-2">
+              <h4 className="text-[15px] font-medium text-[#222222] mb-1">{s?.memberSince || "Member since"}</h4>
+              <p className="text-[15px] text-[#717171] mt-1.5">
+                {user.dateJoined ? new Date(user.dateJoined).toLocaleDateString() : 'N/A'}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Action Footer ── */}
+        <div className="pt-8 border-t border-[#DDDDDD] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center w-full sm:w-auto">
+            {message && (
+              <span className={cn(
+                "text-[14px] font-medium flex items-center gap-2 animate-in fade-in duration-200",
+                message.type === 'success' ? "text-[#008A05]" : "text-[#C2410C]"
+              )}>
+                {message.type === 'success' ? <Check className="w-4 h-4 stroke-[3]" /> : <AlertCircle className="w-4 h-4 stroke-[2]" />}
+                {message.text}
+              </span>
+            )}
+          </div>
+
+          <Button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="w-full sm:w-auto h-12 px-8 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold text-[15px] transition-colors disabled:opacity-50"
+          >
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+            ) : null}
+            {isLoading ? (s?.saving || 'Saving...') : (s?.saveChanges || 'Save')}
+          </Button>
+        </div>
+
+      </div>
+    </div>
   );
 };

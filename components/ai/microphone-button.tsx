@@ -19,8 +19,8 @@ export function MicrophoneButton({ isListening, onClick }: MicrophoneButtonProps
             {/* Pulse ring animation when listening */}
             {isListening && (
               <>
-                <span className="absolute inset-0 rounded-full bg-accent animate-pulse-ring" />
-                <span className="absolute inset-0 rounded-full bg-accent animate-pulse-ring [animation-delay:0.5s]" />
+                <span className="absolute inset-0 rounded-full bg-muted animate-pulse-ring" />
+                <span className="absolute inset-0 rounded-full bg-muted animate-pulse-ring [animation-delay:0.5s]" />
               </>
             )}
             <Button
@@ -31,8 +31,8 @@ export function MicrophoneButton({ isListening, onClick }: MicrophoneButtonProps
               className={cn(
                 "relative h-12 w-12 rounded-full -lg transition-all duration-300",
                 isListening
-                  ? "bg-accent text-accent-foreground scale-110"
-                  : "bg-accent text-accent-foreground hover:bg-accent/90 hover:scale-105",
+                  ? "bg-muted text-accent-foreground scale-110"
+                  : "bg-muted text-accent-foreground hover:bg-muted/90 hover:scale-105",
               )}
             >
               {isListening ? <WaveformIcon className="h-6 w-6" /> : <Mic className="h-5 w-5" />}

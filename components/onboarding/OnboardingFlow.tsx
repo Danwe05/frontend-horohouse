@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -16,13 +15,14 @@ import { StudentIdUploadStep } from './steps/StudentIdUploadStep';
 import { StudentCompletionStep } from './steps/StudentCompletionStep';
 import { CompletionStep } from './steps/CompletionStep';
 import { onboardingApi } from '@/lib/onboarding-api';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const stepVariants = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 15 },
   animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 }
+  exit: { opacity: 0, y: -15 }
 };
 
 export function OnboardingFlow() {
@@ -68,49 +68,33 @@ export function OnboardingFlow() {
   const renderCurrentStep = () => {
     if (isInitializing) {
       return (
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center">
-            <Loader2 className="h-10 w-10 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-slate-500 font-medium animate-pulse">Setting up your profile...</p>
-          </div>
+        <div className="flex flex-col items-center justify-center min-h-[400px] h-full">
+          <Loader2 className="h-8 w-8 animate-spin text-[#222222] mb-4 stroke-[2.5]" />
+          <p className="text-[15px] font-semibold text-[#222222]">Setting things up...</p>
         </div>
       );
     }
 
+    let StepComponent;
+
     // ── Student flow (4 steps) ──────────────────────────────────────────────
     if (user?.role === 'student') {
-      let StepComponent;
       switch (state.currentStep) {
         case 1: StepComponent = <WelcomeStep />; break;
         case 2: StepComponent = <StudentInfoStep />; break;
         case 3: StepComponent = <StudentIdUploadStep />; break;
         default: StepComponent = <StudentCompletionStep />; break;
       }
-      return (
-        <motion.div
-          key={state.currentStep}
-          variants={stepVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={{ duration: 0.4, type: "spring", bounce: 0.1 }}
-          className="h-full flex flex-col"
-        >
-          {StepComponent}
-        </motion.div>
-      );
-    }
-
-    // ── Agent flow (6 steps, unchanged) ────────────────────────────────────
-    // ── Default user flow (5 steps, unchanged) ─────────────────────────────
-    let StepComponent;
-    switch (state.currentStep) {
-      case 1: StepComponent = <WelcomeStep />; break;
-      case 2: StepComponent = user?.role === 'agent' ? <AgentInfoStep /> : <PropertyPreferencesStep />; break;
-      case 3: StepComponent = user?.role === 'agent' ? <PropertyPreferencesStep /> : <LocationStep />; break;
-      case 4: StepComponent = user?.role === 'agent' ? <LocationStep /> : <BudgetStep />; break;
-      case 5: StepComponent = user?.role === 'agent' ? <BudgetStep /> : <CompletionStep />; break;
-      default: StepComponent = <CompletionStep />; break;
+    } else {
+      // ── Agent flow (6 steps) & Default user flow (5 steps) ─────────────────
+      switch (state.currentStep) {
+        case 1: StepComponent = <WelcomeStep />; break;
+        case 2: StepComponent = user?.role === 'agent' ? <AgentInfoStep /> : <PropertyPreferencesStep />; break;
+        case 3: StepComponent = user?.role === 'agent' ? <PropertyPreferencesStep /> : <LocationStep />; break;
+        case 4: StepComponent = user?.role === 'agent' ? <LocationStep /> : <BudgetStep />; break;
+        case 5: StepComponent = user?.role === 'agent' ? <BudgetStep /> : <CompletionStep />; break;
+        default: StepComponent = <CompletionStep />; break;
+      }
     }
 
     return (
@@ -120,60 +104,76 @@ export function OnboardingFlow() {
         initial="initial"
         animate="animate"
         exit="exit"
-        transition={{ duration: 0.4, type: "spring", bounce: 0.1 }}
-        className="h-full flex flex-col"
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="h-full flex flex-col w-full"
       >
         {StepComponent}
       </motion.div>
     );
   };
 
+  // ── Error State ──
   if (state.error) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center max-w-sm p-8 bg-white rounded-3xl -xl border border-red-50">
-          <div className="text-red-500 mb-6 bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
+      <div className="min-h-[100dvh] w-full flex items-center justify-center bg-white px-4">
+        <div className="text-center max-w-[400px] w-full">
+          <div className="w-16 h-16 rounded-full bg-[#FFF7ED] flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="h-8 w-8 text-[#C2410C] stroke-[2]" />
           </div>
-          <h2 className="text-2xl font-bold mb-3 text-slate-800">Oops, an error occurred</h2>
-          <p className="text-slate-500 mb-8">{state.error}</p>
+          <h2 className="text-[26px] font-semibold text-[#222222] mb-3 tracking-tight">Something went wrong</h2>
+          <p className="text-[16px] text-[#717171] mb-8">{state.error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-medium transition-colors"
+            className="w-full h-12 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold text-[16px] transition-colors"
           >
-            Try Again
+            Try again
           </button>
         </div>
       </div>
     );
   }
 
+  // ── Main Layout ──
   return (
-    <div className="min-h-screen w-full flex flex-col bg-slate-50 relative selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden">
-      {/* Background Decorative Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-0 -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-100/50 blur-[120px]" />
-        <div className="absolute top-[40%] -right-[10%] w-[40%] h-[60%] rounded-full bg-indigo-100/50 blur-[120px]" />
-      </div>
+    <div className="min-h-[100dvh] w-full flex flex-col bg-white relative overflow-x-hidden">
+      
+      {/* Top Navbar / Logo Area (Hidden on Step 1 so WelcomeStep can take over) */}
+      
 
-      <div className="relative z-10 flex flex-col min-h-screen w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 lg:py-12">
-        {/* Progress Bar Header wrapper */}
-        <div className="flex-none mb-8 mt-2 w-full max-w-3xl mx-auto">
-          {!isInitializing && !state.error && <OnboardingProgress />}
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-1 min-h-0 bg-white/70 backdrop-blur-2xl border border-white -2xl -slate-200/50 rounded-[2rem] overflow-hidden flex flex-col relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/10 pointer-events-none" />
-          <div className="flex-1 overflow-y-auto px-6 py-8 sm:px-12 sm:py-10 z-10 custom-scrollbar">
-            <AnimatePresence mode="wait">
-              {renderCurrentStep()}
-            </AnimatePresence>
+      {/* Main Content Area */}
+      <div className={cn("flex-1 flex flex-col w-full", state.currentStep > 1 && "pt-[0px]")}>
+        
+        {/* Progress Bar Header */}
+        {!isInitializing && !state.error && state.currentStep > 1 && (
+          <div className="w-full max-w-[850px] mx-auto px-6 sm:px-10 pt-10 pb-4">
+            <OnboardingProgress />
           </div>
+        )}
+
+        {/* Dynamic Step Container */}
+        <div className="flex-1 flex flex-col w-full max-w-[850px] mx-auto px-6 sm:px-10 pb-32">
+          <AnimatePresence mode="wait">
+            {renderCurrentStep()}
+          </AnimatePresence>
         </div>
+
       </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #DDDDDD;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #B0B0B0;
+        }
+      `}</style>
     </div>
   );
 }

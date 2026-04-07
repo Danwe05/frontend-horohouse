@@ -8,10 +8,9 @@ import { format, parseISO, differenceInDays } from 'date-fns';
 import {
     Calendar, MapPin, Users, Clock, Star, ArrowLeft, CheckCircle2,
     XCircle, RotateCcw, Loader2, BedDouble, Wifi,
-    Sparkles, AlertCircle, Phone, Mail,
-    X, Utensils, Wind, WashingMachine,
-    Car, ShieldCheck, Download, Copy,
-    MessageCircle, Printer, Map as MapIcon, CreditCard
+    Sparkles, AlertCircle, Phone, MessageCircle,
+    Utensils, Wind, WashingMachine, Car, ShieldCheck,
+    Download, Copy, Printer, Map as MapIcon, CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -28,12 +27,12 @@ import { useLanguage } from '@/contexts/LanguageContext';
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<BookingStatus, { color: string; icon: any; bg: string }> = {
-    [BookingStatus.PENDING]: { color: 'text-amber-700', bg: 'bg-amber-50', icon: Clock },
-    [BookingStatus.CONFIRMED]: { color: 'text-emerald-700', bg: 'bg-emerald-50', icon: CheckCircle2 },
-    [BookingStatus.REJECTED]: { color: 'text-red-700', bg: 'bg-red-50', icon: XCircle },
-    [BookingStatus.CANCELLED]: { color: 'text-slate-600', bg: 'bg-slate-50', icon: RotateCcw },
-    [BookingStatus.COMPLETED]: { color: 'text-blue-700', bg: 'bg-blue-50', icon: Sparkles },
-    [BookingStatus.NO_SHOW]: { color: 'text-orange-700', bg: 'bg-orange-50', icon: AlertCircle },
+    [BookingStatus.PENDING]: { color: 'text-[#222222]', bg: 'bg-[#F7F7F7] border border-[#DDDDDD]', icon: Clock },
+    [BookingStatus.CONFIRMED]: { color: 'text-[#008A05]', bg: 'bg-[#ECFDF5] border border-[#008A05]/20', icon: CheckCircle2 },
+    [BookingStatus.REJECTED]: { color: 'text-[#E50000]', bg: 'bg-[#FFF8F8] border border-[#FFDFDF]', icon: XCircle },
+    [BookingStatus.CANCELLED]: { color: 'text-[#717171]', bg: 'bg-[#F7F7F7] border border-[#DDDDDD]', icon: RotateCcw },
+    [BookingStatus.COMPLETED]: { color: 'text-[#222222]', bg: 'bg-[#F7F7F7] border border-[#DDDDDD]', icon: Sparkles },
+    [BookingStatus.NO_SHOW]: { color: 'text-[#717171]', bg: 'bg-[#F7F7F7] border border-[#DDDDDD]', icon: AlertCircle },
 };
 
 // ─── Timeline ─────────────────────────────────────────────────────────────────
@@ -48,18 +47,18 @@ const BookingTimeline = ({ status, s }: { status: BookingStatus, s: any }) => {
     }, [status]);
 
     return (
-        <div className="relative flex justify-between w-full max-w-md mx-auto mb-8">
-            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
+        <div className="relative flex justify-between w-full mt-4 mb-2">
+            <div className="absolute top-[7px] left-0 w-full h-[2px] bg-[#DDDDDD] z-0" />
             <div
-                className="absolute top-1/2 left-0 h-0.5 bg-indigo-500 -translate-y-1/2 z-0 transition-all duration-1000"
+                className="absolute top-[7px] left-0 h-[2px] bg-blue-600 z-0 transition-all duration-1000"
                 style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
             />
             {steps.map((step, i) => (
-                <div key={i} className="relative z-10 flex flex-col items-center gap-2">
-                    <div className={`h-4 w-4 rounded-full border-1 transition-colors ${i <= currentStep ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-200'
-                        }`} />
-                    <span className={`text-[10px] font-bold uppercase tracking-tighter ${i <= currentStep ? 'text-indigo-600' : 'text-slate-400'
-                        }`}>{step}</span>
+                <div key={i} className="relative z-10 flex flex-col items-center gap-2 bg-white px-2">
+                    <div className={`h-3.5 w-3.5 rounded-full transition-colors ${i <= currentStep ? 'bg-blue-600' : 'bg-[#DDDDDD]'}`} />
+                    <span className={`text-[12px] font-medium ${i <= currentStep ? 'text-[#222222]' : 'text-[#717171]'}`}>
+                        {step}
+                    </span>
                 </div>
             ))}
         </div>
@@ -95,7 +94,6 @@ export default function BookingDetailPage() {
     const [cancelling, setCancelling] = useState(false);
     const [payingNow, setPayingNow] = useState(false);
 
-
     useEffect(() => {
         (async () => {
             try {
@@ -116,62 +114,55 @@ export default function BookingDetailPage() {
 
     if (loading) return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-[#f8fafc]">
+            <div className="flex min-h-screen w-full bg-white">
                 <AppSidebar />
-                <SidebarInset className="bg-transparent">
+                <SidebarInset>
                     <NavDash />
                     <div className="flex flex-1 items-center justify-center">
-                        <Loader2 className="h-10 w-10 animate-spin text-indigo-500/20" />
+                        <Loader2 className="h-8 w-8 animate-spin text-[#222222]" />
                     </div>
                 </SidebarInset>
             </div>
         </SidebarProvider>
     );
 
-    if (!booking) return <div className="p-20 text-center">{sd.notFound || 'Booking not found.'}</div>;
+    if (!booking) return (
+        <SidebarProvider>
+            <div className="flex min-h-screen w-full bg-white">
+                <AppSidebar />
+                <SidebarInset>
+                    <NavDash />
+                    <div className="p-20 text-center text-[#717171] text-[16px]">{sd.notFound || 'Booking not found.'}</div>
+                </SidebarInset>
+            </div>
+        </SidebarProvider>
+    );
 
     const prop = booking.propertyId;
     const nights = booking.nights ?? differenceInDays(parseISO(booking.checkOut), parseISO(booking.checkIn));
     const statusInfo = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG[BookingStatus.PENDING];
 
-    // ── Robust guest check ────────────────────────────────────────────────────
-    // user.id and guestId._id are both ObjectId strings — normalise to string
-    // before comparing so mismatched types don't silently return false.
+    // Robust guest check
     const guestIdStr = typeof booking.guestId === 'string'
         ? booking.guestId
         : (booking.guestId?.id ?? (booking.guestId as any)?._id)?.toString() ?? '';
     const currentUserId = user?.id?.toString() ?? '';
     const isGuest = !!currentUserId && currentUserId === guestIdStr;
 
-    // ── Action guards ─────────────────────────────────────────────────────────
-    const canCancel = isGuest &&
-        [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status);
+    // Action guards
+    const canCancel = isGuest && [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status);
+    const canReview = isGuest && booking.status === BookingStatus.COMPLETED && !booking.guestReviewLeft;
+    const canPay = isGuest && booking.paymentStatus !== 'paid' && ![BookingStatus.CANCELLED, BookingStatus.REJECTED, BookingStatus.NO_SHOW].includes(booking.status);
 
-    const canReview = isGuest &&
-        booking.status === BookingStatus.COMPLETED &&
-        !booking.guestReviewLeft;
-
-    // Show Pay button whenever:
-    //   • caller is the guest
-    //   • booking hasn't been paid yet
-    //   • booking is not in a terminal rejected/cancelled state
-    const canPay = isGuest &&
-        booking.paymentStatus !== 'paid' &&
-        ![BookingStatus.CANCELLED, BookingStatus.REJECTED, BookingStatus.NO_SHOW]
-            .includes(booking.status);
-
-    // ── Handlers ──────────────────────────────────────────────────────────────
-
+    // Handlers
     const handlePay = async () => {
         try {
             setPayingNow(true);
             const res = await apiClient.initiateBookingPayment(id);
-            // Redirect to Flutterwave hosted checkout
             window.location.href = res.paymentLink;
         } catch (err: any) {
             toast.error(sd.payFail || 'Payment failed', {
-                description: err?.response?.data?.message ??
-                    (sd.payInitFail || 'Could not initialize payment. Please try again.'),
+                description: err?.response?.data?.message ?? (sd.payInitFail || 'Could not initialize payment. Please try again.'),
             });
             setPayingNow(false);
         }
@@ -190,243 +181,242 @@ export default function BookingDetailPage() {
         }
     };
 
-    console.log('🔍 PAY BUTTON DEBUG', {
-        'user': user,
-        'user.id': user?.id,
-        'booking.guestId': booking.guestId,
-        'guestIdStr': typeof booking.guestId === 'string'
-            ? booking.guestId
-            : (booking.guestId as any)?._id?.toString(),
-        'isGuest': isGuest,
-        'canPay': canPay,
-        'paymentStatus': booking.paymentStatus,
-        'bookingStatus': booking.status,
-    });
-
-    // ── Render ────────────────────────────────────────────────────────────────
-
     return (
         <SidebarProvider>
             <BookingReceiptView booking={booking} />
 
-            <div className="flex min-h-screen w-full bg-[#f8fafc] print:hidden">
+            <div className="flex min-h-screen w-full bg-white print:hidden">
                 <AppSidebar />
-                <SidebarInset className="bg-transparent">
+                <SidebarInset>
                     <NavDash />
 
-                    <main className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto w-full">
+                    <main className="p-6 md:p-10 max-w-7xl mx-auto w-full">
 
                         {/* ── Top bar ── */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                             <div className="flex items-center gap-4">
                                 <Button
                                     variant="ghost" size="icon"
-                                    className="rounded-2xl bg-white border border-slate-200 -sm"
+                                    className="rounded-full hover:bg-[#F7F7F7] text-[#222222]"
                                     onClick={() => router.push('/dashboard/bookings')}
                                 >
-                                    <ArrowLeft className="h-4 w-4" />
+                                    <ArrowLeft className="h-5 w-5 stroke-[2]" />
                                 </Button>
                                 <div>
-                                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">{sd.title || 'Booking Details'}</h1>
+                                    <h1 className="text-[32px] font-semibold text-[#222222] tracking-tight leading-none mb-1">
+                                        {sd.title || 'Booking Details'}
+                                    </h1>
                                     <button
                                         onClick={copyId}
-                                        className="group flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-indigo-600 transition-colors"
+                                        className="group flex items-center gap-2 text-[14px] text-[#717171] hover:text-[#222222] transition-colors"
                                     >
-                                        ID: {booking._id}
-                                        <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        {sd.bookingId || 'Confirmation code'}: {booking._id}
+                                        <Copy className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </button>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                                 <Button
                                     variant="outline" size="sm"
-                                    className="rounded-xl border-slate-200 bg-white font-bold text-xs"
+                                    className="rounded-lg border-blue-600 text-[#222222] hover:bg-[#F7F7F7] font-semibold text-[14px] h-10 px-4"
                                     onClick={() => window.print()}
                                 >
-                                    <Printer className="h-3.5 w-3.5 mr-2" /> {sd.print || 'Print Receipt'}
+                                    <Printer className="h-4 w-4 mr-2 stroke-[2]" /> {sd.print || 'Print Receipt'}
                                 </Button>
-                                <Button variant="outline" size="sm" className="rounded-xl border-slate-200 bg-white font-bold text-xs">
-                                    <Download className="h-3.5 w-3.5 mr-2" /> PDF
+                                <Button variant="outline" size="sm" className="rounded-lg border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] font-semibold text-[14px] h-10 px-4">
+                                    <Download className="h-4 w-4 mr-2 stroke-[2]" /> PDF
                                 </Button>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
                             {/* ── Left column ── */}
-                            <div className="lg:col-span-2 space-y-8">
+                            <div className="lg:col-span-2 space-y-10">
 
                                 {/* Hero image + quick info */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden -sm">
-                                    <div className="relative h-[400px]">
+                                <div>
+                                    <div className="relative h-[350px] md:h-[450px] w-full rounded-2xl overflow-hidden mb-6 bg-[#F7F7F7]">
                                         <img
                                             src={prop?.images?.[0]?.url}
                                             className="w-full h-full object-cover"
                                             alt={prop?.title ?? 'Property'}
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                                        <div className="absolute bottom-8 left-8 right-8 text-white">
-                                            <Badge className={`${statusInfo.bg} ${statusInfo.color} border-none mb-4 px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-[10px]`}>
+                                        <div className="absolute top-4 left-4">
+                                            <Badge className={`${statusInfo.bg} ${statusInfo.color} px-3 py-1.5 rounded-lg font-semibold text-[12px]`}>
                                                 {getStatusLabel(booking.status)}
                                             </Badge>
-                                            <h2 className="text-3xl font-black mb-2">{prop?.title}</h2>
-                                            <p className="flex items-center gap-2 text-slate-200 text-sm font-medium">
-                                                <MapPin className="h-4 w-4 text-indigo-400" />
-                                                {prop?.address}, {prop?.city}
-                                            </p>
                                         </div>
                                     </div>
 
-                                    <div className="p-8 grid grid-cols-2 md:grid-cols-4 gap-6 border-b border-slate-100 bg-slate-50/50">
+                                    <h2 className="text-[26px] font-semibold text-[#222222] mb-1">{prop?.title}</h2>
+                                    <p className="text-[16px] text-[#717171] mb-8">
+                                        {prop?.city}, {prop?.address}
+                                    </p>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-y border-[#DDDDDD]">
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{sd.checkIn || 'Check-in'}</p>
-                                            <p className="font-bold text-slate-900">{format(parseISO(booking.checkIn), 'MMM d, yyyy')}</p>
-                                            <p className="text-xs text-slate-500">{sd.after || 'After'} {prop?.shortTermAmenities?.checkInTime || '14:00'}</p>
+                                            <p className="text-[12px] font-semibold text-[#222222]">{sd.checkIn || 'Check-in'}</p>
+                                            <p className="text-[15px] text-[#717171]">{format(parseISO(booking.checkIn), 'MMM d, yyyy')}</p>
+                                            <p className="text-[13px] text-[#717171]">{prop?.shortTermAmenities?.checkInTime || '14:00'}</p>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{sd.checkOut || 'Check-out'}</p>
-                                            <p className="font-bold text-slate-900">{format(parseISO(booking.checkOut), 'MMM d, yyyy')}</p>
-                                            <p className="text-xs text-slate-500">{sd.before || 'Before'} {prop?.shortTermAmenities?.checkOutTime || '11:00'}</p>
+                                            <p className="text-[12px] font-semibold text-[#222222]">{sd.checkOut || 'Checkout'}</p>
+                                            <p className="text-[15px] text-[#717171]">{format(parseISO(booking.checkOut), 'MMM d, yyyy')}</p>
+                                            <p className="text-[13px] text-[#717171]">{prop?.shortTermAmenities?.checkOutTime || '11:00'}</p>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{sd.guests || 'Guests'}</p>
-                                            <p className="font-bold text-slate-900">{booking.guests.adults} {sd.adults || 'Adults'}</p>
+                                            <p className="text-[12px] font-semibold text-[#222222]">{sd.guests || 'Guests'}</p>
+                                            <p className="text-[15px] text-[#717171]">{booking.guests.adults} {sd.adults || 'adults'}</p>
                                             {booking.guests.children > 0 && (
-                                                <p className="text-xs text-slate-500">{booking.guests.children} {sd.children || 'Children'}</p>
+                                                <p className="text-[13px] text-[#717171]">{booking.guests.children} {sd.children || 'children'}</p>
                                             )}
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{sd.totalStay || 'Total Stay'}</p>
-                                            <p className="font-bold text-slate-900">{nights} {sd.nights || 'Nights'}</p>
+                                            <p className="text-[12px] font-semibold text-[#222222]">{sd.totalStay || 'Length of stay'}</p>
+                                            <p className="text-[15px] text-[#717171]">{nights} {sd.nights || 'nights'}</p>
                                         </div>
-                                    </div>
-
-                                    <div className="p-8">
-                                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-8 text-center">
-                                            {sd.lifecycle || 'Reservation Lifecycle'}
-                                        </h3>
-                                        <BookingTimeline status={booking.status} s={sd} />
                                     </div>
                                 </div>
 
+                                {/* Timeline */}
+                                <div>
+                                    <h3 className="text-[22px] font-semibold text-[#222222] mb-6">
+                                        {sd.lifecycle || 'Reservation status'}
+                                    </h3>
+                                    <BookingTimeline status={booking.status} s={sd} />
+                                </div>
+
+                                <Separator className="bg-[#DDDDDD]" />
+
                                 {/* Amenities */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 -sm">
-                                    <div className="flex items-center justify-between mb-8">
-                                        <h3 className="text-xl font-black text-slate-900">{sd.whatOffers || 'What this place offers'}</h3>
-                                        <Badge variant="outline" className="rounded-xl px-3 py-1 text-xs font-bold text-slate-400">
-                                            {sd.verifiedAmenities || 'Verified Amenities'}
-                                        </Badge>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-4">
+                                <div>
+                                    <h3 className="text-[22px] font-semibold text-[#222222] mb-6">{sd.whatOffers || 'What this place offers'}</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
                                         {prop?.shortTermAmenities?.hasWifi && (
-                                            <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
-                                                <Wifi className="h-5 w-5 text-indigo-500" /> {sd.wifi || 'High-speed WiFi'}
+                                            <div className="flex items-center gap-4 text-[16px] text-[#222222]">
+                                                <Wifi className="h-6 w-6 stroke-[1.5] text-[#222222]" /> {sd.wifi || 'Wifi'}
                                             </div>
                                         )}
                                         {prop?.shortTermAmenities?.hasAirConditioning && (
-                                            <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
-                                                <Wind className="h-5 w-5 text-indigo-500" /> {sd.ac || 'Air Conditioning'}
+                                            <div className="flex items-center gap-4 text-[16px] text-[#222222]">
+                                                <Wind className="h-6 w-6 stroke-[1.5] text-[#222222]" /> {sd.ac || 'Air conditioning'}
                                             </div>
                                         )}
                                         {prop?.shortTermAmenities?.hasParking && (
-                                            <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
-                                                <Car className="h-5 w-5 text-indigo-500" /> {sd.parking || 'Free Parking'}
+                                            <div className="flex items-center gap-4 text-[16px] text-[#222222]">
+                                                <Car className="h-6 w-6 stroke-[1.5] text-[#222222]" /> {sd.parking || 'Free parking on premises'}
                                             </div>
                                         )}
                                         {prop?.shortTermAmenities?.hasKitchen && (
-                                            <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
-                                                <Utensils className="h-5 w-5 text-indigo-500" /> {sd.kitchen || 'Full Kitchen'}
+                                            <div className="flex items-center gap-4 text-[16px] text-[#222222]">
+                                                <Utensils className="h-6 w-6 stroke-[1.5] text-[#222222]" /> {sd.kitchen || 'Kitchen'}
                                             </div>
                                         )}
                                         {prop?.shortTermAmenities?.hasWasher && (
-                                            <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
-                                                <WashingMachine className="h-5 w-5 text-indigo-500" /> {sd.washer || 'In-unit Washer'}
+                                            <div className="flex items-center gap-4 text-[16px] text-[#222222]">
+                                                <WashingMachine className="h-6 w-6 stroke-[1.5] text-[#222222]" /> {sd.washer || 'Washer'}
                                             </div>
                                         )}
-                                        <div className="flex items-center gap-3 text-sm font-bold text-slate-600 opacity-50">
-                                            <ShieldCheck className="h-5 w-5 text-indigo-500" /> {sd.smoke || 'Smoke Alarm'}
+                                        <div className="flex items-center gap-4 text-[16px] text-[#717171] line-through">
+                                            <ShieldCheck className="h-6 w-6 stroke-[1.5] text-[#717171]" /> {sd.smoke || 'Smoke alarm'}
                                         </div>
+                                    </div>
+                                </div>
+
+                                <Separator className="bg-[#DDDDDD]" />
+
+                                {/* Map placeholder */}
+                                <div>
+                                    <h3 className="text-[22px] font-semibold text-[#222222] mb-6">{sd.location || 'Where you’ll be'}</h3>
+                                    <div className="h-[250px] w-full bg-[#F7F7F7] border border-[#DDDDDD] rounded-2xl flex items-center justify-center flex-col gap-3 transition-colors hover:bg-[#EBEBEB] cursor-pointer">
+                                        <MapIcon className="h-8 w-8 text-[#222222] stroke-[1.5]" />
+                                        <p className="text-[14px] font-medium text-[#222222]">
+                                            {sd.openMap || 'Open in Google Maps'}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* ── Right column ── */}
-                            <div className="space-y-6 lg:sticky lg:top-8 self-start">
+                            <div className="space-y-6 lg:sticky lg:top-10 self-start mt-8 lg:mt-0">
 
                                 {/* Payment summary card */}
-                                <div className="bg-white rounded-[2.5rem] border-1 border-slate-900 p-8 -2xl -indigo-100">
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
-                                        {sd.paymentSummary || 'Payment Summary'}
+                                <div className="bg-white rounded-2xl border border-[#DDDDDD] p-6 shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+                                    <h3 className="text-[22px] font-semibold text-[#222222] mb-6">
+                                        {sd.paymentSummary || 'Price details'}
                                     </h3>
 
-                                    <div className="space-y-4 mb-8">
-                                        <div className="flex justify-between text-sm font-bold">
-                                            <span className="text-slate-500">
-                                                {booking.priceBreakdown?.pricePerNight.toLocaleString()} × {nights} {sd.nights || 'nights'}
+                                    <div className="space-y-4 mb-6">
+                                        <div className="flex justify-between text-[16px] text-[#222222]">
+                                            <span className="underline decoration-[#DDDDDD] underline-offset-4">
+                                                {booking.priceBreakdown?.pricePerNight.toLocaleString()} {booking.currency} x {nights} {sd.nights || 'nights'}
                                             </span>
-                                            <span className="text-slate-900">
+                                            <span>
                                                 {booking.priceBreakdown?.subtotal.toLocaleString()} {booking.currency}
                                             </span>
                                         </div>
                                         {(booking.priceBreakdown?.cleaningFee ?? 0) > 0 && (
-                                            <div className="flex justify-between text-sm font-bold">
-                                                <span className="text-slate-500">{sd.cleaningFee || 'Cleaning fee'}</span>
-                                                <span className="text-slate-900">
+                                            <div className="flex justify-between text-[16px] text-[#222222]">
+                                                <span className="underline decoration-[#DDDDDD] underline-offset-4">{sd.cleaningFee || 'Cleaning fee'}</span>
+                                                <span>
                                                     {booking.priceBreakdown?.cleaningFee.toLocaleString()} {booking.currency}
                                                 </span>
                                             </div>
                                         )}
-                                        <div className="flex justify-between text-sm font-bold">
-                                            <span className="text-slate-500">{sd.serviceFee || 'Service fee'}</span>
-                                            <span className="text-slate-900">
+                                        <div className="flex justify-between text-[16px] text-[#222222]">
+                                            <span className="underline decoration-[#DDDDDD] underline-offset-4">{sd.serviceFee || 'HoroHouse service fee'}</span>
+                                            <span>
                                                 {booking.priceBreakdown?.serviceFee.toLocaleString()} {booking.currency}
                                             </span>
                                         </div>
                                         {(booking.priceBreakdown?.discountAmount ?? 0) > 0 && (
-                                            <div className="flex justify-between text-sm font-bold">
-                                                <span className="text-emerald-600">{sd.discount || 'Discount'}</span>
-                                                <span className="text-emerald-600">
+                                            <div className="flex justify-between text-[16px] font-semibold text-[#008A05]">
+                                                <span>{sd.discount || 'Special offer discount'}</span>
+                                                <span>
                                                     −{booking.priceBreakdown?.discountAmount.toLocaleString()} {booking.currency}
                                                 </span>
                                             </div>
                                         )}
-                                        <Separator className="bg-slate-100" />
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-lg font-black text-slate-900">{sd.total || 'Total'}</span>
-                                            <span className="text-2xl font-black text-indigo-600">
-                                                {booking.priceBreakdown?.totalAmount.toLocaleString()} {booking.currency}
-                                            </span>
-                                        </div>
                                     </div>
 
-                                    {/* Payment status pill */}
-                                    <div className={`rounded-2xl p-4 mb-8 flex items-center justify-between ${booking.paymentStatus === 'paid'
-                                        ? 'bg-emerald-50 text-emerald-700'
-                                        : 'bg-amber-50 text-amber-700'
-                                        }`}>
-                                        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider">
-                                            <ShieldCheck className="h-4 w-4" />
-                                            {booking.paymentStatus === 'paid' ? (sd.fullyPaid || 'Fully Paid') : (sd.paymentPending || 'Payment Pending')}
-                                        </div>
-                                        <span className="text-[10px] font-bold opacity-60">
-                                            REF: {booking.paymentReference || 'N/A'}
+                                    <Separator className="bg-[#DDDDDD] mb-6" />
+
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="text-[16px] font-semibold text-[#222222]">{sd.total || 'Total'} ({booking.currency})</span>
+                                        <span className="text-[16px] font-semibold text-[#222222]">
+                                            {booking.priceBreakdown?.totalAmount.toLocaleString()}
                                         </span>
                                     </div>
 
-                                    {/* Action buttons */}
-                                    <div className="space-y-3">
+                                    {/* Payment status pill */}
+                                    <div className="flex items-center gap-3 mb-6">
+                                        {booking.paymentStatus === 'paid' ? (
+                                            <div className="flex items-center gap-2">
+                                                <CheckCircle2 className="h-5 w-5 text-[#008A05]" />
+                                                <span className="text-[14px] font-medium text-[#222222]">{sd.fullyPaid || 'Fully paid'}</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="h-5 w-5 text-[#222222]" />
+                                                <span className="text-[14px] font-medium text-[#222222]">{sd.paymentPending || 'Payment pending'}</span>
+                                            </div>
+                                        )}
+                                    </div>
 
-                                        {/* Pay button — shown to guest when unpaid and booking is active */}
+                                    {/* Action buttons */}
+                                    <div className="space-y-4">
+                                        {/* Pay button */}
                                         {canPay && (
                                             <Button
-                                                className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg -xl -indigo-100 gap-2"
+                                                className="w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[16px] transition-colors"
                                                 onClick={handlePay}
                                                 disabled={payingNow}
                                             >
                                                 {payingNow ? (
-                                                    <><Loader2 className="h-5 w-5 animate-spin" /> {sd.processing || 'Processing…'}</>
+                                                    <><Loader2 className="h-5 w-5 animate-spin mr-2" /> {sd.processing || 'Processing…'}</>
                                                 ) : (
-                                                    <><CreditCard className="h-5 w-5" /> {sd.completePayment || 'Complete Payment'}</>
+                                                    <>{sd.completePayment || 'Pay now'}</>
                                                 )}
                                             </Button>
                                         )}
@@ -434,66 +424,52 @@ export default function BookingDetailPage() {
                                         {/* Review button */}
                                         {canReview && (
                                             <Button
-                                                className="w-full h-14 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-lg -xl -amber-100"
+                                                className="w-full h-12 rounded-lg border border-blue-600 bg-white hover:bg-[#F7F7F7] text-[#222222] font-semibold text-[16px] transition-colors"
                                                 onClick={() => setReviewOpen(true)}
                                             >
-                                                {sd.rateExperience || 'Rate Experience'}
+                                                {sd.rateExperience || 'Write a review'}
                                             </Button>
                                         )}
 
                                         {/* Cancel button */}
                                         {canCancel && (
                                             <Button
-                                                variant="outline"
-                                                className="w-full h-14 rounded-2xl border-red-100 text-red-600 hover:bg-red-50 font-black"
+                                                variant="ghost"
+                                                className="w-full h-12 rounded-lg text-[#222222] font-semibold text-[16px] underline hover:bg-transparent hover:text-black transition-colors"
                                                 onClick={handleCancel}
                                                 disabled={cancelling}
                                             >
                                                 {cancelling ? (
                                                     <><Loader2 className="h-5 w-5 animate-spin mr-2" /> {sd.cancelling || 'Cancelling…'}</>
                                                 ) : (
-                                                    sd.cancelRes || 'Cancel Reservation'
+                                                    sd.cancelRes || 'Cancel reservation'
                                                 )}
                                             </Button>
                                         )}
-
-                                        <Button variant="ghost" className="w-full h-12 rounded-2xl text-slate-400 font-bold text-sm">
-                                            {sd.help || 'Help & Support'}
-                                        </Button>
                                     </div>
                                 </div>
 
-                                {/* Host card */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 -sm">
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">{sd.yourHost || 'Your Host'}</h3>
+                                {/* Host info card */}
+                                <div className="bg-white rounded-2xl border border-[#DDDDDD] p-6">
+                                    <h3 className="text-[22px] font-semibold text-[#222222] mb-6">{sd.yourHost || 'Hosted by'} {booking.hostId?.name}</h3>
                                     <div className="flex items-center gap-4 mb-6">
-                                        <div className="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center text-xl font-black text-indigo-600">
+                                        <div className="h-14 w-14 rounded-full bg-blue-600 flex items-center justify-center text-[20px] font-semibold text-white">
                                             {booking.hostId?.name?.[0]}
                                         </div>
                                         <div>
-                                            <p className="text-lg font-black text-slate-900">{booking.hostId?.name}</p>
-                                            <p className="text-xs text-slate-400 font-bold">{sd.superhost || 'Superhost'} · {sd.joined || 'Joined'} {new Date((booking.hostId as any)?.createdAt || Date.now()).getFullYear()}</p>
+                                            <p className="text-[16px] font-semibold text-[#222222]">{booking.hostId?.name}</p>
+                                            <p className="text-[14px] text-[#717171]">{sd.joined || 'Joined'} {new Date((booking.hostId as any)?.createdAt || Date.now()).getFullYear()}</p>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <Button variant="secondary" className="rounded-xl h-12 bg-slate-50 border border-slate-100 font-bold text-slate-700">
-                                            <MessageCircle className="h-4 w-4 mr-2 text-indigo-500" /> {s.chat || 'Chat'}
+                                    <div className="flex gap-4">
+                                        <Button variant="outline" className="flex-1 h-12 rounded-lg border-blue-600 text-[#222222] hover:bg-[#F7F7F7] font-semibold text-[15px]">
+                                            <MessageCircle className="h-4 w-4 mr-2 stroke-[2]" /> {s.chat || 'Message host'}
                                         </Button>
-                                        <Button variant="secondary" className="rounded-xl h-12 bg-slate-50 border border-slate-100 font-bold text-slate-700" asChild>
+                                        <Button variant="outline" className="flex-1 h-12 rounded-lg border-blue-600 text-[#222222] hover:bg-[#F7F7F7] font-semibold text-[15px]" asChild>
                                             <a href={`tel:${booking.hostId?.phoneNumber}`}>
-                                                <Phone className="h-4 w-4 mr-2 text-indigo-500" /> {s.call || 'Call'}
+                                                <Phone className="h-4 w-4 mr-2 stroke-[2]" /> {s.call || 'Call'}
                                             </a>
                                         </Button>
-                                    </div>
-                                </div>
-
-                                {/* Map placeholder */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-4 -sm group cursor-pointer overflow-hidden">
-                                    <div className="h-40 bg-slate-100 rounded-[1.5rem] flex items-center justify-center flex-col gap-2 transition-colors group-hover:bg-slate-200">
-                                        <MapIcon className="h-8 w-8 text-slate-300" />
-                                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                                            {sd.openMap || 'Open in Google Maps'}
-                                        </p>
                                     </div>
                                 </div>
 

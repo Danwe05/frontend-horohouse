@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight, Maximize2, ZoomIn, ZoomOut, Grid, Play, Globe, Video, Image as ImageIcon } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { X, ChevronLeft, ChevronRight, Grid, Play, Share, Heart } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 
 const TourViewer = dynamic(() => import("./TourViewer"), {
   ssr: false,
@@ -26,250 +27,490 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
-  const [zoom, setZoom] = useState(1);
-  const [showThumbs, setShowThumbs] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const thumbsRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   const pd = t.propertyDetails;
 
   const images = property.images?.length > 0
     ? [...property.images].sort((a, b) => (b.isMain ? 1 : 0) - (a.isMain ? 1 : 0))
-    : [{ url: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80", publicId: "fallback", caption: "Property" }];
+    : [
+        { url: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80", publicId: "fallback", caption: "Property" },
+      ];
 
-  const imageUrls = images.map(img => img.url);
+  const imageUrls = images.map((img) => img.url);
 
-  // Resolve effective tour type — same logic as TourPreview
   const effectiveTourType = (() => {
-    const t = property.tourType;
-    if (t && t !== "none") return t;
+    const tour = property.tourType;
+    if (tour && tour !== "none") return tour;
     if (property.videoUrl) return "youtube";
-    if (images.length > 0) return "images";
     return "none";
   })();
 
   const hasTour = effectiveTourType !== "none";
 
-  const TOUR_META: Record<string, { label: string; sublabel: string; Icon: React.ElementType; color: string }> = {
-    kuula: { label: "360° Tour", sublabel: "Virtual tour available", Icon: Globe, color: "from-blue-900/80 to-blue-600/60" },
-    youtube: { label: "Video Tour", sublabel: "Watch the walkthrough", Icon: Video, color: "from-red-900/80 to-red-600/60" },
-    images: { label: "Photo Tour", sublabel: "Browse all rooms", Icon: ImageIcon, color: "from-slate-900/80 to-slate-600/60" },
-  };
+  const openLightbox = useCallback((index: number) => {
+    setActiveImage(index);
+    setImgLoaded(false);
+    setLightboxOpen(true);
+  }, []);
 
-  const tourMeta = TOUR_META[effectiveTourType] ?? TOUR_META.images;
+  const closeLightbox = useCallback(() => {
+    setLightboxOpen(false);
+  }, []);
 
-  const openLightbox = (index: number) => { setActiveImage(index); setLightboxOpen(true); setZoom(1); };
-  const closeLightbox = () => { setLightboxOpen(false); setZoom(1); };
-  const nextImage = useCallback(() => { setActiveImage((prev) => (prev + 1) % imageUrls.length); setZoom(1); }, [imageUrls.length]);
-  const previousImage = useCallback(() => { setActiveImage((prev) => (prev - 1 + imageUrls.length) % imageUrls.length); setZoom(1); }, [imageUrls.length]);
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.5, 3));
-  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.5, 1));
+  const nextImage = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) e.stopPropagation();
+    setImgLoaded(false);
+    setActiveImage((prev) => (prev + 1) % imageUrls.length);
+  }, [imageUrls.length]);
 
+  const previousImage = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) e.stopPropagation();
+    setImgLoaded(false);
+    setActiveImage((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
+  }, [imageUrls.length]);
+
+  // Keyboard navigation
   useEffect(() => {
     if (!lightboxOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") nextImage();
       if (e.key === "ArrowLeft") previousImage();
       if (e.key === "Escape") closeLightbox();
-      if (e.key === "+" || e.key === "=") handleZoomIn();
-      if (e.key === "-") handleZoomOut();
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
-    return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", handleKeyDown); };
-  }, [lightboxOpen, nextImage, previousImage]);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [lightboxOpen, nextImage, previousImage, closeLightbox]);
 
-  // Thumbnail images to show in the grid (slots 1-4)
-  // If there's a tour, slot 4 (index 3) becomes the tour card
-  const thumbnailSlots = [0, 1, 2, 3]; // indices into imageUrls
+  // Scroll active thumbnail into view
+  useEffect(() => {
+    if (!lightboxOpen || !thumbsRef.current) return;
+    const activeThumb = thumbsRef.current.children[activeImage] as HTMLElement;
+    if (activeThumb) {
+      activeThumb.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    }
+  }, [activeImage, lightboxOpen]);
+
+  // Touch swipe support
+  const minSwipeDistance = 50;
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (Math.abs(distance) >= minSwipeDistance) {
+      distance > 0 ? nextImage() : previousImage();
+    }
+  };
+
+  // How many grid cells to render on desktop
+  const gridImages = imageUrls.slice(0, 5);
+  const remainingCount = imageUrls.length - 5;
 
   return (
     <>
-      <div className="grid grid-cols-4 gap-3 bg-white p-3 rounded-3xl border border-slate-100">
-
-        {/* ── Main large image ── */}
+      {/* ─────────────────────────────────────────
+          DESKTOP GRID  (md and up)
+          Main 2×2 left + 2×2 right = 4-col grid
+      ───────────────────────────────────────── */}
+      <div className="hidden md:block relative">
         <div
-          className="relative col-span-4 lg:col-span-2 lg:row-span-2 h-[400px] rounded-2xl overflow-hidden cursor-pointer group"
-          onClick={() => openLightbox(0)}
+          className={cn(
+            "grid gap-2 rounded-xl overflow-hidden",
+            gridImages.length === 1
+              ? "grid-cols-1 h-[480px]"
+              : gridImages.length === 2
+              ? "grid-cols-2 h-[480px]"
+              : gridImages.length === 3
+              ? "grid-cols-[2fr_1fr] grid-rows-2 h-[480px]"
+              : gridImages.length === 4
+              ? "grid-cols-[2fr_1fr] grid-rows-2 h-[480px]"
+              : "grid-cols-[2fr_1fr_1fr] grid-rows-2 h-[480px]"
+          )}
         >
-          <img
-            src={imageUrls[0]}
-            alt={images[0].caption || "Property main view"}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="eager"
-          />
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none" />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-slate-900/10 transition-colors duration-300" />
-          <div className="absolute bottom-4 right-4 bg-white/90 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0">
-            <Maximize2 className="h-4 w-4" />
-            {pd?.viewGallery || "View Gallery"}
-          </div>
-        </div>
-
-        {/* ── Thumbnail slots 1, 2 ── */}
-        {[1, 2].map((imgIdx) => (
-          imageUrls[imgIdx] ? (
-            <div
-              key={imgIdx}
-              className="relative col-span-2 lg:col-span-1 h-[196px] rounded-2xl overflow-hidden cursor-pointer group"
-              onClick={() => openLightbox(imgIdx)}
-            >
-              <img
-                src={imageUrls[imgIdx]}
-                alt={images[imgIdx]?.caption || `Property view ${imgIdx + 1}`}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-slate-900/10 transition-colors duration-300" />
-            </div>
-          ) : null
-        ))}
-
-        {/* ── Slot 3: Virtual Tour card (always at position 4 in the grid) ── */}
-        {hasTour && (
+          {/* ── Main hero image ── */}
           <div
-            className="relative col-span-2 lg:col-span-1 h-[196px] rounded-2xl overflow-hidden cursor-pointer group"
-            onClick={() => setTourOpen(true)}
-          >
-            {property.tourThumbnail || imageUrls[0] ? (
-              <img
-                src={property.tourThumbnail ?? imageUrls[0]}
-                alt="Virtual tour"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                loading="lazy"
-              />
-            ) : (
-              <div className="w-full h-full bg-slate-800" />
+            className={cn(
+              "relative cursor-pointer group overflow-hidden bg-neutral-100",
+              gridImages.length >= 3 ? "row-span-2" : gridImages.length === 2 ? "" : "col-span-1"
             )}
-            <div className={`absolute inset-0 bg-gradient-to-b ${tourMeta.color} opacity-80 group-hover:opacity-90 transition-opacity`} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3">
-              <div className="w-12 h-12 rounded-full border-1 border-white/60 flex items-center justify-center group-hover:scale-110 group-hover:border-white transition-all duration-300 bg-white/10 backdrop-blur-sm">
-                <Play className="h-5 w-5 text-white fill-white ml-0.5" />
-              </div>
-              <div className="text-center">
-                <p className="text-white font-bold text-sm leading-tight">{tourMeta.label}</p>
-                <p className="text-white/70 text-xs mt-0.5">{tourMeta.sublabel}</p>
-              </div>
-            </div>
-            <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/15 backdrop-blur-sm border border-white/20 rounded-lg px-2 py-1">
-              <tourMeta.Icon className="h-3 w-3 text-white" />
-              <span className="text-white text-[10px] font-bold uppercase tracking-wide">
-                {effectiveTourType === "kuula" ? "360°" : effectiveTourType === "youtube" ? "Video" : "Tour"}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* ── Slot 4: 4th photo with "+X more" overlay ── */}
-        {imageUrls[3] && (
-          <div
-            className="relative col-span-2 lg:col-span-1 h-[196px] rounded-2xl overflow-hidden cursor-pointer group"
-            onClick={() => openLightbox(3)}
+            onClick={() => openLightbox(0)}
           >
             <img
-              src={imageUrls[3]}
-              alt={images[3]?.caption || "Property view 4"}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
+              src={imageUrls[0]}
+              alt={images[0].caption || property.title}
+              className="w-full h-full object-cover transition-[filter] duration-200 group-hover:brightness-[0.88]"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-slate-900/10 transition-colors duration-300" />
-            {imageUrls.length > 4 && (
-              <div
-                className="absolute inset-0 bg-slate-900/50 flex flex-col items-center justify-center backdrop-blur-[2px] group-hover:backdrop-blur-md transition-all duration-300"
-                onClick={(e) => { e.stopPropagation(); openLightbox(3); }}
-              >
-                <Grid className="text-white h-8 w-8 mb-2 opacity-80" />
-                <span className="text-white font-bold text-xl tracking-tight">{pd?.morePhotos?.replace("{count}", (imageUrls.length - 4).toString()) || `+${imageUrls.length - 4} More`}</span>
-                <span className="text-white/70 text-xs mt-1">{pd?.clickToViewAll || "Click to view all"}</span>
-              </div>
-            )}
           </div>
-        )}
+
+          {/* ── Right-side images ── */}
+          {gridImages.slice(1).map((url, idx) => {
+            const globalIdx = idx + 1;
+            const isLast = globalIdx === gridImages.length - 1 && remainingCount > 0;
+            return (
+              <div
+                key={globalIdx}
+                className="relative cursor-pointer group overflow-hidden bg-neutral-100"
+                onClick={() => openLightbox(globalIdx)}
+              >
+                <img
+                  src={url}
+                  alt={images[globalIdx]?.caption || `${property.title} — photo ${globalIdx + 1}`}
+                  className="w-full h-full object-cover transition-[filter] duration-200 group-hover:brightness-[0.88]"
+                />
+                {/* "Show more" overlay on the last visible cell */}
+                {isLast && (
+                  <div
+                    className="absolute inset-0 bg-black/30 flex items-center justify-center"
+                    onClick={(e) => { e.stopPropagation(); openLightbox(0); }}
+                  >
+                    <span className="text-white text-[15px] font-semibold underline underline-offset-2">
+                      +{remainingCount} more
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── Floating action buttons (bottom-right) ── */}
+        <div className="absolute bottom-4 right-4 flex items-center gap-2 z-10">
+          {hasTour && (
+            <button
+              onClick={() => setTourOpen(true)}
+              className="
+                flex items-center gap-1.5
+                bg-white border border-[#222222] text-[#222222]
+                text-[13px] font-semibold leading-none
+                px-[14px] py-[9px] rounded-lg
+                hover:bg-[#F7F7F7] active:scale-[0.98]
+                transition-all duration-150 shadow-sm
+              "
+            >
+              <Play className="w-[13px] h-[13px] fill-[#222222] stroke-0 flex-shrink-0" />
+              {effectiveTourType === "kuula" ? "360° tour" : "Video tour"}
+            </button>
+          )}
+
+          <button
+            onClick={() => openLightbox(0)}
+            className="
+              flex items-center gap-1.5
+              bg-white border border-[#222222] text-[#222222]
+              text-[13px] font-semibold leading-none
+              px-[14px] py-[9px] rounded-lg
+              hover:bg-[#F7F7F7] active:scale-[0.98]
+              transition-all duration-150 shadow-sm
+            "
+          >
+            <Grid className="w-[13px] h-[13px] stroke-[2.4] flex-shrink-0" />
+            {pd?.viewGallery || "Show all photos"}
+          </button>
+        </div>
       </div>
 
-      {/* ── Tour Viewer modal ── */}
+      {/* ─────────────────────────────────────────
+          MOBILE  (below md)
+          Full-width swipeable single image
+          with dot indicator + photo count badge
+      ───────────────────────────────────────── */}
+      <div className="md:hidden relative">
+        {/* Swipeable image strip */}
+        <div
+          className="relative h-[280px] sm:h-[340px] overflow-hidden rounded-xl bg-neutral-100"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          onClick={() => openLightbox(activeImage)}
+        >
+          {imageUrls.map((url, idx) => (
+            <img
+              key={idx}
+              src={url}
+              alt={images[idx]?.caption || `${property.title} — photo ${idx + 1}`}
+              className={cn(
+                "absolute inset-0 w-full h-full object-cover transition-opacity duration-300",
+                idx === activeImage ? "opacity-100" : "opacity-0 pointer-events-none"
+              )}
+            />
+          ))}
+
+          {/* Prev / Next arrows (mobile) */}
+          {imageUrls.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); previousImage(e); }}
+                aria-label="Previous photo"
+                className="
+                  absolute left-3 top-1/2 -translate-y-1/2 z-10
+                  w-8 h-8 bg-white rounded-full
+                  flex items-center justify-center
+                  shadow-[0_1px_6px_rgba(0,0,0,0.22)]
+                  hover:scale-105 active:scale-95 transition-transform
+                  focus:outline-none
+                "
+              >
+                <ChevronLeft className="w-4 h-4 stroke-[2.5] -ml-px text-[#222222]" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); nextImage(e); }}
+                aria-label="Next photo"
+                className="
+                  absolute right-3 top-1/2 -translate-y-1/2 z-10
+                  w-8 h-8 bg-white rounded-full
+                  flex items-center justify-center
+                  shadow-[0_1px_6px_rgba(0,0,0,0.22)]
+                  hover:scale-105 active:scale-95 transition-transform
+                  focus:outline-none
+                "
+              >
+                <ChevronRight className="w-4 h-4 stroke-[2.5] ml-px text-[#222222]" />
+              </button>
+            </>
+          )}
+
+          {/* Dot indicator */}
+          {imageUrls.length > 1 && imageUrls.length <= 10 && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+              {imageUrls.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={(e) => { e.stopPropagation(); setActiveImage(idx); }}
+                  className={cn(
+                    "rounded-full transition-all duration-200 focus:outline-none",
+                    idx === activeImage
+                      ? "w-2 h-2 bg-white"
+                      : "w-1.5 h-1.5 bg-white/60"
+                  )}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Photo count badge (if more than 10, dots replaced by count) */}
+          {imageUrls.length > 10 && (
+            <div className="absolute bottom-3 right-3 z-10 bg-white/90 backdrop-blur-sm text-[#222222] text-[12px] font-semibold px-2.5 py-1 rounded-full">
+              {activeImage + 1} / {imageUrls.length}
+            </div>
+          )}
+
+          {/* Tour button (mobile) */}
+          {hasTour && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setTourOpen(true); }}
+              className="
+                absolute bottom-3 left-3 z-10
+                flex items-center gap-1.5
+                bg-white border border-[#222222] text-[#222222]
+                text-[12px] font-semibold leading-none
+                px-3 py-[7px] rounded-lg shadow-sm
+              "
+            >
+              <Play className="w-3 h-3 fill-[#222222] stroke-0" />
+              {effectiveTourType === "kuula" ? "360°" : "Video"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────
+          TOUR VIEWER MODAL
+      ───────────────────────────────────────── */}
       {tourOpen && (
         <TourViewer
           tourType={effectiveTourType as any}
           virtualTourUrl={property.virtualTourUrl ?? property.videoUrl}
-          images={images.map(img => ({ url: img.url, caption: img.caption }))}
+          images={images.map((img) => ({ url: img.url, caption: img.caption }))}
           propertyId={property._id}
           onClose={() => setTourOpen(false)}
         />
       )}
 
-      {/* ── Full-Screen Lightbox ── */}
+      {/* ─────────────────────────────────────────
+          AIRBNB LIGHTBOX
+          White full-screen with:
+          - Top bar: close + counter + share/save
+          - Centred image viewer with nav arrows
+          - Touch swipe support
+          - Thumbnail strip bottom
+      ───────────────────────────────────────── */}
       {lightboxOpen && (
-        <div className="fixed inset-0 z-[9999] bg-black flex flex-col" style={{ width: "100vw", height: "100vh", top: 0, left: 0 }}>
-          <div className="flex-none flex items-center justify-between px-6 py-4 bg-gradient-to-b from-black/90 to-transparent absolute top-0 left-0 right-0 z-10">
-            <div className="text-white">
-              <h3 className="font-bold text-lg leading-tight drop-">{property.title}</h3>
-              {images[activeImage]?.caption && (
-                <p className="text-sm text-white/70 mt-0.5">{images[activeImage].caption}</p>
+        <div
+          className="fixed inset-0 z-[9999] bg-white flex flex-col"
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
+        >
+          {/* ── Top bar ── */}
+          <div className="flex-none flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-[#DDDDDD] bg-white">
+            {/* Close */}
+            <button
+              onClick={closeLightbox}
+              aria-label="Close"
+              className="
+                w-9 h-9 flex items-center justify-center rounded-full
+                hover:bg-[#F7F7F7] active:bg-[#EBEBEB]
+                transition-colors focus:outline-none -ml-1
+              "
+            >
+              <X className="w-[18px] h-[18px] stroke-[2.5] text-[#222222]" />
+            </button>
+
+            {/* Counter */}
+            <span className="text-[15px] font-semibold text-[#222222]">
+              {activeImage + 1} / {imageUrls.length}
+            </span>
+
+            {/* Right actions */}
+            <div className="flex items-center gap-1">
+              <button
+                aria-label="Share"
+                className="
+                  flex items-center gap-1.5 px-3 py-2 rounded-lg
+                  text-[13px] font-semibold text-[#222222]
+                  hover:bg-[#F7F7F7] active:bg-[#EBEBEB]
+                  transition-colors focus:outline-none
+                "
+              >
+                <Share className="w-4 h-4 stroke-[2]" />
+                <span className="hidden sm:inline">Share</span>
+              </button>
+              <button
+                aria-label="Save"
+                className="
+                  flex items-center gap-1.5 px-3 py-2 rounded-lg
+                  text-[13px] font-semibold text-[#222222]
+                  hover:bg-[#F7F7F7] active:bg-[#EBEBEB]
+                  transition-colors focus:outline-none
+                "
+              >
+                <Heart className="w-4 h-4 stroke-[2]" />
+                <span className="hidden sm:inline">Save</span>
+              </button>
+            </div>
+          </div>
+
+          {/* ── Main viewer ── */}
+          <div
+            className="flex-1 relative flex items-center justify-center bg-[#F7F7F7] overflow-hidden px-4 md:px-20 py-6"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onClick={closeLightbox}
+          >
+            {/* Prev */}
+            {imageUrls.length > 1 && (
+              <button
+                onClick={previousImage}
+                aria-label="Previous image"
+                className="
+                  absolute left-3 md:left-6 z-10
+                  w-11 h-11 md:w-14 md:h-14
+                  bg-white border border-[#DDDDDD] rounded-full
+                  flex items-center justify-center
+                  shadow-[0_2px_8px_rgba(0,0,0,0.14)]
+                  hover:scale-105 active:scale-95 transition-transform
+                  focus:outline-none
+                "
+              >
+                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 stroke-[2] -ml-px text-[#222222]" />
+              </button>
+            )}
+
+            {/* Image + caption */}
+            <div
+              className="relative flex flex-col items-center gap-3 max-w-full max-h-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Loading skeleton */}
+              {!imgLoaded && (
+                <div className="absolute inset-0 bg-neutral-200 animate-pulse rounded-lg" />
+              )}
+              <img
+                key={imageUrls[activeImage]}
+                src={imageUrls[activeImage]}
+                alt={images[activeImage]?.caption || `Photo ${activeImage + 1}`}
+                onLoad={() => setImgLoaded(true)}
+                className={cn(
+                  "max-w-full object-contain select-none rounded-sm transition-opacity duration-200",
+                  "max-h-[calc(100svh-240px)] md:max-h-[calc(100svh-220px)]",
+                  imgLoaded ? "opacity-100" : "opacity-0"
+                )}
+                draggable={false}
+              />
+              {images[activeImage]?.caption && imgLoaded && (
+                <p className="text-[14px] text-[#717171] font-normal text-center max-w-[480px] px-4 leading-snug">
+                  {images[activeImage].caption}
+                </p>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-1 bg-white/10 rounded-xl p-1 backdrop-blur border border-white/10">
-                <button className="text-white hover:bg-white/20 h-9 w-9 rounded-lg flex items-center justify-center disabled:opacity-30 transition-colors" onClick={handleZoomOut} disabled={zoom <= 1}>
-                  <ZoomOut className="h-4 w-4" />
-                </button>
-                <span className="text-white text-xs font-mono px-2 min-w-[3rem] text-center">{Math.round(zoom * 100)}%</span>
-                <button className="text-white hover:bg-white/20 h-9 w-9 rounded-lg flex items-center justify-center disabled:opacity-30 transition-colors" onClick={handleZoomIn} disabled={zoom >= 3}>
-                  <ZoomIn className="h-4 w-4" />
-                </button>
-              </div>
-              <button className="text-white bg-white/10 hover:bg-white/20 h-10 w-10 rounded-xl backdrop-blur border border-white/10 flex items-center justify-center transition-colors" onClick={() => setShowThumbs(p => !p)}>
-                <Grid className="h-4 w-4" />
-              </button>
-              <button className="text-white bg-white/10 hover:bg-white/20 h-10 w-10 rounded-xl backdrop-blur border border-white/10 flex items-center justify-center transition-colors ml-1" onClick={closeLightbox}>
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
 
-          <div className="flex-1 relative flex items-center justify-center overflow-hidden">
+            {/* Next */}
             {imageUrls.length > 1 && (
-              <button className="absolute left-3 sm:left-6 z-10 bg-black/40 hover:bg-black/70 text-white h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/10 transition-colors" onClick={previousImage}>
-                <ChevronLeft className="h-7 w-7" />
-              </button>
-            )}
-            <img
-              src={imageUrls[activeImage]}
-              alt={images[activeImage]?.caption || `Property view ${activeImage + 1}`}
-              className="max-w-full max-h-full object-contain transition-transform duration-300 select-none"
-              style={{ transform: `scale(${zoom})`, width: "100%", height: "100%", objectFit: "contain", padding: "60px 80px" }}
-              draggable={false}
-            />
-            {imageUrls.length > 1 && (
-              <button className="absolute right-3 sm:right-6 z-10 bg-black/40 hover:bg-black/70 text-white h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/10 transition-colors" onClick={nextImage}>
-                <ChevronRight className="h-7 w-7" />
+              <button
+                onClick={nextImage}
+                aria-label="Next image"
+                className="
+                  absolute right-3 md:right-6 z-10
+                  w-11 h-11 md:w-14 md:h-14
+                  bg-white border border-[#DDDDDD] rounded-full
+                  flex items-center justify-center
+                  shadow-[0_2px_8px_rgba(0,0,0,0.14)]
+                  hover:scale-105 active:scale-95 transition-transform
+                  focus:outline-none
+                "
+              >
+                <ChevronRight className="w-5 h-5 md:w-6 md:h-6 stroke-[2] ml-px text-[#222222]" />
               </button>
             )}
           </div>
 
-          <div className="flex-none bg-gradient-to-t from-black/90 to-transparent pb-4 pt-6">
-            <div className="flex justify-center mb-3">
-              <span className="bg-white/10 text-white text-sm font-semibold px-4 py-1.5 rounded-full backdrop-blur border border-white/10">
-                {activeImage + 1} / {imageUrls.length}
-              </span>
-            </div>
-            {showThumbs && (
-              <div className="flex gap-2 justify-start sm:justify-center overflow-x-auto px-6 pb-1 scrollbar-hide">
-                {imageUrls.map((img, idx) => (
-                  <button key={idx} onClick={() => { setActiveImage(idx); setZoom(1); }}
-                    className={`flex-shrink-0 rounded-lg overflow-hidden border-1 transition-all duration-200 ${idx === activeImage ? "border-white w-20 h-14 sm:w-24 sm:h-16 -lg scale-105" : "border-white/20 opacity-50 hover:opacity-90 w-16 h-12 sm:w-20 sm:h-14"}`}>
-                    <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
-                  </button>
-                ))}
-              </div>
-            )}
-            <p className="text-center text-white/30 text-xs mt-3 hidden lg:block">← → navigate &nbsp;·&nbsp; +/− zoom &nbsp;·&nbsp; ESC close</p>
+          {/* ── Thumbnail strip ── */}
+          <div
+            ref={thumbsRef}
+            className="
+              flex-none flex items-center gap-2
+              px-4 md:px-6 py-3
+              border-t border-[#DDDDDD] bg-white
+              overflow-x-auto scroll-smooth
+              [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+            "
+          >
+            {imageUrls.map((url, idx) => (
+              <button
+                key={idx}
+                onClick={() => { setImgLoaded(false); setActiveImage(idx); }}
+                aria-label={`Go to photo ${idx + 1}`}
+                className={cn(
+                  "flex-none w-[56px] h-[44px] md:w-[72px] md:h-[56px]",
+                  "rounded-md overflow-hidden transition-all duration-150 focus:outline-none",
+                  activeImage === idx
+                    ? "ring-2 ring-offset-1 ring-[#222222] opacity-100"
+                    : "opacity-50 hover:opacity-75"
+                )}
+              >
+                <img
+                  src={url}
+                  alt={`Thumbnail ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </button>
+            ))}
           </div>
         </div>
       )}
-
-      <style jsx global>{`
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </>
   );
 };

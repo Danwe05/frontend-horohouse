@@ -1,9 +1,11 @@
+'use client';
+
 import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Check, Star, Building, Sparkles } from 'lucide-react';
 import { SubscriptionPlan, BillingCycle } from '@/types/paiement';
+import { cn } from '@/lib/utils';
 
 interface SubscriptionCardsProps {
   plans: SubscriptionPlan[];
@@ -33,33 +35,43 @@ export const SubscriptionCards: React.FC<SubscriptionCardsProps> = ({
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-12 py-10">
+    <div className="w-full max-w-6xl mx-auto pb-12">
       {/* Sleek Billing Toggle */}
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex p-1 bg-slate-100/50 rounded-2xl border border-slate-200">
+      <div className="flex flex-col items-center mb-12">
+        <div className="flex p-1 bg-[#F7F7F7] rounded-full border border-[#EBEBEB]">
           <button
             onClick={() => setBillingCycle(BillingCycle.MONTHLY)}
-            className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all ${billingCycle === BillingCycle.MONTHLY
-              ? 'bg-white -sm text-blue-600'
-              : 'text-slate-400 hover:text-slate-600'
-              }`}
+            className={cn(
+              "px-6 py-2.5 rounded-full text-[14px] font-semibold transition-all focus:outline-none",
+              billingCycle === BillingCycle.MONTHLY
+                ? "bg-white text-[#222222] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-[#DDDDDD]"
+                : "text-[#717171] hover:text-[#222222] border border-transparent"
+            )}
           >
             Monthly
           </button>
           <button
             onClick={() => setBillingCycle(BillingCycle.YEARLY)}
-            className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${billingCycle === BillingCycle.YEARLY
-              ? 'bg-white -sm text-blue-600'
-              : 'text-slate-400 hover:text-slate-600'
-              }`}
+            className={cn(
+              "px-6 py-2.5 rounded-full text-[14px] font-semibold transition-all flex items-center gap-2 focus:outline-none",
+              billingCycle === BillingCycle.YEARLY
+                ? "bg-white text-[#222222] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-[#DDDDDD]"
+                : "text-[#717171] hover:text-[#222222] border border-transparent"
+            )}
           >
             Yearly
-            <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full uppercase font-black tracking-wider">Save 25%</span>
+            <span className={cn(
+              "text-[11px] px-2 py-0.5 rounded-full font-bold",
+              billingCycle === BillingCycle.YEARLY ? "bg-[#EBFBF0] text-[#008A05]" : "bg-[#EBEBEB] text-[#717171]"
+            )}>
+              Save 25%
+            </span>
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+      {/* Pricing Cards Grid */}
+      <div className="grid grid-cols-1 gap-6 lg:gap-8 md:grid-cols-3 items-stretch">
         {plans.map((plan) => {
           const price = getPrice(plan);
           const isCurrentPlan = currentPlan === plan.name;
@@ -68,41 +80,44 @@ export const SubscriptionCards: React.FC<SubscriptionCardsProps> = ({
           return (
             <Card
               key={plan.name}
-              className={`relative overflow-hidden border-0 transition-all duration-500 group hover:-translate-y-2 rounded-[32px] ${isPopular
-                ? 'bg-slate-900 text-white -2xl -slate-900/40 scale-105 z-10'
-                : 'bg-white text-slate-900 -xl -slate-200/50 border border-slate-100'
-                }`}
+              className={cn(
+                "relative bg-white shadow-none flex flex-col h-full overflow-hidden transition-colors",
+                isPopular ? "border-[2px] border-[#222222] rounded-2xl" : "border border-[#DDDDDD] rounded-2xl hover:border-[#B0B0B0]"
+              )}
             >
               {isPopular && (
-                <div className="absolute top-0 right-0 p-5">
-                  <Badge className="bg-blue-500 hover:bg-blue-400 text-white border-none px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest">
+                <div className="absolute top-0 right-0 p-5 z-10">
+                  <span className="bg-[#222222] text-white px-3 py-1.5 rounded-full font-semibold text-[11px] uppercase tracking-wide">
                     Recommended
-                  </Badge>
+                  </span>
                 </div>
               )}
 
-              <CardHeader className="pt-10 pb-4 px-8">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 ${isPopular ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-50 text-blue-600'
-                  }`}>
+              <CardHeader className="pt-8 pb-6 px-8 shrink-0">
+                <div className="w-12 h-12 rounded-full bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center text-[#222222] mb-6">
                   {getPlanIcon(plan.name)}
                 </div>
 
-                <h3 className="text-2xl font-black tracking-tight">{plan.displayName}</h3>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-black tracking-tighter">
+                <h3 className="text-[22px] font-semibold tracking-tight text-[#222222] mb-4">
+                  {plan.displayName}
+                </h3>
+                
+                <div className="flex items-baseline gap-1">
+                  <span className="text-[36px] font-semibold tracking-tight text-[#222222] leading-none">
                     {price.toLocaleString()}
                   </span>
-                  <span className={`text-sm font-bold uppercase tracking-widest ${isPopular ? 'text-slate-400' : 'text-slate-400'}`}>
+                  <span className="text-[14px] font-medium text-[#717171]">
                     {billingCycle === BillingCycle.MONTHLY ? 'FCFA / mo' : 'FCFA / yr'}
                   </span>
                 </div>
-                <p className={`mt-4 text-sm font-medium leading-relaxed ${isPopular ? 'text-slate-400' : 'text-slate-500'}`}>
+                
+                <p className="mt-4 text-[15px] text-[#717171] leading-relaxed">
                   {plan.description}
                 </p>
               </CardHeader>
 
-              <CardContent className="px-8 py-6">
-                <div className={`h-px w-full mb-8 ${isPopular ? 'bg-slate-800' : 'bg-slate-50'}`} />
+              <CardContent className="px-8 py-2 flex-1">
+                <div className="h-px w-full bg-[#EBEBEB] mb-6" />
                 <ul className="space-y-4">
                   {[
                     { label: `${plan.features.maxListings === -1 ? 'Unlimited' : plan.features.maxListings} property listings`, check: true },
@@ -110,11 +125,9 @@ export const SubscriptionCards: React.FC<SubscriptionCardsProps> = ({
                     { label: 'Featured listings', check: plan.features.featuredListings },
                     { label: 'Priority support', check: plan.features.prioritySupport },
                   ].map((feature, i) => feature.check && (
-                    <li key={i} className="flex items-start gap-4">
-                      <div className={`mt-1 rounded-full p-1 ${isPopular ? 'bg-blue-500/20' : 'bg-blue-50'}`}>
-                        <Check className="h-3 w-3 text-blue-500" />
-                      </div>
-                      <span className={`text-sm font-bold ${isPopular ? 'text-slate-300' : 'text-slate-600'}`}>
+                    <li key={i} className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-[#222222] shrink-0 stroke-[2]" />
+                      <span className="text-[15px] text-[#222222] pt-0.5">
                         {feature.label}
                       </span>
                     </li>
@@ -122,18 +135,20 @@ export const SubscriptionCards: React.FC<SubscriptionCardsProps> = ({
                 </ul>
               </CardContent>
 
-              <CardFooter className="px-8 pb-10">
+              <CardFooter className="px-8 pb-8 pt-6 mt-auto">
                 <Button
                   onClick={() => onSelectPlan(plan, billingCycle)}
                   disabled={loading || isCurrentPlan}
-                  className={`w-full h-12 rounded-2xl font-black text-sm transition-all active:scale-95 ${isCurrentPlan
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    : isPopular
-                      ? 'bg-blue-600 hover:bg-blue-500 text-white -lg -blue-500/25'
-                      : 'bg-slate-900 hover:bg-slate-800 text-white'
-                    }`}
+                  className={cn(
+                    "w-full h-12 rounded-lg font-semibold text-[15px] transition-all focus:outline-none active:scale-[0.98]",
+                    isCurrentPlan
+                      ? "bg-[#F7F7F7] text-[#717171] border border-[#DDDDDD] cursor-not-allowed opacity-100"
+                      : isPopular
+                        ? "bg-[#222222] hover:bg-black text-white"
+                        : "bg-blue-600 border text-white hover:bg-blue-700"
+                  )}
                 >
-                  {isCurrentPlan ? '✓ Current Plan' : 'Get Started'}
+                  {isCurrentPlan ? 'Current plan' : 'Get started'}
                 </Button>
               </CardFooter>
             </Card>

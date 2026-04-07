@@ -11,6 +11,7 @@ import { VideoCallOverlay } from './VideoCallOverlay';
 import { IncomingCallDialog } from './IncomingCallDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface ChatThreadProps {
   onBack?: () => void;
@@ -243,17 +244,20 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
 
   if (!activeConversation) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-muted/20">
+      <div className="flex-1 flex items-center justify-center bg-white border-l border-[#EBEBEB]">
         <div className="text-center max-w-md p-8">
-          <div className="w-98 h-98 flex items-center justify-center mx-auto">
-            <Image src="/messagePage/Texting.gif" alt="Chat Intro" width={100} height={100} style={{ height: "200px", width: "200px" }} />
+          <div className="w-20 h-20 bg-[#F7F7F7] border border-[#EBEBEB] rounded-full flex items-center justify-center mx-auto mb-6">
+            <MessageCircle className="w-10 h-10 text-[#DDDDDD] stroke-[1.5]" />
           </div>
-          <h2 className="text-2xl font-bold mb-3">{s.yourMessages || 'Your Messages'}</h2>
-          <p className="text-muted-foreground mb-6">
+          <h2 className="text-[22px] font-semibold text-[#222222] mb-2">{s.yourMessages || 'Your messages'}</h2>
+          <p className="text-[15px] text-[#717171] mb-8 leading-relaxed">
             {s.selectConversationDesc || 'Select a conversation from the list to start messaging, or browse properties to connect with owners and agents.'}
           </p>
-          <Button onClick={() => router.push('/')} className="bg-primary">
-            {s.browseProperties || 'Browse Properties'}
+          <Button 
+            onClick={() => router.push('/')} 
+            className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] transition-colors"
+          >
+            {s.browseProperties || 'Browse listings'}
           </Button>
         </div>
       </div>
@@ -262,10 +266,10 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
 
   if (!currentUserId) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-muted/20">
+      <div className="flex-1 flex items-center justify-center bg-white border-l border-[#EBEBEB]">
         <div className="text-center max-w-md p-8">
-          <h2 className="text-2xl font-bold mb-3">{s.authRequired || 'Authentication Required'}</h2>
-          <p className="text-muted-foreground mb-6">{s.pleaseLoginAccess || 'Please log in to access your messages.'}</p>
+          <h2 className="text-[22px] font-semibold text-[#222222] mb-2">{s.authRequired || 'Authentication required'}</h2>
+          <p className="text-[15px] text-[#717171] mb-6">{s.pleaseLoginAccess || 'Please log in to access your messages.'}</p>
         </div>
       </div>
     );
@@ -276,7 +280,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
   const displayUser = remoteUser || otherUser;
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-background min-h-0 relative">
+    <div className="flex-1 flex flex-col h-full bg-white min-h-0 relative border-l border-[#EBEBEB]">
       {/* Video Call Overlay */}
       {showVideoCall && (
         <VideoCallOverlay
@@ -306,136 +310,131 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
       )}
 
       {/* Chat Header */}
-      <div className="p-4 bg-white border-b border-border flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="px-6 py-4 bg-white border-b border-[#EBEBEB] flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-4">
           {onBack && (
-            <Button variant="ghost" size="icon" className="md:hidden -ml-2" onClick={onBack}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
+            <button className="md:hidden p-2 -ml-2 rounded-full hover:bg-[#F7F7F7] text-[#222222] transition-colors focus:outline-none" onClick={onBack}>
+              <ArrowLeft className="w-5 h-5 stroke-[2]" />
+            </button>
           )}
-          <div className="relative">
-            <Avatar className="w-12 h-12">
-              <AvatarImage src={otherUser?.profilePicture} />
-              <AvatarFallback>{otherUser?.name?.[0] || "U"}</AvatarFallback>
-            </Avatar>
+          <div className="relative shrink-0">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-[#F7F7F7] border border-[#DDDDDD] flex items-center justify-center text-[#222222]">
+              {otherUser?.profilePicture ? (
+                <img src={otherUser.profilePicture} alt={otherUser.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-[16px] font-bold">{otherUser?.name?.[0]?.toUpperCase() || "U"}</span>
+              )}
+            </div>
             {isOtherUserOnline && (
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#008A05] border-2 border-white rounded-full" />
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="font-semibold">{otherUser?.name || (s.unknownUser || "Unknown User")}</h2>
-              {isOtherUserOnline && (
-                <span className="flex items-center gap-1 text-xs text-green-600">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                  {s.online || 'Online'}
-                </span>
-              )}
+            <div className="flex items-center gap-2 mb-0.5">
+              <h2 className="text-[16px] font-semibold text-[#222222] truncate">{otherUser?.name || (s.unknownUser || "Unknown User")}</h2>
             </div>
-            {activeConversation.propertyId?._id && (
+            {activeConversation.propertyId?._id ? (
               <button
                 onClick={() => router.push(`/properties/${activeConversation.propertyId?._id}`)}
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors text-left truncate max-w-full"
+                className="flex items-center gap-1.5 text-[13px] text-[#717171] hover:text-[#222222] transition-colors text-left truncate max-w-full focus:outline-none"
               >
-                {/* FIX: MapPin icon instead of emoji */}
-                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
                 <span className="truncate">{activeConversation.propertyId?.title}</span>
               </button>
+            ) : (
+              <p className="text-[13px] text-[#717171] truncate">
+                {isOtherUserOnline ? 'Active now' : 'Offline'}
+              </p>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            className="w-10 h-10 rounded-full flex items-center justify-center text-[#222222] hover:bg-[#F7F7F7] transition-colors disabled:opacity-50 focus:outline-none"
             onClick={handleStartVideoCall}
             disabled={!isOtherUserOnline || callStatus !== 'idle'}
             title={isOtherUserOnline ? "Start video call" : "User is offline"}
           >
-            <Video className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <MoreVertical className="w-5 h-5" />
-          </Button>
+            <Video className="w-5 h-5 stroke-[2]" />
+          </button>
+          <button className="w-10 h-10 rounded-full flex items-center justify-center text-[#222222] hover:bg-[#F7F7F7] transition-colors focus:outline-none">
+            <MoreVertical className="w-5 h-5 stroke-[2]" />
+          </button>
         </div>
       </div>
 
       {/* Connection Warning */}
       {!isConnected && (
-        <div className="px-4 py-2 bg-yellow-50 border-b border-yellow-200 flex items-center justify-center gap-2">
-          <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
-          <span className="text-sm text-yellow-700">{s.reconnectingMsg || 'Reconnecting to chat server...'}</span>
+        <div className="px-6 py-2.5 bg-[#FFF7ED] border-b border-[#C2410C]/20 flex items-center justify-center gap-2">
+          <div className="w-2 h-2 bg-[#C2410C] rounded-full animate-pulse" />
+          <span className="text-[13px] font-medium text-[#C2410C]">{s.reconnectingMsg || 'Reconnecting to chat server...'}</span>
         </div>
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-white">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center max-w-md">
-              <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold text-lg mb-2">{s.noMessagesYetStr || 'No messages yet'}</h3>
-              <p className="text-sm text-muted-foreground">
+              <div className="w-16 h-16 bg-[#F7F7F7] rounded-full flex items-center justify-center mx-auto mb-4 border border-[#EBEBEB]">
+                <MessageCircle className="w-8 h-8 text-[#DDDDDD] stroke-[1.5]" />
+              </div>
+              <h3 className="text-[18px] font-semibold text-[#222222] mb-2">{s.noMessagesYetStr || 'No messages yet'}</h3>
+              <p className="text-[15px] text-[#717171]">
                 {s.startConversationWith?.replace('{name}', otherUser?.name) ||
-                  `Start the conversation by sending a message to ${otherUser?.name}`}
+                  `Send a message to ${otherUser?.name} to start the conversation.`}
               </p>
             </div>
           </div>
         ) : (
           <>
             {messages.map((message, index) => {
-              // FIX: Safely normalize senderId whether it's a string or populated object
               const senderId = typeof message.senderId === 'object'
                 ? message.senderId._id?.toString()
                 : (message.senderId as any)?.toString();
 
-              // FIX: Compare normalized strings — this is the core fix for left/right alignment
               const isOwn = !!senderId && !!currentUserId && senderId === currentUserId;
 
               const isVoiceMessage = message.type === 'audio' ||
                 (message.content && message.content.startsWith('VOICE_MESSAGE:'));
 
-              // FIX: Optimistic messages (tempId) get a slightly different style
               const isOptimistic = !!message._id && message._id.startsWith('temp_');
 
               return (
                 <div
                   key={`${message._id}-${index}`}
-                  className={`flex items-start gap-3 ${isOwn ? "justify-end" : "justify-start"}`}
+                  className={cn("flex items-end gap-2", isOwn ? "justify-end" : "justify-start")}
                 >
                   {!isOwn && (
-                    <Avatar className="w-10 h-10 flex-shrink-0">
-                      <AvatarImage src={
-                        typeof message.senderId === 'object'
-                          ? message.senderId.profilePicture
-                          : undefined
-                      } />
-                      <AvatarFallback>
-                        {typeof message.senderId === 'object'
-                          ? message.senderId.name?.[0]
-                          : 'U'}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] shrink-0 flex items-center justify-center text-[#222222] mb-5">
+                      {typeof message.senderId === 'object' && message.senderId.profilePicture ? (
+                        <img src={message.senderId.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[11px] font-bold">
+                          {typeof message.senderId === 'object' ? message.senderId.name?.[0]?.toUpperCase() : 'U'}
+                        </span>
+                      )}
+                    </div>
                   )}
 
-                  <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[70%]`}>
+                  <div className={cn("flex flex-col", isOwn ? "items-end" : "items-start", "max-w-[75%]")}>
                     <div
-                      className={`
-                        ${isOwn ? "bg-primary text-white" : "bg-muted text-foreground"}
-                        p-4 rounded-2xl ${isOwn ? "rounded-tr-sm" : "rounded-tl-sm"}
-                        ${isVoiceMessage ? 'min-w-[200px]' : ''}
-                        ${isOptimistic ? 'opacity-70' : 'opacity-100'}
-                        transition-opacity duration-200
-                      `}
+                      className={cn(
+                        "px-4 py-3 text-[15px] leading-relaxed shadow-sm",
+                        isOwn 
+                          ? "bg-blue-600 text-white rounded-2xl rounded-br-sm" 
+                          : "bg-[#F7F7F7] text-[#222222] border border-[#EBEBEB] rounded-2xl rounded-bl-sm",
+                        isVoiceMessage ? 'min-w-[200px]' : '',
+                        isOptimistic ? 'opacity-70' : 'opacity-100'
+                      )}
                     >
                       {!isVoiceMessage && message.type !== 'image' && (
-                        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                        <p className="whitespace-pre-wrap break-words">{message.content}</p>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 mt-1 px-1">
-                      <span className="text-xs text-muted-foreground">
+                    <div className={cn("flex items-center gap-1.5 mt-1.5", isOwn ? "pr-1" : "pl-1")}>
+                      <span className="text-[11px] font-medium text-[#717171]">
                         {new Date(message.createdAt).toLocaleTimeString([], {
                           hour: '2-digit',
                           minute: '2-digit',
@@ -443,43 +442,37 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
                       </span>
                       {isOwn && (
                         <span className="flex items-center">
-                          {/* FIX: Lucide icons instead of emoji ticks */}
                           {isOptimistic ? (
-                            // Sending state — single faded check
-                            <Check className="w-3.5 h-3.5 text-gray-300" />
+                            <Check className="w-3.5 h-3.5 text-[#DDDDDD]" />
                           ) : message.status === 'read' ? (
-                            <CheckCheck className="w-3.5 h-3.5 text-blue-500" />
+                            <CheckCheck className="w-3.5 h-3.5 text-[#222222]" />
                           ) : message.status === 'delivered' ? (
-                            <CheckCheck className="w-3.5 h-3.5 text-gray-400" />
+                            <CheckCheck className="w-3.5 h-3.5 text-[#717171]" />
                           ) : (
-                            <Check className="w-3.5 h-3.5 text-gray-400" />
+                            <Check className="w-3.5 h-3.5 text-[#717171]" />
                           )}
                         </span>
                       )}
                     </div>
                   </div>
-
-                  {isOwn && (
-                    <Avatar className="w-10 h-10 flex-shrink-0">
-                      <AvatarImage src={user?.profilePicture} />
-                      <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
-                    </Avatar>
-                  )}
                 </div>
               );
             })}
 
             {isOtherUserTyping && (
-              <div className="flex items-start gap-3 justify-start">
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={otherUser?.profilePicture} />
-                  <AvatarFallback>{otherUser?.name?.[0] || "U"}</AvatarFallback>
-                </Avatar>
-                <div className="bg-muted p-4 rounded-2xl rounded-tl-sm">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+              <div className="flex items-end gap-2 justify-start">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] shrink-0 flex items-center justify-center text-[#222222] mb-1">
+                  {otherUser?.profilePicture ? (
+                    <img src={otherUser.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-[11px] font-bold">{otherUser?.name?.[0]?.toUpperCase() || "U"}</span>
+                  )}
+                </div>
+                <div className="bg-[#F7F7F7] border border-[#EBEBEB] px-4 py-4 rounded-2xl rounded-bl-sm shadow-sm flex items-center justify-center h-[46px] mb-1">
+                  <div className="flex gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-[#717171] rounded-full animate-bounce" />
+                    <span className="w-1.5 h-1.5 bg-[#717171] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                    <span className="w-1.5 h-1.5 bg-[#717171] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
                   </div>
                 </div>
               </div>
@@ -491,44 +484,50 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t border-border">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="rounded-full shrink-0">
-            <Paperclip className="w-5 h-5" />
-          </Button>
+      <div className="px-6 py-4 bg-white border-t border-[#EBEBEB] shrink-0">
+        <div className="flex items-center gap-3">
+          <button className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-[#717171] hover:text-[#222222] hover:bg-[#F7F7F7] transition-colors focus:outline-none">
+            <Paperclip className="w-5 h-5 stroke-[2]" />
+          </button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`rounded-full shrink-0 ${isRecording ? 'text-red-500' : ''}`}
+          <button
+            className={cn(
+              "w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors focus:outline-none",
+              isRecording ? "text-[#C2293F] bg-[#FFF8F6]" : "text-[#717171] hover:text-[#222222] hover:bg-[#F7F7F7]"
+            )}
             onMouseDown={startRecording}
             onMouseUp={stopRecording}
             title="Hold to record voice message"
           >
-            <Mic className="w-5 h-5" />
-          </Button>
+            <Mic className="w-5 h-5 stroke-[2]" />
+          </button>
 
-          <Input
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            placeholder={s.typeYourMessage || 'Type your message...'}
-            className="flex-1 bg-muted border-0 rounded-full px-4"
-            disabled={!isConnected}
-          />
+          <div className="flex-1 relative">
+            <Input
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              placeholder={s.typeYourMessage || 'Type a message...'}
+              className="w-full h-12 bg-[#F7F7F7] border-transparent rounded-full px-5 text-[15px] focus-visible:ring-1 focus-visible:ring-[#222222] placeholder:text-[#717171] pr-12"
+              disabled={!isConnected}
+            />
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-[#717171] hover:text-[#222222] transition-colors focus:outline-none">
+              <Smile className="w-5 h-5 stroke-[2]" />
+            </button>
+          </div>
 
-          <Button variant="ghost" size="icon" className="rounded-full shrink-0">
-            <Smile className="w-5 h-5" />
-          </Button>
-
-          <Button
-            size="icon"
-            className="rounded-full shrink-0 bg-primary hover:opacity-90 transition-opacity"
+          <button
+            className={cn(
+              "w-12 h-12 rounded-full shrink-0 flex items-center justify-center transition-transform focus:outline-none",
+              inputValue.trim() && isConnected 
+                ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                : "bg-[#F7F7F7] text-[#DDDDDD] cursor-not-allowed"
+            )}
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || !isConnected}
           >
-            <Send className="w-5 h-5" />
-          </Button>
+            <Send className="w-5 h-5 stroke-[2] -ml-0.5 mt-0.5" />
+          </button>
         </div>
       </div>
     </div>

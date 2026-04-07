@@ -24,7 +24,7 @@ export default function TestViewTracking() {
       // Step 2: Get a property (this should track the view)
       const propertyId = "6908e01db6737012727df03a"; // Use your property ID
       console.log("2️⃣ Fetching property:", propertyId);
-      
+
       const property = await apiClient.getProperty(propertyId);
       console.log("3️⃣ Property fetched:", property.title);
 
@@ -89,8 +89,8 @@ export default function TestViewTracking() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Test View Tracking</h1>
-      
-      <Button 
+
+      <Button
         onClick={testTracking}
         disabled={loading}
         className="mb-4"
@@ -105,7 +105,7 @@ export default function TestViewTracking() {
               <div className="font-bold">
                 {result.success ? "✅ Test Results" : "❌ Test Failed"}
               </div>
-              
+
               {result.success ? (
                 <>
                   <div>Property Fetched: {result.propertyFetched ? "✅" : "❌"}</div>
@@ -113,12 +113,12 @@ export default function TestViewTracking() {
                   <div>Found in Viewed Properties: {result.foundInViewedProperties ? "✅" : "❌"}</div>
                   <div>Recently Viewed Count: {result.recentlyViewedCount}</div>
                   <div>Viewed Properties Count: {result.viewedPropertiesCount}</div>
-                  
+
                   <details className="mt-4">
                     <summary className="cursor-pointer font-semibold">
                       View Raw Data
                     </summary>
-                    <pre className="mt-2 p-2 bg-black/10 rounded text-xs overflow-auto max-h-96">
+                    <pre className="mt-2 p-2 bg-blue-700/10 rounded text-xs overflow-auto max-h-96">
                       {JSON.stringify(result, null, 2)}
                     </pre>
                   </details>
@@ -127,7 +127,7 @@ export default function TestViewTracking() {
                 <>
                   <div>Error: {result.error}</div>
                   {result.errorDetails && (
-                    <pre className="mt-2 p-2 bg-black/10 rounded text-xs overflow-auto">
+                    <pre className="mt-2 p-2 bg-blue-700/10 rounded text-xs overflow-auto">
                       {JSON.stringify(result.errorDetails, null, 2)}
                     </pre>
                   )}

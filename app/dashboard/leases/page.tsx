@@ -7,22 +7,21 @@ import { NavDash } from '@/components/dashboard/NavDash';
 import { apiClient } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FileText, Plus, X, Check, AlertTriangle, Loader2,
-  ChevronDown, ChevronUp, Home, Users, Calendar,
-  PenLine, Trash2, Clock, CheckCircle2, XCircle,
-  Search, Building2, DollarSign, User, UserSearch,
-  GraduationCap, ShieldCheck,
-  ExternalLink,
-} from 'lucide-react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 import SignatureCanvas from 'react-signature-canvas';
 import { useRouter } from 'next/navigation';
+import {
+  FileText, Plus, X, AlertTriangle, Loader2,
+  ChevronDown, ChevronUp, Home, Users, Calendar,
+  PenLine, Trash2, Clock, CheckCircle2, XCircle,
+  Search, Building2, DollarSign, User, UserSearch,
+  GraduationCap, ExternalLink,
+  ChevronRight,
+} from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -64,19 +63,19 @@ interface Lease {
 // ─── Status config ────────────────────────────────────────────────────────────
 
 const STATUS_CFG = {
-  draft: { label: 'Draft', icon: FileText, badge: 'bg-slate-100 text-slate-600', row: '' },
-  pending_tenant: { label: 'Awaiting Tenant', icon: Clock, badge: 'bg-amber-100 text-amber-700', row: 'bg-amber-50/20' },
-  active: { label: 'Active', icon: CheckCircle2, badge: 'bg-emerald-100 text-emerald-700', row: '' },
-  expired: { label: 'Expired', icon: XCircle, badge: 'bg-slate-100 text-slate-400', row: 'opacity-60' },
-  terminated: { label: 'Terminated', icon: XCircle, badge: 'bg-red-100 text-red-600', row: 'opacity-60' },
+  draft: { label: 'Draft', icon: FileText, badge: 'border-[#DDDDDD] text-[#717171] bg-white', row: '' },
+  pending_tenant: { label: 'Awaiting Tenant', icon: Clock, badge: 'border-[#C2410C]/30 text-[#C2410C] bg-[#FFF7ED]', row: 'bg-[#FFF7ED]/30' },
+  active: { label: 'Active', icon: CheckCircle2, badge: 'border-[#008A05]/30 text-[#008A05] bg-[#EBFBF0]', row: '' },
+  expired: { label: 'Expired', icon: XCircle, badge: 'border-[#DDDDDD] text-[#717171] bg-[#F7F7F7]', row: 'opacity-70' },
+  terminated: { label: 'Terminated', icon: XCircle, badge: 'border-[#C2293F]/30 text-[#C2293F] bg-[#FFF8F6]', row: 'opacity-70' },
 };
 
 function StatusBadge({ status }: { status: string }) {
   const cfg = STATUS_CFG[status as keyof typeof STATUS_CFG] ?? STATUS_CFG.draft;
   const Icon = cfg.icon;
   return (
-    <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold', cfg.badge)}>
-      <Icon className="w-3 h-3" />
+    <span className={cn('inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold border', cfg.badge)}>
+      <Icon className="w-3.5 h-3.5" />
       {cfg.label}
     </span>
   );
@@ -84,10 +83,10 @@ function StatusBadge({ status }: { status: string }) {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatXAF(n: number) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M XAF`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K XAF`;
-  return `${n.toLocaleString()} XAF`;
+function formatFCFA(n: number) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M FCFA`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K FCFA`;
+  return `${n.toLocaleString()} FCFA`;
 }
 
 function formatDate(iso: string) {
@@ -130,36 +129,35 @@ function SignatureModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl -2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-[#EBEBEB]">
           <div>
-            <h2 className="text-base font-bold text-slate-900">Sign Lease</h2>
-            <p className="text-xs text-slate-500 mt-0.5">{lease.propertyId?.title}</p>
+            <h2 className="text-[22px] font-semibold text-[#222222]">Sign lease agreement</h2>
+            <p className="text-[14px] text-[#717171] mt-1">{lease.propertyId?.title}</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-200 text-slate-400 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-[#F7F7F7] text-[#222222] transition-colors focus:outline-none">
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="px-6 py-5 space-y-4">
-          <p className="text-sm text-slate-600">
+        <div className="px-6 py-6 space-y-6">
+          <p className="text-[15px] text-[#717171] leading-relaxed">
             By signing below you confirm all lease terms are correct and agree to be bound by this agreement.
           </p>
-          <div className="border-1 border-dashed border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+          <div className="border border-[#B0B0B0] rounded-xl overflow-hidden bg-[#F7F7F7]">
             <SignatureCanvas
               ref={sigRef}
               canvasProps={{ width: 400, height: 160, className: 'w-full' }}
-              backgroundColor="rgb(248,250,252)"
               onBegin={() => setIsEmpty(false)}
             />
           </div>
-          <p className="text-[10px] text-slate-400 text-center">Draw your signature above</p>
-          <div className="flex gap-3">
-            <Button variant="outline" size="sm" onClick={() => { sigRef.current?.clear(); setIsEmpty(true); }} className="flex-1">
+          <p className="text-[13px] text-[#717171] text-center">Draw your signature above</p>
+          <div className="flex gap-4 pt-2">
+            <Button variant="outline" onClick={() => { sigRef.current?.clear(); setIsEmpty(true); }} className="flex-1 h-12 rounded-lg border-[#DDDDDD] text-[#222222] font-semibold hover:bg-[#F7F7F7]">
               Clear
             </Button>
-            <Button onClick={handleSign} disabled={signing || isEmpty} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white">
-              {signing ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Signing…</> : <><PenLine className="w-4 h-4 mr-2" />Sign Lease</>}
+            <Button onClick={handleSign} disabled={signing || isEmpty} className="flex-1 h-12 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold disabled:opacity-50">
+              {signing ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Signing...</> : "Sign lease"}
             </Button>
           </div>
         </div>
@@ -199,29 +197,29 @@ function TerminateModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl -2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
-        <div className="p-6 text-center">
-          <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle className="w-7 h-7 text-red-600" />
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-8 text-center">
+          <div className="w-16 h-16 rounded-full bg-[#FFF8F6] border border-[#C2293F]/20 flex items-center justify-center mx-auto mb-6">
+            <AlertTriangle className="w-8 h-8 text-[#C2293F] stroke-[1.5]" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 mb-1">Terminate Lease?</h2>
-          <p className="text-sm text-slate-500 mb-4">
-            This will terminate the lease for <span className="font-semibold text-slate-700">{lease.propertyId?.title}</span>. All tenants will be notified.
+          <h2 className="text-[22px] font-semibold text-[#222222] mb-2">Request termination?</h2>
+          <p className="text-[15px] text-[#717171] mb-6 leading-relaxed">
+            This will notify all parties of your intent to terminate the lease for <span className="font-semibold text-[#222222]">{lease.propertyId?.title}</span>.
           </p>
           <textarea
             value={reason}
             onChange={e => setReason(e.target.value)}
-            placeholder="Reason for termination (required)…"
-            rows={3}
-            className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300 resize-none bg-slate-50 text-left"
+            placeholder="Reason for termination (required)..."
+            rows={4}
+            className="w-full px-4 py-3 text-[15px] border border-[#B0B0B0] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#222222] resize-none bg-white placeholder:text-[#717171]"
           />
         </div>
-        <div className="flex gap-3 px-6 pb-6">
-          <Button variant="outline" onClick={onClose} className="flex-1" disabled={loading}>Cancel</Button>
-          <Button onClick={handleTerminate} className="flex-1 bg-red-600 hover:bg-red-700 text-white" disabled={loading}>
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Trash2 className="w-4 h-4 mr-1.5" />}
-            Terminate
+        <div className="flex gap-4 px-8 pb-8 pt-2">
+          <Button variant="outline" onClick={onClose} className="flex-1 h-12 rounded-lg border-[#DDDDDD] text-[#222222] font-semibold hover:bg-[#F7F7F7]" disabled={loading}>Cancel</Button>
+          <Button onClick={handleTerminate} className="flex-1 h-12 rounded-lg bg-[#D90B38] hover:bg-[#B0092D] text-white font-semibold" disabled={loading}>
+            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+            Submit request
           </Button>
         </div>
       </div>
@@ -282,16 +280,16 @@ function TenantSearchInput({
 
   if (value) {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl">
-        <div className="w-7 h-7 rounded-full bg-emerald-200 flex items-center justify-center text-xs font-bold text-emerald-800 shrink-0">
+      <div className="flex items-center gap-3 px-4 py-3 bg-[#F7F7F7] border border-[#DDDDDD] rounded-xl">
+        <div className="w-8 h-8 rounded-full bg-[#EBEBEB] flex items-center justify-center text-[13px] font-bold text-[#222222] shrink-0 border border-[#DDDDDD]">
           {value.name.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-slate-800 truncate">{value.name}</p>
-          {value.email && <p className="text-[10px] text-slate-400 truncate">{value.email}</p>}
+          <p className="text-[15px] font-semibold text-[#222222] truncate">{value.name}</p>
+          {value.email && <p className="text-[13px] text-[#717171] truncate">{value.email}</p>}
         </div>
-        <button onClick={onClear} className="text-slate-400 hover:text-red-500 transition-colors shrink-0">
-          <X className="w-4 h-4" />
+        <button onClick={onClear} className="text-[#717171] hover:text-[#C2293F] transition-colors shrink-0 focus:outline-none">
+          <X className="w-5 h-5" />
         </button>
       </div>
     );
@@ -300,14 +298,14 @@ function TenantSearchInput({
   return (
     <div ref={wrapRef} className="relative">
       <div className="relative">
-        <UserSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <UserSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#717171]" />
         <input
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Search by name or email…"
-          className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
+          placeholder="Search by name or email..."
+          className="w-full pl-11 pr-4 h-14 text-[16px] border border-[#B0B0B0] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#222222] placeholder:text-[#717171]"
         />
-        {loading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 animate-spin" />}
+        {loading && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#717171] animate-spin" />}
       </div>
       <AnimatePresence mode="wait">
         {open && results.length > 0 && (
@@ -316,27 +314,26 @@ function TenantSearchInput({
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl -xl overflow-hidden"
+            className="absolute z-50 top-full mt-2 left-0 right-0 bg-white border border-[#DDDDDD] rounded-xl shadow-lg overflow-hidden max-h-[300px] overflow-y-auto"
           >
             {results.map(u => (
-              <React.Fragment key={u._id ?? u.id}>
-                <button
-                  type="button"
-                  onClick={() => { onSelect(u); setQuery(''); setOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 transition-colors text-left"
-                >
-                  <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center shrink-0">
-                    {u.profilePicture
-                      ? <img src={u.profilePicture} alt={u.name} className="w-full h-full object-cover" />
-                      : <span className="text-xs font-bold text-slate-600">{u.name.charAt(0).toUpperCase()}</span>
-                    }
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-800 truncate">{u.name}</p>
-                    <p className="text-[10px] text-slate-400 truncate">{u.email || u.phoneNumber || u._id}</p>
-                  </div>
-                </button>
-              </React.Fragment>
+              <button
+                key={u._id ?? u.id}
+                type="button"
+                onClick={() => { onSelect(u); setQuery(''); setOpen(false); }}
+                className="w-full flex items-center gap-4 px-4 py-3 hover:bg-[#F7F7F7] transition-colors text-left border-b border-[#EBEBEB] last:border-0"
+              >
+                <div className="w-10 h-10 rounded-full bg-[#EBEBEB] overflow-hidden flex items-center justify-center shrink-0 border border-[#DDDDDD]">
+                  {u.profilePicture
+                    ? <img src={u.profilePicture} alt={u.name} className="w-full h-full object-cover" />
+                    : <span className="text-[14px] font-bold text-[#222222]">{u.name.charAt(0).toUpperCase()}</span>
+                  }
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] font-semibold text-[#222222] truncate">{u.name}</p>
+                  <p className="text-[13px] text-[#717171] truncate">{u.email || u.phoneNumber || u._id}</p>
+                </div>
+              </button>
             ))}
           </motion.div>
         )}
@@ -346,7 +343,7 @@ function TenantSearchInput({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl -xl px-4 py-3 text-sm text-slate-400"
+            className="absolute z-50 top-full mt-2 left-0 right-0 bg-white border border-[#DDDDDD] rounded-xl shadow-lg px-6 py-4 text-[15px] text-[#717171]"
           >
             No users found for "{query}"
           </motion.div>
@@ -413,7 +410,6 @@ function CreateLeaseModal({ onClose, onCreated }: { onClose: () => void; onCreat
     });
   };
 
-  // Auto-split rent equally
   useEffect(() => {
     const rent = Number(form.monthlyRent);
     if (!rent || form.tenants.length === 0) return;
@@ -446,7 +442,7 @@ function CreateLeaseModal({ onClose, onCreated }: { onClose: () => void; onCreat
     }
 
     if (!sharesValid) {
-      setError(`Tenant shares must sum to ${formatXAF(rent)} (currently ${formatXAF(sharesSum)}).`);
+      setError(`Tenant shares must sum to ${formatFCFA(rent)} (currently ${formatFCFA(sharesSum)}).`);
       return;
     }
 
@@ -485,158 +481,147 @@ function CreateLeaseModal({ onClose, onCreated }: { onClose: () => void; onCreat
   };
 
   const selectedProp = properties.find(p => p._id === form.propertyId);
+  const inputClasses = "flex h-14 w-full rounded-xl border border-[#B0B0B0] bg-white px-4 py-2 text-[16px] text-[#222222] placeholder:text-[#717171] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] transition-all";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl -2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in fade-in slide-in-from-bottom-4 flex flex-col">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white shrink-0">
+        <div className="flex items-center justify-between px-8 py-6 border-b border-[#EBEBEB] shrink-0">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Create New Lease</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Step {step} of 2</p>
+            <h2 className="text-[22px] font-semibold text-[#222222]">Create new lease</h2>
+            <p className="text-[14px] text-[#717171] mt-1">Step {step} of 2</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-[#F7F7F7] text-[#222222] transition-colors focus:outline-none">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Step indicator */}
-        <div className="px-6 pt-4 shrink-0">
-          <div className="flex items-center gap-2">
-            {[1, 2].map(s => (
-              <React.Fragment key={s}>
-                <div className={cn('w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all', step >= s ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400')}>{s}</div>
-                {s < 2 && <div className={cn('flex-1 h-0.5 transition-all', step > s ? 'bg-slate-900' : 'bg-slate-200')} />}
-              </React.Fragment>
-            ))}
-          </div>
-          <div className="flex justify-between mt-1">
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Lease Terms</span>
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Tenants</span>
-          </div>
-        </div>
-
         {/* Body */}
-        <div className="px-6 py-4 overflow-y-auto flex-1">
+        <div className="px-8 py-6 overflow-y-auto flex-1 custom-scrollbar">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm mb-4">
-              <AlertTriangle className="w-4 h-4 shrink-0" />{error}
+            <div className="flex items-start gap-2 p-4 bg-[#FFF7ED] border border-[#C2410C]/20 rounded-xl text-[#C2410C] text-[14px] mb-6 font-medium">
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />{error}
             </div>
           )}
 
           {step === 1 && (
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Property *</Label>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-[15px] font-semibold text-[#222222]">Property <span className="text-[#C2410C]">*</span></Label>
                 {loadingProps ? (
-                  <div className="h-10 bg-slate-100 rounded-xl animate-pulse" />
+                  <div className="h-14 bg-[#F7F7F7] rounded-xl animate-pulse" />
                 ) : (
                   <select
                     value={form.propertyId}
                     onChange={e => setForm(f => ({ ...f, propertyId: e.target.value }))}
-                    className="w-full px-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300"
+                    className={cn(inputClasses, "appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%23222222%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_16px_center] bg-no-repeat")}
                   >
-                    <option value="">Select a property…</option>
+                    <option value="">Select a property...</option>
                     {properties.map(p => <option key={p._id} value={p._id}>{p.title} — {p.city}</option>)}
                   </select>
                 )}
                 {selectedProp && (
-                  <p className="text-xs text-slate-400 flex items-center gap-1">
-                    <Home className="w-3 h-3" />{selectedProp.address}, {selectedProp.city}
+                  <p className="text-[13px] text-[#717171] flex items-center gap-1.5 mt-2">
+                    <Home className="w-3.5 h-3.5" />{selectedProp.address}, {selectedProp.city}
                   </p>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Start Date *</Label>
-                  <Input type="date" value={form.leaseStart} onChange={e => setForm(f => ({ ...f, leaseStart: e.target.value }))} className="border-slate-200 bg-slate-50 rounded-xl" />
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-[15px] font-semibold text-[#222222]">Start date <span className="text-[#C2410C]">*</span></Label>
+                  <Input type="date" value={form.leaseStart} onChange={e => setForm(f => ({ ...f, leaseStart: e.target.value }))} className={inputClasses} />
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">End Date *</Label>
-                  <Input type="date" value={form.leaseEnd} onChange={e => setForm(f => ({ ...f, leaseEnd: e.target.value }))} className="border-slate-200 bg-slate-50 rounded-xl" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Monthly Rent (XAF) *</Label>
-                  <Input type="number" value={form.monthlyRent} onChange={e => setForm(f => ({ ...f, monthlyRent: e.target.value }))} placeholder="e.g. 80000" className="border-slate-200 bg-slate-50 rounded-xl" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Deposit (XAF)</Label>
-                  <Input type="number" value={form.depositAmount} onChange={e => setForm(f => ({ ...f, depositAmount: e.target.value }))} placeholder="e.g. 160000" className="border-slate-200 bg-slate-50 rounded-xl" />
+                <div className="space-y-2">
+                  <Label className="text-[15px] font-semibold text-[#222222]">End date <span className="text-[#C2410C]">*</span></Label>
+                  <Input type="date" value={form.leaseEnd} onChange={e => setForm(f => ({ ...f, leaseEnd: e.target.value }))} className={inputClasses} />
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Advance Months (1–12)</Label>
-                <Input type="number" min={1} max={12} value={form.advanceMonths} onChange={e => setForm(f => ({ ...f, advanceMonths: e.target.value }))} className="border-slate-200 bg-slate-50 rounded-xl w-32" />
-                <p className="text-[10px] text-slate-400">Legal max in Cameroon is 12 months. Student-friendly is 3.</p>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-[15px] font-semibold text-[#222222]">Monthly rent (FCFA) <span className="text-[#C2410C]">*</span></Label>
+                  <Input type="number" value={form.monthlyRent} onChange={e => setForm(f => ({ ...f, monthlyRent: e.target.value }))} placeholder="e.g. 80000" className={inputClasses} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[15px] font-semibold text-[#222222]">Deposit (FCFA)</Label>
+                  <Input type="number" value={form.depositAmount} onChange={e => setForm(f => ({ ...f, depositAmount: e.target.value }))} placeholder="e.g. 160000" className={inputClasses} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[15px] font-semibold text-[#222222]">Advance months (1-12)</Label>
+                <Input type="number" min={1} max={12} value={form.advanceMonths} onChange={e => setForm(f => ({ ...f, advanceMonths: e.target.value }))} className={cn(inputClasses, "max-w-[200px]")} />
+                <p className="text-[13px] text-[#717171]">Legal max in Cameroon is 12 months. Student-friendly is 3.</p>
               </div>
             </div>
           )}
 
           {step === 2 && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-700">{form.tenants.length} tenant{form.tenants.length > 1 ? 's' : ''}</p>
-                <button onClick={addTenant} className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors">
-                  <Plus className="w-3.5 h-3.5" /> Add Tenant
+            <div className="space-y-6">
+              <div className="flex items-center justify-between border-b border-[#EBEBEB] pb-4">
+                <p className="text-[18px] font-semibold text-[#222222]">{form.tenants.length} tenant{form.tenants.length > 1 ? 's' : ''}</p>
+                <button onClick={addTenant} className="flex items-center gap-2 text-[14px] font-semibold text-[#222222] hover:text-[#717171] transition-colors focus:outline-none">
+                  <Plus className="w-4 h-4 stroke-[2]" /> Add tenant
                 </button>
               </div>
-              {form.tenants.map((t, i) => (
-                <div key={i} className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tenant {i + 1}</p>
-                    {form.tenants.length > 1 && (
-                      <button onClick={() => removeTenant(i)} className="text-red-400 hover:text-red-600 transition-colors"><X className="w-4 h-4" /></button>
-                    )}
+              
+              <div className="space-y-6">
+                {form.tenants.map((t, i) => (
+                  <div key={i} className="p-6 bg-[#F7F7F7] rounded-2xl border border-[#EBEBEB] space-y-4 relative">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[14px] font-bold text-[#717171] uppercase tracking-wider">Tenant {i + 1}</p>
+                      {form.tenants.length > 1 && (
+                        <button onClick={() => removeTenant(i)} className="text-[#717171] hover:text-[#C2293F] transition-colors focus:outline-none p-1"><X className="w-5 h-5" /></button>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[15px] font-semibold text-[#222222]">Search user <span className="text-[#C2410C]">*</span></Label>
+                      <TenantSearchInput
+                        value={t.resolved ? { id: t.tenantUserId, name: t.tenantName, email: t.tenantEmail, phone: t.tenantPhone } : null}
+                        onSelect={u => selectTenant(i, u)}
+                        onClear={() => clearTenant(i)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[15px] font-semibold text-[#222222]">Rent share (FCFA) <span className="text-[#C2410C]">*</span></Label>
+                      <Input
+                        type="number"
+                        value={t.rentShare}
+                        onChange={e => {
+                          const tenants = [...form.tenants];
+                          tenants[i] = { ...tenants[i], rentShare: e.target.value };
+                          setForm(f => ({ ...f, tenants }));
+                        }}
+                        placeholder="e.g. 40000"
+                        className={inputClasses}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <Label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Search Tenant *</Label>
-                    <TenantSearchInput
-                      value={t.resolved ? { id: t.tenantUserId, name: t.tenantName, email: t.tenantEmail, phone: t.tenantPhone } : null}
-                      onSelect={u => selectTenant(i, u)}
-                      onClear={() => clearTenant(i)}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Rent Share (XAF) *</Label>
-                    <Input
-                      type="number"
-                      value={t.rentShare}
-                      onChange={e => {
-                        const tenants = [...form.tenants];
-                        tenants[i] = { ...tenants[i], rentShare: e.target.value };
-                        setForm(f => ({ ...f, tenants }));
-                      }}
-                      placeholder="e.g. 40000"
-                      className="border-slate-200 bg-white rounded-xl text-sm h-9"
-                    />
-                  </div>
-                </div>
-              ))}
-              <div className={cn('flex items-center justify-between p-3 rounded-xl border text-sm font-semibold', sharesValid ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-600')}>
-                <span>Shares total</span>
-                <span>{formatXAF(sharesSum)} {sharesValid ? '✓' : `≠ ${formatXAF(rent)}`}</span>
+                ))}
+              </div>
+
+              <div className={cn('flex items-center justify-between p-5 rounded-xl border font-semibold text-[16px]', sharesValid ? 'bg-[#EBFBF0] border-[#008A05]/20 text-[#008A05]' : 'bg-[#FFF8F6] border-[#C2293F]/20 text-[#C2293F]')}>
+                <span>Total shares</span>
+                <span>{formatFCFA(sharesSum)} {sharesValid ? '✓' : `(must equal ${formatFCFA(rent)})`}</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
+        <div className="flex gap-4 px-8 py-6 border-t border-[#EBEBEB] bg-white shrink-0">
           {step === 1 ? (
             <>
-              <Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
-              <Button onClick={() => { setError(''); setStep(2); }} disabled={!form.propertyId || !form.leaseStart || !form.leaseEnd || !form.monthlyRent} className="flex-1 bg-slate-900 hover:bg-slate-800 text-white">
-                Next: Add Tenants
+              <Button variant="outline" onClick={onClose} className="flex-1 h-14 rounded-lg border-[#DDDDDD] text-[#222222] font-semibold hover:bg-[#F7F7F7]">Cancel</Button>
+              <Button onClick={() => { setError(''); setStep(2); }} disabled={!form.propertyId || !form.leaseStart || !form.leaseEnd || !form.monthlyRent} className="flex-1 h-14 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold">
+                Next
               </Button>
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={() => setStep(1)} className="flex-1">Back</Button>
-              <Button onClick={handleCreate} disabled={saving || !sharesValid} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white">
-                {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating…</> : <><FileText className="w-4 h-4 mr-2" />Create Lease</>}
+              <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-14 rounded-lg border-[#DDDDDD] text-[#222222] font-semibold hover:bg-[#F7F7F7]">Back</Button>
+              <Button onClick={handleCreate} disabled={saving || !sharesValid} className="flex-1 h-14 rounded-lg bg-[#FF385C] hover:bg-[#D90B38] text-white font-semibold disabled:opacity-50">
+                {saving ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Creating...</> : "Create lease"}
               </Button>
             </>
           )}
@@ -665,99 +650,100 @@ function LandlordLeaseCard({
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-      className={cn('bg-white rounded-2xl border border-slate-200 -sm overflow-hidden', cfg.row)}>
-      <button onClick={() => setExpanded(!expanded)} className="w-full text-left p-5 hover:bg-slate-50/50 transition-colors">
-        <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 shrink-0">
+      className={cn('bg-white rounded-2xl border border-[#DDDDDD] overflow-hidden transition-all hover:border-[#B0B0B0]', cfg.row)}>
+      <button onClick={() => setExpanded(!expanded)} className="w-full text-left p-6 transition-colors focus:outline-none">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] shrink-0">
             {propertyImg
               ? <img src={propertyImg} alt={lease.propertyId?.title} className="w-full h-full object-cover" />
-              : <div className="w-full h-full flex items-center justify-center"><Building2 className="w-6 h-6 text-slate-300" /></div>
+              : <div className="w-full h-full flex items-center justify-center"><Building2 className="w-6 h-6 text-[#DDDDDD]" /></div>
             }
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-bold text-slate-900 truncate">{lease.propertyId?.title || 'Unknown Property'}</p>
-                <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><Home className="w-3 h-3" />{lease.propertyId?.city}</p>
+                <p className="text-[18px] font-semibold text-[#222222] truncate">{lease.propertyId?.title || 'Unknown Property'}</p>
+                <p className="text-[14px] text-[#717171] flex items-center gap-1.5 mt-1"><Home className="w-4 h-4" />{lease.propertyId?.city}</p>
               </div>
               <StatusBadge status={lease.status} />
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-slate-500">
-              <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" />{formatXAF(lease.monthlyRent)}/mo</span>
-              <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(lease.leaseStart)} — {formatDate(lease.leaseEnd)}</span>
-              <span className="flex items-center gap-1"><Users className="w-3 h-3" />{lease.tenants.length} tenant{lease.tenants.length > 1 ? 's' : ''}</span>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-[14px] text-[#717171]">
+              <span className="flex items-center gap-1.5"><DollarSign className="w-4 h-4" />{formatFCFA(lease.monthlyRent)}/mo</span>
+              <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{formatDate(lease.leaseStart)} – {formatDate(lease.leaseEnd)}</span>
+              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" />{lease.tenants.length} tenant{lease.tenants.length > 1 ? 's' : ''}</span>
             </div>
           </div>
         </div>
 
         {/* Signing progress */}
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+        <div className="mt-6 pt-4 border-t border-[#EBEBEB]">
+          <div className="flex items-center justify-between text-[12px] font-bold text-[#717171] uppercase tracking-wider mb-2">
             <span>Signing progress</span>
             <span>{[landlordSigned, ...lease.tenants.map(t => !!t.signedAt)].filter(Boolean).length}/{1 + lease.tenants.length} signed</span>
           </div>
-          <div className="flex gap-1.5">
-            <div className={cn('flex-1 h-1.5 rounded-full transition-all', landlordSigned ? 'bg-emerald-500' : 'bg-slate-200')} title="Landlord" />
+          <div className="flex gap-2">
+            <div className={cn('flex-1 h-2 rounded-full transition-all', landlordSigned ? 'bg-[#008A05]' : 'bg-[#DDDDDD]')} title="Landlord" />
             {lease.tenants.map((t, i) => (
-              <div key={i} className={cn('flex-1 h-1.5 rounded-full transition-all', t.signedAt ? 'bg-emerald-500' : 'bg-slate-200')} title={t.tenantName} />
+              <div key={i} className={cn('flex-1 h-2 rounded-full transition-all', t.signedAt ? 'bg-[#008A05]' : 'bg-[#DDDDDD]')} title={t.tenantName} />
             ))}
           </div>
         </div>
-        <div className="flex items-center justify-end mt-3">
-          <span className="text-[10px] text-slate-400 flex items-center gap-1">
-            {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            {expanded ? 'Hide' : 'Show'} details
+        
+        <div className="flex items-center justify-end mt-4">
+          <span className="text-[14px] font-semibold text-[#222222] underline flex items-center gap-1 hover:text-[#717171] transition-colors">
+            {expanded ? 'Hide details' : 'Show details'}
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </span>
         </div>
       </button>
 
       <AnimatePresence>
         {expanded && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden border-t border-slate-100">
-            <div className="p-5 space-y-4">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden border-t border-[#EBEBEB]">
+            <div className="p-6 space-y-6 bg-[#F7F7F7]">
               <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Signing Status</p>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                    <div className="flex items-center gap-2"><User className="w-4 h-4 text-slate-400" /><span className="text-sm font-semibold text-slate-700">You (Landlord)</span></div>
+                <p className="text-[14px] font-semibold text-[#222222] mb-4">Signatures</p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#DDDDDD]">
+                    <div className="flex items-center gap-3"><User className="w-5 h-5 text-[#222222]" /><span className="text-[15px] font-semibold text-[#222222]">You (Landlord)</span></div>
                     {landlordSigned
-                      ? <span className="text-xs font-bold text-emerald-600 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Signed {formatDate(lease.landlordSignedAt!)}</span>
-                      : <span className="text-xs font-bold text-amber-600 flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Pending</span>
+                      ? <span className="text-[14px] font-bold text-[#008A05] flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Signed {formatDate(lease.landlordSignedAt!)}</span>
+                      : <span className="text-[14px] font-bold text-[#C2410C] flex items-center gap-1.5"><Clock className="w-4 h-4" /> Pending</span>
                     }
                   </div>
                   {lease.tenants.map((t, i) => (
-                    <div key={i} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                      <div className="flex items-center gap-2 min-w-0"><Users className="w-4 h-4 text-slate-400 shrink-0" /><span className="text-sm font-semibold text-slate-700 truncate">{t.tenantName}</span></div>
+                    <div key={i} className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#DDDDDD]">
+                      <div className="flex items-center gap-3 min-w-0"><Users className="w-5 h-5 text-[#222222] shrink-0" /><span className="text-[15px] font-semibold text-[#222222] truncate">{t.tenantName}</span></div>
                       {t.signedAt
-                        ? <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 shrink-0"><CheckCircle2 className="w-3.5 h-3.5" /> Signed {formatDate(t.signedAt)}</span>
-                        : <span className="text-xs font-bold text-amber-600 flex items-center gap-1 shrink-0"><Clock className="w-3.5 h-3.5" /> Awaiting</span>
+                        ? <span className="text-[14px] font-bold text-[#008A05] flex items-center gap-1.5 shrink-0"><CheckCircle2 className="w-4 h-4" /> Signed {formatDate(t.signedAt)}</span>
+                        : <span className="text-[14px] font-bold text-[#C2410C] flex items-center gap-1.5 shrink-0"><Clock className="w-4 h-4" /> Awaiting</span>
                       }
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                {[{ label: 'Monthly', value: formatXAF(lease.monthlyRent) }, { label: 'Deposit', value: formatXAF(lease.depositAmount) }, { label: 'Advance', value: `${lease.advanceMonths} mo` }]
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[{ label: 'Monthly', value: formatFCFA(lease.monthlyRent) }, { label: 'Deposit', value: formatFCFA(lease.depositAmount) }, { label: 'Advance', value: `${lease.advanceMonths} mo` }]
                   .map(({ label, value }) => (
-                    <div key={label} className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>
-                      <p className="text-sm font-bold text-slate-800 mt-0.5">{value}</p>
+                    <div key={label} className="bg-white rounded-xl p-4 border border-[#DDDDDD]">
+                      <p className="text-[12px] font-bold text-[#717171] uppercase tracking-wider mb-1">{label}</p>
+                      <p className="text-[16px] font-semibold text-[#222222]">{value}</p>
                     </div>
                   ))}
               </div>
-              <div className="flex gap-2 pt-1">
+              <div className="flex gap-4 pt-2">
                 {canSign && (
-                  <Button size="sm" onClick={() => onSign(lease)} className="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl h-9">
-                    <PenLine className="w-3.5 h-3.5 mr-1.5" /> Sign Lease
+                  <Button onClick={() => onSign(lease)} className="flex-1 h-12 bg-[#222222] hover:bg-black text-white rounded-lg font-semibold text-[15px] gap-2">
+                    <PenLine className="w-4 h-4" /> Sign Lease
                   </Button>
                 )}
                 {canTerminate && (
-                  <Button size="sm" variant="outline" onClick={() => onTerminate(lease)} className="flex-1 border-red-200 text-red-600 hover:bg-red-50 rounded-xl h-9">
-                    <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Terminate
+                  <Button variant="outline" onClick={() => onTerminate(lease)} className="flex-1 h-12 border-[#DDDDDD] text-[#222222] hover:bg-white rounded-lg font-semibold text-[15px] gap-2">
+                    <Trash2 className="w-4 h-4" /> Terminate
                   </Button>
                 )}
                 {!canSign && !canTerminate && (
-                  <p className="text-xs text-slate-400 italic">No actions available for this lease.</p>
+                  <p className="text-[14px] text-[#717171]">No actions available for this lease.</p>
                 )}
               </div>
             </div>
@@ -792,82 +778,80 @@ function TenantLeaseCard({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn('bg-white rounded-2xl border border-slate-200 -sm overflow-hidden group', cfg.row)}
+      className={cn('bg-white rounded-2xl border border-[#DDDDDD] overflow-hidden group transition-all hover:border-[#222222]', cfg.row)}
     >
-      {/* Main clickable area → detail page */}
+      {/* Main clickable area */}
       <button
         onClick={() => router.push(`/dashboard/leases/${lease._id}`)}
-        className="w-full text-left p-5 hover:bg-slate-50/50 transition-colors"
+        className="w-full text-left p-6 transition-colors focus:outline-none"
       >
-        <div className="flex items-start gap-4">
-          {/* Property thumbnail */}
-          <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 shrink-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] shrink-0">
             {propertyImg
               ? <img src={propertyImg} alt={lease.propertyId?.title} className="w-full h-full object-cover" />
-              : <div className="w-full h-full flex items-center justify-center"><Building2 className="w-6 h-6 text-slate-300" /></div>
+              : <div className="w-full h-full flex items-center justify-center"><Building2 className="w-6 h-6 text-[#DDDDDD]" /></div>
             }
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-bold text-slate-900 truncate">{lease.propertyId?.title || 'Unknown Property'}</p>
-                <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                  <Home className="w-3 h-3" />{lease.propertyId?.city}
+                <p className="text-[18px] font-semibold text-[#222222] truncate">{lease.propertyId?.title || 'Unknown Property'}</p>
+                <p className="text-[14px] text-[#717171] flex items-center gap-1.5 mt-1">
+                  <Home className="w-4 h-4" />{lease.propertyId?.city}
                 </p>
               </div>
               <StatusBadge status={lease.status} />
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-slate-500">
-              <span className="flex items-center gap-1">
-                <DollarSign className="w-3 h-3" />{formatXAF(myTenantRecord?.rentShare ?? lease.monthlyRent)}/mo
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-[14px] text-[#717171]">
+              <span className="flex items-center gap-1.5">
+                <DollarSign className="w-4 h-4" />{formatFCFA(myTenantRecord?.rentShare ?? lease.monthlyRent)}/mo
               </span>
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />{formatDate(lease.leaseStart)} — {formatDate(lease.leaseEnd)}
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4" />{formatDate(lease.leaseStart)} – {formatDate(lease.leaseEnd)}
               </span>
-              <span className="flex items-center gap-1">
-                <User className="w-3 h-3" />via {lease.landlordUserId?.name}
+              <span className="flex items-center gap-1.5">
+                <User className="w-4 h-4" />via {lease.landlordUserId?.name}
               </span>
             </div>
           </div>
-
-          {/* Arrow hint */}
-          <div className="shrink-0 self-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <ExternalLink className="w-4 h-4 text-slate-400" />
+          
+          <div className="hidden sm:block shrink-0 pl-4 opacity-0 group-hover:opacity-100 transition-opacity text-[#717171]">
+            <ExternalLink className="w-5 h-5" />
           </div>
         </div>
 
         {/* Signing status pill */}
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-6 pt-4 border-t border-[#EBEBEB] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           {canSign ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 animate-pulse">
-              <PenLine className="w-3 h-3" /> Your signature is required — tap to sign
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[13px] font-bold border border-[#C2410C]/30 text-[#C2410C] bg-[#FFF7ED]">
+              <PenLine className="w-4 h-4" /> Signature required — click to sign
             </span>
           ) : iHaveSigned ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
-              <CheckCircle2 className="w-3 h-3" /> You signed {formatDate(myTenantRecord!.signedAt!)}
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[13px] font-bold border border-[#008A05]/30 text-[#008A05] bg-[#EBFBF0]">
+              <CheckCircle2 className="w-4 h-4" /> You signed {formatDate(myTenantRecord!.signedAt!)}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500">
-              <Clock className="w-3 h-3" /> Awaiting landlord signature
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[13px] font-bold border border-[#DDDDDD] text-[#717171] bg-[#F7F7F7]">
+              <Clock className="w-4 h-4" /> Awaiting landlord signature
             </span>
           )}
 
-          <span className="ml-auto text-[10px] text-slate-400 flex items-center gap-1">
-            View details →
+          <span className="text-[14px] font-semibold text-[#222222] underline flex items-center gap-1 group-hover:text-[#717171] transition-colors">
+            View lease <ChevronRight className="w-4 h-4" />
           </span>
         </div>
       </button>
 
-      {/* Quick sign button — floats at bottom when signature required, without navigating away */}
+      {/* Quick sign button */}
       {canSign && (
-        <div className="px-5 pb-4">
+        <div className="px-6 pb-6 pt-2 bg-white">
           <Button
             onClick={e => { e.stopPropagation(); onSign(lease); }}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-9 gap-2 text-sm"
+            className="w-full h-12 bg-[#222222] hover:bg-black text-white rounded-lg gap-2 text-[15px] font-semibold"
           >
-            <PenLine className="w-3.5 h-3.5" /> Sign Now
+            <PenLine className="w-4 h-4" /> Sign now
           </Button>
         </div>
       )}
@@ -882,11 +866,8 @@ export default function LeasesPage() {
 
   const isLandlord = user?.role === 'landlord' || user?.role === 'agent' || user?.role === 'admin';
   const isStudent = user?.role === 'student';
-  // A landlord could also be a tenant on another property — show both tabs for them
-  // Students and regular users only see tenant view
   const showBothViews = isLandlord;
 
-  // 'landlord' | 'tenant'
   const [activeTab, setActiveTab] = useState<'landlord' | 'tenant'>(isLandlord ? 'landlord' : 'tenant');
 
   const [landlordLeases, setLandlordLeases] = useState<Lease[]>([]);
@@ -936,7 +917,6 @@ export default function LeasesPage() {
     return acc;
   }, {} as Record<string, number>);
 
-  // How many tenant leases need my signature
   const pendingMySignature = tenantLeases.filter(l => {
     const me = l.tenants.find(t => t.tenantUserId === user?._id);
     return me && !me.signedAt && l.status === 'pending_tenant' && !!l.landlordSignedAt;
@@ -944,127 +924,123 @@ export default function LeasesPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#f8fafc]">
+      <div className="flex min-h-screen w-full bg-white">
         <AppSidebar />
-        <SidebarInset className="bg-transparent">
+        <SidebarInset className="border-l border-[#EBEBEB] bg-transparent">
           <NavDash />
 
-          <div className="mx-auto w-full p-4 md:p-6 lg:p-8 space-y-6">
+          <div className="mx-auto w-full max-w-5xl p-6 lg:p-10 space-y-8">
 
             {/* Header */}
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-between gap-4 flex-wrap">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
               <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <div className={cn('p-2 rounded-xl', isStudent ? 'bg-purple-600' : 'bg-slate-900')}>
-                    <FileText className="w-5 h-5 text-white" />
-                  </div>
-                  <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Leases</h1>
-                  <Badge className="bg-slate-100 text-slate-600 border-none">
+                <h1 className="text-[32px] font-semibold tracking-tight text-[#222222] mb-2 flex items-center gap-3">
+                  Leases
+                  <span className="text-[14px] px-3 py-1 bg-[#F7F7F7] border border-[#EBEBEB] rounded-full text-[#222222] font-semibold tracking-normal flex items-center gap-1.5">
                     {activeLeasesRaw.length} total
-                  </Badge>
+                  </span>
                   {pendingMySignature > 0 && (
-                    <Badge className="bg-amber-100 text-amber-700 border-none animate-pulse">
-                      {pendingMySignature} awaiting your signature
-                    </Badge>
+                    <span className="text-[14px] px-3 py-1 bg-[#FFF7ED] border border-[#C2410C]/30 text-[#C2410C] rounded-full font-semibold tracking-normal">
+                      {pendingMySignature} awaiting signature
+                    </span>
                   )}
-                </div>
-                <p className="text-slate-500 text-sm pl-11">
+                </h1>
+                <p className="text-[16px] text-[#717171]">
                   {isStudent
-                    ? 'Review and sign your rental agreements.'
+                    ? 'Review, sign, and manage your rental agreements.'
                     : 'Create, sign, and manage your rental agreements.'}
                 </p>
               </div>
               {isLandlord && activeTab === 'landlord' && (
-                <Button onClick={() => setShowCreate(true)} className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl gap-2 -sm">
-                  <Plus className="w-4 h-4" /> New Lease
+                <Button onClick={() => setShowCreate(true)} className="h-12 px-6 bg-[#FF385C] hover:bg-[#D90B38] text-white rounded-lg font-semibold text-[15px] gap-2 active:scale-[0.98]">
+                  <Plus className="w-5 h-5 stroke-[2]" /> New lease
                 </Button>
               )}
             </motion.div>
 
-            {/* View toggle — only shown for landlords who may also be tenants */}
+            {/* View toggle */}
             {showBothViews && (
-              <div className="flex gap-1 p-1 bg-slate-100 rounded-xl w-fit">
+              <div className="flex gap-2 p-1.5 bg-[#F7F7F7] border border-[#DDDDDD] rounded-xl w-fit">
                 <button
                   onClick={() => { setActiveTab('landlord'); setStatusFilter('all'); setSearch(''); }}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all',
-                    activeTab === 'landlord' ? 'bg-white text-slate-900 -sm' : 'text-slate-500 hover:text-slate-700',
+                    'flex items-center gap-2 px-6 py-2.5 rounded-lg text-[15px] font-semibold transition-all focus:outline-none',
+                    activeTab === 'landlord' ? 'bg-white text-[#222222] shadow-[0_1px_3px_rgba(0,0,0,0.1)]' : 'text-[#717171] hover:text-[#222222]',
                   )}
                 >
-                  <Building2 className="w-3.5 h-3.5" /> My Properties
+                  <Building2 className="w-4 h-4" /> My Properties
                 </button>
                 <button
                   onClick={() => { setActiveTab('tenant'); setStatusFilter('all'); setSearch(''); }}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all relative',
-                    activeTab === 'tenant' ? 'bg-white text-slate-900 -sm' : 'text-slate-500 hover:text-slate-700',
+                    'flex items-center gap-2 px-6 py-2.5 rounded-lg text-[15px] font-semibold transition-all relative focus:outline-none',
+                    activeTab === 'tenant' ? 'bg-white text-[#222222] shadow-[0_1px_3px_rgba(0,0,0,0.1)]' : 'text-[#717171] hover:text-[#222222]',
                   )}
                 >
-                  <GraduationCap className="w-3.5 h-3.5" /> As Tenant
+                  <GraduationCap className="w-4 h-4" /> As Tenant
                   {pendingMySignature > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">
-                      {pendingMySignature}
-                    </span>
+                    <span className="w-2 h-2 rounded-full bg-[#D90B38] ml-1" />
                   )}
                 </button>
               </div>
             )}
 
-            {/* Status filter pills */}
-            <div className="flex flex-wrap gap-2">
-              {[
-                { key: 'all', label: 'All', count: activeLeasesRaw.length },
-                { key: 'draft', label: 'Draft', count: counts.draft || 0 },
-                { key: 'pending_tenant', label: 'Pending', count: counts.pending_tenant || 0 },
-                { key: 'active', label: 'Active', count: counts.active || 0 },
-                { key: 'expired', label: 'Expired', count: counts.expired || 0 },
-              ].map(f => (
-                <button
-                  key={f.key}
-                  onClick={() => setStatusFilter(f.key)}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border',
-                    statusFilter === f.key
-                      ? (isStudent ? 'bg-purple-700 text-white border-purple-700' : 'bg-slate-900 text-white border-slate-900')
-                      : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300',
-                  )}
-                >
-                  {f.label}
-                  {f.count > 0 && (
-                    <span className={cn('text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center', statusFilter === f.key ? 'bg-white/20' : 'bg-slate-100')}>
-                      {f.count}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative w-full sm:max-w-sm">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#717171]" />
+                <Input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Search by property or tenant..."
+                  className="pl-11 h-12 bg-white border-[#B0B0B0] rounded-xl text-[15px] focus-visible:ring-[#222222] placeholder:text-[#717171]"
+                />
+              </div>
 
-            {/* Search */}
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search by property or tenant…"
-                className="pl-9 bg-white border-slate-200 rounded-xl -sm"
-              />
+              <div className="flex overflow-x-auto custom-scrollbar gap-2 pb-2 sm:pb-0 items-center">
+                {[
+                  { key: 'all', label: 'All', count: activeLeasesRaw.length },
+                  { key: 'draft', label: 'Draft', count: counts.draft || 0 },
+                  { key: 'pending_tenant', label: 'Pending', count: counts.pending_tenant || 0 },
+                  { key: 'active', label: 'Active', count: counts.active || 0 },
+                  { key: 'expired', label: 'Expired', count: counts.expired || 0 },
+                ].map(f => (
+                  <button
+                    key={f.key}
+                    onClick={() => setStatusFilter(f.key)}
+                    className={cn(
+                      'flex items-center gap-2 px-5 h-10 rounded-full text-[14px] font-medium transition-all border whitespace-nowrap focus:outline-none',
+                      statusFilter === f.key
+                        ? 'bg-[#222222] text-white border-[#222222]'
+                        : 'bg-white text-[#222222] border-[#DDDDDD] hover:border-[#222222]',
+                    )}
+                  >
+                    {f.label}
+                    {f.count > 0 && (
+                      <span className={cn('text-[11px] font-bold px-1.5 rounded-full', statusFilter === f.key ? 'bg-white text-[#222222]' : 'bg-[#EBEBEB] text-[#222222]')}>
+                        {f.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* List */}
             {loading ? (
-              <div className="flex items-center justify-center py-24">
-                <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+              <div className="flex items-center justify-center py-32">
+                <Loader2 className="w-8 h-8 animate-spin text-[#222222] stroke-[2.5]" />
               </div>
             ) : filtered.length === 0 ? (
-              <div className="text-center py-24 bg-white rounded-2xl border border-slate-100">
-                <FileText className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-                <p className="text-slate-500 font-semibold">
+              <div className="text-center py-24 bg-white rounded-2xl border border-[#DDDDDD]">
+                <FileText className="w-12 h-12 text-[#DDDDDD] mx-auto mb-4 stroke-[1.5]" />
+                <p className="text-[#222222] text-[18px] font-semibold">
                   {activeLeasesRaw.length === 0
                     ? activeTab === 'tenant' ? 'No leases assigned to you yet' : 'No leases yet'
-                    : 'No leases match your filters'}
+                    : 'No leases match your search'}
                 </p>
-                <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                <p className="text-[15px] text-[#717171] mt-2 max-w-sm mx-auto">
                   {activeLeasesRaw.length === 0
                     ? activeTab === 'tenant'
                       ? 'Your landlord will send you a lease to sign once one is created.'
@@ -1072,13 +1048,13 @@ export default function LeasesPage() {
                     : 'Try changing the status filter or search term.'}
                 </p>
                 {activeLeasesRaw.length === 0 && isLandlord && activeTab === 'landlord' && (
-                  <Button onClick={() => setShowCreate(true)} className="mt-6 bg-slate-900 hover:bg-slate-800 text-white rounded-xl gap-2">
-                    <Plus className="w-4 h-4" /> Create First Lease
+                  <Button onClick={() => setShowCreate(true)} className="mt-8 h-12 px-8 bg-[#222222] hover:bg-black text-white rounded-lg font-semibold text-[15px] gap-2">
+                    <Plus className="w-5 h-5" /> Create first lease
                   </Button>
                 )}
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {filtered.map(l =>
                   activeTab === 'landlord' ? (
                     <LandlordLeaseCard key={l._id} lease={l} onSign={setSignLease} onTerminate={setTerminateLease} />

@@ -1,18 +1,14 @@
 'use client';
 
 import { AppSidebar } from '@/components/dashboard/Sidebar';
-import MessageList from '@/components/dashboard/MessageList';
-import ChatIntro from '@/components/dashboard/ChatIntro';
-import Conversation from '@/components/dashboard/Conversation';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
-import { MobileNav } from '@/components/chat/MobileNav';
 import { MessagesList } from '@/components/chat/MessagesList';
 import { ChatThread } from '@/components/chat/ChatThread';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ChatProvider } from '@/contexts/ChatContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -73,9 +69,9 @@ export default function MessagesPage() {
   // Show loading while checking auth or getting token
   if (isLoading || isInitializing) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50/50">
-        <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4" />
-        <p className="text-sm font-medium text-gray-500 animate-pulse">{s.loadingMessages || 'Loading messages...'}</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <Loader2 className="w-8 h-8 animate-spin text-[#222222] mb-4 stroke-[2.5]" />
+        <p className="text-[15px] font-semibold text-[#222222]">{s.loadingMessages || 'Loading messages...'}</p>
       </div>
     );
   }
@@ -83,20 +79,20 @@ export default function MessagesPage() {
   // Show error if not authenticated
   if (!isAuthenticated || !user) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background">
-        <div className="text-center space-y-4">
-          <MessageCircle className="h-16 w-16 text-muted-foreground mx-auto" />
-          <div>
-            <h2 className="text-xl font-semibold mb-2">{s.authRequired || 'Authentication Required'}</h2>
-            <p className="text-muted-foreground mb-4">{s.pleaseLogin || 'Please log in to view your messages'}</p>
-          </div>
-          <button
-            onClick={() => router.push('/auth/login?redirect=/dashboard/message')}
-            className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity"
-          >
-            {s.goToLogin || 'Go to Login'}
-          </button>
+      <div className="flex flex-col items-center justify-center h-screen bg-white px-6 text-center">
+        <div className="w-16 h-16 bg-[#F7F7F7] rounded-full flex items-center justify-center mb-6 border border-[#EBEBEB]">
+          <MessageCircle className="h-8 w-8 text-[#222222] stroke-[1.5]" />
         </div>
+        <h2 className="text-[22px] font-semibold text-[#222222] mb-2">{s.authRequired || 'Authentication required'}</h2>
+        <p className="text-[15px] text-[#717171] mb-8 max-w-sm">
+          {s.pleaseLogin || 'Please log in to view your messages and communicate with hosts or tenants.'}
+        </p>
+        <button
+          onClick={() => router.push('/auth/login?redirect=/dashboard/message')}
+          className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] transition-colors active:scale-[0.98]"
+        >
+          {s.goToLogin || 'Go to login'}
+        </button>
       </div>
     );
   }
@@ -104,21 +100,20 @@ export default function MessagesPage() {
   // Show error if no token
   if (!token) {
     return (
-
-      <div className="flex items-center justify-center h-screen bg-background">
-        <div className="text-center space-y-4">
-          <MessageCircle className="h-16 w-16 text-muted-foreground mx-auto" />
-          <div>
-            <h2 className="text-xl font-semibold mb-2">{s.authError || 'Authentication Error'}</h2>
-            <p className="text-muted-foreground mb-4">{s.sessionExpired || 'Your session has expired. Please log in again.'}</p>
-          </div>
-          <button
-            onClick={() => router.push('/auth/login?redirect=/dashboard/message')}
-            className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity"
-          >
-            {s.goToLogin || 'Go to Login'}
-          </button>
+      <div className="flex flex-col items-center justify-center h-screen bg-white px-6 text-center">
+        <div className="w-16 h-16 bg-[#F7F7F7] rounded-full flex items-center justify-center mb-6 border border-[#EBEBEB]">
+          <MessageCircle className="h-8 w-8 text-[#222222] stroke-[1.5]" />
         </div>
+        <h2 className="text-[22px] font-semibold text-[#222222] mb-2">{s.authError || 'Session expired'}</h2>
+        <p className="text-[15px] text-[#717171] mb-8 max-w-sm">
+          {s.sessionExpired || 'Your session has expired. Please log in again to continue messaging.'}
+        </p>
+        <button
+          onClick={() => router.push('/auth/login?redirect=/dashboard/message')}
+          className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] transition-colors active:scale-[0.98]"
+        >
+          {s.goToLogin || 'Go to login'}
+        </button>
       </div>
     );
   }
@@ -126,25 +121,40 @@ export default function MessagesPage() {
   // Render with ChatProvider
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden">
-        {/* Sidebar - Slimmer */}
+      <div className="flex h-screen w-full overflow-hidden bg-white">
+        {/* Sidebar */}
         <AppSidebar />
-        <SidebarInset className="flex flex-col flex-1 overflow-hidden w-full h-full">
+        
+        <SidebarInset className="flex flex-col flex-1 overflow-hidden w-full h-full border-l border-[#EBEBEB] bg-white">
           <NavDash />
 
-          {/* Contenu principal */}
+          {/* Main Content */}
           <div className="flex-1 flex flex-col overflow-hidden w-full relative">
             <ChatProvider token={token} apiUrl={apiUrl} currentUser={user}>
               <div className="flex h-full w-full overflow-hidden">
+                
                 {/* Messages List - Hidden on mobile when thread is shown */}
-                <div className={`h-full shrink-0 ${showMobileThread ? 'hidden md:block' : 'block w-full md:w-auto'}`}>
+                <div 
+                  className={`h-full shrink-0 border-r border-[#EBEBEB] bg-white ${
+                    showMobileThread 
+                      ? 'hidden md:block md:w-[350px] lg:w-[400px]' 
+                      : 'block w-full md:w-[350px] lg:w-[400px]'
+                  }`}
+                >
                   <MessagesList onConversationSelect={() => setShowMobileThread(true)} />
                 </div>
 
                 {/* Chat Thread - Hidden on mobile when list is shown */}
-                <div className={`flex-1 h-full min-w-0 ${showMobileThread ? 'block' : 'hidden md:block'}`}>
+                <div 
+                  className={`flex-1 h-full min-w-0 bg-white ${
+                    showMobileThread 
+                      ? 'block' 
+                      : 'hidden md:block'
+                  }`}
+                >
                   <ChatThread onBack={() => setShowMobileThread(false)} />
                 </div>
+                
               </div>
             </ChatProvider>
           </div>

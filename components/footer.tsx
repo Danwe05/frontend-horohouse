@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { FaInstagram, FaYoutube, FaLinkedin, FaFacebook } from "react-icons/fa6";
-import { motion } from "framer-motion";
-import { Loader2, CheckCircle2, XCircle, Send } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, Globe } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -110,178 +109,168 @@ export default function Footer() {
   ];
 
   return (
-    <div className="py-10 px-6 md:px-12" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      {/* AlertDialog for subscription feedback */}
+    <div dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      {/* Alert Dialog */}
       <AlertDialog open={alert.open} onOpenChange={(open) => setAlert((prev) => ({ ...prev, open }))}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white border-[#DDDDDD] shadow-xl rounded-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className={`flex items-center gap-2 ${alert.isError ? 'text-destructive' : 'text-green-600'}`}>
+            <AlertDialogTitle className={`flex items-center gap-2 ${alert.isError ? 'text-[#C13515]' : 'text-[#008A05]'}`}>
               {alert.isError
                 ? <XCircle className="w-5 h-5 shrink-0" />
                 : <CheckCircle2 className="w-5 h-5 shrink-0" />
               }
               {alert.title}
             </AlertDialogTitle>
-            <AlertDialogDescription>{alert.description}</AlertDialogDescription>
+            <AlertDialogDescription className="text-[#222222]">{alert.description}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setAlert((prev) => ({ ...prev, open: false }))}>
+            <AlertDialogAction
+              onClick={() => setAlert((prev) => ({ ...prev, open: false }))}
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            >
               OK
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      <footer className="bg-blue-900 text-white rounded-3xl shadow-2xl overflow-hidden relative">
+      {/* Airbnb Style Footer Wrapper */}
+      <footer className="bg-[#F7F7F7] text-[#222222] border-t border-[#DDDDDD]">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">
 
-        {/* Decorative background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-800/30 rounded-full blur-3xl"></div>
-        </div>
+          {/* Main Content Grid (4 Columns like Airbnb) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-[#DDDDDD]">
 
-        <div className="relative z-10 max-w-7xl mx-auto px-8 py-12 md:py-10">
-
-          {/* Main grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-
-            {/* Logo & Social */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-1"
-            >
-              <motion.img
-                transition={{ duration: 0.3 }}
-                src="/logoHoroHouseWhite.png"
-                alt="HoroHouse Logo"
-                width={180}
-                height={180}
-                className="mb-6 brightness-110"
-              />
-              <p className="text-blue-100 text-sm mb-6 leading-relaxed">
-                {_t.footer?.description || "Your trusted partner for premium real estate across Africa. Building dreams, one property at a time."}
-              </p>
-              <div className="flex space-x-3">
-                {socialLinks.map((social, index) => {
-                  const Icon = social.icon;
-                  return (
-                    <motion.a
-                      key={index}
-                      href={social.href}
-                      aria-label={social.label}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-11 h-11 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-full hover:bg-white hover:text-blue-600 transition-all duration-300"
-                    >
-                      <Icon className="text-xl" />
-                    </motion.a>
-                  );
-                })}
-              </div>
-            </motion.div>
-
-            {/* Footer link sections */}
+            {/* Standard Link Sections */}
             {footerSections.map((section, sectionIndex) => (
-              <motion.div
-                key={sectionIndex}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: (sectionIndex + 1) * 0.1 }}
-              >
-                <h3 className="font-bold text-lg mb-5 relative inline-block">
+              <div key={sectionIndex}>
+                <h4 className="font-semibold text-sm mb-4">
                   {section.title}
-                  <span className={`absolute -bottom-2 ${language === 'ar' ? 'right-0' : 'left-0'} w-12 h-1 bg-white/50 rounded-full`}></span>
-                </h3>
+                </h4>
                 <ul className="space-y-3">
                   {section.links.map((link, linkIndex) => (
-                    <motion.li
-                      key={linkIndex}
-                      whileHover={{ x: language === 'ar' ? -5 : 5 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <a  
+                    <li key={linkIndex}>
+                      <a
                         href={link.href}
-                        className="text-blue-100 hover:text-white text-sm transition-colors duration-300 flex items-center group"
+                        className="text-sm text-[#222222] hover:underline transition-all"
                       >
-                        <span className={`w-0 group-hover:w-2 h-0.5 bg-white ${language === 'ar' ? 'ml-0 group-hover:ml-2' : 'mr-0 group-hover:mr-2'} transition-all duration-300 rounded-full`}></span>
                         {link.text}
                       </a>
-                    </motion.li>
+                    </li>
                   ))}
                 </ul>
-              </motion.div>
+              </div>
             ))}
-          </div>
 
-          {/* Newsletter */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="border-t border-white/20 pt-10 mb-10"
-          >
-            <div className="max-w-2xl mx-auto text-center">
-              <h3 className="text-2xl font-bold mb-3">
+            {/* 4th Column: Stay Updated & Contact (Integrated into the grid) */}
+            <div>
+              <h4 className="font-semibold text-sm mb-4">
                 {_t.footer?.stayUpdated || "Stay Updated"}
-              </h3>
-              <p className="text-blue-100 mb-6 text-sm">
-                {_t.footer?.subscribeDesc || "Subscribe to our newsletter for the latest property listings and exclusive deals."}
+              </h4>
+              <p className="text-sm text-[#222222] mb-3">
+                {_t.footer?.subscribeDesc || "Subscribe for the latest premium property listings."}
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <div className="flex flex-col gap-2 mb-8">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
-                  placeholder={_t.footer?.enterEmail || "Enter your email"}
+                  placeholder={_t.footer?.enterEmail || "Email address"}
                   disabled={isLoading}
-                  className="flex-1 px-5 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-start disabled:opacity-60"
+                  className="w-full px-4 py-2.5 rounded-lg border border-[#B0B0B0] bg-white text-sm text-[#222222] placeholder:text-[#717171] focus:outline-none focus:ring-2 focus:ring-[#222222] focus:border-transparent transition-all disabled:opacity-50"
                 />
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={handleSubscribe}
                   disabled={isLoading}
-                  className="px-8 py-2 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 disabled:opacity-60 min-w-[110px] flex items-center justify-center"
+                  className="w-full py-2.5 bg-[#155dfc] hover:bg-[#0e59fa] text-white font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 flex items-center justify-center"
                 >
-                  {isLoading
-                    ? <Loader2 className="w-4 h-4 animate-spin" />
-                    : (_t.footer?.subscribe || 'Subscribe')
-                  }
-                </motion.button>
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    _t.footer?.subscribe || 'Subscribe'
+                  )}
+                </button>
+              </div>
+
+              {/* Minimal Contact Us */}
+              <h4 className="font-semibold text-sm mb-4">
+                {_t.footer?.contact?.title || "Contact Us"}
+              </h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a href="mailto:contact@horohouse.com" className="hover:underline">
+                    {_t.footer?.contact?.email || "contact@horohouse.com"}
+                  </a>
+                </li>
+                <li>
+                  <span className="text-[#222222]">
+                    {_t.footer?.contact?.phone || "+237 695 451 646"}
+                  </span>
+                </li>
+                <li>
+                  <span className="text-[#222222]">
+                    {_t.footer?.contact?.address || "Awae, Yaoundé, Cameroon"}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar: Copyright, Links, Language, Socials */}
+          <div className="flex flex-col-reverse lg:flex-row justify-between items-center lg:items-end pt-6 gap-6">
+
+            {/* Left Side: Copyright and Legal Links */}
+            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-x-2 gap-y-1 text-sm text-[#222222]">
+              <span>© {new Date().getFullYear()} HoroHouse, Inc.</span>
+              <span className="hidden sm:inline">·</span>
+              <a href="/terms" className="hover:underline">
+                {_t.footer?.termsOfService || "Terms"}
+              </a>
+              <span className="hidden sm:inline">·</span>
+              <a href="/sitemap" className="hover:underline">
+                Sitemap
+              </a>
+              <span className="hidden sm:inline">·</span>
+              <a href="/privacy" className="hover:underline">
+                {_t.footer?.privacyPolicy || "Privacy"}
+              </a>
+              <span className="hidden sm:inline">·</span>
+              <a href="/cookies" className="hover:underline">
+                {_t.footer?.cookiePolicy || "Your Privacy Choices"}
+              </a>
+            </div>
+
+            {/* Right Side: Localisation and Socials */}
+            <div className="flex items-center gap-6 text-[#222222] font-semibold text-sm">
+              <div className="flex items-center gap-4 cursor-pointer">
+                <div className="flex items-center gap-2 hover:underline">
+                  <Globe className="w-5 h-5" />
+                  <span>English (US)</span>
+                </div>
+                <div className="hover:underline">
+                  <span>$ USD</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {socialLinks.map((social, index) => {
+                  const Icon = social.icon;
+                  return (
+                    <a
+                      key={index}
+                      href={social.href}
+                      aria-label={social.label}
+                      className="hover:text-black transition-colors"
+                    >
+                      <Icon className="text-[1.3rem]" />
+                    </a>
+                  );
+                })}
               </div>
             </div>
-          </motion.div>
 
-          {/* Bottom bar */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
-          >
-            <p className="text-blue-100 text-sm text-center md:text-start" dir="ltr">
-              © 2025 - {new Date().getFullYear()} HoroHouse. {_t.footer?.allRightsReserved || "All rights reserved."}
-            </p>
-            <div className="flex flex-wrap justify-center gap-6 text-sm">
-              <a href="/privacy" className="text-blue-100 hover:text-white transition-colors">
-                {_t.footer?.privacyPolicy || "Privacy Policy"}
-              </a>
-              <span className="text-blue-300">•</span>
-              <a href="/terms" className="text-blue-100 hover:text-white transition-colors">
-                {_t.footer?.termsOfService || "Terms of Service"}
-              </a>
-              <span className="text-blue-300">•</span>
-              <a href="/cookies" className="text-blue-100 hover:text-white transition-colors">
-                {_t.footer?.cookiePolicy || "Cookie Policy"}
-              </a>
-            </div>
-          </motion.div>
-
+          </div>
         </div>
       </footer>
     </div>

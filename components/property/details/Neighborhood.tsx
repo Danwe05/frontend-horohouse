@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   GraduationCap, ShoppingBag, Train, Coffee, Dumbbell,
@@ -6,14 +6,7 @@ import {
   Hotel, Bus, Bike,
 } from "lucide-react";
 import MapView from "../MapView";
-import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-interface ScoreInfo {
-  value: number;
-  label: string;
-  description: string;
-}
 
 interface NeighborhoodProps {
   property: {
@@ -23,7 +16,6 @@ interface NeighborhoodProps {
     transportAccess: string[];
     latitude?: number;
     longitude?: number;
-    /** Optional: pass real scores from your API instead of showing mocks */
     walkScore?: number;
     transitScore?: number;
     bikeScore?: number;
@@ -96,102 +88,75 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
   const { t } = useLanguage();
   const pd = t.propertyDetails;
 
-  // Use prop-supplied scores when available; fall back to demo values clearly
-  // marked as estimated so the UI can communicate uncertainty.
   const walkScore = property.walkScore ?? 75;
   const transitScore = property.transitScore ?? 68;
   const bikeScore = property.bikeScore ?? 62;
   const scoresAreEstimated = !property.walkScore && !property.transitScore && !property.bikeScore;
 
-  const scores: Array<{ type: "walk" | "transit" | "bike"; label: string; value: number; color: string }> = [
-    { type: "walk", label: pd?.walkScore || "Walk Score", value: walkScore, color: "bg-emerald-500" },
-    { type: "transit", label: pd?.transitScore || "Transit Score", value: transitScore, color: "bg-blue-500" },
-    { type: "bike", label: pd?.bikeScore || "Bike Score", value: bikeScore, color: "bg-amber-500" },
+  const scores: Array<{ type: "walk" | "transit" | "bike"; label: string; value: number }> = [
+    { type: "walk", label: pd?.walkScore || "Walk Score", value: walkScore },
+    { type: "transit", label: pd?.transitScore || "Transit Score", value: transitScore },
+    { type: "bike", label: pd?.bikeScore || "Bike Score", value: bikeScore },
   ];
 
   return (
-    <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 space-y-8 mt-10">
-      <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{pd?.neighborhood || "Neighborhood"}</h2>
-
-      {/* Walk / Transit / Bike Scores */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-400 tracking-wider uppercase">
-            {pd?.livabilityScores || "Livability Scores"}
-          </h3>
-          {scoresAreEstimated && (
-            <span className="text-xs text-slate-400 italic">{pd?.estimated || "Estimated"}</span>
-          )}
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {scores.map(({ type, label, value, color }) => (
-            <div key={type} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-600">{label}</span>
-                <span className="font-bold text-lg text-slate-900">{value}</span>
-              </div>
-              <div
-                role="progressbar"
-                aria-valuenow={value}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={label}
-                className="h-2.5 bg-slate-100 rounded-full overflow-hidden"
-              >
-                <div
-                  className={`${color} h-full rounded-full transition-all duration-700`}
-                  style={{ width: `${value}%` }}
-                />
-              </div>
-              <p className="text-xs font-bold text-slate-500">
-                {getScoreDescription(value, type)}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Location */}
-      <div className="space-y-4 pt-6 border-t border-slate-100">
-        <div className="flex items-center gap-2.5">
-          <MapPin className="h-6 w-6 text-blue-500" />
-          <h3 className="text-xl font-bold text-slate-900 tracking-tight">{pd?.location || "Location"}</h3>
-        </div>
-
-        {property.neighborhood && (
-          <p className="text-base font-medium text-slate-600">{property.neighborhood}</p>
-        )}
+    <section className="space-y-8 text-[#222222]">
+      <div>
+        <h2 className="text-[22px] font-semibold tracking-tight mb-6">
+          {pd?.location || "Where you’ll be"}
+        </h2>
+        <p className="text-[16px] text-[#222222] mb-6">
+          {property.neighborhood ? `${property.neighborhood}, ` : ""}{property.city}
+        </p>
 
         {property.latitude !== undefined && property.longitude !== undefined ? (
-          <div className="mt-4 h-[300px] rounded-2xl overflow-hidden border border-slate-200">
+          <div className="h-[400px] w-full rounded-2xl overflow-hidden bg-[#EBEBEB]">
             <MapView
               selectedLocation={{ lng: property.longitude, lat: property.latitude }}
             />
           </div>
         ) : (
-          <div className="mt-3 p-5 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-1">
-            <MapPin className="h-6 w-6 text-slate-300 mx-auto" />
-            <p className="text-sm font-medium text-slate-400">{pd?.mapUnavailable || "Map unavailable for this listing"}</p>
+          <div className="h-[400px] w-full rounded-2xl bg-[#F7F7F7] border border-[#DDDDDD] flex flex-col items-center justify-center gap-2">
+            <MapPin className="h-8 w-8 text-[#717171] stroke-[1.5]" />
+            <p className="text-[15px] font-medium text-[#717171]">{pd?.mapUnavailable || "Exact location provided after booking"}</p>
           </div>
         )}
       </div>
 
-      {/* Nearby Amenities */}
+      <div className="pt-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {pd?.livabilityScores || "Livability scores"}
+          </h3>
+          {scoresAreEstimated && (
+            <span className="text-[14px] text-[#717171]">{pd?.estimated || "Estimated"}</span>
+          )}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-6 gap-x-12">
+          {scores.map(({ type, label, value }) => (
+            <div key={type} className="flex flex-col">
+              <span className="text-[16px] font-semibold text-[#222222]">{value} / 100</span>
+              <span className="text-[16px] text-[#222222] mt-0.5">{label}</span>
+              <span className="text-[14px] text-[#717171] mt-0.5">
+                {getScoreDescription(value, type)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {property.nearbyAmenities.length > 0 && (
-        <div className="pt-6 border-t border-slate-100 space-y-5">
-          <h3 className="text-xl font-bold text-slate-900 tracking-tight">{pd?.nearbyAmenities || "Nearby Amenities"}</h3>
-          <div className="grid md:grid-cols-2 gap-4">
+        <div className="pt-8 border-t border-[#DDDDDD]">
+          <h3 className="text-[18px] font-semibold text-[#222222] mb-6">
+            {pd?.nearbyAmenities || "What's nearby"}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
             {property.nearbyAmenities.map((amenity, index) => {
               const Icon = getAmenityIcon(amenity);
               return (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors group"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 transition-transform">
-                    <Icon className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <p className="font-bold text-slate-700 truncate">{amenity}</p>
+                <div key={index} className="flex items-center gap-4 text-[#222222]">
+                  <Icon className="h-6 w-6 stroke-[1.5]" aria-hidden />
+                  <span className="text-[16px]">{amenity}</span>
                 </div>
               );
             })}
@@ -199,25 +164,18 @@ const Neighborhood = ({ property }: NeighborhoodProps) => {
         </div>
       )}
 
-      {/* Transport Access */}
       {property.transportAccess.length > 0 && (
-        <div className="pt-6 border-t border-slate-100 space-y-5">
-          <div className="flex items-center gap-2.5">
-            <Train className="h-6 w-6 text-blue-500" />
-            <h3 className="text-xl font-bold text-slate-900 tracking-tight">{pd?.transportAccess || "Transport Access"}</h3>
-          </div>
-          <div className="grid md:grid-cols-2 gap-4">
+        <div className="pt-8 border-t border-[#DDDDDD]">
+          <h3 className="text-[18px] font-semibold text-[#222222] mb-6">
+            {pd?.transportAccess || "Getting around"}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
             {property.transportAccess.map((transport, index) => {
               const Icon = getTransportIcon(transport);
               return (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors group"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 transition-transform">
-                    <Icon className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <p className="font-bold text-slate-700 truncate">{transport}</p>
+                <div key={index} className="flex items-center gap-4 text-[#222222]">
+                  <Icon className="h-6 w-6 stroke-[1.5]" aria-hidden />
+                  <span className="text-[16px]">{transport}</span>
                 </div>
               );
             })}

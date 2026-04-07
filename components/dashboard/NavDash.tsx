@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Bell, MessageSquare, Settings, LogOut, User, ChevronDown, Plus, Building2, Command, ArrowRightLeft, Check } from "lucide-react";
+import { Search, Settings, LogOut, User, Menu, Plus, Building2, Command, ArrowRightLeft, Check, X, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -22,6 +22,7 @@ import apiClient from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { languages } from "@/lib/i18n";
 import LanguageCurrencyModal from "@/components/layout/LanguageCurrencyModal";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const NavDash = () => {
   const { user, logout, isLoading, refreshAuth } = useAuth();
@@ -30,18 +31,16 @@ export const NavDash = () => {
   const [isSwappingRole, setIsSwappingRole] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showRoleSuccess, setShowRoleSuccess] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // 1. Search State
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLangCurrencyModalOpen, setIsLangCurrencyModalOpen] = useState(false);
   const { language, t, dir } = useLanguage();
   const _t = t as any;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // 2. Handle Search Logic
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Redirect to a search results page or filter current view
       router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
@@ -73,7 +72,6 @@ export const NavDash = () => {
       setShowRoleModal(false);
       setShowRoleSuccess(true);
 
-      // Wait for user to see the success message, then reload/refresh
       setTimeout(async () => {
         try {
           if (refreshAuth) {
@@ -93,7 +91,6 @@ export const NavDash = () => {
     }
   };
 
-  // Close dropdown on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -114,11 +111,6 @@ export const NavDash = () => {
     router.push('/dashboard/property');
   };
 
-  const handleViewMessages = () => {
-    setShowProfileDropdown(false);
-    router.push('/dashboard/message');
-  };
-
   const handleViewSettings = () => {
     setShowProfileDropdown(false);
     router.push('/dashboard/settings');
@@ -127,149 +119,141 @@ export const NavDash = () => {
   const displayName = user?.name || 'User';
   const displayEmail = user?.email || user?.phoneNumber || '';
   const userRole = user?.role || 'user';
-  const avatarUrl = user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ffdfbf`;
+  const avatarUrl = user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=EBEBEB`;
 
   return (
-    <header dir={dir} className="h-16 bg-card/95 backdrop-blur-md border-b border-border flex items-center justify-between px-6 z-50 supports-[backdrop-filter]:bg-card/80">
-      <div className="flex items-center gap-4 flex-1 max-w-xl">
-        <SidebarTrigger />
+    <header dir={dir} className="h-20 bg-white border-b border-[#DDDDDD] flex items-center justify-between px-6 z-50 sticky top-0">
 
-        {/* 3. FUNCTIONAL SEARCH BAR */}
-        <form onSubmit={handleSearch} className="relative mr-3 flex-1 group max-w-md hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-blue-500 transition-colors" />
+      {/* ── LEFT: Sidebar Trigger & Search ── */}
+      <div className="flex items-center gap-4 flex-1 max-w-[400px]">
+        <SidebarTrigger className="text-[#222222] hover:bg-[#F7F7F7] transition-colors rounded-full shrink-0" />
+
+        <form onSubmit={handleSearch} className="relative flex-1 group hidden md:block">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#222222] stroke-[2]" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={_t.navdash?.searchPlaceholder || "Search properties or documents..."}
-            className="pl-10 mr-10 h-10 bg-background/50 border-border/50 focus:bg-background focus:ring-1 focus:ring-blue-500/20 transition-all duration-200 rounded-full -none"
+            placeholder={_t.navdash?.searchPlaceholder || "Search..."}
+            className="pl-12 pr-12 h-12 bg-[#F7F7F7] border border-transparent focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all duration-200 rounded-full text-[15px] font-medium placeholder:text-[#717171] placeholder:font-normal"
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1 px-1.5 py-0.5 rounded  bg-muted/50 text-[10px] font-medium text-muted-foreground">
-            <Command className="w-2.5 h-2.5" />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1 text-[12px] font-semibold text-[#717171]">
+            <Command className="w-3 h-3" />
             <span>K</span>
           </div>
         </form>
       </div>
 
-      <div className="flex items-center gap-3">
-        {/* Mobile Search Toggle (Optional icon for mobile layouts) */}
-        <Button variant="ghost" size="icon" className="md:hidden -none">
-          <Search className="w-5 h-5 text-muted-foreground" />
-        </Button>
+      {/* ── RIGHT: Actions & User Capsule ── */}
+      <div className="flex items-center justify-end gap-2">
+        <button className="md:hidden w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors text-[#222222] shrink-0">
+          <Search className="w-5 h-5 stroke-[2]" />
+        </button>
 
         {/* Switch Role Button */}
         {userRole !== 'admin' && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant={userRole === 'agent' ? "outline" : "default"}
+              <button
                 onClick={handleToggleRoleClick}
                 disabled={isSwappingRole}
-                className={`gap-1 rounded-full transition-all duration-200 -none hover:-translate-y-0.5 ${userRole === 'agent' ? ' bg-background hover:bg-muted text-foreground' : 'bg-blue-600 hover:bg-blue-700 text-white border-0'}`}
+                className="hidden lg:flex items-center gap-2 px-4 py-2.5 rounded-full border border-[#DDDDDD] bg-white hover:bg-[#F7F7F7] transition-colors text-[14px] font-semibold text-[#222222] disabled:opacity-50 shrink-0"
               >
-                <ArrowRightLeft className="w-4 h-4" />
-                <span className="hidden lg:inline">{isSwappingRole ? (_t.navdash?.switching || 'Switching...') : `${_t.navdash?.switchRole || 'Switch to'} ${userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'User')}`}</span>
-              </Button>
+                <ArrowRightLeft className="w-4 h-4 stroke-[2]" />
+                <span>
+                  {isSwappingRole
+                    ? (_t.navdash?.switching || 'Switching...')
+                    : `${_t.navdash?.switchRole || 'Switch to'} ${userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'User')}`}
+                </span>
+              </button>
             </TooltipTrigger>
-            <TooltipContent side="bottom" align="center" className="lg:hidden">
+            <TooltipContent side="bottom" align="center" className="lg:hidden rounded-lg">
               Switch Role
             </TooltipContent>
           </Tooltip>
         )}
 
-        {/* Add Property Button */}
+        {/* Add Property Button (Visible on Mobile & Desktop) */}
         {(userRole === 'agent' || userRole === 'landlord' || userRole === 'admin') && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
+              <button
                 onClick={handleAddProperty}
-                aria-label="Add Property"
-                className="gap-2 bg-blue-600 hover:bg-blue-700 rounded-full border-0 text-white transition-all duration-200 hover:-lg hover:-translate-y-0.5"
+                className="flex items-center justify-center w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-colors shrink-0"
               >
-                <Plus className="w-4 h-4" />
-                <span className="hidden lg:inline">{_t.navdash?.addProperty || 'Add Property'}</span>
-              </Button>
+                <Plus className="w-5 h-5 sm:w-4 sm:h-4 stroke-[2.5] sm:mr-2" />
+                <span className="hidden sm:inline text-[14px] font-semibold">
+                  {_t.navdash?.addProperty || 'Create listing'}
+                </span>
+              </button>
             </TooltipTrigger>
-            <TooltipContent side="bottom" align="center" className="lg:hidden">
-              Add Property
+            <TooltipContent side="bottom" align="center" className="sm:hidden rounded-lg">
+              Create listing
             </TooltipContent>
           </Tooltip>
         )}
 
-        <div className="relative">
+        {/* Notifications */}
+        <div className="relative shrink-0">
           <NotificationDropdown />
         </div>
 
         {/* Language & Currency Trigger */}
         <button
           onClick={() => setIsLangCurrencyModalOpen(true)}
-          className="flex w-9 h-9 items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition-colors"
+          className="hidden md:flex w-10 h-10 items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors text-[#222222] shrink-0"
           aria-label="Language and Currency Preferences"
         >
           <img
             src={languages[language]?.flag || languages['en'].flag}
             alt={languages[language]?.name || 'Language'}
-            className="w-6 h-6 rounded-full object-cover -sm"
-            loading="lazy"
+            className="w-5 h-5 rounded-full object-cover"
           />
         </button>
 
-        {/* Profile Dropdown */}
+        {/* Profile Menu Capsule */}
         {!isLoading && user && (
-          <div className="relative" ref={dropdownRef}>
-            <Button
-              variant="ghost"
+          <div className="relative ml-2 shrink-0" ref={dropdownRef}>
+            <button
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={cn(
-                "flex items-center gap-2 px-2 py-1.5 hover:bg-muted/50 transition-all duration-200 rounded-lg",
-                showProfileDropdown && "bg-muted/50"
-              )}
+              className="flex items-center gap-3 border border-[#DDDDDD] rounded-full p-1.5 pl-3.5 hover:shadow-[0_2px_4px_rgba(0,0,0,0.18)] transition-shadow duration-200 bg-white focus:outline-none"
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 overflow-hidden border border-border/50">
-                <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-              </div>
-              <div className="hidden sm:block text-left">
-                <div className="text-sm font-semibold text-foreground leading-none">{displayName}</div>
-                <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">{userRole}</div>
-              </div>
-              <ChevronDown className={cn(
-                "w-4 h-4 text-muted-foreground transition-transform duration-200 hidden sm:block",
-                showProfileDropdown && "rotate-180"
-              )} />
-            </Button>
+              <Menu className="w-4 h-4 text-[#222222] stroke-[2.5]" />
+              <Avatar className="h-8 w-8 bg-[#717171]">
+                <AvatarImage src={avatarUrl} alt={displayName} />
+                <AvatarFallback className="text-white text-[12px] font-semibold bg-transparent">
+                  {displayName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </button>
 
             {showProfileDropdown && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-popover border border-border rounded-xl -xl p-2 animate-in fade-in slide-in-from-top-2 z-50">
-                <div className="p-3 border-b border-border/30">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-border/50">
-                      <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-bold text-foreground truncate">{displayName}</div>
-                      <div className="text-xs text-muted-foreground truncate">{displayEmail}</div>
-                    </div>
-                  </div>
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-[#DDDDDD] rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.12)] p-2 animate-in fade-in slide-in-from-top-2 z-50">
+                <div className="px-4 py-3">
+                  <p className="font-semibold text-[15px] text-[#222222] truncate">{displayName}</p>
+                  <p className="text-[14px] text-[#717171] truncate">{displayEmail}</p>
+                  <span className="inline-block mt-2 bg-[#F7F7F7] text-[#222222] border border-[#DDDDDD] text-[11px] font-semibold px-2 py-0.5 rounded-md">
+                    {userRole.replace('_', ' ').toUpperCase()}
+                  </span>
                 </div>
 
-                <div className="space-y-1 p-1">
-                  <DropdownItem onClick={handleViewProfile} icon={User} label={_t.navdash?.dropdown?.profile || "Profile"} />
+                <div className="border-t border-[#DDDDDD] mx-2 my-1" />
+
+                <div className="flex flex-col gap-1 px-1">
+                  <DropdownItem onClick={handleViewProfile} label={_t.navdash?.dropdown?.profile || "Profile"} />
                   {(userRole === 'agent' || userRole === 'landlord' || userRole === 'admin') && (
-                    <DropdownItem onClick={handleViewProperties} icon={Building2} label={_t.navdash?.dropdown?.myProperties || "My Properties"} />
+                    <DropdownItem onClick={handleViewProperties} label={_t.navdash?.dropdown?.myProperties || "My listings"} />
                   )}
-                  <DropdownItem onClick={handleViewMessages} icon={MessageSquare} label={_t.navdash?.dropdown?.messages || "Messages"} />
-                  <DropdownItem onClick={handleViewSettings} icon={Settings} label={_t.navdash?.dropdown?.settings || "Settings"} />
+                  <DropdownItem onClick={handleViewSettings} label={_t.navdash?.dropdown?.settings || "Account settings"} />
 
-                  <div className="border-t border-border/30 my-1" />
+                  <div className="border-t border-[#DDDDDD] mx-1 my-1" />
 
-                  <Button
-                    variant="ghost"
+                  <button
                     onClick={handleLogout}
                     disabled={isLoggingOut}
-                    className="w-full justify-start gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 hover:text-red-700 transition-all"
+                    className="w-full text-left px-3 py-3 text-[14px] font-medium text-[#222222] hover:bg-[#F7F7F7] rounded-xl transition-colors disabled:opacity-50"
                   >
-                    <LogOut className="w-4 h-4" />
-                    <span className="text-sm font-bold">{isLoggingOut ? (_t.navdash?.dropdown?.loggingOut || 'Logging out...') : (_t.navdash?.dropdown?.logout || 'Logout')}</span>
-                  </Button>
+                    {isLoggingOut ? (_t.navdash?.dropdown?.loggingOut || 'Logging out...') : (_t.navdash?.dropdown?.logout || 'Log out')}
+                  </button>
                 </div>
               </div>
             )}
@@ -277,42 +261,54 @@ export const NavDash = () => {
         )}
       </div>
 
+      {/* ── Modals ── */}
+
       {/* Role Switching Confirmation Modal */}
       <Dialog open={showRoleModal} onOpenChange={setShowRoleModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{_t.navdash?.roleModal?.title || "Switch your account role"}</DialogTitle>
-            <DialogDescription>
-              {_t.navdash?.roleModal?.desc1 || "Are you sure you want to switch your account from a "}
-              <span className="font-semibold text-foreground">
+        <DialogContent className="sm:max-w-[425px] p-8 rounded-2xl border-[#DDDDDD]">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-[22px] font-semibold text-[#222222]">
+              {_t.navdash?.roleModal?.title || "Switch account role"}
+            </DialogTitle>
+            <DialogDescription className="text-[15px] text-[#717171] mt-2">
+              {_t.navdash?.roleModal?.desc1 || "Are you sure you want to switch from a "}
+              <span className="font-semibold text-[#222222]">
                 {userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.agent || 'Real Estate Agent') : userRole === 'landlord' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'Regular User')}
               </span>{' '}
               {_t.navdash?.roleModal?.desc2 || " to a "}
-              <span className="font-semibold text-foreground">
+              <span className="font-semibold text-[#222222]">
                 {userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Real Estate Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'Regular User')}
               </span>
               {_t.navdash?.roleModal?.desc3 || "?"}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4 text-sm text-muted-foreground">
+
+          <div className="bg-[#F7F7F7] p-4 rounded-xl text-[14px] text-[#222222] mb-6 border border-[#DDDDDD]">
             {userRole === 'agent'
               ? (_t.navdash?.roleModal?.agentDesc || 'As a landlord, you will gain access to tenant management, rental income tracking, and portfolio analytics.')
               : userRole === 'landlord'
                 ? (_t.navdash?.roleModal?.landlordDesc || 'As a regular user, you will no longer have access to property management, tenant tracking, and analytics.')
                 : (_t.navdash?.roleModal?.userDesc || 'As an agent, you will gain access to tools for managing properties, scheduling tours, and connecting with clients.')}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRoleModal(false)} disabled={isSwappingRole}>
+
+          <DialogFooter className="gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowRoleModal(false)}
+              disabled={isSwappingRole}
+              className="h-12 px-6 rounded-lg border-blue-600 text-[#222222] font-semibold text-[15px] hover:bg-[#F7F7F7]"
+            >
               {_t.navdash?.roleModal?.cancel || "Cancel"}
             </Button>
-            <Button onClick={handleConfirmToggleRole} disabled={isSwappingRole} className="bg-blue-600 hover:bg-blue-700 text-white min-w-[140px]">
+            <Button
+              onClick={handleConfirmToggleRole}
+              disabled={isSwappingRole}
+              className="h-12 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] min-w-[140px]"
+            >
               {isSwappingRole ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full border-1 border-white/20 border-t-white animate-spin" />
-                  <span>{_t.navdash?.switching || 'Switching...'}</span>
-                </div>
+                "Switching..."
               ) : (
-                _t.navdash?.roleModal?.yesSwitchRole || 'Yes, Switch Role'
+                _t.navdash?.roleModal?.yesSwitchRole || 'Confirm switch'
               )}
             </Button>
           </DialogFooter>
@@ -321,24 +317,29 @@ export const NavDash = () => {
 
       {/* Role Switching Success Modal */}
       <Dialog open={showRoleSuccess} onOpenChange={setShowRoleSuccess}>
-        <DialogContent className="sm:max-w-[425px]">
-          <div className="flex flex-col items-center justify-center p-6 text-center space-y-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-2">
-              <Check className="w-8 h-8" />
+        <DialogContent className="sm:max-w-[400px] p-8 rounded-2xl border-[#DDDDDD] outline-none">
+          <div className="flex flex-col items-center justify-center text-center space-y-4">
+            <div className="w-16 h-16 bg-[#ECFDF5] border border-[#008A05]/20 rounded-full flex items-center justify-center text-[#008A05] mb-2">
+              <Check className="w-8 h-8 stroke-[2.5]" />
             </div>
-            <DialogTitle className="text-xl">{_t.navdash?.roleModal?.successTitle || 'Role Switched Successfully!'}</DialogTitle>
-            <DialogDescription className="text-center">
-              {_t.navdash?.roleModal?.successDesc1 || 'Your account has been updated to '}
-              <span className="font-semibold text-foreground">
+            <DialogTitle className="text-[22px] font-semibold text-[#222222]">
+              {_t.navdash?.roleModal?.successTitle || 'Role switched successfully'}
+            </DialogTitle>
+            <DialogDescription className="text-[15px] text-[#717171]">
+              {_t.navdash?.roleModal?.successDesc1 || 'Your account is now set to '}
+              <span className="font-semibold text-[#222222]">
                 {userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Real Estate Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'Regular User')}
               </span>
               {_t.navdash?.roleModal?.successDesc2 || '.'}
               <br />
-              <span className="text-xs text-muted-foreground mt-2 block animate-pulse">{_t.navdash?.roleModal?.reloading || 'Reloading your dashboard...'}</span>
+              <span className="inline-block text-[13px] font-medium text-[#222222] mt-4 animate-pulse">
+                {_t.navdash?.roleModal?.reloading || 'Reloading your dashboard...'}
+              </span>
             </DialogDescription>
           </div>
         </DialogContent>
       </Dialog>
+
       <LanguageCurrencyModal
         isOpen={isLangCurrencyModalOpen}
         onClose={() => setIsLangCurrencyModalOpen(false)}
@@ -347,14 +348,12 @@ export const NavDash = () => {
   );
 };
 
-// Helper Component for Cleaner Code
-const DropdownItem = ({ onClick, icon: Icon, label }: { onClick: () => void, icon: any, label: string }) => (
-  <Button
-    variant="ghost"
+// ─── Helper Component ────────────────────────────────────────────────────────
+const DropdownItem = ({ onClick, label }: { onClick: () => void, label: string }) => (
+  <button
     onClick={onClick}
-    className="w-full justify-start gap-3 px-3 py-2.5 hover:bg-muted/50 transition-all group"
+    className="w-full text-left px-3 py-3 text-[14px] font-medium text-[#222222] hover:bg-[#F7F7F7] rounded-xl transition-colors"
   >
-    <Icon className="w-4 h-4 text-muted-foreground group-hover:text-blue-500" />
-    <span className="text-sm font-medium">{label}</span>
-  </Button>
+    {label}
+  </button>
 );

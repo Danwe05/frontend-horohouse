@@ -5,6 +5,7 @@ import { useOnboarding } from '@/contexts/OnboardingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function OnboardingProgress() {
   const { state, getProgress } = useOnboarding();
@@ -44,19 +45,19 @@ export function OnboardingProgress() {
     }
   };
 
-
   return (
     <div className="w-full">
       {/* Progress Track */}
       <div className="relative flex items-center justify-between mt-2">
+        
         {/* Background line */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1.5 bg-slate-200/60 rounded-full z-0 overflow-hidden">
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-[#EBEBEB] z-0 overflow-hidden">
           {/* Active line */}
           <motion.div
-            className="h-full bg-blue-600 rounded-full"
+            className="h-full bg-[#222222]"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           />
         </div>
 
@@ -71,27 +72,29 @@ export function OnboardingProgress() {
               <motion.div
                 initial={false}
                 animate={{
-                  backgroundColor: isActive || isCompleted ? '#2563eb' : '#ffffff',
-                  borderColor: isActive || isCompleted ? '#2563eb' : '#cbd5e1',
-                  scale: isActive ? 1 : 1
+                  backgroundColor: isActive || isCompleted ? '#222222' : '#FFFFFF',
+                  borderColor: isActive || isCompleted ? '#222222' : '#DDDDDD',
                 }}
-                className={`w-10 h-10 rounded-full flex items-center justify-center border-[3px] transition-colors duration-300 -sm
-                  ${isActive ? 'ring-4 ring-blue-100 -blue-200' : '-slate-100'}
-                `}
+                className={cn(
+                  "w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border-[2px] transition-colors duration-300",
+                  isActive || isCompleted ? "text-white" : "text-[#717171]"
+                )}
               >
                 {isCompleted ? (
-                  <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                  <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white stroke-[3]" />
                 ) : (
-                  <span className={`text-sm font-bold ${isActive || isCompleted ? 'text-white' : 'text-slate-400'}`}>
+                  <span className="text-[13px] sm:text-[14px] font-bold">
                     {stepNumber}
                   </span>
                 )}
               </motion.div>
 
               {/* Title that appears below */}
-              <div className="absolute top-12 w-28 text-center hidden sm:block">
-                <span className={`text-[11px] font-bold uppercase tracking-wider transition-colors duration-300 ${isActive ? 'text-blue-700' : isCompleted ? 'text-slate-700' : 'text-slate-400'
-                  }`}>
+              <div className="absolute top-12 w-32 text-center hidden sm:block">
+                <span className={cn(
+                  "text-[13px] font-semibold transition-colors duration-300",
+                  isActive ? "text-[#222222]" : isCompleted ? "text-[#222222]" : "text-[#717171]"
+                )}>
                   {getStepTitle(stepNumber)}
                 </span>
               </div>
@@ -101,7 +104,7 @@ export function OnboardingProgress() {
       </div>
 
       {/* Bottom spacing for the absolute positioned titles on desktop */}
-      <div className="hidden sm:block h-6" />
+      <div className="hidden sm:block h-8" />
     </div>
   );
 }

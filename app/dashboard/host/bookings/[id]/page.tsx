@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api';
 import { Booking, BookingStatus } from '@/types/booking';
@@ -19,16 +19,17 @@ import { NavDash } from '@/components/dashboard/NavDash';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; color: string; bg: string }> = {
-    [BookingStatus.PENDING]: { label: 'Awaiting Your Review', color: 'text-amber-700', bg: 'bg-amber-100/50' },
-    [BookingStatus.CONFIRMED]: { label: 'Confirmed', color: 'text-emerald-700', bg: 'bg-emerald-100/50' },
-    [BookingStatus.REJECTED]: { label: 'Declined', color: 'text-red-700', bg: 'bg-red-100/50' },
-    [BookingStatus.CANCELLED]: { label: 'Cancelled by Guest', color: 'text-slate-600', bg: 'bg-slate-100/50' },
-    [BookingStatus.COMPLETED]: { label: 'Stay Completed', color: 'text-blue-700', bg: 'bg-blue-100/50' },
-    [BookingStatus.NO_SHOW]: { label: 'No Show', color: 'text-orange-700', bg: 'bg-orange-100/50' },
+    [BookingStatus.PENDING]: { label: 'Awaiting your review', color: 'text-[#222222]', bg: 'bg-[#F7F7F7] border border-[#DDDDDD]' },
+    [BookingStatus.CONFIRMED]: { label: 'Confirmed', color: 'text-[#008A05]', bg: 'bg-[#ECFDF5] border border-[#008A05]/30' },
+    [BookingStatus.REJECTED]: { label: 'Declined', color: 'text-[#E50000]', bg: 'bg-[#FFF8F8] border border-[#FFDFDF]' },
+    [BookingStatus.CANCELLED]: { label: 'Cancelled by guest', color: 'text-[#717171]', bg: 'bg-[#F7F7F7] border border-[#DDDDDD]' },
+    [BookingStatus.COMPLETED]: { label: 'Stay completed', color: 'text-[#222222]', bg: 'bg-[#F7F7F7] border border-[#DDDDDD]' },
+    [BookingStatus.NO_SHOW]: { label: 'No show', color: 'text-[#717171]', bg: 'bg-[#F7F7F7] border border-[#DDDDDD]' },
 };
 
 export default function HostBookingDetailPage() {
@@ -95,14 +96,29 @@ export default function HostBookingDetailPage() {
 
     if (loading) return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-[#f8fafc]">
+            <div className="flex min-h-screen w-full bg-white">
                 <AppSidebar />
-                <SidebarInset className="bg-transparent"><NavDash /><div className="flex flex-1 items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-indigo-500/20" /></div></SidebarInset>
+                <SidebarInset>
+                    <NavDash />
+                    <div className="flex flex-1 items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-[#222222]" />
+                    </div>
+                </SidebarInset>
             </div>
         </SidebarProvider>
     );
 
-    if (!booking) return <div className="p-20 text-center">Booking not found.</div>;
+    if (!booking) return (
+        <SidebarProvider>
+            <div className="flex min-h-screen w-full bg-white">
+                <AppSidebar />
+                <SidebarInset>
+                    <NavDash />
+                    <div className="p-20 text-center text-[#717171] text-[16px]">Booking not found.</div>
+                </SidebarInset>
+            </div>
+        </SidebarProvider>
+    );
 
     const prop = booking.propertyId;
     const guest = typeof booking.guestId === 'object' ? booking.guestId : null;
@@ -119,182 +135,207 @@ export default function HostBookingDetailPage() {
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-[#f8fafc]">
+            <div className="flex min-h-screen w-full bg-white">
                 <AppSidebar />
-                <SidebarInset className="bg-transparent">
+                <SidebarInset>
                     <NavDash />
 
-                    <main className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto w-full">
+                    <main className="p-6 md:p-10 max-w-7xl mx-auto w-full">
                         {/* ── Top Navigation & ID ── */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                             <div className="flex items-center gap-4">
-                                <Button variant="ghost" size="icon" className="rounded-2xl bg-white border border-slate-200 -sm" onClick={() => router.push('/dashboard/host/bookings')}>
-                                    <ArrowLeft className="h-4 w-4" />
+                                <Button
+                                    variant="ghost" size="icon"
+                                    className="rounded-full hover:bg-[#F7F7F7] text-[#222222]"
+                                    onClick={() => router.push('/dashboard/host/bookings')}
+                                >
+                                    <ArrowLeft className="h-5 w-5 stroke-[2]" />
                                 </Button>
                                 <div>
-                                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">Manage Reservation</h1>
-                                    <button onClick={copyId} className="group flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-indigo-600 transition-colors">
-                                        ID: {booking._id} <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <h1 className="text-[32px] font-semibold text-[#222222] tracking-tight leading-none mb-1">
+                                        Manage reservation
+                                    </h1>
+                                    <button
+                                        onClick={copyId}
+                                        className="group flex items-center gap-2 text-[14px] text-[#717171] hover:text-[#222222] transition-colors"
+                                    >
+                                        Confirmation code: {booking._id} <Copy className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </button>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Badge className={`${statusInfo.bg} ${statusInfo.color} border-none px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-[10px]`}>
+                                <Badge className={`${statusInfo.bg} ${statusInfo.color} px-3 py-1.5 rounded-lg font-semibold text-[13px]`}>
                                     {statusInfo.label}
                                 </Badge>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
                             {/* ── LEFT COLUMN: Guest & Stay Details ── */}
-                            <div className="lg:col-span-2 space-y-8">
+                            <div className="lg:col-span-2 space-y-10">
 
                                 {/* Guest Card */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden -sm p-8">
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">Guest Profile</h3>
-                                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                                        <div className="h-24 w-24 rounded-full bg-indigo-100 flex items-center justify-center text-3xl font-black text-indigo-600 shrink-0">
+                                <div>
+                                    <h3 className="text-[22px] font-semibold text-[#222222] mb-6">Guest profile</h3>
+                                    <div className="flex items-start gap-6">
+                                        <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-[28px] font-semibold text-white shrink-0">
                                             {guest?.name?.[0] || 'G'}
                                         </div>
                                         <div className="flex-1 space-y-2">
-                                            <h2 className="text-3xl font-black text-slate-900">{guest?.name || 'Anonymous Guest'}</h2>
-                                            <div className="flex flex-wrap items-center gap-4 mt-2">
+                                            <h2 className="text-[26px] font-semibold text-[#222222] leading-none mb-2">{guest?.name || 'Anonymous Guest'}</h2>
+                                            <div className="flex flex-col gap-2">
                                                 {guest?.email && (
-                                                    <span className="flex items-center gap-1.5 text-sm font-medium text-slate-600">
-                                                        <Mail className="h-4 w-4 text-slate-400" /> {guest.email}
+                                                    <span className="flex items-center gap-3 text-[16px] text-[#222222]">
+                                                        <Mail className="h-5 w-5 stroke-[1.5]" /> {guest.email}
                                                     </span>
                                                 )}
                                                 {guest?.phoneNumber && (
-                                                    <span className="flex items-center gap-1.5 text-sm font-medium text-slate-600">
-                                                        <Phone className="h-4 w-4 text-slate-400" /> {guest.phoneNumber}
+                                                    <span className="flex items-center gap-3 text-[16px] text-[#222222]">
+                                                        <Phone className="h-5 w-5 stroke-[1.5]" /> {guest.phoneNumber}
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="flex flex-col gap-2 w-full md:w-auto mt-4 md:mt-0">
-                                            <Button variant="outline" className="rounded-xl border-slate-200 font-bold">
-                                                <MessageCircle className="h-4 w-4 mr-2" /> Message Guest
-                                            </Button>
-                                            <Button variant="outline" className="rounded-xl border-slate-200 font-bold">
-                                                <ShieldCheck className="h-4 w-4 mr-2 text-emerald-500" /> View ID Verification
-                                            </Button>
-                                        </div>
                                     </div>
+                                    <div className="flex gap-4 mt-6">
+                                        <Button variant="outline" className="h-12 px-6 rounded-lg border-blue-600 text-[#222222] hover:bg-[#F7F7F7] font-semibold text-[15px]">
+                                            <MessageCircle className="h-4 w-4 mr-2 stroke-[2]" /> Message guest
+                                        </Button>
+                                        <Button variant="outline" className="h-12 px-6 rounded-lg border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] hover:border-blue-600 font-semibold text-[15px]">
+                                            <ShieldCheck className="h-4 w-4 mr-2 stroke-[2]" /> View ID verification
+                                        </Button>
+                                    </div>
+
                                     {booking.guestNote && (
-                                        <div className="mt-8 bg-indigo-50/50 rounded-2xl p-6 border border-indigo-100">
-                                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Message from Guest</p>
-                                            <p className="text-slate-700 font-medium italic">"{booking.guestNote}"</p>
+                                        <div className="mt-8 bg-[#F7F7F7] rounded-2xl p-6 border border-[#DDDDDD]">
+                                            <p className="text-[12px] font-bold text-[#717171] uppercase tracking-wider mb-2">Message from guest</p>
+                                            <p className="text-[16px] text-[#222222] italic">"{booking.guestNote}"</p>
                                         </div>
                                     )}
                                 </div>
 
-                                {/* Stay & Property Details */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 -sm">
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">Stay Details</h3>
+                                <Separator className="bg-[#DDDDDD]" />
 
-                                    <div className="flex items-center gap-4 mb-8 bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                                        <div className="h-16 w-16 rounded-xl bg-slate-200 overflow-hidden shrink-0">
+                                {/* Stay & Property Details */}
+                                <div>
+                                    <h3 className="text-[22px] font-semibold text-[#222222] mb-6">Stay details</h3>
+
+                                    <div className="flex items-center gap-6 mb-8 border border-[#DDDDDD] rounded-2xl p-4 cursor-pointer hover:bg-[#F7F7F7] transition-colors" onClick={() => router.push(`/properties/${prop?._id}`)}>
+                                        <div className="h-20 w-24 rounded-lg bg-[#F7F7F7] overflow-hidden shrink-0 border border-[#DDDDDD]">
                                             {prop?.images?.[0]?.url && <img src={prop.images[0].url} alt="" className="w-full h-full object-cover" />}
                                         </div>
                                         <div>
-                                            <p className="font-bold text-slate-900">{prop?.title}</p>
-                                            <p className="text-xs font-medium text-slate-500 flex items-center gap-1 mt-1"><MapPin className="h-3 w-3" /> {prop?.address}, {prop?.city}</p>
+                                            <p className="text-[16px] font-semibold text-[#222222] mb-1">{prop?.title}</p>
+                                            <p className="text-[14px] text-[#717171] flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {prop?.address}, {prop?.city}</p>
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Check-in</p>
-                                            <p className="font-bold text-slate-900">{format(parseISO(booking.checkIn), 'MMM d, yyyy')}</p>
-                                            <p className="text-xs text-slate-500">{prop?.shortTermAmenities?.checkInTime || '14:00'}</p>
+                                            <p className="text-[12px] font-semibold text-[#222222]">Check-in</p>
+                                            <p className="text-[15px] text-[#717171]">{format(parseISO(booking.checkIn), 'MMM d, yyyy')}</p>
+                                            <p className="text-[13px] text-[#717171]">{prop?.shortTermAmenities?.checkInTime || '14:00'}</p>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Check-out</p>
-                                            <p className="font-bold text-slate-900">{format(parseISO(booking.checkOut), 'MMM d, yyyy')}</p>
-                                            <p className="text-xs text-slate-500">{prop?.shortTermAmenities?.checkOutTime || '11:00'}</p>
+                                            <p className="text-[12px] font-semibold text-[#222222]">Checkout</p>
+                                            <p className="text-[15px] text-[#717171]">{format(parseISO(booking.checkOut), 'MMM d, yyyy')}</p>
+                                            <p className="text-[13px] text-[#717171]">{prop?.shortTermAmenities?.checkOutTime || '11:00'}</p>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Guests</p>
-                                            <p className="font-bold text-slate-900">{booking.guests.adults} Adults</p>
-                                            {booking.guests.children > 0 && <p className="text-xs text-slate-500">{booking.guests.children} Children</p>}
+                                            <p className="text-[12px] font-semibold text-[#222222]">Guests</p>
+                                            <p className="text-[15px] text-[#717171]">{booking.guests.adults} adults</p>
+                                            {booking.guests.children > 0 && <p className="text-[13px] text-[#717171]">{booking.guests.children} children</p>}
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Duration</p>
-                                            <p className="font-bold text-slate-900">{nights} Nights</p>
+                                            <p className="text-[12px] font-semibold text-[#222222]">Duration</p>
+                                            <p className="text-[15px] text-[#717171]">{nights} nights</p>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
 
                             {/* ── RIGHT COLUMN: Actions & Payout ── */}
-                            <div className="space-y-6 lg:sticky lg:top-8 self-start">
+                            <div className="space-y-6 lg:sticky lg:top-10 self-start mt-8 lg:mt-0">
 
                                 {/* Actions Card */}
-                                <div className="bg-white rounded-[2.5rem] border-1 border-slate-900 p-8 -2xl -indigo-100">
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Host Actions</h3>
+                                <div className="bg-white rounded-2xl border border-[#DDDDDD] p-6 shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+                                    <h3 className="text-[22px] font-semibold text-[#222222] mb-6">Host actions</h3>
 
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         {booking.status === BookingStatus.PENDING && (
                                             <>
                                                 <Button
-                                                    className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg -xl -indigo-100"
+                                                    className="w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[16px] transition-colors"
                                                     onClick={() => setActionDialog({ open: true, type: 'confirm' })}
                                                 >
-                                                    <CheckCircle2 className="h-5 w-5 mr-2" /> Accept Request
+                                                    Accept request
                                                 </Button>
                                                 <Button
                                                     variant="outline"
-                                                    className="w-full h-14 rounded-2xl border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-black text-lg"
+                                                    className="w-full h-12 rounded-lg border-[#DDDDDD] text-[#E50000] hover:bg-[#FFF8F8] hover:border-[#E50000]/30 font-semibold text-[16px] transition-colors"
                                                     onClick={() => setActionDialog({ open: true, type: 'reject' })}
                                                 >
-                                                    <XCircle className="h-5 w-5 mr-2" /> Decline Request
+                                                    Decline request
                                                 </Button>
                                             </>
                                         )}
 
                                         {booking.status === BookingStatus.CONFIRMED && (
                                             <Button
-                                                className="w-full h-14 rounded-2xl bg-indigo-50 border-1 border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-black text-lg"
+                                                className="w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[16px] transition-colors"
                                                 onClick={handleComplete}
                                             >
-                                                <CheckCircle2 className="h-5 w-5 mr-2" /> Mark Stay Completed
+                                                Mark stay completed
                                             </Button>
                                         )}
 
                                         {[BookingStatus.COMPLETED, BookingStatus.REJECTED, BookingStatus.CANCELLED].includes(booking.status) && (
-                                            <div className="py-4 text-center rounded-2xl bg-slate-50 border border-slate-100">
-                                                <p className="text-sm font-bold text-slate-500">No actions available.</p>
-                                                <p className="text-xs text-slate-400 mt-1">This booking is {booking.status.toLowerCase()}.</p>
+                                            <div className="py-6 text-center">
+                                                <p className="text-[16px] font-semibold text-[#222222]">No actions available</p>
+                                                <p className="text-[14px] text-[#717171] mt-1">This booking is {booking.status.toLowerCase()}.</p>
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Payout Summary */}
-                                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 -sm">
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Expected Payout</h3>
+                                <div className="bg-white rounded-2xl border border-[#DDDDDD] p-6">
+                                    <h3 className="text-[22px] font-semibold text-[#222222] mb-6">Expected payout</h3>
 
                                     <div className="space-y-4 mb-6">
-                                        <div className="flex justify-between text-sm font-bold">
-                                            <span className="text-slate-500">{booking.priceBreakdown?.pricePerNight?.toLocaleString() ?? 0} x {nights} nights</span>
-                                            <span className="text-slate-900">{(booking.priceBreakdown?.subtotal ?? 0).toLocaleString()} {booking.currency}</span>
+                                        <div className="flex justify-between text-[16px] text-[#222222]">
+                                            <span className="underline decoration-[#DDDDDD] underline-offset-4">{booking.priceBreakdown?.pricePerNight?.toLocaleString() ?? 0} x {nights} nights</span>
+                                            <span>{(booking.priceBreakdown?.subtotal ?? 0).toLocaleString()} {booking.currency}</span>
                                         </div>
-                                        <div className="flex justify-between text-sm font-bold">
-                                            <span className="text-slate-500">HoroHouse Fee (10%)</span>
-                                            <span className="text-red-500">-{platformFee.toLocaleString()} {booking.currency}</span>
-                                        </div>
-                                        <Separator className="bg-slate-100" />
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-lg font-black text-slate-900">Your Payout</span>
-                                            <span className="text-2xl font-black text-emerald-600 border-b-2 border-emerald-200">
-                                                {expectedPayout.toLocaleString()} {booking.currency}
-                                            </span>
+                                        <div className="flex justify-between text-[16px] text-[#222222]">
+                                            <span className="underline decoration-[#DDDDDD] underline-offset-4">HoroHouse service fee (10%)</span>
+                                            <span>-{platformFee.toLocaleString()} {booking.currency}</span>
                                         </div>
                                     </div>
 
-                                    <div className={`rounded-xl p-3 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider ${booking.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                        <ShieldCheck className="h-4 w-4" /> Guest Payment: {booking.paymentStatus === 'paid' ? 'Secured' : 'Pending'}
+                                    <Separator className="bg-[#DDDDDD] mb-6" />
+
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="text-[16px] font-semibold text-[#222222]">Your payout</span>
+                                        <span className="text-[16px] font-semibold text-[#222222]">
+                                            {expectedPayout.toLocaleString()} {booking.currency}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        {booking.paymentStatus === 'paid' ? (
+                                            <div className="flex items-center gap-2">
+                                                <CheckCircle2 className="h-5 w-5 text-[#008A05]" />
+                                                <span className="text-[14px] font-medium text-[#222222]">Guest payment secured</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="h-5 w-5 text-[#222222]" />
+                                                <span className="text-[14px] font-medium text-[#222222]">Guest payment pending</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -306,45 +347,49 @@ export default function HostBookingDetailPage() {
 
             {/* ── Action Dialog ── */}
             <Dialog open={actionDialog.open} onOpenChange={(o) => (!o || !actioning) && setActionDialog({ open: false, type: null })}>
-                <DialogContent className="sm:max-w-md rounded-[2rem] border-none p-0 overflow-hidden -2xl">
+                <DialogContent className="sm:max-w-md rounded-2xl border-[#DDDDDD] p-0 overflow-hidden shadow-2xl">
                     <div className="p-8">
                         <DialogHeader className="space-y-4 mb-6 text-left">
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${actionDialog.type === 'confirm' ? 'bg-indigo-50 text-indigo-600' : 'bg-red-50 text-red-600'}`}>
-                                {actionDialog.type === 'confirm' ? <CheckCircle2 className="h-7 w-7" /> : <AlertCircle className="h-7 w-7" />}
+                            <div className="w-12 h-12 bg-[#F7F7F7] border border-[#DDDDDD] rounded-full flex items-center justify-center">
+                                {actionDialog.type === 'confirm' ? <CheckCircle2 className="h-6 w-6 text-[#222222] stroke-[1.5]" /> : <AlertCircle className="h-6 w-6 text-[#222222] stroke-[1.5]" />}
                             </div>
                             <div>
-                                <DialogTitle className="text-2xl font-bold text-slate-900 tracking-tight">
-                                    {actionDialog.type === 'confirm' ? 'Accept Reservation' : 'Decline Request'}
+                                <DialogTitle className="text-[22px] font-semibold text-[#222222] tracking-tight">
+                                    {actionDialog.type === 'confirm' ? 'Accept reservation' : 'Decline request'}
                                 </DialogTitle>
-                                <p className="text-slate-500 mt-2 text-sm leading-relaxed">
+                                <p className="text-[#717171] mt-2 text-[15px] leading-relaxed">
                                     {actionDialog.type === 'confirm' ? 'You are about to accept the reservation request from ' : 'You are about to decline the reservation request from '}
-                                    <span className="font-bold text-slate-900">{guest?.name}</span>.
+                                    <span className="font-semibold text-[#222222]">{guest?.name}</span>.
                                 </p>
                             </div>
                         </DialogHeader>
 
                         <div className="space-y-3 mb-8">
-                            <label className="text-sm font-semibold text-slate-700">
-                                {actionDialog.type === 'confirm' ? 'Add a welcome message (Optional)' : 'Reason for declining (Optional)'}
+                            <label className="text-[14px] font-semibold text-[#222222]">
+                                {actionDialog.type === 'confirm' ? 'Welcome message (optional)' : 'Reason for declining (optional)'}
                             </label>
                             <Textarea
                                 placeholder={actionDialog.type === 'confirm' ? 'E.g. "Looking forward to hosting you. Here are some instructions..."' : 'E.g. "Unfortunately, the property is unavailable during these dates..."'}
                                 value={actionNote}
                                 onChange={(e) => setActionNote(e.target.value)}
-                                className="min-h-[120px] rounded-xl border-slate-200 bg-slate-50/80 p-4 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all resize-none -sm"
+                                className="min-h-[120px] rounded-xl border-[#DDDDDD] bg-white p-4 text-[15px] text-[#222222] placeholder:text-[#717171] focus-visible:ring-1 focus-visible:ring-[#222222] focus-visible:border-blue-600 resize-none"
                             />
                         </div>
 
-                        <DialogFooter className="gap-3 sm:space-x-0 sm:flex-nowrap">
-                            <Button variant="outline" className="rounded-xl h-12 w-full sm:w-1/2 font-semibold border-slate-200 hover:bg-slate-50" onClick={() => setActionDialog({ open: false, type: null })}>
+                        <DialogFooter className="gap-3 sm:space-x-0 sm:flex-nowrap mt-4">
+                            <Button variant="outline" className="rounded-lg h-12 w-full sm:w-1/2 text-[15px] font-semibold border-blue-600 text-[#222222] hover:bg-[#F7F7F7]" onClick={() => setActionDialog({ open: false, type: null })}>
                                 Cancel
                             </Button>
                             <Button
-                                className={`rounded-xl h-12 w-full sm:w-1/2 font-semibold -md ${actionDialog.type === 'confirm' ? 'bg-indigo-600 hover:bg-indigo-700 -indigo-100 text-white' : 'bg-red-600 hover:bg-red-700 -red-100 text-white'}`}
+                                className={cn(
+                                    "rounded-lg h-12 w-full sm:w-1/2 text-[15px] font-semibold text-white transition-colors",
+                                    actionDialog.type === 'confirm' ? "bg-blue-600 hover:bg-blue-700" : "blue-blue-600 blue-blue-700"
+                                )}
                                 onClick={handleAction}
                                 disabled={actioning}
                             >
-                                {actioning ? <Loader2 className="h-5 w-5 animate-spin" /> : (actionDialog.type === 'confirm' ? 'Accept Request' : 'Decline Request')}
+                                {actioning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {actionDialog.type === 'confirm' ? 'Accept request' : 'Decline request'}
                             </Button>
                         </DialogFooter>
                     </div>

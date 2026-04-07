@@ -6,28 +6,22 @@ import { SubscriptionCards } from '@/components/subscription/SubscriptionCards';
 import { PaymentModal } from '@/components/payment/PaymentModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   CalendarIcon,
   CheckCircle2,
   AlertCircle,
   RefreshCw,
   Zap,
-  CreditCard,
-  TrendingUp,
-  Shield,
   Loader2,
-  Sparkles,
   AlertTriangle,
-  RotateCcw,
 } from 'lucide-react';
 import { SubscriptionPlan, BillingCycle, PaymentMethod, Currency } from '@/types/paiement';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/dashboard/Sidebar';
 import { NavDash } from '@/components/dashboard/NavDash';
+import { cn } from '@/lib/utils';
 
 export default function SubscriptionsPage() {
   const {
@@ -57,7 +51,6 @@ export default function SubscriptionsPage() {
   const [savedProvider, setSavedProvider] = useState<'MTN' | 'ORANGE' | null>(null);
 
   useEffect(() => {
-    // Load saved MoMo details from wallet to pre-fill PaymentModal
     import('@/lib/api').then(({ apiClient }) => {
       apiClient.getWallet().then((w: any) => {
         const momo = w?.mobileMoneyAccount;
@@ -68,14 +61,12 @@ export default function SubscriptionsPage() {
   }, []);
 
   // --- Handlers ---
-
   const handleSelectPlan = (plan: SubscriptionPlan, billingCycle: BillingCycle) => {
     setSelectedPlan(plan);
     setSelectedBillingCycle(billingCycle);
     setPaymentModalOpen(true);
   };
 
-  // Renew: re-open payment for the current plan
   const handleRenew = () => {
     if (!subscription) return;
     const currentPlan = plans.find(p => p.name === subscription.plan);
@@ -107,7 +98,6 @@ export default function SubscriptionsPage() {
     }
   };
 
-  // Inline cancel with reason
   const handleCancelConfirmed = async () => {
     setCancelling(true);
     setCancelError(null);
@@ -124,14 +114,12 @@ export default function SubscriptionsPage() {
   };
 
   // --- Helpers ---
-
   const remainingDays = useMemo(() => {
     if (!subscription?.endDate) return 0;
     const diff = new Date(subscription.endDate).getTime() - new Date().getTime();
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }, [subscription?.endDate]);
 
-  // Detect if subscription has expired but backend still shows "active"
   const isExpired = useMemo(() => {
     if (!subscription?.endDate) return false;
     return new Date(subscription.endDate) < new Date();
@@ -153,84 +141,77 @@ export default function SubscriptionsPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#f8fafc] dark:bg-transparent">
+      <div className="flex min-h-screen w-full bg-white">
         <AppSidebar />
-        <SidebarInset className="bg-transparent">
+        <SidebarInset className="bg-white">
           <NavDash />
 
-          <main className="flex-1 p-4 md:p-8 pt-14 md:pt-8 bg-transparent">
+          <main className="flex-1 p-6 md:p-10 bg-white">
             <div className="max-w-6xl mx-auto pb-12">
 
               {/* Header Section */}
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3">
-                    <div className="relative p-2 rounded-xl bg-slate-900 text-white -sm">
-                      <CreditCard className="w-6 h-6" />
-                    </div>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Subscription</h1>
-                  </div>
-                  <p className="text-slate-500 pl-11">Manage your billing, plans, and usage limits.</p>
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                <div>
+                  <h1 className="text-[32px] font-semibold tracking-tight text-[#222222] mb-2">Subscription</h1>
+                  <p className="text-[15px] text-[#717171]">Manage your billing, plans, and usage limits.</p>
                 </div>
-                {subscription && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => { fetchSubscription(); fetchUsage(); }}
-                    disabled={loading}
-                    className="rounded-xl border-slate-200"
-                  >
-                    <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    Sync Data
-                  </Button>
-                )}
               </div>
 
               {/* Error Banner */}
               {error && (
-                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-2xl flex items-center gap-3 mb-6">
-                  <AlertCircle className="h-5 w-5" />
-                  <p className="font-medium text-sm">{error}</p>
+                <div className="bg-[#FFF8F6] border border-[#C2293F]/20 text-[#C2293F] px-5 py-4 rounded-xl flex items-start gap-3 mb-8">
+                  <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                  <p className="font-medium text-[14px] leading-relaxed">{error}</p>
                 </div>
               )}
 
               {/* KPI Section for Active Subscription */}
               {subscription && !isInitialLoading && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                   <KPICard
                     title="Current Plan"
                     amount={subscription.plan}
                     subtext={subscription.billingCycle}
                     icon={Zap}
-                    colorClass="blue"
                   />
                   <KPICard
                     title="Days Remaining"
                     amount={remainingDays}
                     subtext="Days until renewal"
                     icon={CalendarIcon}
-                    colorClass="indigo"
+                    alert={isExpired}
                   />
                   <KPICard
                     title="Status"
                     amount={effectiveStatus}
                     subtext={subscription.autoRenew ? "Auto-renew ON" : "Auto-renew OFF"}
                     icon={CheckCircle2}
-                    colorClass={isExpired ? 'red' : 'emerald'}
+                    success={!isExpired && effectiveStatus === 'active'}
+                    alert={isExpired}
                   />
                 </div>
               )}
 
               <Tabs defaultValue="plans" className="w-full">
-                <div className="flex justify-center mb-8">
-                  <TabsList className="bg-slate-100/50 p-1 rounded-2xl border border-slate-200">
-                    <TabsTrigger value="plans" className="rounded-xl px-8 data-[state=active]:bg-white data-[state=active]:-sm">Available Plans</TabsTrigger>
-                    <TabsTrigger value="current" className="rounded-xl px-8 data-[state=active]:bg-white data-[state=active]:-sm">My Subscription</TabsTrigger>
+                <div className="flex mb-8 border-b border-[#EBEBEB]">
+                  <TabsList className="bg-transparent h-auto p-0 flex gap-8">
+                    <TabsTrigger 
+                      value="plans" 
+                      className="rounded-none border-b-[2.5px] border-transparent data-[state=active]:border-[#222222] data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 py-3 text-[15px] font-semibold text-[#717171] data-[state=active]:text-[#222222] transition-colors focus-visible:outline-none"
+                    >
+                      Available plans
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="current" 
+                      className="rounded-none border-b-[2.5px] border-transparent data-[state=active]:border-[#222222] data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 py-3 text-[15px] font-semibold text-[#717171] data-[state=active]:text-[#222222] transition-colors focus-visible:outline-none"
+                    >
+                      My subscription
+                    </TabsTrigger>
                   </TabsList>
                 </div>
 
                 {/* ── Plans Tab ── */}
-                <TabsContent value="plans" className="space-y-6 focus-visible:outline-none">
+                <TabsContent value="plans" className="space-y-6 focus-visible:outline-none mt-0">
                   {isInitialLoading ? (
                     <SubscriptionCardsSkeleton />
                   ) : (
@@ -244,91 +225,112 @@ export default function SubscriptionsPage() {
                 </TabsContent>
 
                 {/* ── My Subscription Tab ── */}
-                <TabsContent value="current" className="focus-visible:outline-none">
+                <TabsContent value="current" className="focus-visible:outline-none mt-0">
                   {isInitialLoading ? (
                     <CurrentSubscriptionSkeleton />
                   ) : subscription ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-12">
 
                       {/* Left: Plan Summary & Usage */}
-                      <div className="lg:col-span-8 space-y-6">
-                        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
-                          <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 pt-6 px-6">
-                            <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                              <CreditCard className="h-5 w-5 text-blue-500" />
-                              Billing Overview
+                      <div className="lg:col-span-8 space-y-8">
+                        <Card className="rounded-2xl border border-[#DDDDDD] bg-white shadow-none">
+                          <CardHeader className="border-b border-[#EBEBEB] pb-5 pt-6 px-6 sm:px-8">
+                            <CardTitle className="text-[18px] font-semibold text-[#222222]">
+                              Billing overview
                             </CardTitle>
                           </CardHeader>
+
                           {/* Expired banner */}
                           {isExpired && (
-                            <div className="flex items-center gap-3 bg-red-50 border-b border-red-200 px-6 py-3">
-                              <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
-                              <p className="text-sm font-semibold text-red-700 flex-1">Subscription expired on {new Date(subscription!.endDate).toLocaleDateString()} — renew to restore access.</p>
-                              <Button size="sm" onClick={handleRenew} className="bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl gap-1.5 text-xs h-8">
-                                <RotateCcw className="h-3.5 w-3.5" /> Renew Now
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#FFF8F6] border-b border-[#EBEBEB] px-6 sm:px-8 py-4">
+                              <div className="flex items-start sm:items-center gap-3">
+                                <AlertTriangle className="h-5 w-5 text-[#C2293F] shrink-0 mt-0.5 sm:mt-0" />
+                                <p className="text-[14px] font-medium text-[#C2293F]">
+                                  Subscription expired on {new Date(subscription!.endDate).toLocaleDateString()}. Renew to restore access.
+                                </p>
+                              </div>
+                              <Button 
+                                onClick={handleRenew} 
+                                className="bg-[#222222] hover:bg-black text-white font-semibold rounded-lg text-[14px] h-10 w-full sm:w-auto shrink-0 transition-colors"
+                              >
+                                Renew now
                               </Button>
                             </div>
                           )}
-                          <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                              <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-100">
-                                <span className="text-slate-500 text-sm font-medium">Active Plan</span>
-                                <span className="font-bold capitalize text-blue-600">{subscription.plan}</span>
+
+                          <CardContent className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-5">
+                              <div className="flex justify-between items-center pb-4 border-b border-[#EBEBEB]">
+                                <span className="text-[#717171] text-[15px]">Active plan</span>
+                                <span className="font-semibold capitalize text-[#222222]">{subscription.plan}</span>
                               </div>
-                              <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-100">
-                                <span className="text-slate-500 text-sm font-medium">Billing Cycle</span>
-                                <span className="font-bold text-slate-700 capitalize">{subscription.billingCycle}</span>
+                              <div className="flex justify-between items-center pb-4 border-b border-[#EBEBEB]">
+                                <span className="text-[#717171] text-[15px]">Billing cycle</span>
+                                <span className="font-semibold text-[#222222] capitalize">{subscription.billingCycle}</span>
                               </div>
                               <div className="flex justify-between items-center">
-                                <span className="text-slate-500 text-sm font-medium">Auto-Renewal</span>
-                                <Badge className={subscription.autoRenew ? "bg-emerald-50 text-emerald-600 border-none" : "bg-slate-100 text-slate-600 border-none"}>
+                                <span className="text-[#717171] text-[15px]">Auto-renewal</span>
+                                <span className="text-[14px] font-medium text-[#222222]">
                                   {subscription.autoRenew ? 'Enabled' : 'Disabled'}
-                                </Badge>
+                                </span>
                               </div>
                             </div>
-                            <div className="space-y-4">
-                              <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-100">
-                                <span className="text-slate-500 text-sm font-medium">Next Payment</span>
-                                <span className="font-bold text-slate-700">{new Date(subscription!.endDate).toLocaleDateString()}</span>
+                            
+                            <div className="space-y-5">
+                              <div className="flex justify-between items-center pb-4 border-b border-[#EBEBEB]">
+                                <span className="text-[#717171] text-[15px]">Next payment</span>
+                                <span className="font-semibold text-[#222222]">{new Date(subscription!.endDate).toLocaleDateString()}</span>
                               </div>
-                              <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-100">
-                                <span className="text-slate-500 text-sm font-medium">{isExpired ? 'Expired' : 'Days Remaining'}</span>
-                                <span className={`font-black tracking-tight ${isExpired ? 'text-red-600' : 'text-orange-600'}`}>{isExpired ? 'Expired' : `${remainingDays} Days`}</span>
+                              <div className="flex justify-between items-center pb-4 border-b border-[#EBEBEB]">
+                                <span className="text-[#717171] text-[15px]">{isExpired ? 'Expired' : 'Days remaining'}</span>
+                                <span className={cn("font-semibold text-[15px]", isExpired ? 'text-[#C2293F]' : 'text-[#222222]')}>
+                                  {isExpired ? 'Expired' : `${remainingDays} days`}
+                                </span>
                               </div>
-                              <div className="flex justify-end pt-2 gap-2 flex-wrap">
-                                {isExpired && (
-                                  <Button size="sm" onClick={handleRenew}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-9 rounded-xl gap-1.5">
-                                    <RotateCcw className="h-4 w-4" /> Renew Subscription
+                              
+                              <div className="flex justify-end pt-2">
+                                {isExpired && !showCancelConfirm && (
+                                  <Button onClick={handleRenew} className="bg-[#222222] hover:bg-black text-white font-semibold h-11 px-6 rounded-lg text-[15px] transition-colors">
+                                    Renew subscription
                                   </Button>
                                 )}
-                                {!showCancelConfirm ? (
-                                  <Button
-                                    variant="ghost" size="sm"
-                                    className="text-destructive hover:bg-destructive/5 font-bold h-9 rounded-xl"
+                                {!showCancelConfirm && !isExpired && (
+                                  <button
                                     onClick={() => setShowCancelConfirm(true)}
-                                    disabled={isExpired}
+                                    className="text-[15px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none"
                                   >
-                                    Cancel Subscription
-                                  </Button>
-                                ) : (
-                                  <div className="w-full space-y-3 pt-2 border-t border-red-100">
-                                    <p className="text-sm font-semibold text-red-700">Reason for cancelling (optional)</p>
+                                    Cancel subscription
+                                  </button>
+                                )}
+
+                                {showCancelConfirm && (
+                                  <div className="w-full space-y-4 pt-2">
+                                    <p className="text-[15px] font-semibold text-[#222222]">Reason for cancelling (optional)</p>
                                     <input
                                       value={cancelReason}
                                       onChange={e => setCancelReason(e.target.value)}
                                       placeholder="Tell us why..."
-                                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200"
+                                      className="w-full h-12 border border-[#DDDDDD] rounded-lg px-4 text-[15px] focus:outline-none focus:border-[#222222] transition-colors placeholder:text-[#717171]"
                                     />
-                                    {cancelError && <p className="text-xs text-red-600">{cancelError}</p>}
-                                    <p className="text-xs text-slate-500">You'll keep access until {new Date(subscription!.endDate).toLocaleDateString()}.</p>
-                                    <div className="flex gap-2">
-                                      <Button size="sm" variant="ghost" onClick={() => { setShowCancelConfirm(false); setCancelError(null); }} disabled={cancelling}
-                                        className="rounded-xl h-9 border border-slate-200">Keep Plan</Button>
-                                      <Button size="sm" onClick={handleCancelConfirmed} disabled={cancelling}
-                                        className="bg-red-600 hover:bg-red-700 text-white font-bold h-9 rounded-xl gap-1.5">
-                                        {cancelling && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                                        {cancelling ? 'Cancelling…' : 'Confirm Cancel'}
+                                    {cancelError && <p className="text-[13px] text-[#C2293F]">{cancelError}</p>}
+                                    <p className="text-[13px] text-[#717171]">You'll keep access until {new Date(subscription!.endDate).toLocaleDateString()}.</p>
+                                    
+                                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                                      <Button 
+                                        variant="outline" 
+                                        onClick={() => { setShowCancelConfirm(false); setCancelError(null); }} 
+                                        disabled={cancelling}
+                                        className="flex-1 rounded-lg h-12 border-[#222222] text-[#222222] font-semibold hover:bg-[#F7F7F7] transition-colors"
+                                      >
+                                        Keep plan
+                                      </Button>
+                                      <Button 
+                                        onClick={handleCancelConfirmed} 
+                                        disabled={cancelling}
+                                        className="flex-1 bg-[#C2293F] hover:bg-[#A31F33] text-white font-semibold h-12 rounded-lg transition-colors"
+                                      >
+                                        {cancelling && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                                        {cancelling ? 'Cancelling...' : 'Confirm cancel'}
                                       </Button>
                                     </div>
                                   </div>
@@ -340,19 +342,19 @@ export default function SubscriptionsPage() {
 
                         {/* Usage Card */}
                         {usage && (
-                          <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 pt-6 px-6">
-                              <CardTitle className="text-lg font-bold text-slate-800">Resource Usage</CardTitle>
-                              <CardDescription className="text-slate-500">Track your current consumption vs limits.</CardDescription>
+                          <Card className="rounded-2xl border border-[#DDDDDD] bg-white shadow-none">
+                            <CardHeader className="border-b border-[#EBEBEB] pb-5 pt-6 px-6 sm:px-8">
+                              <CardTitle className="text-[18px] font-semibold text-[#222222]">Resource usage</CardTitle>
+                              <CardDescription className="text-[#717171] text-[15px] mt-1">Track your current consumption vs limits.</CardDescription>
                             </CardHeader>
-                            <CardContent className="p-8 space-y-10">
+                            <CardContent className="p-6 sm:p-8 space-y-10">
                               <UsageItem
-                                label="Property Listings"
+                                label="Property listings"
                                 used={usage.usage.listings.used}
                                 limit={usage.usage.listings.limit}
                               />
                               <UsageItem
-                                label="Monthly Boosts"
+                                label="Monthly boosts"
                                 used={usage.usage.boosts.used}
                                 limit={usage.usage.boosts.limit}
                               />
@@ -363,32 +365,30 @@ export default function SubscriptionsPage() {
 
                       {/* Right: Features Sidebar */}
                       <div className="lg:col-span-4">
-                        <Card className="rounded-3xl border-slate-200 -sm bg-slate-900 text-white overflow-hidden h-fit sticky top-4">
-                          <div className="absolute top-0 right-0 p-6 opacity-5">
-                            <Zap className="w-32 h-32" />
-                          </div>
-                          <CardHeader className="pb-4 pt-6 px-6 relative z-10">
-                            <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
-                              <Sparkles className="h-5 w-5 text-blue-400" />
-                              Plan Power
+                        <Card className="rounded-2xl border border-[#EBEBEB] bg-[#F7F7F7] shadow-none h-fit sticky top-24">
+                          <CardHeader className="pb-5 pt-6 px-6 border-b border-[#EBEBEB]">
+                            <CardTitle className="text-[18px] font-semibold text-[#222222] flex items-center gap-2">
+                              Plan features
                             </CardTitle>
-                            <CardDescription className="text-slate-400">Everything in your {subscription!.plan} plan.</CardDescription>
+                            <CardDescription className="text-[#717171] text-[14px] mt-1">
+                              Included in your {subscription!.plan} plan.
+                            </CardDescription>
                           </CardHeader>
-                          <CardContent className="px-6 pb-8 relative z-10">
-                            <ul className="space-y-4">
+                          <CardContent className="p-6">
+                            <ul className="space-y-5">
                               {Object.entries(subscription!.features).map(([key, value]) => (
-                                <li key={key} className="flex items-start gap-3 text-sm">
+                                <li key={key} className="flex items-start gap-3">
                                   {value ? (
-                                    <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+                                    <CheckCircle2 className="h-5 w-5 text-[#222222] shrink-0 stroke-[2]" />
                                   ) : (
-                                    <AlertCircle className="h-5 w-5 text-slate-600 shrink-0" />
+                                    <AlertCircle className="h-5 w-5 text-[#DDDDDD] shrink-0 stroke-[2]" />
                                   )}
-                                  <div className="flex flex-col">
-                                    <span className={`font-bold capitalize ${value ? "text-slate-100" : "text-slate-500"}`}>
+                                  <div className="flex flex-col pt-0.5">
+                                    <span className={cn("text-[15px] leading-tight capitalize", value ? "font-medium text-[#222222]" : "text-[#717171]")}>
                                       {key.replace(/([A-Z])/g, ' $1')}
                                     </span>
                                     {typeof value !== 'boolean' && (
-                                      <span className="text-[10px] uppercase tracking-wider font-extrabold text-blue-400/80">
+                                      <span className="text-[13px] text-[#717171] mt-1">
                                         Limit: {value === -1 ? 'Unlimited' : value}
                                       </span>
                                     )}
@@ -401,26 +401,25 @@ export default function SubscriptionsPage() {
                       </div>
                     </div>
                   ) : (
-                    <Card className="rounded-3xl border-dashed border-1 border-slate-200 bg-white/50 overflow-hidden">
-                      <CardContent className="p-16 text-center">
-                        <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                          <CalendarIcon className="h-10 w-10 text-slate-400" />
-                        </div>
-                        <h3 className="text-2xl font-black text-slate-800 mb-2">No Active Subscription</h3>
-                        <p className="text-slate-500 mb-8 max-w-sm mx-auto font-medium leading-relaxed">
-                          Unlock premium tools, increased visibility and scale your real estate portfolio today.
-                        </p>
-                        <Button
-                          onClick={() => {
-                            const el = document.querySelector('[data-value="plans"]');
-                            if (el instanceof HTMLElement) el.click();
-                          }}
-                          className="px-10 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl -lg -blue-500/20"
-                        >
-                          Browse Plans
-                        </Button>
-                      </CardContent>
-                    </Card>
+                    // Empty State (No Active Subscription)
+                    <div className="rounded-2xl border border-[#DDDDDD] bg-white text-center py-24 px-6 mt-6">
+                      <div className="w-16 h-16 bg-[#F7F7F7] rounded-full flex items-center justify-center mx-auto mb-6 border border-[#EBEBEB]">
+                        <CalendarIcon className="h-8 w-8 text-[#222222] stroke-[1.5]" />
+                      </div>
+                      <h3 className="text-[22px] font-semibold text-[#222222] mb-3">No active subscription</h3>
+                      <p className="text-[15px] text-[#717171] mb-8 max-w-sm mx-auto leading-relaxed">
+                        Unlock premium tools, increase your visibility, and scale your real estate portfolio today.
+                      </p>
+                      <Button
+                        onClick={() => {
+                          const el = document.querySelector('[data-value="plans"]');
+                          if (el instanceof HTMLElement) el.click();
+                        }}
+                        className="px-8 h-12 bg-[#222222] hover:bg-black text-white font-semibold rounded-lg text-[15px] transition-colors"
+                      >
+                        View available plans
+                      </Button>
+                    </div>
                   )}
                 </TabsContent>
               </Tabs>
@@ -448,84 +447,57 @@ export default function SubscriptionsPage() {
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-const KPICard = ({ title, amount, subtext, icon: Icon, colorClass, isCurrency = false }: any) => {
-  const variants: any = {
-    blue: "bg-blue-50 text-blue-600 border-blue-100",
-    emerald: "bg-emerald-50 text-emerald-600 border-emerald-100",
-    indigo: "bg-indigo-50 text-indigo-600 border-indigo-100",
-    red: "bg-red-50 text-red-600 border-red-100",
-  };
-
+const KPICard = ({ title, amount, subtext, icon: Icon, success = false, alert = false }: any) => {
   return (
-    <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden group hover:-md transition-all duration-300">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <div className={`p-3 rounded-2xl ${variants[colorClass]} transition-transform duration-500 group-hover:scale-110`}>
-            <Icon className="w-5 h-5" />
+    <Card className="rounded-2xl border border-[#DDDDDD] bg-white shadow-none">
+      <CardContent>
+        <div className="flex justify-between items-start mb-6">
+          <div className="p-3 rounded-full bg-[#F7F7F7] border border-[#EBEBEB]">
+            <Icon className="w-5 h-5 text-[#222222] stroke-[1.5]" />
           </div>
         </div>
         <div>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{title}</p>
-          <h3 className="text-3xl font-black text-slate-800 tracking-tight flex items-baseline gap-2">
-            {typeof amount === 'number' ? amount.toLocaleString() : <span className="capitalize">{amount}</span>}
-            {isCurrency && <span className="text-base font-bold text-slate-400 uppercase">FCFA</span>}
+          <p className="text-[14px] font-medium text-[#717171] mb-1">{title}</p>
+          <h3 className={cn(
+            "text-[32px] font-semibold tracking-tight capitalize leading-none",
+            alert ? "text-[#C2293F]" : success ? "text-[#008A05]" : "text-[#222222]"
+          )}>
+            {amount}
           </h3>
-          <p className="text-sm font-medium text-slate-500 mt-2 flex items-center gap-1">
-            {subtext}
-          </p>
+          <p className="text-[14px] text-[#717171] mt-2">{subtext}</p>
         </div>
       </CardContent>
     </Card>
   );
 };
 
-function BillingRow({
-  label,
-  children,
-  last = false,
-}: {
-  label: string;
-  children: React.ReactNode;
-  last?: boolean;
-}) {
-  return (
-    <div className={`flex justify-between items-center ${!last ? 'pb-3 border-b border-dashed' : ''}`}>
-      <span className="text-muted-foreground text-sm">{label}</span>
-      {children}
-    </div>
-  );
-}
-
 function UsageItem({ label, used, limit }: { label: string; used: number; limit: number }) {
   const isUnlimited = limit === -1;
   const percentage = isUnlimited ? 0 : Math.min(100, (used / limit) * 100);
   const isWarning = !isUnlimited && percentage > 90;
-  const isMedium = !isUnlimited && percentage > 60 && percentage <= 90;
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-end">
         <div className="space-y-1">
-          <p className="text-sm font-bold text-slate-800">{label}</p>
-          <p className="text-3xl font-black text-slate-900 tracking-tight">
-            {used}{' '}
-            <span className="text-sm font-bold text-slate-400">
-              / {isUnlimited ? '∞' : limit}
-            </span>
+          <p className="text-[15px] font-medium text-[#222222]">{label}</p>
+          <p className="text-[28px] font-semibold text-[#222222] tracking-tight leading-none mt-1">
+            {used} <span className="text-[16px] font-normal text-[#717171]">/ {isUnlimited ? '∞' : limit}</span>
           </p>
         </div>
         {!isUnlimited && (
-          <Badge className={`px-2 py-0.5 border-none font-bold text-[10px] uppercase ${isWarning ? 'bg-red-50 text-red-600' : isMedium ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'
-            }`}>
-            {Math.round(percentage)}% USED
-          </Badge>
+          <span className={cn(
+            "text-[12px] font-semibold px-2 py-1 rounded-md",
+            isWarning ? "bg-[#FFF8F6] text-[#C2293F]" : "bg-[#F7F7F7] text-[#222222]"
+          )}>
+            {Math.round(percentage)}% used
+          </span>
         )}
       </div>
       {!isUnlimited && (
-        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+        <div className="w-full bg-[#EBEBEB] h-1.5 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-1000 ${isWarning ? 'bg-red-500' : isMedium ? 'bg-orange-500' : 'bg-blue-500'
-              }`}
+            className={cn("h-full transition-all duration-1000", isWarning ? "bg-[#C2293F]" : "bg-[#222222]")}
             style={{ width: `${percentage}%` }}
           />
         </div>
@@ -538,25 +510,22 @@ function UsageItem({ label, used, limit }: { label: string; used: number; limit:
 
 function SubscriptionCardsSkeleton() {
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-12 py-10">
-      <div className="flex justify-center">
-        <Skeleton className="h-12 w-64 rounded-xl" />
-      </div>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+    <div className="w-full space-y-10 py-8">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {[0, 1, 2].map((i) => (
-          <div key={i} className={`rounded-[32px] p-8 space-y-6 ${i === 1 ? 'bg-slate-900' : 'bg-white ring-1 ring-slate-100 -xl -slate-200/50'}`}>
-            <Skeleton className={`h-12 w-12 rounded-2xl ${i === 1 ? 'bg-slate-700' : 'bg-slate-100'}`} />
-            <Skeleton className={`h-7 w-28 ${i === 1 ? 'bg-slate-700' : 'bg-slate-100'}`} />
-            <Skeleton className={`h-12 w-44 ${i === 1 ? 'bg-slate-700' : 'bg-slate-100'}`} />
-            <div className="space-y-3 pt-4">
+          <div key={i} className="rounded-2xl p-8 space-y-6 bg-white border border-[#EBEBEB]">
+            <Skeleton className="h-10 w-10 rounded-lg bg-[#F7F7F7]" />
+            <Skeleton className="h-6 w-24 bg-[#F7F7F7]" />
+            <Skeleton className="h-10 w-32 bg-[#F7F7F7]" />
+            <div className="space-y-4 pt-4">
               {[1, 2, 3, 4].map((j) => (
                 <div key={j} className="flex items-center gap-3">
-                  <Skeleton className={`h-4 w-4 rounded-full ${i === 1 ? 'bg-slate-700' : 'bg-slate-100'}`} />
-                  <Skeleton className={`h-4 flex-1 ${i === 1 ? 'bg-slate-700' : 'bg-slate-100'}`} />
+                  <Skeleton className="h-4 w-4 rounded-full bg-[#F7F7F7]" />
+                  <Skeleton className="h-4 flex-1 bg-[#F7F7F7]" />
                 </div>
               ))}
             </div>
-            <Skeleton className={`h-12 w-full rounded-2xl mt-4 ${i === 1 ? 'bg-slate-700' : 'bg-slate-100'}`} />
+            <Skeleton className="h-12 w-full rounded-lg mt-4 bg-[#F7F7F7]" />
           </div>
         ))}
       </div>
@@ -566,48 +535,32 @@ function SubscriptionCardsSkeleton() {
 
 function CurrentSubscriptionSkeleton() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <div className="lg:col-span-8 space-y-6">
-        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
-          <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 pt-6 px-6">
-            <Skeleton className="h-6 w-40 bg-slate-200" />
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
+      <div className="lg:col-span-8 space-y-8">
+        <Card className="rounded-2xl border border-[#EBEBEB] bg-white shadow-none">
+          <CardHeader className="border-b border-[#EBEBEB] pb-5 pt-6 px-6">
+            <Skeleton className="h-6 w-40 bg-[#F7F7F7]" />
           </CardHeader>
-          <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <CardContent className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
             {[0, 1].map((col) => (
               <div key={col} className="space-y-6">
                 {[1, 2, 3].map((row) => (
-                  <div key={row} className="flex justify-between pb-3 border-b border-dashed border-slate-100">
-                    <Skeleton className="h-4 w-24 bg-slate-100" />
-                    <Skeleton className="h-4 w-20 bg-slate-100" />
+                  <div key={row} className="flex justify-between pb-4 border-b border-[#EBEBEB]">
+                    <Skeleton className="h-4 w-24 bg-[#F7F7F7]" />
+                    <Skeleton className="h-4 w-20 bg-[#F7F7F7]" />
                   </div>
                 ))}
               </div>
             ))}
           </CardContent>
         </Card>
-        <Card className="rounded-3xl border-slate-200 -sm bg-white overflow-hidden">
-          <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 pt-6 px-6">
-            <Skeleton className="h-6 w-32 bg-slate-200" />
-          </CardHeader>
-          <CardContent className="p-8 space-y-10">
-            {[1, 2].map((i) => (
-              <div key={i} className="space-y-4">
-                <div className="flex justify-between">
-                  <Skeleton className="h-5 w-32 bg-slate-100" />
-                  <Skeleton className="h-5 w-16 bg-slate-100" />
-                </div>
-                <Skeleton className="h-3 w-full rounded-full bg-slate-100" />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
       </div>
       <div className="lg:col-span-4">
-        <Card className="rounded-3xl bg-slate-900 h-64 -xl -slate-900/20">
-          <CardContent className="p-8 space-y-4">
-            <Skeleton className="h-6 w-36 bg-slate-800" />
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} className="h-4 w-full bg-slate-800" />
+        <Card className="rounded-2xl border border-[#EBEBEB] bg-[#F7F7F7] shadow-none h-64">
+          <CardContent className="p-8 space-y-6">
+            <Skeleton className="h-6 w-36 bg-[#EBEBEB]" />
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-4 w-full bg-[#EBEBEB]" />
             ))}
           </CardContent>
         </Card>

@@ -24,21 +24,16 @@ import { useLanguage } from "@/contexts/LanguageContext";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type GridLayout = "grid" | "list";
-
-// Max properties that can be compared at once
 const MAX_COMPARE = 3;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function isoTimestamp(iso?: string): string {
-  return iso ?? "";
-}
-
+function isoTimestamp(iso?: string): string { return iso ?? ""; }
 function scrollToTop() {
   if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ─── Comparison Bar ───────────────────────────────────────────────────────────
+// ─── Compare Bar ──────────────────────────────────────────────────────────────
 
 interface CompareBarProps {
   items: Array<{ id: string; address: string; price: string; image?: string }>;
@@ -50,41 +45,50 @@ interface CompareBarProps {
 function CompareBar({ items, onRemove, onClear, onCompare }: CompareBarProps) {
   if (items.length === 0) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t -2xl px-6 py-3">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#DDDDDD] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-6 py-3">
       <div className="max-w-screen-xl mx-auto flex items-center gap-4">
         <div className="flex items-center gap-2 flex-1 overflow-x-auto">
-          <span className="text-sm font-semibold shrink-0 text-muted-foreground">
+          <span className="text-[13px] font-semibold shrink-0 text-[#717171]">
             Compare ({items.length}/{MAX_COMPARE}):
           </span>
           {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 shrink-0">
+            <div key={item.id} className="flex items-center gap-2 bg-[#F7F7F7] border border-[#DDDDDD] rounded-xl px-3 py-1.5 shrink-0">
               {item.image && (
-                <img src={item.image} alt="" className="w-8 h-8 rounded object-cover" />
+                <img src={item.image} alt="" className="w-8 h-8 rounded-lg object-cover" />
               )}
-              <span className="text-xs font-medium max-w-[120px] truncate">{item.address}</span>
-              <button onClick={() => onRemove(item.id)} className="text-muted-foreground hover:text-destructive transition-colors ml-1">
+              <span className="text-[12px] font-medium max-w-[120px] truncate text-[#222222]">{item.address}</span>
+              <button
+                onClick={() => onRemove(item.id)}
+                className="text-[#717171] hover:text-[#222222] transition-colors ml-1"
+              >
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
           ))}
-          {/* Empty slots */}
           {Array.from({ length: MAX_COMPARE - items.length }).map((_, i) => (
-            <div key={`empty-${i}`} className="flex items-center justify-center w-24 h-10 border-1 border-dashed border-muted-foreground/30 rounded-lg shrink-0">
-              <span className="text-xs text-muted-foreground/50">+ Add</span>
+            <div
+              key={`empty-${i}`}
+              className="flex items-center justify-center w-24 h-10 border border-dashed border-[#DDDDDD] rounded-xl shrink-0"
+            >
+              <span className="text-[11px] text-[#AAAAAA]">+ Add</span>
             </div>
           ))}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Button variant="ghost" size="sm" onClick={onClear} className="text-xs">Clear</Button>
-          <Button
-            size="sm"
+          <button
+            onClick={onClear}
+            className="text-[13px] font-semibold text-[#222222] underline underline-offset-2 hover:text-[#717171] transition-colors px-2"
+          >
+            Clear
+          </button>
+          <button
             onClick={onCompare}
             disabled={items.length < 2}
-            className="gap-2 bg-blue-600 hover:bg-blue-700"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold text-white bg-[#1A56DB] rounded-xl hover:bg-[#1648C5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <GitCompare className="h-4 w-4" />
             Compare {items.length < 2 ? `(need ${2 - items.length} more)` : "Now"}
-          </Button>
+          </button>
         </div>
       </div>
     </div>
@@ -116,14 +120,12 @@ const IndexContent = () => {
   const [showCompare, setShowCompare] = useState(false);
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
 
-  // ── Mobile state ──────────────────────────────────────────────────────────
-  // Start as null so SSR and first client render are identical (avoids hydration mismatch)
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  // ── Mobile / hover / cluster state ───────────────────────────────────────
+  // Use false as default (SSR-safe). The effect corrects it on mount.
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [mobileMapFullScreen, setMobileMapFullScreen] = useState(false);
-  // ── Hover state (for map pin highlight) ───────────────────────────────
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-
-  // ── Cluster drill-down state ─────────────────────────────────────────────
   const [clusterFilterIds, setClusterFilterIds] = useState<Set<string> | null>(null);
 
   // ── Refs ──────────────────────────────────────────────────────────────────
@@ -133,6 +135,7 @@ const IndexContent = () => {
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
+    setIsMounted(true);
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
@@ -196,10 +199,8 @@ const IndexContent = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">(
     (searchParams.get("sortOrder") as "asc" | "desc") || "desc"
   );
-  // Incremented on every explicit search — MapView watches this to auto-zoom
   const [searchVersion, setSearchVersion] = useState(0);
 
-  // ── Derive current sort dropdown value from sortBy/sortOrder state ──────────
   const sortValue = useMemo(() => {
     if (sortBy === "price" && sortOrder === "asc") return "price-low";
     if (sortBy === "price" && sortOrder === "desc") return "price-high";
@@ -207,7 +208,6 @@ const IndexContent = () => {
     return "newest";
   }, [sortBy, sortOrder]);
 
-  // ── Active filter count ───────────────────────────────────────────────────
   const activeFilterCount = useMemo(() => {
     let n = 0;
     if (filters.city) n++;
@@ -317,12 +317,10 @@ const IndexContent = () => {
     try {
       append ? setLoadingMore(true) : setLoading(true);
       setError(null);
-      // If we are doing a fresh fetch (not appending), clear the map drill-down
       if (!append) setClusterFilterIds(null);
 
       const params: Record<string, any> = {
-        page: pageNum,
-        limit: 12,
+        page: pageNum, limit: 12,
         city: filters.city || undefined,
         listingType: filters.listingType || undefined,
         maxPrice: advancedFilters.maxPrice || filters.maxPrice || undefined,
@@ -333,8 +331,7 @@ const IndexContent = () => {
         propertyType: advancedFilters.propertyTypes?.[0] || undefined,
         checkIn: filters.checkIn || undefined,
         checkOut: filters.checkOut || undefined,
-        sortBy,
-        sortOrder,
+        sortBy, sortOrder,
       };
       if (advancedFilters.hasPool !== undefined) {
         params.amenities = advancedFilters.hasPool ? ["hasPool"] : undefined;
@@ -342,7 +339,6 @@ const IndexContent = () => {
 
       const data = await apiClient.searchProperties(params);
       const newProps = Array.isArray(data?.properties) ? data.properties : [];
-
       setProperties((prev) => append ? [...prev, ...newProps] : newProps);
       setTotal(data?.total ?? 0);
       setHasMore(newProps.length === 12 && (data?.totalPages ?? 0) > pageNum);
@@ -389,14 +385,10 @@ const IndexContent = () => {
     setFilters(qs);
     setSearchVersion((v) => v + 1);
     updateURLParams({
-      city: qs.city ?? null,
-      listingType: qs.listingType ?? null,
-      minPrice: qs.minPrice?.toString() ?? null,
-      maxPrice: qs.maxPrice?.toString() ?? null,
-      bedrooms: qs.bedrooms?.toString() ?? null,
-      bathrooms: qs.bathrooms?.toString() ?? null,
-      checkIn: qs.checkIn ?? null,
-      checkOut: qs.checkOut ?? null,
+      city: qs.city ?? null, listingType: qs.listingType ?? null,
+      minPrice: qs.minPrice?.toString() ?? null, maxPrice: qs.maxPrice?.toString() ?? null,
+      bedrooms: qs.bedrooms?.toString() ?? null, bathrooms: qs.bathrooms?.toString() ?? null,
+      checkIn: qs.checkIn ?? null, checkOut: qs.checkOut ?? null,
       guests: qs.guests?.toString() ?? null,
     });
     scrollToTop();
@@ -456,14 +448,11 @@ const IndexContent = () => {
     [properties]
   );
 
-  // ── Cluster drill-down filtered properties ────────────────────────────────
   const displayedProperties = useMemo(() => {
     if (!clusterFilterIds) return uiProperties;
     return uiProperties.filter((p) => clusterFilterIds.has(p.id));
   }, [uiProperties, clusterFilterIds]);
 
-  // ── Normalized properties for MapView (resolves _id → id, flattens images,
-  //    and maps nested API fields to the flat Property interface MapView expects) ──
   const mapProperties = useMemo(() =>
     properties.map((p) => ({
       ...p,
@@ -471,7 +460,6 @@ const IndexContent = () => {
       title: p.title || p.address || "",
       images: p.images?.map((img: { url: string }) => img.url).filter(Boolean) ?? [],
       image: p.images?.[0]?.url,
-      // Flat fields expected by MapView's Property interface
       address: [p.address, p.city, p.country].filter(Boolean).join(", "),
       beds: p.amenities?.bedrooms,
       baths: p.amenities?.bathrooms,
@@ -480,33 +468,16 @@ const IndexContent = () => {
     [properties]
   );
 
-  // ── Filter chips JSX ──────────────────────────────────────────────────────
-  // const FilterChips = filterChips.length > 0 ? (
-  //   <div className="flex flex-wrap gap-2 items-center">
-  //     {filterChips.map((chip) => (
-  //       <Badge key={chip.key} variant="secondary" className="pl-3 pr-1 py-1.5 text-sm flex items-center gap-2">
-  //         <span>{chip.label}</span>
-  //         <button onClick={() => removeFilter(chip.key)} aria-label={`Remove ${chip.label} filter`} className="hover:bg-muted rounded-full p-0.5">
-  //           <X className="h-3 w-3" />
-  //         </button>
-  //       </Badge>
-  //     ))}
-  //     <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs h-8">Clear all</Button>
-  //   </div>
-  // ) : null;
-
-  // ── Current listing type for FilterSidebar ────────────────────────────────
   const currentListingType = (filters.listingType as "sale" | "rent" | "short_term" | undefined) ?? "any";
 
-  // ── Mobile layout ─────────────────────────────────────────────────────────
-  // Render nothing until isMobile is determined on the client (prevents hydration mismatch)
-  if (isMobile === null) return null;
+  if (!isMounted) return null;
 
+  // ─────────────────────────────── MOBILE ──────────────────────────────────
   if (isMobile) {
     return (
-      <div className="min-h-screen flex flex-col bg-background mt-[70px]">
+      <div className="min-h-screen flex flex-col bg-white mt-[70px]">
         {mobileMapFullScreen ? (
-          <div className="fixed inset-0 z-50 bg-background mt-[70px]">
+          <div className="fixed inset-0 z-50 bg-white mt-[70px]">
             <MapView
               properties={mapProperties}
               onPropertyClick={handlePropertyClick}
@@ -517,71 +488,126 @@ const IndexContent = () => {
               searchCity={filters.city}
               searchVersion={searchVersion}
             />
-            <Button onClick={() => setMobileMapFullScreen(false)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 -lg z-50" size="lg">
+            <button
+              onClick={() => setMobileMapFullScreen(false)}
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-6 py-3 text-[14px] font-semibold text-white bg-blue-600 rounded-xl shadow-lg z-50 hover:bg-[#444444] transition-colors"
+            >
               <List className="h-5 w-5" /> Show Listings
-            </Button>
+            </button>
           </div>
         ) : (
           <>
-            <div className="sticky top-[45px] z-30 w-full px-4 py-3">
+            {/* Search bar */}
+            <div className="sticky top-[65px] z-30 w-full px-4 py-3 bg-white border-b border-[#EBEBEB]">
               <QuickSearch onSearch={handleQuickSearch} initialFilters={filtersFromURL} />
             </div>
-            {/* {FilterChips && <div className="px-4 pb-3">{FilterChips}</div>} */}
-            <div className="flex-1 overflow-y-auto bg-background pb-24">
+
+            <div className="flex-1 overflow-y-auto bg-white pb-24">
               <div className="p-4">
+                {/* Title + controls */}
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h1 className="text-xl font-bold">{t.propertiesPage?.title || "Properties"}</h1>
-                    <p className="text-xs text-muted-foreground">{loading ? (t.propertiesPage?.loading || "Loading…") : `${total} ${t.propertiesPage?.listings || "listings"}`}</p>
+                    <h1 className="text-[20px] font-bold text-[#222222]">
+                      {t.propertiesPage?.title || "Properties"}
+                    </h1>
+                    <p className="text-[13px] text-[#717171]">
+                      {loading
+                        ? (t.propertiesPage?.loading || "Loading…")
+                        : `${total} ${t.propertiesPage?.listings || "listings"}`}
+                    </p>
                   </div>
                   <div className="flex gap-2">
-                    {/* Compare toggle */}
-                    <Button
-                      variant={showCompare ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => { setShowCompare((v) => !v); if (showCompare) setCompareIds(new Set()); }}
-                      className="gap-1"
+                    <button
+                      onClick={() => setShowFilters(true)}
+                      className="inline-flex items-center gap-2 px-3.5 py-2 text-[13px] font-semibold text-[#222222] border border-[#DDDDDD] rounded-xl hover:border-blue-600 transition-colors"
                     >
-                      <GitCompare className="h-4 w-4" />
-                      {compareIds.size > 0 && <Badge className="h-5 w-5 p-0 text-xs flex items-center justify-center">{compareIds.size}</Badge>}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setShowFilters(true)} className="gap-2" aria-label="Open filters">
                       <SlidersHorizontal className="h-4 w-4" />
-                      {activeFilterCount > 0 && <Badge className="h-5 w-5 p-0 flex items-center justify-center text-xs">{activeFilterCount}</Badge>}
-                    </Button>
+                      Filters
+                      {activeFilterCount > 0 && (
+                        <span className="bg-[#1A56DB] text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center">
+                          {activeFilterCount}
+                        </span>
+                      )}
+                    </button>
                   </div>
                 </div>
-                {clusterFilterIds && (
-                  <div className="bg-primary/10 border border-primary/20 rounded-md p-3 mb-4 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-primary">{t.propertiesPage?.mapClusterActive || "Map Cluster Active"}</p>
-                      <p className="text-xs text-muted-foreground">{(t.propertiesPage?.showingPropertiesFromArea || "Showing {count} properties from the selected area.").replace("{count}", String(displayedProperties.length))}</p>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={() => setClusterFilterIds(null)} className="h-8">
-                      {t.propertiesPage?.clear || "Clear"}
-                    </Button>
+
+                {/* Filter chips */}
+                {filterChips.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {filterChips.map((chip) => (
+                      <button
+                        key={chip.key}
+                        onClick={() => removeFilter(chip.key)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#222222] border border-blue-600 rounded-full hover:bg-[#F7F7F7] transition-colors"
+                      >
+                        {chip.label}
+                        <X className="h-3 w-3" />
+                      </button>
+                    ))}
+                    <button
+                      onClick={clearAllFilters}
+                      className="text-[12px] font-semibold text-[#222222] underline underline-offset-2 hover:text-[#717171] px-1"
+                    >
+                      Clear all
+                    </button>
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs text-muted-foreground">{t.propertiesPage?.sort || "Sort"}:</span>
+                {/* Cluster banner */}
+                {clusterFilterIds && (
+                  <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-3 mb-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-[13px] font-semibold text-[#1A56DB]">
+                        {t.propertiesPage?.mapClusterActive || "Map Cluster Active"}
+                      </p>
+                      <p className="text-[12px] text-[#717171]">
+                        {displayedProperties.length} properties from this area
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setClusterFilterIds(null)}
+                      className="text-[12px] font-semibold text-[#1A56DB] underline underline-offset-2"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+
+                {/* Sort */}
+                <div className="flex items-center gap-2 mb-5">
+                  <span className="text-[12px] text-[#717171] font-medium">Sort:</span>
                   <Select value={sortValue} onValueChange={handleSortChange}>
-                    <SelectTrigger className="h-8 text-sm flex-1"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="newest">{t.propertiesPage?.newest || "Newest"}</SelectItem>
-                      <SelectItem value="price-low">{t.propertiesPage?.priceLowToHigh || "Price: Low → High"}</SelectItem>
-                      <SelectItem value="price-high">{t.propertiesPage?.priceHighToLow || "Price: High → Low"}</SelectItem>
-                      <SelectItem value="most-viewed">{t.propertiesPage?.mostViewed || "Most Viewed"}</SelectItem>
+                    <SelectTrigger className="h-9 text-[13px] flex-1 border-[#DDDDDD] rounded-xl text-[#222222]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-[#DDDDDD]">
+                      <SelectItem value="newest">Newest</SelectItem>
+                      <SelectItem value="price-low">Price: Low → High</SelectItem>
+                      <SelectItem value="price-high">Price: High → Low</SelectItem>
+                      <SelectItem value="most-viewed">Most Viewed</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                {error && <p className="text-sm text-destructive mb-4">{error}</p>}
-                <div className="grid gap-4 grid-cols-1">
-                  {loading && properties.length === 0 && Array.from({ length: 4 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
+
+                {error && (
+                  <p className="text-[13px] text-red-600 mb-4 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+                    {error}
+                  </p>
+                )}
+
+                {/* Cards */}
+                <div className="grid gap-5 grid-cols-1">
+                  {loading && properties.length === 0 &&
+                    Array.from({ length: 4 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
                   {!loading && properties.length === 0 && (
-                    <div className="text-center py-12">
-                      <p className="text-muted-foreground">{t.propertiesPage?.noPropertiesFound || "No properties found."}</p>
-                      <p className="text-sm text-muted-foreground mt-2">{t.propertiesPage?.tryAdjustingFilters || "Try adjusting your filters."}</p>
+                    <div className="text-center py-16 border border-dashed border-[#DDDDDD] rounded-2xl">
+                      <p className="text-[15px] font-semibold text-[#222222] mb-1">
+                        {t.propertiesPage?.noPropertiesFound || "No properties found"}
+                      </p>
+                      <p className="text-[13px] text-[#717171]">
+                        {t.propertiesPage?.tryAdjustingFilters || "Try adjusting your filters."}
+                      </p>
                     </div>
                   )}
                   {displayedProperties.map((property) => (
@@ -596,41 +622,90 @@ const IndexContent = () => {
                     />
                   ))}
                 </div>
-                <div ref={observerTarget} className="h-10 flex items-center justify-center">
-                  {loadingMore && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /><span className="text-sm">{t.propertiesPage?.loadingMore || "Loading more…"}</span></div>}
-                  {!hasMore && properties.length > 0 && <p className="text-sm text-muted-foreground">{t.propertiesPage?.noMoreProperties || "No more properties"}</p>}
+
+                {/* Infinite scroll sentinel */}
+                <div ref={observerTarget} className="h-10 flex items-center justify-center mt-4">
+                  {loadingMore && (
+                    <div className="flex items-center gap-2 text-[#717171]">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span className="text-[13px]">Loading more…</span>
+                    </div>
+                  )}
+                  {!hasMore && properties.length > 0 && (
+                    <p className="text-[13px] text-[#717171]">No more properties</p>
+                  )}
                 </div>
               </div>
             </div>
-            <Button onClick={() => setMobileMapFullScreen(true)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 -lg z-40" size="lg">
-              <Map className="h-5 w-5" /> {t.propertiesPage?.showMap || "Show Map"} ({total})
-            </Button>
+
+            {/* Show Map FAB */}
+            <button
+              onClick={() => setMobileMapFullScreen(true)}
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-6 py-3 text-[14px] font-semibold text-white bg-blue-600 rounded-xl shadow-lg z-40 hover:bg-[#444444] transition-colors"
+            >
+              <Map className="h-5 w-5" />
+              {t.propertiesPage?.showMap || "Show Map"} ({total})
+            </button>
           </>
         )}
 
-        {/* Comparison bar — above the map FAB */}
         {compareIds.size > 0 && (
-          <CompareBar items={compareItems} onRemove={(id) => handleCompareChange(id, false)} onClear={() => setCompareIds(new Set())} onCompare={handleCompareNow} />
+          <CompareBar
+            items={compareItems}
+            onRemove={(id) => handleCompareChange(id, false)}
+            onClear={() => setCompareIds(new Set())}
+            onCompare={handleCompareNow}
+          />
         )}
 
-        <FilterSidebar open={showFilters} onOpenChange={setShowFilters} onApply={handleAdvancedFilters} initialFilters={advancedFilters} listingType={currentListingType} />
+        <FilterSidebar
+          open={showFilters}
+          onOpenChange={setShowFilters}
+          onApply={handleAdvancedFilters}
+          initialFilters={advancedFilters}
+          listingType={currentListingType}
+        />
       </div>
     );
   }
 
-  // ── Desktop layout ────────────────────────────────────────────────────────
+  // ─────────────────────────────── DESKTOP ─────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col bg-background mt-[70px]">
-      <div className="w-full px-6 py-4">
+    <div className="min-h-screen flex flex-col bg-white mt-[70px]">
+
+      {/* Search bar */}
+      <div className="w-full px-6 py-4 border-b border-[#EBEBEB] bg-white">
         <QuickSearch onSearch={handleQuickSearch} initialFilters={filtersFromURL} />
       </div>
 
-      {/* {FilterChips && <div className="px-6 pb-3">{FilterChips}</div>} */}
+      {/* Filter chips */}
+      {filterChips.length > 0 && (
+        <div className="px-6 py-3 border-b border-[#EBEBEB] bg-white flex flex-wrap gap-2 items-center">
+          {filterChips.map((chip) => (
+            <button
+              key={chip.key}
+              onClick={() => removeFilter(chip.key)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-[13px] font-medium text-[#222222] border border-blue-600 rounded-full hover:bg-[#F7F7F7] transition-colors"
+            >
+              {chip.label}
+              <X className="h-3 w-3" />
+            </button>
+          ))}
+          <button
+            onClick={clearAllFilters}
+            className="text-[13px] font-semibold text-[#222222] underline underline-offset-2 hover:text-[#717171] px-1 transition-colors"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
 
       <main className="flex-1 flex h-[calc(100vh-64px-88px)]">
+
+        {/* Map panel */}
         {showMap && (
           <div className="w-3/6 h-full p-4 sticky top-[70px] overflow-hidden">
-            <div className="h-[calc(100vh-90px-5px)] relative">
+            <div className="h-[calc(100vh-90px-5px)] relative rounded-2xl overflow-hidden">
               <MapView
                 properties={mapProperties}
                 onPropertyClick={handlePropertyClick}
@@ -645,81 +720,126 @@ const IndexContent = () => {
           </div>
         )}
 
-        <div className={`flex-1 overflow-y-auto p-6 relative ${compareIds.size > 0 ? "pb-24" : ""}`}>
+        {/* Listings panel */}
+        <div className={`flex-1 overflow-y-auto px-6 py-5 relative ${compareIds.size > 0 ? "pb-24" : ""}`}>
+
           {/* Toolbar */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <p className="text-muted-foreground text-sm">
-                {loading && properties.length === 0 ? (t.propertiesPage?.loading || "Loading…") : error ? "" : `${total} ${t.propertiesPage?.listings || "listings found"}`}
+              <p className="text-[14px] text-[#717171]">
+                {loading && properties.length === 0
+                  ? (t.propertiesPage?.loading || "Loading…")
+                  : error ? ""
+                    : `${total} ${t.propertiesPage?.listings || "listings found"}`}
               </p>
-              <span className="text-muted-foreground/30 text-sm">|</span>
-              <span className="text-sm text-muted-foreground">{t.propertiesPage?.sortBy || "Sort by"}</span>
+
+              {/* Sort */}
+              <div className="h-4 w-px bg-[#DDDDDD]" />
               <Select value={sortValue} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-[180px] h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">{t.propertiesPage?.newest || "Newest"}</SelectItem>
-                  <SelectItem value="price-low">{t.propertiesPage?.priceLowToHigh || "Price: Low → High"}</SelectItem>
-                  <SelectItem value="price-high">{t.propertiesPage?.priceHighToLow || "Price: High → Low"}</SelectItem>
-                  <SelectItem value="most-viewed">{t.propertiesPage?.mostViewed || "Most Viewed"}</SelectItem>
+                <SelectTrigger className="w-[180px] h-9 text-[13px] border-[#DDDDDD] rounded-xl text-[#222222]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-[#DDDDDD] shadow-[0_8px_28px_rgba(0,0,0,0.12)]">
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="price-low">Price: Low → High</SelectItem>
+                  <SelectItem value="price-high">Price: High → Low</SelectItem>
+                  <SelectItem value="most-viewed">Most Viewed</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant={showFilters ? "default" : "outline"} size="sm" onClick={() => setShowFilters((v) => !v)} className="gap-2">
+
+              {/* Filters button */}
+              <button
+                onClick={() => setShowFilters((v) => !v)}
+                className={`inline-flex items-center gap-2 px-4 py-2 text-[13px] font-semibold rounded-xl border transition-colors ${showFilters
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-[#222222] border-[#DDDDDD] hover:border-blue-600"
+                  }`}
+              >
                 <SlidersHorizontal className="h-4 w-4" />
-                {showFilters ? (t.propertiesPage?.hideFilters || "Hide Filters") : (t.propertiesPage?.showFilters || "Show Filters")}
-                {activeFilterCount > 0 && <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">{activeFilterCount}</Badge>}
-              </Button>
+                {showFilters
+                  ? (t.propertiesPage?.hideFilters || "Hide Filters")
+                  : (t.propertiesPage?.showFilters || "Filters")}
+                {activeFilterCount > 0 && (
+                  <span className="bg-[#1A56DB] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Compare toggle */}
-              {/* <Button
-                variant={showCompare ? "default" : "outline"}
-                size="sm"
-                onClick={() => { setShowCompare((v) => !v); if (showCompare) setCompareIds(new Set()); }}
-                className="gap-2"
+            {/* Grid / List toggle */}
+            <div className="flex items-center gap-1 border border-[#DDDDDD] rounded-xl p-1">
+              <button
+                onClick={() => setGridLayout("grid")}
+                aria-pressed={gridLayout === "grid"}
+                className={`p-1.5 rounded-lg transition-colors ${gridLayout === "grid"
+                  ? "bg-blue-600 text-white"
+                  : "text-[#717171] hover:text-[#222222]"
+                  }`}
               >
-                <GitCompare className="h-4 w-4" />
-                Compare
-                {compareIds.size > 0 && <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">{compareIds.size}</Badge>}
-              </Button> */}
-
-              {/* Grid / List toggle */}
-              <Button variant={gridLayout === "grid" ? "default" : "outline"} size="sm" onClick={() => setGridLayout("grid")} aria-label={t.propertiesPage?.gridView || "Grid view"} aria-pressed={gridLayout === "grid"}>
                 <Grid className="h-4 w-4" />
-              </Button>
-              <Button variant={gridLayout === "list" ? "default" : "outline"} size="sm" onClick={() => setGridLayout("list")} aria-label={t.propertiesPage?.listView || "List view"} aria-pressed={gridLayout === "list"}>
+              </button>
+              <button
+                onClick={() => setGridLayout("list")}
+                aria-pressed={gridLayout === "list"}
+                className={`p-1.5 rounded-lg transition-colors ${gridLayout === "list"
+                  ? "bg-blue-600 text-white"
+                  : "text-[#717171] hover:text-[#222222]"
+                  }`}
+              >
                 <List className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
           </div>
 
-          {error && <p className="text-sm text-destructive mb-4">{error}</p>}
+          {error && (
+            <p className="text-[13px] text-red-600 mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+              {error}
+            </p>
+          )}
 
+          {/* Cluster banner */}
           {clusterFilterIds && (
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-6 flex items-center justify-between">
+            <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-4 mb-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="bg-primary/10 p-2 rounded-full">
-                  <Map className="w-4 h-4 text-primary" />
+                <div className="bg-[#DBEAFE] p-2 rounded-xl">
+                  <Map className="w-4 h-4 text-[#1A56DB]" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-primary">{t.propertiesPage?.mapClusterSelected || "Map Cluster Selected"}</p>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <span dangerouslySetInnerHTML={{ __html: (t.propertiesPage?.showingPropertiesFromArea || "Showing {count} properties from the selected area.").replace("{count}", `<span class="font-semibold text-foreground">${displayedProperties.length}</span>`) }} />
+                  <p className="text-[14px] font-semibold text-[#1A56DB]">
+                    {t.propertiesPage?.mapClusterSelected || "Map area selected"}
+                  </p>
+                  <p className="text-[12px] text-[#717171]">
+                    Showing {displayedProperties.length} properties from this area
                   </p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setClusterFilterIds(null)} className="gap-2 bg-background hover:bg-muted">
-                <X className="w-3.5 h-3.5" /> {t.propertiesPage?.clearMapFilter || "Clear Map Filter"}
-              </Button>
+              <button
+                onClick={() => setClusterFilterIds(null)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-[13px] font-semibold text-[#222222] border border-[#DDDDDD] bg-white rounded-xl hover:border-blue-600 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" /> Clear
+              </button>
             </div>
           )}
 
-          <div className={`grid gap-6 grid-cols-1 ${gridLayout === "list" ? "md:grid-cols-1" : showMap ? "md:grid-cols-2" : "md:grid-cols-3 lg:grid-cols-4"}`}>
-            {loading && displayedProperties.length === 0 && Array.from({ length: 6 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
+          {/* Property grid */}
+          <div className={`grid gap-5 ${gridLayout === "list"
+            ? "grid-cols-1"
+            : showMap
+              ? "grid-cols-2"
+              : "grid-cols-3 xl:grid-cols-4"
+            }`}>
+            {loading && displayedProperties.length === 0 &&
+              Array.from({ length: 6 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
             {!loading && displayedProperties.length === 0 && (
-              <div className="col-span-full text-center py-12">
-                <p className="text-muted-foreground">{t.propertiesPage?.noPropertiesFoundMatching || "No properties found matching your criteria."}</p>
-                <p className="text-sm text-muted-foreground mt-2">{t.propertiesPage?.tryAdjustingSearch || "Try adjusting your filters or search criteria."}</p>
+              <div className="col-span-full text-center py-20 border border-dashed border-[#DDDDDD] rounded-2xl">
+                <p className="text-[16px] font-semibold text-[#222222] mb-1">
+                  {t.propertiesPage?.noPropertiesFoundMatching || "No properties found"}
+                </p>
+                <p className="text-[14px] text-[#717171]">
+                  {t.propertiesPage?.tryAdjustingSearch || "Try adjusting your filters or search criteria."}
+                </p>
               </div>
             )}
             {displayedProperties.map((property) => (
@@ -735,31 +855,60 @@ const IndexContent = () => {
             ))}
           </div>
 
-          <div ref={observerTarget} className="flex items-center justify-center py-8">
-            {loadingMore && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /><span>{t.propertiesPage?.loadingMore || "Loading more properties…"}</span></div>}
-            {!hasMore && properties.length > 0 && <p className="text-muted-foreground">{t.propertiesPage?.reachedEnd || "You've reached the end of the listings"}</p>}
+          {/* Infinite scroll sentinel */}
+          <div ref={observerTarget} className="flex items-center justify-center py-10">
+            {loadingMore && (
+              <div className="flex items-center gap-2 text-[#717171]">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span className="text-[14px]">Loading more properties…</span>
+              </div>
+            )}
+            {!hasMore && properties.length > 0 && (
+              <p className="text-[14px] text-[#717171]">You've reached the end of the listings</p>
+            )}
           </div>
 
-          {/* Show/Hide map FAB */}
-          <Button onClick={() => setShowMap((v) => !v)} className="fixed bottom-6 left-1/2 -translate-x-1/2 gap-2 -lg z-40" size="lg">
-            {showMap ? <><EyeOff className="h-5 w-5" />{t.propertiesPage?.hideMap || "Hide Map"}</> : <><Eye className="h-5 w-5" />{t.propertiesPage?.showMap || "Show Map"}</>}
-          </Button>
+          {/* Show/Hide Map FAB */}
+          <button
+            onClick={() => setShowMap((v) => !v)}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-6 py-3 text-[14px] font-semibold text-white bg-blue-600 rounded-xl z-40 hover:bg-blue-700 transition-colors"
+          >
+            {showMap
+              ? <><EyeOff className="h-5 w-5" />{t.propertiesPage?.hideMap || "Hide Map"}</>
+              : <><Eye className="h-5 w-5" />{t.propertiesPage?.showMap || "Show Map"}</>}
+          </button>
         </div>
       </main>
 
       {/* Comparison bar */}
       {compareIds.size > 0 && (
-        <CompareBar items={compareItems} onRemove={(id) => handleCompareChange(id, false)} onClear={() => setCompareIds(new Set())} onCompare={handleCompareNow} />
+        <CompareBar
+          items={compareItems}
+          onRemove={(id) => handleCompareChange(id, false)}
+          onClear={() => setCompareIds(new Set())}
+          onCompare={handleCompareNow}
+        />
       )}
 
-      <FilterSidebar open={showFilters} onOpenChange={setShowFilters} onApply={handleAdvancedFilters} initialFilters={advancedFilters} listingType={currentListingType} />
+      <FilterSidebar
+        open={showFilters}
+        onOpenChange={setShowFilters}
+        onApply={handleAdvancedFilters}
+        initialFilters={advancedFilters}
+        listingType={currentListingType}
+      />
     </div>
   );
 };
 
 export default function Index() {
   return (
-    <Suspense fallback={<div className="flex flex-col items-center justify-center h-96 space-y-4"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="text-muted-foreground">Loading properties…</p></div>}>
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center h-96 gap-3">
+        <Loader2 className="h-10 w-10 animate-spin text-[#1A56DB]" />
+        <p className="text-[14px] text-[#717171]">Loading properties…</p>
+      </div>
+    }>
       <IndexContent />
     </Suspense>
   );

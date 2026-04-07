@@ -1,18 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
-  Database, Download, Upload, Trash2, RefreshCw, AlertTriangle,
+  Database, Download, Upload, Trash2, RefreshCw, AlertCircle,
   Check, Calendar, HardDrive, Activity, Shield, Clock,
-  FileJson, AlertCircle, ChevronRight
+  FileJson, ShieldCheck, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import apiClient from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
-// --- Types (Kept same) ---
 interface User {
   id: string;
   name: string;
@@ -37,6 +37,7 @@ interface AccountStats {
 
 export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
   const { logout } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
@@ -44,6 +45,18 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
   const [deactivateReason, setDeactivateReason] = useState('');
   const { t } = useLanguage();
   const s = (t as any)?.settings || {};
+
+  // ── SAFE TEXT EXTRACTORS ──
+  const safeTitle = (val: any, fallback: string) => {
+    if (typeof val === 'string') return val;
+    if (val && typeof val === 'object' && val.title) return val.title;
+    return fallback;
+  };
+  const safeDesc = (objVal: any, strVal: any, fallback: string) => {
+    if (typeof strVal === 'string') return strVal;
+    if (objVal && typeof objVal === 'object' && objVal.description) return objVal.description;
+    return fallback;
+  };
 
   // Mock account stats
   const [accountStats] = useState<AccountStats>({
@@ -64,11 +77,15 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
     return `${Math.floor(diffInDays / 365)} years`;
   }
 
-  // --- Handlers (Kept exactly the same logic) ---
+  const showMessage = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 4000);
+  };
+
+  // --- Handlers ---
   const handleExportData = async () => {
     try {
       setIsLoading(true);
-      setMessage(null);
       const response = await apiClient.request({
         method: 'POST',
         url: '/users/me/export-data',
@@ -82,10 +99,10 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      setMessage({ type: 'success', text: 'Data export completed successfully' });
+      showMessage('success', safeTitle(s?.exportSuccess, 'Data export completed successfully'));
     } catch (error) {
       console.error('Failed to export data:', error);
-      setMessage({ type: 'error', text: 'Failed to export data' });
+      showMessage('error', safeTitle(s?.exportFailed, 'Failed to export data'));
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +113,6 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
     if (!file) return;
     try {
       setIsLoading(true);
-      setMessage(null);
       const formData = new FormData();
       formData.append('file', file);
       await apiClient.request({
@@ -105,28 +121,28 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
         data: formData,
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setMessage({ type: 'success', text: 'Data imported successfully' });
+      showMessage('success', safeTitle(s?.importSuccess, 'Data imported successfully'));
     } catch (error) {
       console.error('Failed to import data:', error);
-      setMessage({ type: 'error', text: 'Failed to import data' });
+      showMessage('error', safeTitle(s?.importFailed, 'Failed to import data'));
     } finally {
       setIsLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   const handleClearData = async (dataType: string) => {
     try {
       setIsLoading(true);
-      setMessage(null);
       await apiClient.request({
         method: 'DELETE',
         url: `/users/me/clear-data/${dataType}`
       });
-      setMessage({ type: 'success', text: `${dataType} data cleared successfully` });
+      showMessage('success', safeTitle(s?.dataCleared, `${dataType} data cleared successfully`));
       setShowDataClearModal(false);
     } catch (error) {
       console.error(`Failed to clear ${dataType} data:`, error);
-      setMessage({ type: 'error', text: `Failed to clear ${dataType} data` });
+      showMessage('error', safeTitle(s?.dataClearFailed, `Failed to clear ${dataType} data`));
     } finally {
       setIsLoading(false);
     }
@@ -143,7 +159,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
       await logout();
     } catch (error) {
       console.error('Failed to deactivate account:', error);
-      setMessage({ type: 'error', text: 'Failed to deactivate account' });
+      showMessage('error', safeTitle(s?.deactivateFailed, 'Failed to deactivate account'));
       setIsLoading(false);
     }
   };
@@ -151,12 +167,11 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
   const handleCreateBackup = async () => {
     try {
       setIsLoading(true);
-      setMessage(null);
       await apiClient.request({ method: 'POST', url: '/users/me/create-backup' });
-      setMessage({ type: 'success', text: 'Backup created successfully' });
+      showMessage('success', safeTitle(s?.backupSuccess, 'Backup created successfully'));
     } catch (error) {
       console.error('Failed to create backup:', error);
-      setMessage({ type: 'error', text: 'Failed to create backup' });
+      showMessage('error', safeTitle(s?.backupFailed, 'Failed to create backup'));
     } finally {
       setIsLoading(false);
     }
@@ -169,235 +184,261 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
     });
   };
 
-  // --- Reusable UI Components for this view ---
-  const StatCard = ({ icon: Icon, label, value, colorClass }: any) => (
-    <div className="bg-white p-6 rounded-xl border border-gray-100 -sm flex flex-col items-center justify-center text-center hover:-md transition-">
-      <div className={`p-3 rounded-full mb-3 ${colorClass.bg}`}>
-        <Icon className={`w-5 h-5 ${colorClass.text}`} />
+  // --- Reusable UI Components ---
+  const StatCard = ({ icon: Icon, label, value }: any) => (
+    <div className="border border-[#DDDDDD] rounded-xl p-5 flex flex-col gap-3 bg-white">
+      <Icon className="w-6 h-6 text-[#717171] stroke-[1.5]" />
+      <div>
+        <div className="text-[22px] font-semibold text-[#222222] tracking-tight">{value}</div>
+        <div className="text-[14px] text-[#717171]">{label}</div>
       </div>
-      <span className="text-2xl font-bold text-gray-900">{value}</span>
-      <span className="text-sm font-medium text-gray-500">{label}</span>
     </div>
   );
 
-  const ActionRow = ({ icon: Icon, title, desc, onClick, colorClass, destructive = false }: any) => (
-    <div
-      onClick={onClick}
-      className={`group flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer
-        ${destructive
-          ? 'bg-red-50/50 border-red-100 hover:bg-red-50 hover:border-red-200'
-          : 'bg-white border-gray-100 hover:border-blue-200 hover:-sm'}`}
-    >
-      <div className="flex items-center gap-4">
-        <div className={`p-2.5 rounded-lg ${colorClass.bg}`}>
-          <Icon className={`w-5 h-5 ${colorClass.text}`} />
-        </div>
-        <div>
-          <h4 className={`font-semibold ${destructive ? 'text-red-900' : 'text-gray-900'}`}>{title}</h4>
-          <p className={`text-sm ${destructive ? 'text-red-600/80' : 'text-gray-500'}`}>{desc}</p>
+  const ActionRow = ({ icon: Icon, title, desc, onClick, actionLabel, destructive = false }: any) => (
+    <div className="py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EBEBEB] last:border-0 last:pb-0 first:pt-0 group">
+      <div className="flex items-start gap-4">
+        <Icon className={cn("w-6 h-6 stroke-[1.5] shrink-0 mt-0.5", destructive ? "text-[#C2410C]" : "text-[#222222]")} />
+        <div className="flex-1 min-w-0 pr-4">
+          <h4 className="text-[16px] font-medium text-[#222222]">{title}</h4>
+          <p className="text-[15px] text-[#717171] mt-0.5">{desc}</p>
         </div>
       </div>
-      <ChevronRight className={`w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity ${destructive ? 'text-red-400' : 'text-gray-300'}`} />
+      <Button
+        variant="outline"
+        onClick={onClick}
+        className={cn(
+          "h-10 px-5 rounded-lg font-semibold text-[14px] shrink-0 transition-colors",
+          destructive 
+            ? "border-[#C2410C] text-[#C2410C] hover:bg-[#FFF7ED]" 
+            : "border-[#222222] text-[#222222] hover:bg-[#F7F7F7]"
+        )}
+      >
+        {actionLabel}
+      </Button>
     </div>
   );
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-12">
+    <div className="w-full max-w-[800px] animate-in fade-in duration-300 pb-24">
 
-      {/* 1. Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{s?.dataAndPrivacy || "Data & Privacy"}</h2>
-          <p className="text-gray-500 mt-1">{s?.dataAndPrivacyDesc || "Manage your personal data, exports, and account security."}</p>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-          {s?.statusActive || "Status: Active"}
-        </div>
-      </div>
-
-      {/* 2. Stats Overview - Modern Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
-          icon={Calendar}
-          label={s?.accountAge || "Account Age"}
-          value={accountStats.accountAge}
-          colorClass={{ bg: 'bg-blue-50', text: 'text-blue-600' }}
-        />
-        <StatCard
-          icon={Activity}
-          label={s?.totalLogins || "Total Logins"}
-          value={accountStats.totalLogins}
-          colorClass={{ bg: 'bg-green-50', text: 'text-green-600' }}
-        />
-        <StatCard
-          icon={HardDrive}
-          label={s?.storage || "Storage"}
-          value={accountStats.storageUsed}
-          colorClass={{ bg: 'bg-purple-50', text: 'text-purple-600' }}
-        />
-        <StatCard
-          icon={Shield}
-          label={s?.lastBackup || "Last Backup"}
-          value={formatDate(accountStats.lastBackup)}
-          colorClass={{ bg: 'bg-orange-50', text: 'text-orange-600' }}
-        />
-      </div>
-
-      {/* 3. Feedback Messages */}
-      {message && (
-        <div className={`p-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
-          }`}>
-          {message.type === 'success' ? <Check className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
-          <span className="font-medium">{message.text}</span>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-
-        {/* LEFT COLUMN: Tools & Actions */}
-        <div className="lg:col-span-2 space-y-8">
-
-          {/* Data Portability Section */}
-          <section className="space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
-              <Database className="w-4 h-4" /> {s?.dataPortability || "Data Portability"}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white p-6 rounded-xl border border-gray-200 -sm flex flex-col justify-between h-48 hover:border-blue-400 transition-colors">
-                <div className="p-3 bg-blue-50 w-fit rounded-lg mb-4">
-                  <Download className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900">{s?.exportData || "Export Data"}</h4>
-                  <p className="text-sm text-gray-500 mt-1 mb-4">{s?.exportDataDesc || "Download a JSON copy of your messages, settings, and history."}</p>
-                  <Button onClick={handleExportData} disabled={isLoading} variant="outline" className="w-full">
-                    {s?.exportJson || "Export JSON"}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-xl border border-gray-200 -sm flex flex-col justify-between h-48 hover:border-green-400 transition-colors">
-                <div className="p-3 bg-green-50 w-fit rounded-lg mb-4">
-                  <Upload className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900">{s?.importData || "Import Data"}</h4>
-                  <p className="text-sm text-gray-500 mt-1 mb-4">{s?.importDataDesc || "Restore your account from a previous HoroHouse backup file."}</p>
-                  <div className="flex gap-2">
-                    <input type="file" accept=".json" onChange={handleImportData} className="hidden" id="import-data" disabled={isLoading} />
-                    <Button onClick={() => document.getElementById('import-data')?.click()} disabled={isLoading} variant="outline" className="w-full">
-                      {s?.selectFile || "Select File"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Data Cleanup Section */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                <RefreshCw className="w-4 h-4" /> {s?.maintenance || "Maintenance"}
-              </h3>
-            </div>
-
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 -sm">
-              <ActionRow
-                icon={FileJson}
-                title={s?.clearSearchHistory || "Clear Search History"}
-                desc={s?.clearSearchHistoryDesc || "Remove all saved searches and recent queries"}
-                onClick={() => handleClearData('search-history')}
-                colorClass={{ bg: 'bg-gray-100', text: 'text-gray-600' }}
-              />
-              <ActionRow
-                icon={Activity}
-                title={s?.clearActivityLog || "Clear Activity Log"}
-                desc={s?.clearActivityLogDesc || "Remove browsing history and interaction logs"}
-                onClick={() => handleClearData('activity-log')}
-                colorClass={{ bg: 'bg-gray-100', text: 'text-gray-600' }}
-              />
-              <ActionRow
-                icon={Shield}
-                title={s?.createManualBackup || "Create Manual Backup"}
-                desc={s?.createManualBackupDesc || "Save a secure snapshot of your current state"}
-                onClick={handleCreateBackup}
-                colorClass={{ bg: 'bg-purple-50', text: 'text-purple-600' }}
-              />
-            </div>
-          </section>
-        </div>
-
-        {/* RIGHT COLUMN: Danger Zone */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-red-50 rounded-2xl p-6 border border-red-100">
-            <h3 className="text-red-900 font-bold flex items-center gap-2 mb-4">
-              <AlertCircle className="w-5 h-5" /> {s?.dangerZone || "Danger Zone"}
-            </h3>
-            <p className="text-xs text-red-700/80 mb-6 leading-relaxed">
-              {s?.dangerZoneDesc || "These actions are destructive. Please ensure you have exported your data before proceeding."}
+      {/* ── Page Header ── */}
+      <div className="mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-[32px] font-semibold text-[#222222] tracking-tight">
+              {safeTitle(s?.dataAndPrivacy, "Data & privacy")}
+            </h2>
+            <p className="text-[16px] text-[#717171] mt-2">
+              {safeDesc(s?.dataAndPrivacy, s?.dataAndPrivacyDesc, "Manage your personal data, exports, and account security.")}
             </p>
-
-            <div className="space-y-3">
-              <button
-                onClick={() => handleClearData('message-history')}
-                className="w-full text-left px-4 py-3 bg-white hover:bg-red-100 rounded-lg text-sm font-medium text-red-700 transition-colors border border-red-100 hover:border-red-200 flex items-center justify-between"
-              >
-                {s?.clearMessages || "Clear Messages"}
-                <Trash2 className="w-4 h-4 opacity-50" />
-              </button>
-
-              <button
-                onClick={() => setShowDeactivateModal(true)}
-                className="w-full text-left px-4 py-3 bg-white hover:bg-orange-50 rounded-lg text-sm font-medium text-orange-700 transition-colors border border-red-100 hover:border-orange-200 flex items-center justify-between"
-              >
-                {s?.deactivateAccount || "Deactivate Account"}
-                <Clock className="w-4 h-4 opacity-50" />
-              </button>
-
-              <button
-                onClick={() => setShowDataClearModal(true)}
-                className="w-full text-left px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors -sm flex items-center justify-between"
-              >
-                {s?.deleteAllData || "Delete All Data"}
-                <AlertTriangle className="w-4 h-4 text-red-200" />
-              </button>
-            </div>
           </div>
-
-          <div className="bg-gray-50 p-4 rounded-xl text-xs text-gray-500 leading-relaxed">
-            <strong>{s?.privacyNote || "Privacy Note:"}</strong> {s?.privacyNoteDesc || "When you delete data, it is removed from our live servers immediately. Backups are retained for 30 days before permanent deletion."}
+          <div className="flex items-center gap-2 text-[14px] font-medium text-[#222222] bg-[#F7F7F7] px-3 py-1.5 rounded-full border border-[#DDDDDD] w-fit">
+            <span className="w-2 h-2 rounded-full bg-[#008A05] animate-pulse"></span>
+            {safeTitle(s?.statusActive, "Status: Active")}
           </div>
         </div>
+      </div>
+
+      <div className="space-y-0">
+
+        {/* ── Stats Overview ── */}
+        <section className="pb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard
+              icon={Calendar}
+              label={safeTitle(s?.accountAge, "Account age")}
+              value={accountStats.accountAge}
+            />
+            <StatCard
+              icon={Activity}
+              label={safeTitle(s?.totalLogins, "Total logins")}
+              value={accountStats.totalLogins}
+            />
+            <StatCard
+              icon={HardDrive}
+              label={safeTitle(s?.storage, "Storage")}
+              value={accountStats.storageUsed}
+            />
+            <StatCard
+              icon={Shield}
+              label={safeTitle(s?.lastBackup, "Last backup")}
+              value={formatDate(accountStats.lastBackup)}
+            />
+          </div>
+        </section>
+
+        {/* ── Data Portability ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {safeTitle(s?.dataPortability, "Data portability")}
+          </h3>
+          
+          <div className="space-y-0 max-w-3xl">
+            <ActionRow
+              icon={Download}
+              title={safeTitle(s?.exportData, "Export your data")}
+              desc={safeDesc(s?.exportData, s?.exportDataDesc, "Download a JSON copy of your messages, settings, and history.")}
+              onClick={handleExportData}
+              actionLabel={safeTitle(s?.exportJson, "Export data")}
+            />
+            
+            <div className="py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EBEBEB] last:border-0 last:pb-0 first:pt-0">
+              <div className="flex items-start gap-4">
+                <Upload className="w-6 h-6 text-[#222222] stroke-[1.5] shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0 pr-4">
+                  <h4 className="text-[16px] font-medium text-[#222222]">{safeTitle(s?.importData, "Import data")}</h4>
+                  <p className="text-[15px] text-[#717171] mt-0.5">{safeDesc(s?.importData, s?.importDataDesc, "Restore your account from a previous HoroHouse backup file.")}</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <input type="file" accept=".json" onChange={handleImportData} className="hidden" ref={fileInputRef} disabled={isLoading} />
+                <Button 
+                  variant="outline" 
+                  onClick={() => fileInputRef.current?.click()} 
+                  disabled={isLoading} 
+                  className="h-10 px-5 rounded-lg border-[#222222] text-[#222222] font-semibold text-[14px] hover:bg-[#F7F7F7] shrink-0"
+                >
+                  {safeTitle(s?.selectFile, "Select file")}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Data Cleanup / Maintenance ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {safeTitle(s?.maintenance, "Maintenance")}
+          </h3>
+          
+          <div className="space-y-0 max-w-3xl">
+            <ActionRow
+              icon={FileJson}
+              title={safeTitle(s?.clearSearchHistory, "Clear search history")}
+              desc={safeDesc(s?.clearSearchHistory, s?.clearSearchHistoryDesc, "Remove all saved searches and recent queries.")}
+              onClick={() => handleClearData('search-history')}
+              actionLabel={safeTitle(s?.clearData, "Clear")}
+            />
+            <ActionRow
+              icon={Activity}
+              title={safeTitle(s?.clearActivityLog, "Clear activity log")}
+              desc={safeDesc(s?.clearActivityLog, s?.clearActivityLogDesc, "Remove browsing history and interaction logs.")}
+              onClick={() => handleClearData('activity-log')}
+              actionLabel={safeTitle(s?.clearData, "Clear")}
+            />
+            <ActionRow
+              icon={Shield}
+              title={safeTitle(s?.createManualBackup, "Create manual backup")}
+              desc={safeDesc(s?.createManualBackup, s?.createManualBackupDesc, "Save a secure snapshot of your current state.")}
+              onClick={handleCreateBackup}
+              actionLabel={safeTitle(s?.createBackupBtn, "Create backup")}
+            />
+          </div>
+        </section>
+
+        {/* ── Danger Zone ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <div>
+            <h3 className="text-[18px] font-semibold text-[#C2410C]">
+              {safeTitle(s?.dangerZone, "Danger zone")}
+            </h3>
+            <p className="text-[15px] text-[#717171] mt-1">
+              {safeDesc(s?.dangerZone, s?.dangerZoneDesc, "These actions are destructive. Please ensure you have exported your data before proceeding.")}
+            </p>
+          </div>
+          
+          <div className="space-y-0 max-w-3xl">
+            <ActionRow
+              icon={Trash2}
+              title={safeTitle(s?.clearMessages, "Clear messages")}
+              desc={safeDesc(s?.clearMessages, s?.clearMessagesDesc, "Permanently delete all your inbox messages.")}
+              onClick={() => handleClearData('message-history')}
+              actionLabel={safeTitle(s?.clearData, "Clear")}
+              destructive
+            />
+            <ActionRow
+              icon={Clock}
+              title={safeTitle(s?.deactivateAccount, "Deactivate account")}
+              desc={safeDesc(s?.deactivateAccount, s?.deactivateAccountDesc, "Temporarily hide your profile and listings.")}
+              onClick={() => setShowDeactivateModal(true)}
+              actionLabel={safeTitle(s?.deactivate, "Deactivate")}
+              destructive
+            />
+            <ActionRow
+              icon={AlertCircle}
+              title={safeTitle(s?.deleteAllData, "Delete all data")}
+              desc={safeDesc(s?.deleteAllData, s?.deleteAllDataDesc, "Permanently erase your account and all associated data.")}
+              onClick={() => setShowDataClearModal(true)}
+              actionLabel={safeTitle(s?.deleteAccount, "Delete")}
+              destructive
+            />
+          </div>
+          
+          <div className="bg-[#F7F7F7] p-5 rounded-xl text-[14px] text-[#717171] leading-relaxed max-w-3xl border border-[#DDDDDD]">
+            <strong className="text-[#222222] font-semibold">{safeTitle(s?.privacyNote, "Privacy note:")}</strong> {safeDesc(s?.privacyNote, s?.privacyNoteDesc, "When you delete data, it is removed from our live servers immediately. Backups are retained for 30 days before permanent deletion.")}
+          </div>
+        </section>
 
       </div>
 
-      {/* --- MODALS (Kept functional logic, updated styling) --- */}
+      {/* ── Status Messages ── */}
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+              "fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-4 rounded-xl shadow-xl flex items-center gap-3 z-50 min-w-[300px]",
+              message.type === 'success' ? "bg-[#222222] text-white" : "bg-[#C2410C] text-white"
+            )}
+          >
+            {message.type === 'success' ? (
+              <ShieldCheck className="h-5 w-5 shrink-0 stroke-[2]" />
+            ) : (
+              <AlertCircle className="h-5 w-5 shrink-0 stroke-[2]" />
+            )}
+            <span className="text-[15px] font-medium">{message.text}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Deactivate Modal */}
+      {/* ── Deactivate Modal ── */}
       {showDeactivateModal && (
-        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full -2xl animate-in zoom-in-95">
-            <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-              <Clock className="h-6 w-6 text-orange-600" />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-[480px] w-full shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4">
+              <Clock className="w-7 h-7 text-[#C2410C] stroke-[2]" />
+              <h3 className="text-[22px] font-semibold text-[#222222]">{safeTitle(s?.pauseAccount, "Pause your account?")}</h3>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 text-center mb-2">{s?.pauseAccount || "Pause your account?"}</h3>
-            <p className="text-gray-500 text-center text-sm mb-6">
-              {s?.pauseAccountDesc || "Your profile will be hidden effectively immediately. You can reactivate anytime by simply logging back in."}
+            
+            <p className="text-[15px] text-[#717171] mb-6">
+              {safeDesc(s?.pauseAccount, s?.pauseAccountDesc, "Your profile will be hidden immediately. You can reactivate anytime by logging back in.")}
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <textarea
                 value={deactivateReason}
                 onChange={(e) => setDeactivateReason(e.target.value)}
-                placeholder={s?.tellUsWhy || "Optional: Tell us why you're taking a break..."}
-                className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-orange-500 resize-none text-sm min-h-[80px]"
+                placeholder={safeTitle(s?.tellUsWhy, "Optional: Tell us why you're taking a break...")}
+                className="w-full px-4 py-3 border border-[#B0B0B0] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#222222] focus:border-transparent resize-none text-[16px] text-[#222222] placeholder:text-[#717171] min-h-[100px] transition-all"
               />
-              <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" onClick={() => setShowDeactivateModal(false)} className="h-11">{s?.cancel || "Cancel"}</Button>
-                <Button onClick={handleDeactivateAccount} disabled={isLoading} className="bg-orange-600 hover:bg-orange-700 h-11">
-                  {isLoading ? (s?.processing || 'Processing...') : (s?.deactivate || 'Deactivate')}
+              
+              <div className="flex items-center justify-end gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowDeactivateModal(false)} 
+                  className="h-12 px-6 rounded-lg border-[#222222] text-[#222222] font-semibold text-[15px] hover:bg-[#F7F7F7]"
+                >
+                  {safeTitle(s?.cancel, "Cancel")}
+                </Button>
+                <Button 
+                  onClick={handleDeactivateAccount} 
+                  disabled={isLoading} 
+                  className="h-12 px-6 rounded-lg bg-[#C2410C] hover:bg-[#9A3412] text-white font-semibold text-[15px]"
+                >
+                  {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />}
+                  {isLoading ? safeTitle(s?.processing, 'Processing...') : safeTitle(s?.deactivate, 'Deactivate')}
                 </Button>
               </div>
             </div>
@@ -405,27 +446,24 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
         </div>
       )}
 
-      {/* Clear All Data Modal */}
+      {/* ── Clear All Data Modal ── */}
       {showDataClearModal && (
-        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full -2xl animate-in zoom-in-95 border-t-4 border-red-600">
-            <div className="flex items-start gap-4 mb-4">
-              <div className="p-3 bg-red-100 rounded-full shrink-0">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">{s?.nukeAllData || "Nuke all data?"}</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {s?.nukeAllDataDesc || "This action is irreversible. Everything listed below will be permanently destroyed."}
-                </p>
-              </div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-[480px] w-full shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertCircle className="w-7 h-7 text-[#C2410C] stroke-[2]" />
+              <h3 className="text-[22px] font-semibold text-[#222222]">{safeTitle(s?.nukeAllData, "Nuke all data?")}</h3>
             </div>
+            
+            <p className="text-[15px] text-[#717171] mb-6">
+              {safeDesc(s?.nukeAllData, s?.nukeAllDataDesc, "This action is irreversible. Everything listed below will be permanently destroyed.")}
+            </p>
 
-            <div className="bg-red-50 rounded-xl p-4 mb-6">
-              <ul className="space-y-2 text-sm text-red-800">
-                <li className="flex items-center gap-2"><Trash2 className="w-3 h-3" /> {s?.searchHistoryFavorites || "Search history & favorites"}</li>
-                <li className="flex items-center gap-2"><Trash2 className="w-3 h-3" /> {s?.allMessages || "All messages (both sides)"}</li>
-                <li className="flex items-center gap-2"><Trash2 className="w-3 h-3" /> {s?.profileSettingsPreferences || "Profile settings & preferences"}</li>
+            <div className="bg-[#FFF7ED] border border-[#C2410C]/20 rounded-xl p-5 mb-8">
+              <ul className="text-[14px] text-[#C2410C] space-y-3 font-medium">
+                <li className="flex items-start gap-2"><Trash2 className="w-4 h-4 shrink-0" /> {safeTitle(s?.searchHistoryFavorites, "Search history & favorites")}</li>
+                <li className="flex items-start gap-2"><Trash2 className="w-4 h-4 shrink-0" /> {safeTitle(s?.allMessages, "All messages (both sides)")}</li>
+                <li className="flex items-start gap-2"><Trash2 className="w-4 h-4 shrink-0" /> {safeTitle(s?.profileSettingsPreferences, "Profile settings & preferences")}</li>
               </ul>
             </div>
 
@@ -433,20 +471,22 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
               <Button
                 onClick={() => handleClearData('all')}
                 disabled={isLoading}
-                className="w-full bg-red-600 hover:bg-red-700 h-11 text-white"
+                className="w-full bg-[#C2410C] hover:bg-[#9A3412] h-12 rounded-lg text-white font-semibold text-[15px]"
               >
-                {isLoading ? (s?.deleting || 'Deleting...') : (s?.yesDeleteEverything || 'Yes, Delete Everything')}
+                {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />}
+                {isLoading ? safeTitle(s?.deleting, 'Deleting...') : safeTitle(s?.yesDeleteEverything, 'Yes, Delete Everything')}
               </Button>
               <button
                 onClick={() => setShowDataClearModal(false)}
-                className="text-sm text-gray-500 hover:text-gray-800 font-medium py-2"
+                className="text-[15px] text-[#222222] hover:text-[#717171] font-semibold py-2 transition-colors focus:outline-none"
               >
-                {s?.noKeepData || "No, keep my data"}
+                {safeTitle(s?.noKeepData, "No, keep my data")}
               </button>
             </div>
           </div>
         </div>
       )}
+      
     </div>
   );
 };

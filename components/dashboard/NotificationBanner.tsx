@@ -10,7 +10,7 @@ export const NotificationBanner = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="bg-accent text-accent-foreground p-4 rounded-lg flex items-start gap-3 relative">
+    <div className="bg-muted text-accent-foreground p-4 rounded-lg flex items-start gap-3 relative">
       <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
         <div className="w-6 h-6 rounded-full bg-primary" />
       </div>

@@ -1,27 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Eye,
-  EyeOff,
-  Shield,
   Users,
   Globe,
-  Lock,
   Database,
   Download,
   Trash2,
-  AlertTriangle,
+  AlertCircle,
   Check,
-  Save,
-  Info
+  ShieldCheck,
+  Shield
 } from 'lucide-react';
 import apiClient from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface User {
   id: string;
@@ -45,11 +41,32 @@ interface PrivacySetting {
   level: 'public' | 'registered' | 'agents' | 'private';
 }
 
+// Custom Airbnb-style Toggle Switch
+const Toggle = ({ active, onChange, disabled = false }: { active: boolean; onChange: (v: boolean) => void; disabled?: boolean }) => (
+  <button
+    type="button"
+    disabled={disabled}
+    onClick={() => onChange(!active)}
+    className={cn(
+      "w-12 h-8 rounded-full transition-colors relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] focus-visible:ring-offset-2 shrink-0",
+      active ? "bg-[#222222]" : "bg-[#DDDDDD]",
+      disabled && "opacity-50 cursor-not-allowed"
+    )}
+    aria-pressed={active}
+  >
+    <div className={cn(
+      "absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-transform shadow-[0_2px_4px_rgba(0,0,0,0.18)]",
+      active ? "translate-x-4" : ""
+    )} />
+  </button>
+);
+
 export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showDataExportModal, setShowDataExportModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  
   const { t } = useLanguage();
   const s = (t as any)?.settings || {};
 
@@ -57,27 +74,27 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     // Profile Privacy
     {
       id: 'profile_visibility',
-      title: s?.profileVisibility || 'Profile Visibility',
+      title: s?.profileVisibility || 'Profile visibility',
       description: s?.profileVisibilityDesc || 'Who can see your profile information',
-      icon: <Users className="h-4 w-4" />,
+      icon: <Users className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: true,
       category: 'profile',
       level: 'registered'
     },
     {
       id: 'contact_info_visibility',
-      title: s?.contactInformation || 'Contact Information',
+      title: s?.contactInformation || 'Contact information',
       description: s?.contactInfoVisibilityDesc || 'Who can see your email and phone number',
-      icon: <Eye className="h-4 w-4" />,
+      icon: <Eye className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: false,
       category: 'profile',
       level: 'agents'
     },
     {
       id: 'location_visibility',
-      title: s?.locationInformation || 'Location Information',
+      title: s?.locationInformation || 'Location information',
       description: s?.locationVisibilityDesc || 'Who can see your location details',
-      icon: <Globe className="h-4 w-4" />,
+      icon: <Globe className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: true,
       category: 'profile',
       level: 'public'
@@ -86,27 +103,27 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     // Activity Privacy
     {
       id: 'activity_tracking',
-      title: s?.activityTracking || 'Activity Tracking',
+      title: s?.activityTracking || 'Activity tracking',
       description: s?.activityTrackingDesc || 'Allow tracking of your browsing activity for personalization',
-      icon: <Eye className="h-4 w-4" />,
+      icon: <Eye className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: true,
       category: 'activity',
       level: 'private'
     },
     {
       id: 'search_history',
-      title: s?.searchHistory || 'Search History',
+      title: s?.searchHistory || 'Search history',
       description: s?.searchHistoryDesc || 'Save your search history for better recommendations',
-      icon: <Database className="h-4 w-4" />,
+      icon: <Database className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: true,
       category: 'activity',
       level: 'private'
     },
     {
       id: 'favorite_properties_public',
-      title: s?.publicFavorites || 'Public Favorites',
+      title: s?.publicFavorites || 'Public favorites',
       description: s?.publicFavoritesDesc || 'Allow others to see your favorite properties',
-      icon: <Users className="h-4 w-4" />,
+      icon: <Users className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: false,
       category: 'activity',
       level: 'public'
@@ -115,18 +132,18 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     // Data Privacy
     {
       id: 'analytics_participation',
-      title: s?.analyticsParticipation || 'Analytics Participation',
+      title: s?.analyticsParticipation || 'Analytics participation',
       description: s?.analyticsParticipationDesc || 'Help improve our service by sharing anonymous usage data',
-      icon: <Database className="h-4 w-4" />,
+      icon: <Database className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: true,
       category: 'data',
       level: 'private'
     },
     {
       id: 'marketing_data_usage',
-      title: s?.marketingDataUsage || 'Marketing Data Usage',
+      title: s?.marketingDataUsage || 'Marketing data usage',
       description: s?.marketingDataUsageDesc || 'Allow use of your data for personalized marketing',
-      icon: <Shield className="h-4 w-4" />,
+      icon: <Shield className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: false,
       category: 'data',
       level: 'private'
@@ -135,18 +152,18 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     // Communication Privacy
     {
       id: 'direct_messages',
-      title: s?.directMessages || 'Direct Messages',
+      title: s?.directMessages || 'Direct messages',
       description: s?.directMessagesDesc || 'Who can send you direct messages',
-      icon: <Users className="h-4 w-4" />,
+      icon: <Users className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: true,
       category: 'communication',
       level: 'registered'
     },
     {
       id: 'agent_contact',
-      title: s?.agentContact || 'Agent Contact',
+      title: s?.agentContact || 'Agent contact',
       description: s?.agentContactDesc || 'Allow agents to contact you about properties',
-      icon: <Users className="h-4 w-4" />,
+      icon: <Users className="h-6 w-6 stroke-[1.5] text-[#222222]" />,
       enabled: true,
       category: 'communication',
       level: 'agents'
@@ -165,16 +182,18 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
     ));
   };
 
+  const showMessage = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 4000);
+  };
+
   const handleSave = async () => {
     try {
       setIsLoading(true);
       setMessage(null);
 
       const privacyData = privacySettings.reduce((acc, setting) => {
-        acc[setting.id] = {
-          enabled: setting.enabled,
-          level: setting.level
-        };
+        acc[setting.id] = { enabled: setting.enabled, level: setting.level };
         return acc;
       }, {} as Record<string, { enabled: boolean; level: string }>);
 
@@ -184,10 +203,10 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
         data: { settings: privacyData }
       });
 
-      setMessage({ type: 'success', text: 'Privacy settings updated successfully' });
+      showMessage('success', 'Privacy settings updated successfully');
     } catch (error) {
       console.error('Failed to update privacy settings:', error);
-      setMessage({ type: 'error', text: 'Failed to update privacy settings' });
+      showMessage('error', 'Failed to update privacy settings');
     } finally {
       setIsLoading(false);
     }
@@ -203,7 +222,6 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
         responseType: 'blob'
       });
 
-      // Create download link
       const url = window.URL.createObjectURL(new Blob([response]));
       const link = document.createElement('a');
       link.href = url;
@@ -213,11 +231,12 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      setMessage({ type: 'success', text: 'Data export started. Download will begin shortly.' });
       setShowDataExportModal(false);
+      showMessage('success', 'Data export started. Download will begin shortly.');
     } catch (error) {
       console.error('Failed to export data:', error);
-      setMessage({ type: 'error', text: 'Failed to export data' });
+      setShowDataExportModal(false);
+      showMessage('error', 'Failed to export data');
     } finally {
       setIsLoading(false);
     }
@@ -232,315 +251,265 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ user }) => {
         url: '/users/me/account'
       });
 
-      // Redirect to goodbye page or login
       window.location.href = '/auth/login?deleted=true';
     } catch (error) {
       console.error('Failed to delete account:', error);
-      setMessage({ type: 'error', text: 'Failed to delete account' });
+      showMessage('error', 'Failed to delete account');
       setIsLoading(false);
     }
   };
 
   const getCategoryTitle = (category: string) => {
     switch (category) {
-      case 'profile':
-        return s?.profilePrivacy || 'Profile Privacy';
-      case 'activity':
-        return s?.activityPrivacy || 'Activity Privacy';
-      case 'data':
-        return s?.dataPrivacy || 'Data Privacy';
-      case 'communication':
-        return s?.communicationPrivacy || 'Communication Privacy';
-      default:
-        return 'Other';
+      case 'profile': return s?.profilePrivacy || 'Profile privacy';
+      case 'activity': return s?.activityPrivacy || 'Activity privacy';
+      case 'data': return s?.dataPrivacy || 'Data privacy';
+      case 'communication': return s?.communicationPrivacy || 'Communication privacy';
+      default: return 'Other';
     }
   };
 
-  const getLevelBadge = (level: PrivacySetting['level']) => {
+  const getLevelLabel = (level: PrivacySetting['level']) => {
     switch (level) {
-      case 'public':
-        return <Badge className="bg-red-100 text-red-800 text-xs">{s?.public || "Public"}</Badge>;
-      case 'registered':
-        return <Badge className="bg-yellow-100 text-yellow-800 text-xs">{s?.registeredUsers || "Registered Users"}</Badge>;
-      case 'agents':
-        return <Badge className="bg-blue-100 text-blue-800 text-xs">{s?.agentsOnly || "Agents Only"}</Badge>;
-      case 'private':
-        return <Badge className="bg-green-100 text-green-800 text-xs">{s?.private || "Private"}</Badge>;
-      default:
-        return <Badge className="bg-gray-100 text-gray-800 text-xs">Unknown</Badge>;
+      case 'public': return s?.public || "Public";
+      case 'registered': return s?.registeredUsers || "Registered users";
+      case 'agents': return s?.agentsOnly || "Agents only";
+      case 'private': return s?.private || "Private";
+      default: return "Unknown";
     }
   };
 
   const groupedSettings = privacySettings.reduce((acc, setting) => {
-    if (!acc[setting.category]) {
-      acc[setting.category] = [];
-    }
+    if (!acc[setting.category]) acc[setting.category] = [];
     acc[setting.category].push(setting);
     return acc;
   }, {} as Record<string, PrivacySetting[]>);
 
+  const selectClasses = "h-10 px-4 pr-10 rounded-lg border border-[#B0B0B0] bg-white text-[15px] text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#222222] focus:border-transparent transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%23222222%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_12px_center] bg-no-repeat";
+
   return (
-    <div className="space-y-4 lg:space-y-6 lg:p-0">
-      {/* Privacy Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Shield className="h-5 w-5" />
-            <span>{s?.privacyOverview || "Privacy Overview"}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-            <div className="flex items-start space-x-3">
-              <Info className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="min-w-0">
-                <h3 className="font-medium text-blue-900 text-sm sm:text-base">{s?.yourPrivacyMatters || "Your Privacy Matters"}</h3>
-                <p className="text-xs sm:text-sm text-blue-700 mt-1">
-                  {s?.yourPrivacyMattersDesc || "Control who can see your information and how your data is used. You can change these settings at any time."}
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="w-full max-w-[800px] animate-in fade-in duration-300 pb-24">
+      
+      {/* ── Page Header ── */}
+      <div className="mb-10">
+        <h2 className="text-[32px] font-semibold text-[#222222] tracking-tight">
+          {s?.privacy || "Privacy"}
+        </h2>
+        <p className="text-[16px] text-[#717171] mt-2">
+          Control what you share with the community and how your data is used.
+        </p>
+      </div>
 
-      {/* Privacy Settings by Category */}
-      {Object.entries(groupedSettings).map(([category, settings]) => (
-        <Card key={category}>
-          <CardHeader>
-            <CardTitle className="text-base sm:text-lg">{getCategoryTitle(category)}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 sm:space-y-4">
+      <div className="space-y-0">
+
+        {/* ── Privacy Settings by Category ── */}
+        {Object.entries(groupedSettings).map(([category, settings]) => (
+          <section key={category} className="py-8 border-t border-[#DDDDDD] space-y-6">
+            <h3 className="text-[18px] font-semibold text-[#222222]">
+              {getCategoryTitle(category)}
+            </h3>
+            
+            <div className="space-y-0 max-w-3xl">
               {settings.map((setting) => (
-                <div key={setting.id} className="border rounded-lg p-3 sm:p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
-                    <div className="flex items-start space-x-3 flex-1 min-w-0">
-                      <div className="p-2 rounded-full bg-gray-100 mt-1 flex-shrink-0">
-                        {setting.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col xs:flex-row xs:items-center space-y-1 xs:space-y-0 xs:space-x-2 mb-1">
-                          <h3 className="font-medium text-gray-900 text-sm sm:text-base break-words">{setting.title}</h3>
-                          {getLevelBadge(setting.level)}
-                        </div>
-                        <p className="text-xs sm:text-sm text-gray-500 mb-3">{setting.description}</p>
-
-                        {(setting.category === 'profile' || setting.category === 'communication') && (
-                          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                            <Label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{s?.visibility || "Visibility:"}</Label>
-                            <select
-                              value={setting.level}
-                              onChange={(e) => handleLevelChange(setting.id, e.target.value as PrivacySetting['level'])}
-                              className="px-2 sm:px-3 py-1 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
-                              disabled={!setting.enabled}
-                            >
-                              <option value="private">{s?.private || "Private"}</option>
-                              <option value="agents">{s?.agentsOnly || "Agents Only"}</option>
-                              <option value="registered">{s?.registeredUsers || "Registered Users"}</option>
-                              <option value="public">{s?.public || "Public"}</option>
-                            </select>
-                          </div>
-                        )}
+                <div key={setting.id} className="flex flex-col gap-4 py-6 border-b border-[#EBEBEB] last:border-0 last:pb-0 first:pt-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <div className="shrink-0 mt-0.5">{setting.icon}</div>
+                      <div className="flex-1 min-w-0 pr-4">
+                        <h4 className="text-[16px] font-medium text-[#222222]">{setting.title}</h4>
+                        <p className="text-[15px] text-[#717171] mt-0.5">{setting.description}</p>
                       </div>
                     </div>
-
-                    <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto sm:ml-4">
-                      <input
-                        type="checkbox"
-                        checked={setting.enabled}
-                        onChange={(e) => handleSettingChange(setting.id, e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
+                    <div className="shrink-0 mt-1">
+                      <Toggle active={setting.enabled} onChange={(val) => handleSettingChange(setting.id, val)} />
+                    </div>
                   </div>
+
+                  {/* Level Selector */}
+                  {(setting.category === 'profile' || setting.category === 'communication') && (
+                    <div className="flex items-center gap-4 ml-[40px] mt-2 transition-opacity" style={{ opacity: setting.enabled ? 1 : 0.5 }}>
+                      <span className="text-[15px] font-medium text-[#222222] shrink-0">{s?.visibility || "Visibility:"}</span>
+                      <select
+                        value={setting.level}
+                        onChange={(e) => handleLevelChange(setting.id, e.target.value as PrivacySetting['level'])}
+                        className={selectClasses}
+                        disabled={!setting.enabled}
+                      >
+                        <option value="private">{s?.private || "Private"}</option>
+                        <option value="agents">{s?.agentsOnly || "Agents only"}</option>
+                        <option value="registered">{s?.registeredUsers || "Registered users"}</option>
+                        <option value="public">{s?.public || "Public"}</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      ))}
+          </section>
+        ))}
 
-      {/* Data Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Database className="h-5 w-5" />
-            <span>{s?.dataManagement || "Data Management"}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3 sm:space-y-4">
+        {/* ── Data Management ── */}
+        <section className="py-8 border-t border-[#DDDDDD] space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {s?.dataManagement || "Data management"}
+          </h3>
+          
+          <div className="space-y-0 max-w-3xl">
+            
             {/* Export Data */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
-                  <Download className="h-4 w-4 text-blue-600" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.exportYourData || "Export Your Data"}</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">{s?.exportYourDataDesc || "Download a copy of all your data"}</p>
+            <div className="py-6 border-b border-[#EBEBEB] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <Download className="w-6 h-6 stroke-[1.5] text-[#222222] shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-[16px] font-medium text-[#222222]">{s?.exportYourData || "Export your data"}</h4>
+                  <p className="text-[15px] text-[#717171] mt-0.5">{s?.exportYourDataDesc || "Download a copy of your personal data"}</p>
                 </div>
               </div>
               <Button
                 variant="outline"
                 onClick={() => setShowDataExportModal(true)}
-                className="w-full sm:w-auto mt-2 sm:mt-0"
-                size="sm"
+                className="h-10 px-5 rounded-lg border-[#222222] text-[#222222] font-semibold text-[14px] hover:bg-[#F7F7F7] shrink-0"
               >
-                <Download className="h-4 w-4 mr-2" />
-                {s?.exportData || "Export Data"}
+                {s?.exportData || "Request file"}
               </Button>
             </div>
 
             {/* Delete Account */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg border-red-200 space-y-3 sm:space-y-0">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
-                  <Trash2 className="h-4 w-4 text-red-600" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">{s?.deleteAccount || "Delete Account"}</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">{s?.deleteAccountDesc || "Permanently delete your account and all data"}</p>
+            <div className="py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <Trash2 className="w-6 h-6 stroke-[1.5] text-[#C2410C] shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-[16px] font-medium text-[#222222]">{s?.deleteAccount || "Delete account"}</h4>
+                  <p className="text-[15px] text-[#717171] mt-0.5">{s?.deleteAccountDesc || "Permanently delete your account and all data"}</p>
                 </div>
               </div>
               <Button
                 variant="outline"
                 onClick={() => setShowDeleteAccountModal(true)}
-                className="w-full sm:w-auto mt-2 sm:mt-0 border-red-300 text-red-600 hover:bg-red-50"
-                size="sm"
+                className="h-10 px-5 rounded-lg border-[#C2410C] text-[#C2410C] font-semibold text-[14px] hover:bg-[#FFF7ED] shrink-0"
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                {s?.deleteAccount || "Delete Account"}
+                {s?.deleteAccount || "Delete account"}
               </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Data Export Modal */}
+          </div>
+        </section>
+
+      </div>
+
+      {/* ── Status Messages ── */}
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+              "fixed bottom-24 left-1/2 -translate-x-1/2 px-6 py-4 rounded-xl shadow-xl flex items-center gap-3 z-50 min-w-[300px]",
+              message.type === 'success' ? "bg-[#222222] text-white" : "bg-[#C2410C] text-white"
+            )}
+          >
+            {message.type === 'success' ? (
+              <ShieldCheck className="h-5 w-5 shrink-0 stroke-[2]" />
+            ) : (
+              <AlertCircle className="h-5 w-5 shrink-0 stroke-[2]" />
+            )}
+            <span className="text-[15px] font-medium">{message.text}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Floating Save Bar ── */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DDDDDD] p-4 sm:p-5 z-40">
+        <div className="max-w-[800px] mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8">
+          <p className="hidden sm:block text-[15px] text-[#717171]">
+            Remember to save any changes you've made.
+          </p>
+          <Button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="w-full sm:w-auto h-12 px-8 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold text-[15px] transition-colors disabled:opacity-50"
+          >
+            {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />}
+            {isLoading ? (s?.saving || 'Saving...') : (s?.saveChanges || 'Save changes')}
+          </Button>
+        </div>
+      </div>
+
+      {/* ── Data Export Modal ── */}
       {showDataExportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3 sm:mb-4">{s?.exportDataModalTitle || "Export Your Data"}</h3>
-            <p className="text-sm text-gray-600 mb-4 sm:mb-6">
-              {s?.exportDataModalDesc || "This will create a downloadable file containing all your personal data, including profile information, search history, favorites, and messages."}
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-[480px] w-full shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-[22px] font-semibold text-[#222222] mb-3">{s?.exportDataModalTitle || "Export your data"}</h3>
+            <p className="text-[15px] text-[#717171] mb-8 leading-relaxed">
+              {s?.exportDataModalDesc || "This will create a downloadable JSON file containing all your personal data, including profile information, search history, favorites, and messages."}
             </p>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-              <Button
-                onClick={handleDataExport}
-                disabled={isLoading}
-                className="flex-1"
-                size="lg"
-              >
-                {isLoading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                ) : (
-                  <Download className="h-4 w-4 mr-2" />
-                )}
-                {isLoading ? (s?.exporting || 'Exporting...') : (s?.exportData || 'Export Data')}
-              </Button>
+            <div className="flex items-center justify-end gap-3">
               <Button
                 variant="outline"
                 onClick={() => setShowDataExportModal(false)}
                 disabled={isLoading}
-                size="lg"
+                className="h-12 px-6 rounded-lg border-[#222222] text-[#222222] font-semibold text-[15px] hover:bg-[#F7F7F7]"
               >
                 {s?.cancel || "Cancel"}
+              </Button>
+              <Button
+                onClick={handleDataExport}
+                disabled={isLoading}
+                className="h-12 px-6 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold text-[15px]"
+              >
+                {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />}
+                {isLoading ? (s?.exporting || 'Exporting...') : (s?.exportData || 'Download file')}
               </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Delete Account Modal */}
+      {/* ── Delete Account Modal ── */}
       {showDeleteAccountModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
-            <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-              <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
-                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">{s?.deleteAccountModalTitle || "Delete Account"}</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-[480px] w-full shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertCircle className="w-7 h-7 text-[#C2410C] stroke-[2]" />
+              <h3 className="text-[22px] font-semibold text-[#222222]">{s?.deleteAccountModalTitle || "Delete account"}</h3>
+            </div>
+            
+            <p className="text-[15px] text-[#717171] mb-6">
+              {s?.deleteAccountModalDesc || "This action cannot be undone. This will permanently delete your account and remove all your data from our servers."}
+            </p>
+
+            <div className="bg-[#FFF7ED] border border-[#C2410C]/20 rounded-xl p-5 mb-8">
+              <p className="text-[14px] font-semibold text-[#C2410C] mb-3">{s?.whatWillBeDeleted || "What will be deleted:"}</p>
+              <ul className="text-[14px] text-[#C2410C] space-y-2">
+                <li className="flex items-start gap-2"><span className="mt-1.5 w-1 h-1 rounded-full bg-[#C2410C] shrink-0" /> {s?.deletedItem1 || "Your profile and personal information"}</li>
+                <li className="flex items-start gap-2"><span className="mt-1.5 w-1 h-1 rounded-full bg-[#C2410C] shrink-0" /> {s?.deletedItem2 || "All saved properties and search history"}</li>
+                <li className="flex items-start gap-2"><span className="mt-1.5 w-1 h-1 rounded-full bg-[#C2410C] shrink-0" /> {s?.deletedItem3 || "Messages and communication history"}</li>
+                <li className="flex items-start gap-2"><span className="mt-1.5 w-1 h-1 rounded-full bg-[#C2410C] shrink-0" /> {s?.deletedItem4 || "Account preferences and settings"}</li>
+              </ul>
             </div>
 
-            <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-              <p className="text-sm text-gray-600">
-                {s?.deleteAccountModalDesc || "This action cannot be undone. This will permanently delete your account and remove all your data from our servers."}
-              </p>
-
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-800 font-medium">{s?.whatWillBeDeleted || "What will be deleted:"}</p>
-                <ul className="text-xs sm:text-sm text-red-700 mt-2 space-y-1">
-                  <li className="break-words">• {s?.deletedItem1 || "Your profile and personal information"}</li>
-                  <li className="break-words">• {s?.deletedItem2 || "All saved properties and search history"}</li>
-                  <li className="break-words">• {s?.deletedItem3 || "Messages and communication history"}</li>
-                  <li className="break-words">• {s?.deletedItem4 || "Account preferences and settings"}</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-              <Button
-                onClick={handleDeleteAccount}
-                disabled={isLoading}
-                className="flex-1 bg-red-600 hover:bg-red-700"
-                size="lg"
-              >
-                {isLoading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                ) : (
-                  <Trash2 className="h-4 w-4 mr-2" />
-                )}
-                {isLoading ? (s?.deleting || 'Deleting...') : (s?.deleteAccount || 'Delete Account')}
-              </Button>
+            <div className="flex items-center justify-end gap-3">
               <Button
                 variant="outline"
                 onClick={() => setShowDeleteAccountModal(false)}
                 disabled={isLoading}
-                size="lg"
+                className="h-12 px-6 rounded-lg border-[#222222] text-[#222222] font-semibold text-[15px] hover:bg-[#F7F7F7]"
               >
                 {s?.cancel || "Cancel"}
+              </Button>
+              <Button
+                onClick={handleDeleteAccount}
+                disabled={isLoading}
+                className="h-12 px-6 rounded-lg bg-[#C2410C] hover:bg-[#9A3412] text-white font-semibold text-[15px]"
+              >
+                {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />}
+                {isLoading ? (s?.deleting || 'Deleting...') : (s?.deleteAccount || 'Delete account')}
               </Button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Message Display */}
-      {message && (
-        <div className={`p-3 sm:p-4 rounded-md ${message.type === 'success'
-            ? 'bg-green-50 border border-green-200 text-green-800'
-            : 'bg-red-50 border border-red-200 text-red-800'
-          }`}>
-          <div className="flex items-center space-x-2">
-            {message.type === 'success' ? (
-              <Check className="h-4 w-4 flex-shrink-0" />
-            ) : (
-              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-            )}
-            <span className="text-sm break-words">{message.text}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Save Button */}
-      <div className="flex justify-end sticky bottom-4 bg-white p-4 rounded-lg -lg sm:-none sm:bg-transparent sm:p-0 sm:static">
-        <Button
-          onClick={handleSave}
-          disabled={isLoading}
-          className="w-full sm:w-auto min-w-32"
-          size="lg"
-        >
-          {isLoading ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          {isLoading ? (s?.saving || 'Saving...') : (s?.saveSettings || 'Save Settings')}
-        </Button>
-      </div>
+      
     </div>
   );
 };

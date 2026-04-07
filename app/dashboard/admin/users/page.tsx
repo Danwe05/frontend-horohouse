@@ -155,7 +155,7 @@ function EditModal({ user, onClose, onSaved }: EditModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-blue-700/40 backdrop-blur-sm" onClick={onClose} />
 
             {/* Panel */}
             <div className="relative bg-white rounded-2xl -2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -274,7 +274,7 @@ function DeleteModal({ user, onClose, onDeleted }: { user: User; onClose: () => 
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-blue-700/40 backdrop-blur-sm" onClick={onClose} />
             <div className="relative bg-white rounded-2xl -2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
                 <div className="p-6 text-center">
                     <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">

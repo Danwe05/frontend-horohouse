@@ -1,7 +1,5 @@
-import { Search, MessageCircle, Archive, Inbox, MapPin } from "lucide-react";
+import { Search, MessageCircle, Archive, Inbox, MapPin, Loader2 } from "lucide-react";
 import { Input } from "../ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -101,16 +99,16 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
   ).length;
 
   return (
-    <div className="w-full md:w-[320px] bg-white border-r border-border h-full flex flex-col">
+    <div className="w-full h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="p-6 border-b border-border">
-        <h1 className="text-2xl font-bold mb-4">{s.messagesTitle || 'Messages'}</h1>
+      <div className="p-6 pb-4 border-b border-[#EBEBEB] shrink-0">
+        <h1 className="text-[26px] font-semibold text-[#222222] mb-5 tracking-tight">{s.messagesTitle || 'Messages'}</h1>
 
         {/* Connection Status */}
         {!isConnected && (
-          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
-            <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-yellow-700">{s.connectingMsg || 'Connecting to chat server...'}</span>
+          <div className="mb-4 px-4 py-2 bg-[#FFF7ED] border border-[#C2410C]/20 rounded-xl flex items-center gap-2.5">
+            <div className="w-2 h-2 bg-[#C2410C] rounded-full animate-pulse"></div>
+            <span className="text-[13px] font-medium text-[#C2410C]">{s.connectingMsg || 'Connecting to chat server...'}</span>
           </div>
         )}
 
@@ -119,34 +117,41 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
           <button
             onClick={() => setFilter('general')}
             className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors",
+              "px-5 py-2.5 rounded-full text-[14px] font-semibold flex items-center gap-2 transition-colors focus:outline-none",
               filter === 'general'
-                ? "bg-primary text-white"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-[#717171] hover:bg-[#F7F7F7] border border-transparent hover:border-[#EBEBEB]"
             )}
           >
-            <Inbox className="w-4 h-4" />
+            <Inbox className="w-4 h-4 stroke-[2]" />
             {s.general || 'General'}
             {unreadCount > 0 && (
-              <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                {unreadCount}
+              <span className={cn(
+                "w-5 h-5 rounded-full flex items-center justify-center text-[11px] ml-1",
+                filter === 'general' ? "bg-white text-[#222222]" : "bg-[#FF385C] text-white"
+              )}>
+                {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
           </button>
+          
           <button
             onClick={() => setFilter('archive')}
             className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors",
+              "px-5 py-2.5 rounded-full text-[14px] font-semibold flex items-center gap-2 transition-colors focus:outline-none",
               filter === 'archive'
-                ? "bg-primary text-white"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-[#717171] hover:bg-[#F7F7F7] border border-transparent hover:border-[#EBEBEB]"
             )}
           >
-            <Archive className="w-4 h-4" />
+            <Archive className="w-4 h-4 stroke-[2]" />
             {s.archive || 'Archive'}
             {archivedCount > 0 && (
-              <span className="bg-foreground/10 px-2 py-0.5 rounded-full text-xs">
-                {archivedCount}
+              <span className={cn(
+                "w-5 h-5 rounded-full flex items-center justify-center text-[11px] ml-1",
+                filter === 'archive' ? "bg-white text-[#222222]" : "bg-[#EBEBEB] text-[#222222]"
+              )}>
+                {archivedCount > 99 ? '99+' : archivedCount}
               </span>
             )}
           </button>
@@ -154,10 +159,10 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#717171]" />
           <Input
-            placeholder={s.searchConversations || 'Search conversations...'}
-            className="pl-9 bg-muted border-0 rounded-xl"
+            placeholder={s.searchConversations || 'Search messages...'}
+            className="pl-11 h-12 bg-[#F7F7F7] border-transparent rounded-xl text-[15px] focus-visible:ring-1 focus-visible:ring-[#222222] placeholder:text-[#717171]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -165,107 +170,124 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
       </div>
 
       {/* Conversations List */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
         {isLoading ? (
           // Loading State
           <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-            <p className="text-sm text-muted-foreground">{s.loadingConversations || 'Loading conversations...'}</p>
+            <Loader2 className="h-8 w-8 animate-spin text-[#222222] mb-4 stroke-[2.5]" />
+            <p className="text-[14px] font-semibold text-[#717171]">{s.loadingConversations || 'Loading conversations...'}</p>
           </div>
         ) : filteredConversations.length === 0 ? (
           // Empty State
-          <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+          <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+            <div className="w-16 h-16 rounded-full bg-[#F7F7F7] border border-[#EBEBEB] flex items-center justify-center mb-5">
               {searchQuery ? (
-                <Search className="w-8 h-8 text-muted-foreground" />
+                <Search className="w-8 h-8 text-[#DDDDDD] stroke-[1.5]" />
               ) : filter === 'archive' ? (
-                <Archive className="w-8 h-8 text-muted-foreground" />
+                <Archive className="w-8 h-8 text-[#DDDDDD] stroke-[1.5]" />
               ) : (
-                <MessageCircle className="w-8 h-8 text-muted-foreground" />
+                <MessageCircle className="w-8 h-8 text-[#DDDDDD] stroke-[1.5]" />
               )}
             </div>
-            <h3 className="font-semibold text-lg mb-2">
+            <h3 className="font-semibold text-[18px] text-[#222222] mb-2">
               {searchQuery
-                ? (s.noConversationsFound || "No conversations found")
+                ? (s.noConversationsFound || "No results found")
                 : filter === 'archive'
-                  ? (s.noArchivedConversations || "No archived conversations")
-                  : (s.noConversationsYet || "No conversations yet")}
+                  ? (s.noArchivedConversations || "No archived messages")
+                  : (s.noConversationsYet || "No messages yet")}
             </h3>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-[15px] text-[#717171] mb-6 max-w-[250px]">
               {searchQuery
-                ? (s.tryDifferentSearch || "Try a different search term")
+                ? (s.tryDifferentSearch || "Try searching for a different name or keyword.")
                 : filter === 'archive'
-                  ? (s.archivedAppearHere || "Archived conversations will appear here")
-                  : (s.startConversationDesc || "Start a conversation by contacting a property owner")}
+                  ? (s.archivedAppearHere || "Messages you archive will appear here.")
+                  : (s.startConversationDesc || "When you contact a host or tenant, your messages will show up here.")}
             </p>
             {!searchQuery && filter === 'general' && (
               <button
                 onClick={() => window.location.href = '/'}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity"
+                className="px-6 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] transition-colors active:scale-[0.98]"
               >
-                {s.browseProperties || "Browse Properties"}
+                {s.browseProperties || "Explore listings"}
               </button>
             )}
           </div>
         ) : (
           // Conversations
-          filteredConversations.map((conv) => {
-            const otherUser = conv.otherUser ||
-              conv.participants.find(p => p.userId._id !== user?.id)?.userId;
-            const isOnline = otherUser && onlineUsers.has(otherUser._id);
-            const isActive = activeConversation?._id === conv._id;
-            const conversationUnreadCount = conv.unreadCount || 0;
+          <div className="flex flex-col">
+            {filteredConversations.map((conv) => {
+              const otherUser = conv.otherUser ||
+                conv.participants.find(p => p.userId._id !== user?.id)?.userId;
+              const isOnline = otherUser && onlineUsers.has(otherUser._id);
+              const isActive = activeConversation?._id === conv._id;
+              const conversationUnreadCount = conv.unreadCount || 0;
+              const hasUnread = conversationUnreadCount > 0;
 
-            return (
-              <button
-                key={conv._id}
-                onClick={() => handleConversationClick(conv)}
-                className={cn(
-                  "w-full p-4 flex items-start gap-3 hover:bg-muted/50 transition-colors border-b border-border text-left",
-                  isActive && "bg-muted/50"
-                )}
-              >
-                <div className="relative">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage src={otherUser?.profilePicture} />
-                    <AvatarFallback>{otherUser?.name?.[0] || "U"}</AvatarFallback>
-                  </Avatar>
-                  {isOnline && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-1 border-white rounded-full"></span>
+              return (
+                <button
+                  key={conv._id}
+                  onClick={() => handleConversationClick(conv)}
+                  className={cn(
+                    "w-full p-5 flex items-start gap-4 hover:bg-[#F7F7F7] transition-colors border-b border-[#EBEBEB] text-left focus:outline-none group",
+                    isActive && "bg-[#F7F7F7]"
                   )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-sm flex items-center gap-1 truncate">
-                      {otherUser?.name || (s.unknownUser || "Unknown User")}
-                      {isOnline && (
-                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></span>
+                >
+                  <div className="relative shrink-0">
+                    <div className="w-14 h-14 rounded-full overflow-hidden bg-[#EBEBEB] border border-[#DDDDDD] flex items-center justify-center">
+                      {otherUser?.profilePicture ? (
+                        <img src={otherUser.profilePicture} alt={otherUser.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[16px] font-bold text-[#222222]">
+                          {otherUser?.name?.[0]?.toUpperCase() || "U"}
+                        </span>
                       )}
-                    </h3>
-                    <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                      {conv.lastMessage?.createdAt && formatTime(conv.lastMessage.createdAt)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm text-muted-foreground truncate flex-1">
-                      {conv.lastMessage?.content || (s.noMessagesYetStr || "No messages yet")}
-                    </p>
-                    {conversationUnreadCount > 0 && (
-                      <Badge className="ml-2 bg-primary text-white text-xs min-w-5 h-5 flex items-center justify-center rounded-full border-0 shrink-0 px-1.5">
-                        {conversationUnreadCount > 99 ? '99+' : conversationUnreadCount}
-                      </Badge>
+                    </div>
+                    {isOnline && (
+                      <span className="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 bg-[#008A05] border-2 border-white rounded-full"></span>
                     )}
                   </div>
-                  {conv.propertyId && (
-                    <p className="text-xs flex items-center gap-2 text-muted-foreground mt-1 truncate">
-                     <MapPin className="w-4 h-4" /> <span>{conv.propertyId.title}</span>
-                    </p>
-                  )}
-                </div>
-              </button>
-            );
-          })
+
+                  <div className="flex-1 min-w-0 pt-0.5">
+                    <div className="flex items-start justify-between mb-1 gap-2">
+                      <h3 className={cn(
+                        "text-[16px] truncate",
+                        hasUnread ? "font-bold text-[#222222]" : "font-semibold text-[#222222]"
+                      )}>
+                        {otherUser?.name || (s.unknownUser || "Unknown User")}
+                      </h3>
+                      <span className={cn(
+                        "text-[13px] whitespace-nowrap shrink-0",
+                        hasUnread ? "font-bold text-[#222222]" : "font-medium text-[#717171]"
+                      )}>
+                        {conv.lastMessage?.createdAt && formatTime(conv.lastMessage.createdAt)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <p className={cn(
+                        "text-[14px] truncate flex-1",
+                        hasUnread ? "font-bold text-[#222222]" : "text-[#717171]"
+                      )}>
+                        {conv.lastMessage?.content || (s.noMessagesYetStr || "No messages yet")}
+                      </p>
+                      {hasUnread && (
+                        <span className="bg-[#FF385C] text-white text-[11px] font-bold min-w-[20px] h-5 flex items-center justify-center rounded-full px-1.5 shrink-0">
+                          {conversationUnreadCount > 99 ? '99+' : conversationUnreadCount}
+                        </span>
+                      )}
+                    </div>
+
+                    {conv.propertyId && (
+                      <p className="text-[13px] flex items-center gap-1.5 text-[#717171] mt-1.5 truncate">
+                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">{conv.propertyId.title}</span>
+                      </p>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

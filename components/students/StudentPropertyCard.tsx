@@ -4,13 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
-  MapPin, Droplets, Zap, Star, Users, Clock,
-  CheckCircle2, Bed, Bath, Ruler, Heart, Share2,
-  Flag, ShieldCheck, ChevronRight,
+  MapPin, Star, Heart, Share2, BedDouble
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
   Carousel,
   CarouselContent,
@@ -18,11 +13,6 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from '@/components/ui/carousel';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { ReportModal } from '../property/ReportModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
@@ -30,7 +20,6 @@ import apiClient from '@/lib/api';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useCurrency } from '@/hooks/useCurrency';
-
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -86,6 +75,10 @@ function getImageSrc(img: { url: string } | string): string {
   return typeof img === 'string' ? img : img.url;
 }
 
+function formatFCFA(n: number) {
+  return n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n / 1_000).toFixed(0)}K` : n.toLocaleString();
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function StudentPropertyCard({
@@ -97,7 +90,6 @@ export function StudentPropertyCard({
 }: StudentPropertyCardProps) {
   const id = property._id || property.id || '';
   const sd = property.studentDetails;
-  const { formatMoney } = useCurrency();
   const { t } = useLanguage();
   const _t = t as any;
   const s = _t.students?.card || {};
@@ -173,302 +165,152 @@ export function StudentPropertyCard({
 
   // ── Derived values ────────────────────────────────────────────────────────
 
-  const WATER_LABELS: Record<string, string> = {
-    camwater: s.camwater || 'CAMWATER',
-    borehole: s.borehole || 'Borehole',
-    camwater_and_borehole: s.dualWater || 'Dual water',
-    well: s.well || 'Well',
-    tanker: s.tanker || 'Tanker',
-  };
-
-  const ELECTRICITY_LABELS: Record<string, string> = {
-    none: s.eneoOnly || 'ENEO only',
-    solar: s.solar || 'Solar',
-    generator: s.generator || 'Generator',
-    solar_and_generator: s.solarGen || 'Solar + Gen',
-  };
-
   const distance = formatDistance(sd?.campusProximityMeters);
   const perPerson = sd?.pricePerPersonMonthly;
-  const beds = property.amenities?.bedrooms;
-  const baths = property.amenities?.bathrooms;
-  const sqft = property.area;
-
-  const waterLabel = sd?.waterSource ? WATER_LABELS[sd.waterSource] : null;
-  const electricityLabel = sd?.electricityBackup ? ELECTRICITY_LABELS[sd.electricityBackup] : null;
-  const hasGoodWater = sd?.waterSource && sd.waterSource !== 'well' && sd.waterSource !== 'tanker';
-  const hasBackup = sd?.electricityBackup && sd.electricityBackup !== 'none';
 
   return (
     <>
       <ReportModal propertyId={id} open={reportOpen} onClose={() => setReportOpen(false)} />
 
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.04, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="block relative group"
+        transition={{ delay: index * 0.05, duration: 0.3 }}
+        className="group relative cursor-pointer flex flex-col h-full w-full"
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        <Link href={`/properties/${id}`}>
-          <Card className="overflow-hidden -none py-1-slate-200 transition-all duration-200 hover:-md hover py-1-slate-300 py-0">
-
-            {/* ── Image carousel ─────────────────────────────────────────── */}
-            <div className="relative overflow-hidden">
-              <Carousel
-                className="w-full"
-                opts={{ loop: true }}
-                setApi={(api) => {
-                  if (!api) return;
-                  setActiveIndex(api.selectedScrollSnap());
-                  api.on('select', () => setActiveIndex(api.selectedScrollSnap()));
-                }}
-              >
-                <CarouselContent className="ml-0">
-                  {imageArray.map((src, i) => (
-                    <CarouselItem key={i} className="pl-0">
+        <Link href={`/properties/${id}`} className="flex flex-col h-full">
+          
+          {/* Image Container */}
+          <div className="relative w-full rounded-2xl overflow-hidden bg-[#F7F7F7] mb-3 shrink-0">
+            <Carousel
+              className="w-full"
+              opts={{ loop: true }}
+              setApi={(api) => {
+                if (!api) return;
+                setActiveIndex(api.selectedScrollSnap());
+                api.on('select', () => setActiveIndex(api.selectedScrollSnap()));
+              }}
+            >
+              <CarouselContent className="-ml-0">
+                {imageArray.map((src, i) => (
+                  <CarouselItem key={i} className="pl-0">
+                    {/* The aspect ratio must be applied to an inner div here */}
+                    <div className="relative w-full aspect-[4/3] bg-[#F7F7F7] overflow-hidden">
                       <img
                         src={src}
                         alt={`${property.title} — photo ${i + 1}`}
                         loading="lazy"
-                        className="w-full h-52 object-cover transition-transform duration-500"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
 
-                {hasMultipleImages && (
-                  <div onClick={e => e.preventDefault()}>
-                    <CarouselPrevious className="left-2 bg-black/40 text-white hover:text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm py-1-0 hover:bg-black/60 transition-all duration-200" />
-                    <CarouselNext className="right-2 bg-black/40 text-white hover:text-white opacity-0 group-hover:opacity-100 backdrop-blur-sm py-1-0 hover:bg-black/60 transition-all duration-200" />
-                  </div>
-                )}
-              </Carousel>
-
-              {/* Dot indicators */}
               {hasMultipleImages && (
-                <div
-                  className={cn(
-                    'absolute left-1/2 -translate-x-1/2 flex items-center gap-1 z-10',
-                    sd?.isStudentApproved ? 'bottom-8' : 'bottom-2',
-                  )}
-                  onClick={e => e.preventDefault()}
-                >
-                  {imageArray.map((_, i) => (
-                    <span
-                      key={i}
-                      className={cn(
-                        'block rounded-full transition-all duration-200',
-                        i === activeIndex ? 'w-2 h-2 bg-white' : 'w-1.5 h-1.5 bg-white/50',
-                      )}
-                    />
-                  ))}
+                <div onClick={e => e.preventDefault()} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <CarouselPrevious className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white text-[#222222] border-none shadow-sm flex items-center justify-center rounded-full" />
+                  <CarouselNext className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white text-[#222222] border-none shadow-sm flex items-center justify-center rounded-full" />
                 </div>
               )}
+            </Carousel>
 
-              {/* Student-Approved verification strip */}
+            {/* Top Left Badges (Truncated to prevent overflow) */}
+            <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 max-w-[calc(100%-3rem)]">
               {sd?.isStudentApproved && (
-                <div
-                  className="absolute bottom-0 left-0 right-0 z-10 flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-md"
-                  onClick={e => e.preventDefault()}
-                >
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span className="text-[11px] font-semibold tracking-wide text-emerald-300">
-                    {s.studentApproved || 'Student Approved'}
-                  </span>
-                </div>
+                <span className="bg-white/90 text-[#222222] text-[12px] font-bold px-3 py-1.5 rounded-full shadow-sm truncate">
+                  {s.studentApproved || 'Student Approved'}
+                </span>
               )}
-
-              {/* Top-left badges */}
-              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
-                <Badge className="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5">
-                  {s.studentHousing || 'Student Housing'}
-                </Badge>
-                {compatibilityScore !== undefined && (
-                  <Badge className={cn(
-                    'text-[10px] font-bold px-2 py-0.5',
-                    compatibilityScore >= 80
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-white text-slate-800',
-                  )}>
-                    {compatibilityScore}% {s.match || 'Match'}
-                  </Badge>
-                )}
-              </div>
-
-              {/* Action buttons — top right */}
-              <div
-                className="absolute top-3 right-3 flex items-center gap-1.5 z-10"
-                onClick={e => e.preventDefault()}
-              >
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={handleShare}
-                      aria-label={s.share || 'Share'}
-                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center transition-transform -md"
-                    >
-                      <Share2 className="h-3.5 w-3.5 text-foreground" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">{s.share || 'Share'}</TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={handleToggleFavorite}
-                      disabled={isTogglingFavorite}
-                      aria-label={localFavorite ? (s.unfavorite || 'Remove from favorites') : (s.favorite || 'Add to favorites')}
-                      className="w-8 h-8 bg-card rounded-full flex items-center justify-center hover:scale-110 transition-transform -md disabled:opacity-50"
-                    >
-                      <Heart className={cn(
-                        'h-4 w-4 transition-colors',
-                        localFavorite ? 'fill-destructive text-destructive' : 'text-foreground',
-                      )} />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    {localFavorite ? (s.unfavorite || 'Unfavorite') : (s.favorite || 'Favorite')}
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-
-              {/* Image counter */}
-              {hasMultipleImages && (
-                <div className="absolute bottom-2 right-3 z-10 bg-black/50 text-white text-[10px] px-1.5 rounded backdrop-blur-sm font-medium">
-                  {activeIndex + 1}/{imageArray.length}
-                </div>
+              {compatibilityScore !== undefined && (
+                <span className={cn(
+                  "text-[12px] font-bold px-3 py-1.5 rounded-full shadow-sm truncate w-fit",
+                  compatibilityScore >= 80 ? "bg-[#008A05] text-white" : "bg-white/90 text-[#222222]"
+                )}>
+                  {compatibilityScore}% {s.match || 'Match'}
+                </span>
               )}
             </div>
 
-            {/* ── Card content ───────────────────────────────────────────── */}
-            <CardContent className="pb-4 pt-3">
+            {/* Top Right Actions */}
+            <div className="absolute top-3 right-3 z-10 flex flex-col gap-2" onClick={e => e.preventDefault()}>
+              <button
+                onClick={handleToggleFavorite}
+                disabled={isTogglingFavorite}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-transform hover:scale-110 focus:outline-none"
+              >
+                <Heart className={cn(
+                  "w-6 h-6 drop-shadow-sm transition-colors",
+                  localFavorite ? "fill-[#FF385C] text-[#FF385C]" : "fill-black/30 text-white stroke-[1.5]"
+                )} />
+              </button>
+              <button
+                onClick={handleShare}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-transform hover:scale-110 focus:outline-none"
+              >
+                <Share2 className="w-5 h-5 text-white drop-shadow-sm stroke-[2]" />
+              </button>
+            </div>
 
-              {/* Price row */}
-              <div className="flex items-baseline justify-between gap-2 mb-1">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-lg font-bold text-foreground leading-tight">
-                    {formatMoney(perPerson || property.price)}
-                  </span>
-                  <span className="text-xs font-semibold text-blue-600 bg-blue-50 rounded px-1">
-                    {s.mo || '/mo'}{perPerson ? (s.pp || ' p.p.') : ''}
-                  </span>
+            {/* Image Indicator Dots */}
+            {hasMultipleImages && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+                {imageArray.map((_, i) => (
+                  <span
+                    key={i}
+                    className={cn(
+                      'block rounded-full transition-all duration-300',
+                      i === activeIndex ? 'w-2 h-2 bg-white' : 'w-1.5 h-1.5 bg-white/60'
+                    )}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Details Section */}
+          <div className="flex flex-col flex-1 min-w-0 space-y-1">
+            
+            {/* Title & Rating Row */}
+            <div className="flex items-start justify-between gap-3 w-full">
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-[#222222] text-[16px] leading-tight truncate">
+                  {property.title}
+                </h3>
+              </div>
+              {property.averageRating ? (
+                <div className="flex items-center gap-1 shrink-0 pt-[2px]">
+                  <Star className="h-3.5 w-3.5 fill-[#222222] text-[#222222]" />
+                  <span className="text-[14px] text-[#222222] leading-none">{property.averageRating.toFixed(1)}</span>
                 </div>
-                {property.averageRating ? (
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                    <span className="text-xs font-semibold">{property.averageRating.toFixed(1)}</span>
-                    {property.reviewCount ? (
-                      <span className="text-xs text-muted-foreground">· {property.reviewCount}</span>
-                    ) : null}
-                  </div>
-                ) : (
-                  <span className="text-xs text-muted-foreground/60 italic">{s.noReviews || 'No reviews'}</span>
-                )}
-              </div>
+              ) : null}
+            </div>
 
-              {/* Address */}
-              <p className="text-sm text-muted-foreground mb-2 truncate">
-                {property.address || property.city}
-                {property.neighborhood ? ` · ${property.neighborhood}` : ''}
-              </p>
+            {/* Location */}
+            <p className="text-[14px] text-[#717171] truncate w-full">
+              {property.neighborhood ? `${property.neighborhood}, ${property.city}` : property.city}
+            </p>
 
-              {/* Student-specific info row */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-2.5 pb-2.5 border-py-1-b py-1-dashed">
-                {distance && (
-                  <div className="flex items-center gap-1 text-blue-600 font-semibold">
-                    <MapPin className="h-3 w-3" />
-                    {distance} {s.toCampus || 'to campus'}
-                  </div>
-                )}
-                {sd?.walkingMinutes && (
-                  <span className="text-slate-400">{sd.walkingMinutes} {s.minWalk || 'min walk'}</span>
-                )}
-                {sd?.availableBeds !== undefined && sd.availableBeds > 0 && (
-                  <div className="flex items-center gap-1 text-teal-600 font-semibold">
-                    <Users className="h-3 w-3" />
-                    {sd.availableBeds} {s.bedsLabel || 'bed(s)'} {s.free || 'free'}
-                  </div>
-                )}
-              </div>
+            {/* Distance / Walking Time */}
+            <div className="text-[14px] text-[#717171] flex items-center gap-2 truncate w-full">
+              {distance && <span className="truncate">{distance} {s.toCampus || 'to campus'}</span>}
+              {distance && sd?.walkingMinutes && <span>·</span>}
+              {sd?.walkingMinutes && <span className="truncate">{sd.walkingMinutes} {s.minWalk || 'min walk'}</span>}
+            </div>
 
-              {/* Infrastructure badges */}
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                {waterLabel && (
-                  <span className={cn(
-                    'inline-flex items-center gap-1 text-[10px] font-bold px-2 rounded-full py-1',
-                    hasGoodWater
-                      ? 'bg-slate-100 text-slate-500'
-                      : 'bg-slate-100 text-slate-500',
-                  )}>
-                    <Droplets className="w-2.5 h-2.5" />
-                    {waterLabel}
-                  </span>
-                )}
-                {electricityLabel && (
-                  <span className={cn(
-                    'inline-flex items-center gap-1 text-[10px] font-bold px-2 rounded-full py-1',
-                    hasBackup
-                      ? 'bg-slate-100 text-slate-500'
-                      : 'bg-slate-100 text-slate-500',
-                  )}>
-                    <Zap className="w-2.5 h-2.5" />
-                    {electricityLabel}
-                  </span>
-                )}
-                {sd?.curfewTime && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 rounded-full py-1 bg-slate-100 text-slate-500">
-                    <Clock className="w-2.5 h-2.5" />
-                    {s.gate || 'Gate'} {sd.curfewTime}
-                  </span>
-                )}
-                {sd?.genderRestriction && sd.genderRestriction !== 'none' && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 rounded-full py-1 bg-slate-100 text-slate-500">
-                    {sd.genderRestriction === 'women_only' ? (s.womenOnly || '♀ Women only') : (s.menOnly || '♂ Men only')}
-                  </span>
-                )}
-              </div>
+            {/* Price */}
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-[16px] font-semibold text-[#222222]">
+                {formatFCFA(perPerson || property.price)} FCFA
+              </span>
+              <span className="text-[14px] text-[#222222] truncate">
+                {s.mo || 'month'}{perPerson ? (s.pp || ' per person') : ''}
+              </span>
+            </div>
+          </div>
 
-              {/* Stats row + report */}
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <div className="flex items-center gap-3">
-                  {sqft !== undefined && sqft > 0 && (
-                    <div className="flex items-center gap-1">
-                      <Ruler className="h-3.5 w-3.5" />
-                      <span>{sqft} m²</span>
-                    </div>
-                  )}
-                  {beds !== undefined && beds > 0 && (
-                    <div className="flex items-center gap-1">
-                      <Bed className="h-3.5 w-3.5" />
-                      <span>{beds}</span>
-                    </div>
-                  )}
-                  {baths !== undefined && baths > 0 && (
-                    <div className="flex items-center gap-1">
-                      <Bath className="h-3.5 w-3.5" />
-                      <span>{baths}</span>
-                    </div>
-                  )}
-                </div>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={e => { e.preventDefault(); e.stopPropagation(); setReportOpen(true); }}
-                      aria-label={s.reportListing || "Report listing"}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
-                    >
-                      <Flag className="h-3.5 w-3.5" /> {s.report || 'Report'}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">{s.reportListing || 'Report listing'}</TooltipContent>
-                </Tooltip>
-              </div>
-            </CardContent>
-          </Card>
         </Link>
       </motion.div>
     </>

@@ -10,7 +10,7 @@ export function VoiceIndicator({ className }: VoiceIndicatorProps) {
       {[0, 1, 2, 3].map((i) => (
         <span
           key={i}
-          className="w-1 rounded-full bg-accent animate-equalizer"
+          className="w-1 rounded-full bg-muted animate-equalizer"
           style={{
             animationDelay: `${i * 0.15}s`,
           }}

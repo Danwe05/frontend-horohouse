@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, GraduationCap, ChevronRight, ChevronLeft, MapPin, BookOpen } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -62,11 +62,6 @@ const FACULTIES = [
   'Other',
 ];
 
-const fadeUpVariant = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-};
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function StudentInfoStep() {
@@ -106,206 +101,176 @@ export function StudentInfoStep() {
   const set = (key: keyof typeof form) => (value: string | number) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
+  // Airbnb input styling
+  const inputClasses = "flex h-14 w-full rounded-xl border border-[#B0B0B0] bg-white px-4 py-2 text-[16px] text-[#222222] placeholder:text-[#717171] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] focus-visible:border-transparent transition-all";
+  const selectClasses = "h-14 w-full rounded-xl border-[#B0B0B0] text-[16px] text-[#222222] focus:ring-[#222222]";
+
   return (
-    <div className="flex flex-col w-full max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="text-center mb-6 sm:mb-8 shrink-0">
+    <div className="flex flex-col h-full">
+      
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto pb-32">
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-14 h-14 bg-blue-50/80 rounded-2xl flex items-center justify-center mb-3 -inner border border-blue-100/50"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
         >
-          <GraduationCap className="h-7 w-7 text-blue-600" />
-        </motion.div>
-        <motion.h2
-          variants={fadeUpVariant}
-          initial="hidden"
-          animate="visible"
-          className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight"
-        >
-          Your university details
-        </motion.h2>
-        <motion.p
-          variants={fadeUpVariant}
-          initial="hidden"
-          animate="visible"
-          className="text-slate-500 mt-2 text-sm sm:text-base"
-        >
-          This links your account to the student housing pool
-        </motion.p>
-      </div>
-
-      {/* Fields */}
-      <div className="flex-1 px-1 pb-4 space-y-5">
-
-        {/* University */}
-        <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-          <Label className="text-sm font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
-            <GraduationCap className="w-4 h-4 text-slate-400" />
-            University *
-          </Label>
-          <Select value={form.universityName} onValueChange={set('universityName')}>
-            <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
-              <SelectValue placeholder="Select your university" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl border-slate-200 -xl max-h-64">
-              {CAMEROON_UNIVERSITIES.map((u) => (
-                <SelectItem key={u} value={u} className="cursor-pointer">
-                  {u}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {/* Custom university name when "Other" is selected */}
-          {form.universityName === 'Other' && (
-            <Input
-              className="mt-2 bg-white/50 border-slate-200 rounded-xl h-11"
-              placeholder="Enter your university name"
-              onChange={(e) => set('universityName')(e.target.value)}
-            />
-          )}
-        </motion.div>
-
-        {/* Campus city + campus name row */}
-        <motion.div
-          variants={fadeUpVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-        >
-          <div>
-            <Label className="text-sm font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-slate-400" />
-              Campus city *
-            </Label>
-            <Select value={form.campusCity} onValueChange={set('campusCity')}>
-              <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
-                <SelectValue placeholder="Select city" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-200 -xl">
-                {CAMPUS_CITIES.map((c) => (
-                  <SelectItem key={c} value={c} className="cursor-pointer">
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="mb-10">
+            <h2 className="text-[32px] sm:text-[36px] font-semibold text-[#222222] tracking-tight mb-2">
+              Your university details
+            </h2>
+            <p className="text-[16px] text-[#717171]">
+              This helps link your account to student-only housing.
+            </p>
           </div>
 
-          <div>
-            <Label className="text-sm font-semibold text-slate-700 mb-1.5">
-              Campus / site name
-            </Label>
-            <Input
-              value={form.campusName}
-              onChange={(e) => set('campusName')(e.target.value)}
-              placeholder="e.g. Main campus, Molyko"
-              className="bg-white/50 border-slate-200 focus-visible:ring-blue-500 rounded-xl h-11"
-            />
-          </div>
-        </motion.div>
+          <div className="space-y-8 max-w-2xl">
 
-        {/* Faculty */}
-        <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-          <Label className="text-sm font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
-            <BookOpen className="w-4 h-4 text-slate-400" />
-            Faculty / department
-          </Label>
-          <Select value={form.faculty} onValueChange={set('faculty')}>
-            <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
-              <SelectValue placeholder="Select your faculty (optional)" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl border-slate-200 -xl max-h-64">
-              {FACULTIES.map((f) => (
-                <SelectItem key={f} value={f} className="cursor-pointer">
-                  {f}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </motion.div>
+            {/* University */}
+            <div className="space-y-2">
+              <Label className="text-[15px] font-medium text-[#222222]">
+                University <span className="text-[#C2410C]">*</span>
+              </Label>
+              <Select value={form.universityName} onValueChange={set('universityName')}>
+                <SelectTrigger className={selectClasses}>
+                  <SelectValue placeholder="Select your university" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-[#DDDDDD] max-h-64">
+                  {CAMEROON_UNIVERSITIES.map((u) => (
+                    <SelectItem key={u} value={u} className="cursor-pointer py-3">
+                      {u}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {/* Custom university name when "Other" is selected */}
+              {form.universityName === 'Other' && (
+                <Input
+                  className={inputClasses}
+                  placeholder="Enter your university name"
+                  value={form.universityName === 'Other' ? '' : form.universityName}
+                  onChange={(e) => set('universityName')(e.target.value)}
+                />
+              )}
+            </div>
 
-        {/* Study level + year row */}
-        <motion.div
-          variants={fadeUpVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-        >
-          <div>
-            <Label className="text-sm font-semibold text-slate-700 mb-1.5">
-              Study level *
-            </Label>
-            <Select value={form.studyLevel} onValueChange={set('studyLevel')}>
-              <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
-                <SelectValue placeholder="Select level" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-200 -xl">
-                {STUDY_LEVELS.map((l) => (
-                  <SelectItem key={l.value} value={l.value} className="cursor-pointer">
-                    {l.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Campus city + campus name row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-[15px] font-medium text-[#222222]">
+                  Campus city <span className="text-[#C2410C]">*</span>
+                </Label>
+                <Select value={form.campusCity} onValueChange={set('campusCity')}>
+                  <SelectTrigger className={selectClasses}>
+                    <SelectValue placeholder="Select city" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-[#DDDDDD]">
+                    {CAMPUS_CITIES.map((c) => (
+                      <SelectItem key={c} value={c} className="cursor-pointer py-3">
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div>
-            <Label className="text-sm font-semibold text-slate-700 mb-1.5">
-              Enrollment year
-            </Label>
-            <Select
-              value={String(form.enrollmentYear)}
-              onValueChange={(v) => set('enrollmentYear')(Number(v))}
-            >
-              <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-blue-500 rounded-xl h-11">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-200 -xl max-h-48">
-                {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((y) => (
-                  <SelectItem key={y} value={String(y)} className="cursor-pointer">
-                    {y}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <div className="space-y-2">
+                <Label className="text-[15px] font-medium text-[#222222]">
+                  Campus / site name
+                </Label>
+                <Input
+                  value={form.campusName}
+                  onChange={(e) => set('campusName')(e.target.value)}
+                  placeholder="e.g. Main campus, Molyko"
+                  className={inputClasses}
+                />
+              </div>
+            </div>
+
+            {/* Faculty */}
+            <div className="space-y-2 pt-4 border-t border-[#EBEBEB]">
+              <Label className="text-[15px] font-medium text-[#222222]">
+                Faculty / department
+              </Label>
+              <Select value={form.faculty} onValueChange={set('faculty')}>
+                <SelectTrigger className={selectClasses}>
+                  <SelectValue placeholder="Select your faculty (optional)" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-[#DDDDDD] max-h-64">
+                  {FACULTIES.map((f) => (
+                    <SelectItem key={f} value={f} className="cursor-pointer py-3">
+                      {f}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Study level + year row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-[15px] font-medium text-[#222222]">
+                  Study level <span className="text-[#C2410C]">*</span>
+                </Label>
+                <Select value={form.studyLevel} onValueChange={set('studyLevel')}>
+                  <SelectTrigger className={selectClasses}>
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-[#DDDDDD]">
+                    {STUDY_LEVELS.map((l) => (
+                      <SelectItem key={l.value} value={l.value} className="cursor-pointer py-3">
+                        {l.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[15px] font-medium text-[#222222]">
+                  Enrollment year
+                </Label>
+                <Select
+                  value={String(form.enrollmentYear)}
+                  onValueChange={(v) => set('enrollmentYear')(Number(v))}
+                >
+                  <SelectTrigger className={selectClasses}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-[#DDDDDD] max-h-48">
+                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((y) => (
+                      <SelectItem key={y} value={String(y)} className="cursor-pointer py-3">
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
           </div>
         </motion.div>
       </div>
 
-      {/* Navigation */}
-      <motion.div
-        variants={fadeUpVariant}
-        initial="hidden"
-        animate="visible"
-        className="shrink-0 pt-6 mt-4 border-t border-slate-100 flex justify-between items-center"
-      >
-        <Button
-          onClick={prevStep}
-          variant="ghost"
-          className="text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl px-4 sm:px-6"
-        >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back
-        </Button>
+      {/* Fixed Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DDDDDD] p-4 sm:p-6 z-50">
+        <div className="max-w-[850px] mx-auto flex items-center justify-between">
+          <button
+            onClick={prevStep}
+            className="text-[16px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none"
+          >
+            Back
+          </button>
+          <Button
+            onClick={handleNext}
+            disabled={isLoading || !isValid}
+            className="h-12 px-8 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold text-[16px] transition-colors disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Next"}
+          </Button>
+        </div>
+      </div>
 
-        <Button
-          onClick={handleNext}
-          disabled={isLoading || !isValid}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 sm:px-8 -md -blue-200/50"
-        >
-          {isLoading ? (
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-          ) : (
-            <span className="flex items-center font-medium">
-              Next Step
-              <ChevronRight className="w-5 h-5 ml-1" />
-            </span>
-          )}
-        </Button>
-      </motion.div>
     </div>
   );
 }

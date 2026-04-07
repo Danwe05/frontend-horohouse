@@ -87,8 +87,8 @@ const Navigation = () => {
               key={item.href}
               href={item.href}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${isActive
-                  ? 'bg-blue-600 text-white -lg -blue-500/30'
-                  : 'text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 text-white -lg -blue-500/30'
+                : 'text-gray-700 hover:bg-gray-100'
                 }`}
             >
               <Icon className="h-5 w-5" />
@@ -120,7 +120,7 @@ const Navigation = () => {
 
         {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
+          <div className="fixed inset-0 bg-blue-700/50 z-40" onClick={() => setMobileMenuOpen(false)}>
             <div
               className="fixed right-0 top-0 h-full w-64 bg-white -2xl p-6 animate-in slide-in-from-right duration-300"
               onClick={(e) => e.stopPropagation()}
@@ -146,8 +146,8 @@ const Navigation = () => {
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`relative flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${isActive
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
                         }`}
                     >
                       <Icon className="h-5 w-5" />
@@ -198,8 +198,8 @@ const Navigation = () => {
                 key={item.href}
                 href={item.href}
                 className={`relative flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${isActive
-                    ? 'text-blue-600'
-                    : 'text-gray-500'
+                  ? 'text-blue-600'
+                  : 'text-gray-500'
                   }`}
               >
                 <Icon className="h-6 w-6" />

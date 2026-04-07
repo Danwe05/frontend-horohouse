@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import PropertyCard from '@/components/property/PropertyCard';
 import apiClient from '@/lib/api';
 import { useCurrency } from '@/hooks/useCurrency';
-// import { toast } from 'sonner' ;
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -45,7 +44,7 @@ export default function TopListing() {
         const params = {
           sortBy: 'viewsCount',
           sortOrder: 'desc' as const,
-          limit: 15,
+          limit: 10,
           city: activeCity !== 'All' ? activeCity : undefined,
         };
 
@@ -157,7 +156,7 @@ export default function TopListing() {
           {/* Header row */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900">{_t.topListing?.topListings || 'Top 15 Listings'}</h3>
+              <h3 className="text-2xl font-bold text-gray-900">{_t.topListing?.topListings || 'Top 10 Listings'}</h3>
               <div className="text-gray-600 mt-2">
                 {loading ? (
                   <Skeleton className="h-5 w-48" />

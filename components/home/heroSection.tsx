@@ -441,11 +441,11 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Right Side: Enhanced Image Section */}
+        {/* Right Side */}
         <div className="w-full lg:w-3/5 relative order-1 lg:order-2">
           <div className="relative h-[50vh] sm:h-[60vh] lg:h-screen">
 
-            {/* Dark gradient overlay for mobile — ensures legibility over any image */}
+            {/*Ensures legibility over any image */}
             <div className="absolute inset-0 lg:hidden z-10 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
             <div
               className="absolute w-full space-y-3 px-4 sm:px-6 mt-10 lg:hidden z-10"

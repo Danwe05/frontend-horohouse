@@ -9,8 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { onboardingApi } from '@/lib/onboarding-api';
-import { Loader2, DollarSign, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const CURRENCIES = [
   { value: 'XAF', label: 'XAF (FCFA)', symbol: 'FCFA' },
@@ -88,15 +89,15 @@ export function BudgetStep() {
   const getStepData = () => {
     if (isAgent) {
       return {
-        title: 'Commission & Range',
-        description: 'Set your commission rate and property price range you work with',
-        budgetLabel: 'Property Price Range'
+        title: 'Commission & range',
+        description: 'Set your commission rate and the property price range you work with.',
+        budgetLabel: 'Property price range'
       };
     } else {
       return {
-        title: 'Budget Range',
-        description: 'What\'s your budget for purchasing a property?',
-        budgetLabel: 'Your Budget Range'
+        title: 'Budget range',
+        description: 'What is your budget for purchasing a property?',
+        budgetLabel: 'Your budget range'
       };
     }
   };
@@ -148,173 +149,167 @@ export function BudgetStep() {
     }
   };
 
-  const fadeUpVariant = {
-    hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
-  };
+  // Airbnb input styling
+  const inputClasses = "flex h-14 w-full rounded-xl border border-[#B0B0B0] bg-white px-4 py-2 text-[16px] text-[#222222] placeholder:text-[#717171] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] focus-visible:border-transparent transition-all";
+  const selectClasses = "flex h-14 w-full rounded-xl border border-[#B0B0B0] bg-white px-4 py-2 text-[16px] text-[#222222] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] focus-visible:border-transparent transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%23222222%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_16px_center] bg-no-repeat";
 
   return (
-    <div className="flex flex-col w-full max-w-2xl mx-auto">
-      <div className="text-center mb-6 sm:mb-8 shrink-0">
+    <div className="flex flex-col h-full">
+      
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto pb-32">
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-14 h-14 bg-emerald-50/80 rounded-2xl flex items-center justify-center mb-3 -inner border border-emerald-100/50"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
         >
-          <DollarSign className="h-7 w-7 text-emerald-600" />
-        </motion.div>
-        <motion.h2 variants={fadeUpVariant} initial="hidden" animate="visible" className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-          {stepData.title}
-        </motion.h2>
-        <motion.p variants={fadeUpVariant} initial="hidden" animate="visible" className="text-slate-500 mt-2 text-sm sm:text-base px-4">
-          {stepData.description}
-        </motion.p>
-      </div>
+          <div className="mb-10">
+            <h2 className="text-[32px] sm:text-[36px] font-semibold text-[#222222] tracking-tight mb-2">
+              {stepData.title}
+            </h2>
+            <p className="text-[16px] text-[#717171]">
+              {stepData.description}
+            </p>
+          </div>
 
-      <div className="flex-1 px-1 pb-4">
-        <div className="space-y-6 sm:space-y-8 max-w-xl mx-auto">
+          <div className="space-y-10 max-w-3xl">
 
-          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <Label className="text-sm font-semibold text-slate-700 block mb-2">
-              Currency
-            </Label>
-            <Select
-              value={budget.currency}
-              onValueChange={(value) => setBudget(prev => ({ ...prev, currency: value }))}
-            >
-              <SelectTrigger className="bg-white/50 border-slate-200 focus:ring-emerald-500 h-12 rounded-xl text-base -sm font-medium">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-200 -xl">
-                {CURRENCIES.map((currency) => (
-                  <SelectItem key={currency.value} value={currency.value} className="cursor-pointer">
-                    {currency.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </motion.div>
-
-          {isAgent && (
-            <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="pt-2">
-              <Label className="text-sm font-semibold text-slate-700 block mb-3">
-                Commission Rate Base
+            {/* Currency */}
+            <div className="max-w-[300px]">
+              <Label className="text-[16px] font-semibold text-[#222222] mb-3 block">
+                Currency
               </Label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
-                {COMMISSION_RANGES.map((range) => {
-                  const isActive = commissionRate >= range.min && commissionRate <= range.max;
+              <select
+                value={budget.currency}
+                onChange={(e) => setBudget(prev => ({ ...prev, currency: e.target.value }))}
+                className={selectClasses}
+              >
+                {CURRENCIES.map((currency) => (
+                  <option key={currency.value} value={currency.value}>
+                    {currency.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Agent Commission Rate */}
+            {isAgent && (
+              <div className="pt-4 border-t border-[#DDDDDD]">
+                <Label className="text-[16px] font-semibold text-[#222222] mb-4 block">
+                  Commission rate base
+                </Label>
+                <div className="flex flex-wrap gap-3 mb-6">
+                  {COMMISSION_RANGES.map((range) => {
+                    const isActive = commissionRate >= range.min && commissionRate <= range.max;
+                    return (
+                      <button
+                        key={range.label}
+                        type="button"
+                        onClick={() => setCommissionRate(range.min)}
+                        className={cn(
+                          "px-5 py-2.5 rounded-full border text-[15px] font-medium transition-all cursor-pointer whitespace-nowrap",
+                          isActive
+                            ? "bg-[#F7F7F7] border-[#222222] text-[#222222] ring-1 ring-[#222222]"
+                            : "bg-white border-[#DDDDDD] text-[#222222] hover:border-[#222222]"
+                        )}
+                      >
+                        {range.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <Label htmlFor="commission-input" className="text-[15px] font-semibold text-[#222222]">
+                    Custom %
+                  </Label>
+                  <Input
+                    id="commission-input"
+                    type="number"
+                    value={commissionRate}
+                    onChange={(e) => setCommissionRate(parseFloat(e.target.value) || 0)}
+                    min="0"
+                    max="20"
+                    step="0.1"
+                    className={cn(inputClasses, "w-[120px] text-center")}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Presets */}
+            <div className="pt-4 border-t border-[#DDDDDD]">
+              <Label className="text-[16px] font-semibold text-[#222222] mb-4 block">
+                {stepData.budgetLabel}
+              </Label>
+              <div className="flex flex-wrap gap-3 mb-8">
+                {presets.map((preset) => {
+                  const isActive = budget.min === preset.min && budget.max === preset.max;
                   return (
                     <button
-                      key={range.label}
+                      key={preset.label}
                       type="button"
-                      onClick={() => setCommissionRate(range.min)}
-                      className={`py-2 px-3 text-xs sm:text-sm border rounded-lg transition-colors font-medium
-                        ${isActive
-                          ? 'border-emerald-500 bg-emerald-50 text-emerald-700 -sm'
-                          : 'border-slate-200 bg-white/50 text-slate-600 hover:bg-slate-50'
-                        }`}
+                      onClick={() => handlePresetSelect(preset)}
+                      className={cn(
+                        "px-5 py-2.5 rounded-full border text-[15px] font-medium transition-all cursor-pointer whitespace-nowrap",
+                        isActive
+                          ? "bg-[#F7F7F7] border-[#222222] text-[#222222] ring-1 ring-[#222222]"
+                          : "bg-white border-[#DDDDDD] text-[#222222] hover:border-[#222222]"
+                      )}
                     >
-                      {range.label}
+                      {preset.label}
                     </button>
                   );
                 })}
               </div>
-              <div className="flex items-center space-x-3 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                <Label htmlFor="commission-input" className="text-sm font-medium text-slate-600 whitespace-nowrap">
-                  Custom % :
-                </Label>
-                <Input
-                  id="commission-input"
-                  type="number"
-                  value={commissionRate}
-                  onChange={(e) => setCommissionRate(parseFloat(e.target.value) || 0)}
-                  min="0"
-                  max="20"
-                  step="0.1"
-                  className="w-24 bg-white border-slate-200 text-center text-emerald-700 font-bold"
-                />
+
+              {/* Slider */}
+              <div className="bg-[#F7F7F7] border border-[#DDDDDD] rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <Label className="text-[16px] font-semibold text-[#222222]">
+                    Custom range
+                  </Label>
+                  <span className="text-[16px] font-bold text-[#222222]">
+                    {formatCurrency(budget.min)} - {formatCurrency(budget.max)}
+                  </span>
+                </div>
+
+                <div className="px-2 pb-2">
+                  <Slider
+                    value={[budget.min, budget.max]}
+                    onValueChange={handleSliderChange}
+                    min={0}
+                    max={maxSliderValue}
+                    step={10000}
+                    className="w-full"
+                  />
+                </div>
               </div>
-            </motion.div>
-          )}
-
-          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <Label className="text-sm font-semibold text-slate-700 block mb-3">
-              {stepData.budgetLabel} Presets
-            </Label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {presets.map((preset) => {
-                const isActive = budget.min === preset.min && budget.max === preset.max;
-                return (
-                  <button
-                    key={preset.label}
-                    type="button"
-                    onClick={() => handlePresetSelect(preset)}
-                    className={`py-2.5 px-2 text-xs sm:text-sm border rounded-xl transition-colors font-medium
-                      ${isActive
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 -sm'
-                        : 'border-slate-200 bg-white/50 text-slate-600 hover:bg-slate-50'
-                      }`}
-                  >
-                    {preset.label}
-                  </button>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="pt-2 pb-6">
-            <div className="flex items-center justify-between mb-4">
-              <Label className="text-sm font-semibold text-slate-700">
-                Custom Range Tuning
-              </Label>
-              <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
-                {formatCurrency(budget.min)} - {formatCurrency(budget.max)}
-              </span>
             </div>
 
-            <div className="px-2 pt-4 pb-2">
-              <Slider
-                value={[budget.min, budget.max]}
-                onValueChange={handleSliderChange}
-                min={0}
-                max={maxSliderValue}
-                step={10000}
-                className="w-full"
-              />
-            </div>
-          </motion.div>
+          </div>
+        </motion.div>
+      </div>
 
+      {/* Fixed Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DDDDDD] p-4 sm:p-6 z-50">
+        <div className="max-w-[850px] mx-auto flex items-center justify-between">
+          <button
+            onClick={prevStep}
+            className="text-[16px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none"
+          >
+            Back
+          </button>
+          <Button
+            onClick={handleNext}
+            disabled={isLoading || !isFormValid()}
+            className="h-12 px-8 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold text-[16px] transition-colors disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Next"}
+          </Button>
         </div>
       </div>
 
-      <motion.div
-        variants={fadeUpVariant} initial="hidden" animate="visible"
-        className="shrink-0 pt-6 mt-4 border-t border-slate-100 flex justify-between items-center"
-      >
-        <Button
-          onClick={prevStep}
-          variant="ghost"
-          className="text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl px-4 sm:px-6"
-        >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back
-        </Button>
-
-        <Button
-          onClick={handleNext}
-          disabled={isLoading || !isFormValid()}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 sm:px-8 -md -emerald-200/50"
-        >
-          {isLoading ? (
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-          ) : (
-            <span className="flex items-center font-medium">
-              Next Step
-              <ChevronRight className="w-5 h-5 ml-1" />
-            </span>
-          )}
-        </Button>
-      </motion.div>
     </div>
   );
 }

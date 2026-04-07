@@ -167,11 +167,10 @@ export default function WhatWeOffer() {
                       aria-pressed={isActive}
                       tabIndex={0}
                       // Fixed height: slightly shorter on mobile
-                      className={`w-full h-[240px] sm:h-[270px] md:h-[300px] cursor-pointer transition-all duration-500 rounded-[1.5rem] md:rounded-[2.5rem] relative overflow-hidden group ${
-                        isActive
+                      className={`w-full h-[240px] sm:h-[270px] md:h-[300px] cursor-pointer transition-all duration-500 rounded-[1.5rem] md:rounded-[2.5rem] relative overflow-hidden group ${isActive
                           ? "shadow-2xl scale-[1.02] md:scale-105"
                           : "shadow-md hover:shadow-xl"
-                      }`}
+                        }`}
                     >
                       {/* Background image */}
                       <div
@@ -183,9 +182,8 @@ export default function WhatWeOffer() {
                       {/* Overlays */}
                       <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
                       <div
-                        className={`absolute inset-0 bg-gradient-to-br ${card.gradient} transition-opacity duration-500 ${
-                          isActive ? "opacity-25" : "opacity-10 group-hover:opacity-20"
-                        }`}
+                        className={`absolute inset-0 bg-gradient-to-br ${card.gradient} transition-opacity duration-500 ${isActive ? "opacity-25" : "opacity-10 group-hover:opacity-20"
+                          }`}
                         aria-hidden="true"
                       />
 
@@ -234,11 +232,10 @@ export default function WhatWeOffer() {
                 role="tab"
                 aria-selected={i === activeIndex}
                 aria-label={`Go to slide ${i + 1}`}
-                className={`transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  i === activeIndex
+                className={`transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${i === activeIndex
                     ? "w-7 sm:w-8 h-2 bg-blue-600"
                     : "w-2 h-2 bg-blue-200 hover:bg-blue-400"
-                }`}
+                  }`}
               />
             ))}
           </div>

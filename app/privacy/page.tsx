@@ -1,28 +1,27 @@
 "use client";
 
-import Footer from "@/components/footer";
 import { motion } from "framer-motion";
 import {
     Shield,
     Lock,
     Eye,
     UserCheck,
-    FileText,
     Globe,
     Mail,
-    Bell,
     Database,
-    ArrowRight,
-    ChevronRight,
-    Info
+    Info,
+    ChevronRight
 } from "lucide-react";
+import Link from "next/link";
+
+// ─── Animations & Wrappers ───────────────────────────────────────────────────
 
 const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
     <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.6, delay, ease: "easeOut" }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
         className={className}
     >
         {children}
@@ -42,127 +41,171 @@ const PolicySection = ({
 }) => (
     <FadeIn delay={delay} className="mb-16">
         <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
-                <Icon className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-full border border-[#DDDDDD] bg-[#F7F7F7] flex items-center justify-center text-[#222222] shrink-0">
+                <Icon className="w-5 h-5 stroke-[1.5]" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{title}</h2>
+            <h2 className="text-[22px] md:text-[26px] font-semibold text-[#222222] tracking-tight">{title}</h2>
         </div>
-        <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed space-y-4 pl-16">
+        <div className="pl-0 sm:pl-16 space-y-4 text-[16px] text-[#717171] leading-relaxed">
             {children}
         </div>
     </FadeIn>
 );
 
+// ─── Main Component ──────────────────────────────────────────────────────────
+
 export default function PrivacyPolicyPage() {
     const lastUpdated = "March 1, 2026";
 
     return (
-        <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white">
-            {/* Hero Header */}
-            <section className="relative pt-32 pb-20 px-4 md:px-8 bg-white border-b border-slate-100 overflow-hidden">
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-50/50 to-transparent pointer-events-none" />
-                <div className="max-w-4xl mx-auto relative z-10">
+        <main className="min-h-screen bg-white text-[#222222] selection:blue-blue-600 selection:text-white font-sans pb-20">
+
+            {/* ── Hero Header ── */}
+            <section className="pt-32 pb-16 px-6 md:px-12 border-b border-[#DDDDDD]">
+                <div className="max-w-3xl mx-auto">
                     <FadeIn>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6">
-                            <Shield className="w-3 h-3" />
+                        <div className="mb-6 inline-flex items-center gap-2 text-[14px] font-semibold text-[#717171] uppercase tracking-wider">
+                            <Shield className="w-4 h-4 stroke-[2]" />
                             Trust & Transparency
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 mb-6">
+                        <h1 className="text-[36px] md:text-[48px] font-semibold tracking-tight text-[#222222] mb-6 leading-tight">
                             Privacy Policy
                         </h1>
-                        <p className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed">
+                        <p className="text-[18px] text-[#717171] leading-relaxed">
                             At HoroHouse, we take your privacy seriously. This policy outlines how we collect, use, and protect your data while providing Africa's most trusted real estate ecosystem.
                         </p>
-                        <div className="mt-8 flex items-center gap-2 text-sm text-slate-400 font-medium">
-                            <Info className="w-4 h-4" />
-                            Last Updated: {lastUpdated}
+                        <div className="mt-8 flex items-center gap-2 text-[14px] text-[#717171] font-medium">
+                            <Info className="w-4 h-4 stroke-[2]" />
+                            Last updated: {lastUpdated}
                         </div>
                     </FadeIn>
                 </div>
             </section>
 
-            {/* Content Section */}
-            <section className="py-24 px-4 md:px-8">
-                <div className="max-w-4xl mx-auto">
+            {/* ── Content Section ── */}
+            <section className="py-16 px-6 md:px-12">
+                <div className="max-w-3xl mx-auto">
 
-                    <PolicySection icon={Eye} title="Information We Collect" delay={0.1}>
+                    <PolicySection icon={Eye} title="Information we collect" delay={0.1}>
                         <p>
                             To provide our platform's core services, we collect various types of information when you interact with HoroHouse:
                         </p>
-                        <ul className="list-disc pl-5 space-y-2">
-                            <li><strong>Personal Details:</strong> Name, email address, phone number, and account credentials.</li>
-                            <li><strong>Property Data:</strong> Property descriptions, photos, and location data when listing.</li>
-                            <li><strong>Transaction Data:</strong> Billing information, purchase history, and subscription details.</li>
-                            <li><strong>Device & Usage:</strong> IP addresses, browser types, and how you navigate our platform for performance optimization.</li>
+                        <ul className="space-y-3 mt-4">
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span><strong className="text-[#222222] font-semibold">Personal Details:</strong> Name, email address, phone number, and account credentials.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span><strong className="text-[#222222] font-semibold">Property Data:</strong> Property descriptions, photos, and location data when listing.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span><strong className="text-[#222222] font-semibold">Transaction Data:</strong> Billing information, purchase history, and booking details.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span><strong className="text-[#222222] font-semibold">Device & Usage:</strong> IP addresses, browser types, and how you navigate our platform.</span>
+                            </li>
                         </ul>
                     </PolicySection>
 
-                    <PolicySection icon={Database} title="How We Use Your Data" delay={0.2}>
+                    <PolicySection icon={Database} title="How we use your data" delay={0.2}>
                         <p>
                             Your information helps us maintain a secure and efficient marketplace. We use your data to:
                         </p>
-                        <ul className="list-disc pl-5 space-y-2">
-                            <li>Facilitate property searches, inquiries, and verified listings.</li>
-                            <li>Verify the identity of agents and sellers to prevent fraud.</li>
-                            <li>Process payments and manage your subscriptions.</li>
-                            <li>Send critical notifications regarding your account or property inquiries.</li>
-                            <li>Improve our AI-powered valuation and search recommendation tools.</li>
+                        <ul className="space-y-3 mt-4">
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Facilitate property searches, inquiries, and verified listings.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Verify the identity of agents, hosts, and sellers to prevent fraud.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Process payments, refunds, and manage your bookings.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Send critical notifications regarding your account or property inquiries.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Improve our valuation and search recommendation algorithms.</span>
+                            </li>
                         </ul>
                     </PolicySection>
 
-                    <PolicySection icon={Lock} title="Security & Protection" delay={0.3}>
+                    <PolicySection icon={Lock} title="Security & protection" delay={0.3}>
                         <p>
-                            Security isn't just a feature; it's our foundation. We implement banking-grade security measures:
+                            Security isn't just a feature; it's our foundation. We implement strict, industry-standard security measures:
                         </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                            <div className="p-6 rounded-2xl bg-white border border-slate-100">
-                                <h4 className="font-bold text-slate-900 mb-2">Data Encryption</h4>
-                                <p className="text-sm">All sensitive data is encrypted using 256-bit SSL technology during transit and at rest.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                            <div className="p-6 rounded-2xl border border-[#DDDDDD] bg-white">
+                                <h4 className="text-[16px] font-semibold text-[#222222] mb-2">Data encryption</h4>
+                                <p className="text-[14px] text-[#717171] leading-relaxed">
+                                    All sensitive data is encrypted using 256-bit SSL technology during transit and securely stored at rest.
+                                </p>
                             </div>
-                            <div className="p-6 rounded-2xl bg-white border border-slate-100">
-                                <h4 className="font-bold text-slate-900 mb-2">Access Control</h4>
-                                <p className="text-sm">Strict internal protocols ensure your private information is only accessible to authorized personnel.</p>
+                            <div className="p-6 rounded-2xl border border-[#DDDDDD] bg-white">
+                                <h4 className="text-[16px] font-semibold text-[#222222] mb-2">Access control</h4>
+                                <p className="text-[14px] text-[#717171] leading-relaxed">
+                                    Strict internal protocols ensure your private information is only accessible to authorized personnel.
+                                </p>
                             </div>
                         </div>
                     </PolicySection>
 
-                    <PolicySection icon={UserCheck} title="Your Rights" delay={0.4}>
+                    <PolicySection icon={UserCheck} title="Your rights" delay={0.4}>
                         <p>
                             We believe you should have full control over your personal data. At any time, you have the right to:
                         </p>
-                        <ul className="list-disc pl-5 space-y-2">
-                            <li>Access and export your personal information stored on our servers.</li>
-                            <li>Request correction or deletion of your account and personal data.</li>
-                            <li>Withdraw consent for marketing communications or data collection.</li>
-                            <li>Receive an explanation of our data processing logic.</li>
+                        <ul className="space-y-3 mt-4">
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Access and export your personal information stored on our servers.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Request correction or complete deletion of your account and personal data.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Withdraw consent for marketing communications or optional data collection.</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                                <span>Receive a transparent explanation of our data processing logic.</span>
+                            </li>
                         </ul>
                     </PolicySection>
 
-                    <PolicySection icon={Globe} title="Cookies & Tracking" delay={0.5}>
+                    <PolicySection icon={Globe} title="Cookies & tracking" delay={0.5}>
                         <p>
-                            We use cookies to personalize your experience and analyze platform traffic. These cookies help us remember your preferences and keep you logged in across sessions. You can manage cookie settings through your browser at any time.
+                            We use cookies to personalize your experience and analyze platform traffic. These cookies help us remember your preferences, keep you securely logged in across sessions, and show you properties that match your interests. You can manage cookie settings through your browser at any time.
                         </p>
                     </PolicySection>
 
-                    <PolicySection icon={Mail} title="Contact Our Privacy Team" delay={0.6}>
+                    <PolicySection icon={Mail} title="Contact our privacy team" delay={0.6}>
                         <p>
                             If you have any questions, concerns, or requests regarding this Privacy Policy or how your data is handled, please reach out to us:
                         </p>
-                        <div className="mt-8 p-8 rounded-3xl bg-slate-900 text-white relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-8 opacity-5">
-                                <Shield className="w-32 h-32" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-4">Privacy Support Hub</h3>
-                            <p className="text-slate-300 text-sm mb-6 max-w-md">Our dedicated data protection team is here to assist you with any privacy-related inquiries.</p>
-                            <div className="flex flex-wrap gap-4">
-                                <a href="mailto:privacy@horohouse.com" className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 transition-colors font-bold text-sm flex items-center gap-2">
-                                    <Mail className="w-4 h-4" />
+                        <div className="mt-8 p-8 rounded-2xl bg-[#F7F7F7] border border-[#DDDDDD] text-[#222222]">
+                            <h3 className="text-[20px] font-semibold mb-2">Privacy support hub</h3>
+                            <p className="text-[15px] text-[#717171] mb-8 max-w-md">
+                                Our dedicated data protection team is here to assist you with any privacy-related inquiries and ensure your rights are respected.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <a href="mailto:privacy@horohouse.com" className="px-6 py-3.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors font-semibold text-[15px] flex items-center justify-center gap-2">
+                                    <Mail className="w-4 h-4 stroke-[2]" />
                                     Email Privacy Team
                                 </a>
-                                <a href="/support" className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-bold text-sm flex items-center gap-2">
+                                <Link href="/support" className="px-6 py-3.5 rounded-lg bg-white border border-blue-600 hover:bg-[#F7F7F7] transition-colors font-semibold text-[15px] flex items-center justify-center gap-2">
                                     Visit Support Center
-                                    <ChevronRight className="w-4 h-4" />
-                                </a>
+                                    <ChevronRight className="w-4 h-4 stroke-[2]" />
+                                </Link>
                             </div>
                         </div>
                     </PolicySection>
@@ -170,25 +213,24 @@ export default function PrivacyPolicyPage() {
                 </div>
             </section>
 
-            {/* Footer CTA */}
-            <section className="py-24 bg-white border-t border-slate-100">
-                <div className="max-w-4xl mx-auto px-4 text-center">
+            {/* ── Footer CTA ── */}
+            <section className="py-16 px-6 border-t border-[#DDDDDD]">
+                <div className="max-w-3xl mx-auto text-center">
                     <FadeIn>
-                        <h2 className="text-3xl md:text-4xl font-black mb-6 text-slate-900">
-                            Trusted Real Estate. <br /> Guaranteed Privacy.
+                        <h2 className="text-[26px] md:text-[32px] font-semibold mb-8 text-[#222222] tracking-tight">
+                            Trusted real estate. <br /> Guaranteed privacy.
                         </h2>
-                        <div className="flex flex-wrap justify-center gap-4">
-                            <a href="/properties" className="px-8 py-4 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all -lg -blue-600/20">
-                                Explore Properties
-                            </a>
-                            <a href="/terms" className="px-8 py-4 rounded-full bg-slate-100 text-slate-900 font-bold hover:bg-slate-200 transition-all">
+                        <div className="flex flex-col sm:flex-row justify-center gap-4">
+                            <Link href="/properties" className="px-8 py-3.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] transition-colors">
+                                Explore properties
+                            </Link>
+                            <Link href="/terms" className="px-8 py-3.5 rounded-lg bg-white border border-blue-600 text-[#222222] font-semibold text-[15px] hover:bg-[#F7F7F7] transition-colors">
                                 Read Terms of Service
-                            </a>
+                            </Link>
                         </div>
                     </FadeIn>
                 </div>
             </section>
-
 
         </main>
     );

@@ -20,122 +20,107 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
 
   const backdropVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.25, ease: 'easeOut' as const } },
-    exit: { opacity: 0, transition: { duration: 0.2, ease: 'easeIn' as const } },
+    visible: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } },
+    exit: { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
   };
 
   const modalVariants: Variants = {
-    hidden: { opacity: 0, y: -28, scale: 0.97 },
-    visible: {
-      opacity: 1, y: 0, scale: 1,
-      transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
-    },
-    exit: {
-      opacity: 0, y: -16, scale: 0.97,
-      transition: { duration: 0.2, ease: 'easeIn' as const },
-    },
+    hidden: { opacity: 0, y: -20, scale: 0.98 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } },
+    exit: { opacity: 0, y: -12, scale: 0.98, transition: { duration: 0.18, ease: 'easeIn' as const } },
   };
 
-  const handleLanguageSelect = (key: Language) => {
-    setLanguage(key);
-    // Optionally close modal after selection or let the user explicitly close it
-  };
-
-  const handleCurrencySelect = (currencyValue: string) => {
-    setCurrency(currencyValue);
-  };
+  const handleLanguageSelect = (key: Language) => setLanguage(key);
+  const handleCurrencySelect = (val: string) => setCurrency(val);
 
   return (
     <AnimatePresence>
+      {/* Backdrop */}
       <motion.div
-        key="lang-backdrop"
+        key="backdrop"
         variants={backdropVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        className="fixed inset-0 bg-black/40 z-[100]"
+        initial="hidden" animate="visible" exit="exit"
+        className="fixed inset-0 bg-black/50 z-[100]"
         onClick={onClose}
       />
 
+      {/* Modal */}
       <motion.div
-        key="lang-modal"
+        key="modal"
         variants={modalVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        className="fixed top-24 left-1/2 -translate-x-1/2 w-[90%] sm:w-full max-w-3xl z-[101] px-4 pointer-events-auto"
+        initial="hidden" animate="visible" exit="exit"
+        className="fixed top-20 left-1/2 -translate-x-1/2 w-[92%] sm:w-full max-w-2xl z-[101] px-2 sm:px-0"
       >
-        <div className="bg-white rounded-2xl -2xl -blue-100/60 border border-blue-100 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
+        <div className="bg-white rounded-3xl border border-[#DDDDDD] shadow-[0_20px_60px_rgba(0,0,0,0.18)] overflow-hidden flex flex-col">
 
-          {/* Left Sidebar - Tabs */}
-          <div className="w-full md:w-64 bg-slate-50 border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-6 flex flex-col gap-2 shrink-0">
-            <div className="flex justify-between items-center mb-4 md:mb-6">
-              <h2 className="text-lg font-bold text-slate-800">Preferences</h2>
-              <button
-                onClick={onClose}
-                className="md:hidden text-slate-400 hover:text-slate-600 transition-colors p-1"
-                aria-label="Close modal"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-[#EBEBEB]">
+            <h2 className="text-[17px] font-bold text-[#222222]">Preferences</h2>
             <button
-              onClick={() => setActiveTab('language')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium text-sm w-full text-left
-                ${activeTab === 'language' ? 'bg-white border border-slate-200 text-blue-600' : 'text-slate-600 hover:bg-slate-100 border border-transparent'}`}
+              onClick={onClose}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-[#222222] hover:bg-[#F7F7F7] transition-colors"
+              aria-label="Close"
             >
-              <Globe className={`w-5 h-5 ${activeTab === 'language' ? 'text-blue-600' : 'text-slate-400'}`} />
-              Language
-            </button>
-
-            <button
-              onClick={() => setActiveTab('currency')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium text-sm w-full text-left
-                ${activeTab === 'currency' ? 'bg-white border border-slate-200 text-emerald-600' : 'text-slate-600 hover:bg-slate-100 border border-transparent'}`}
-            >
-              <DollarSign className={`w-5 h-5 ${activeTab === 'currency' ? 'text-emerald-600' : 'text-slate-400'}`} />
-              Currency
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Right Content */}
-          <div className="flex-1 p-4 md:p-8 bg-white relative">
-            <button
-              onClick={onClose}
-              className="hidden md:flex absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors bg-slate-50 hover:bg-slate-100 p-2 rounded-full"
-              aria-label="Close modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          {/* Tabs */}
+          <div className="flex gap-0 px-6 pt-4 border-b border-[#EBEBEB]">
+            {(['language', 'currency'] as const).map((tab) => {
+              const active = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`relative pb-3 px-1 mr-6 text-[15px] font-semibold transition-colors ${active ? 'text-[#222222]' : 'text-[#717171] hover:text-[#222222]'
+                    }`}
+                >
+                  {tab === 'language' ? 'Language' : 'Currency'}
+                  {active && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Content */}
+          <div className="p-6 max-h-[60vh] overflow-y-auto">
 
             {activeTab === 'language' && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xl font-bold text-slate-800 mb-6">Select your language</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <p className="text-[14px] text-[#717171] mb-5">
+                  Choose your preferred language for the Horo House experience.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {Object.entries(languages).map(([key, lang]) => {
-                    const isSelected = language === key;
+                    const selected = language === key;
                     return (
                       <button
                         key={key}
                         onClick={() => handleLanguageSelect(key as Language)}
-                        className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200
-                          ${isSelected
-                            ? 'border-blue-500 bg-blue-50 -blue-500/10'
-                            : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`}
+                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl border transition-all duration-150 text-left ${selected
+                          ? 'border-blue-600 bg-white'
+                          : 'border-[#DDDDDD] hover:border-blue-600 bg-white'
+                          }`}
                       >
                         <div className="flex items-center gap-3">
                           <img
                             src={lang.flag}
                             alt={lang.name}
-                            className="w-10 h-10 rounded-full object-cover ring-1 ring-slate-100"
+                            className="w-9 h-9 rounded-full object-cover border border-[#EBEBEB]"
                             loading="lazy"
                           />
-                          <span className={`font-semibold ${isSelected ? 'text-blue-700' : 'text-slate-700'}`}>
+                          <span className={`text-[15px] font-semibold ${selected ? 'text-[#222222]' : 'text-[#484848]'}`}>
                             {lang.name}
                           </span>
                         </div>
-                        {isSelected && <Check className="w-5 h-5 text-blue-600" />}
+                        {selected && (
+                          <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                            <Check className="w-3 h-3 text-white stroke-[2.5]" />
+                          </div>
+                        )}
                       </button>
                     );
                   })}
@@ -144,35 +129,41 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
             )}
 
             {activeTab === 'currency' && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xl font-bold text-slate-800 mb-6">Select your currency</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <p className="text-[14px] text-[#717171] mb-5">
+                  Select the currency you'd like to use for prices and estimates.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {CURRENCIES.map((c) => {
-                    const isSelected = currency === c.value;
+                    const selected = currency === c.value;
                     return (
                       <button
                         key={c.value}
                         onClick={() => handleCurrencySelect(c.value)}
-                        className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200
-                          ${isSelected
-                            ? 'border-emerald-500 bg-emerald-50 -emerald-500/10'
-                            : 'border-slate-200 hover:border-emerald-300 hover:bg-slate-50'}`}
+                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl border transition-all duration-150 text-left ${selected
+                          ? 'border-[#1A56DB] bg-[#EFF6FF]'
+                          : 'border-[#DDDDDD] hover:border-blue-600 bg-white'
+                          }`}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg
-                            ${isSelected ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[16px] flex-shrink-0 ${selected ? 'bg-[#1A56DB] text-white' : 'bg-[#F7F7F7] text-[#484848]'
+                            }`}>
                             {c.symbol}
                           </div>
-                          <div className="flex flex-col items-start leading-tight">
-                            <span className={`font-semibold ${isSelected ? 'text-emerald-800' : 'text-slate-700'}`}>
+                          <div className="flex flex-col leading-tight">
+                            <span className={`text-[15px] font-semibold ${selected ? 'text-[#1A56DB]' : 'text-[#484848]'}`}>
                               {c.value}
                             </span>
-                            <span className={`text-xs ${isSelected ? 'text-emerald-600' : 'text-slate-500'}`}>
+                            <span className={`text-[12px] ${selected ? 'text-[#1A56DB]/70' : 'text-[#717171]'}`}>
                               {c.label.replace(`${c.value} `, '')}
                             </span>
                           </div>
                         </div>
-                        {isSelected && <Check className="w-5 h-5 text-emerald-600" />}
+                        {selected && (
+                          <div className="w-5 h-5 rounded-full bg-[#1A56DB] flex items-center justify-center flex-shrink-0">
+                            <Check className="w-3 h-3 text-white stroke-[2.5]" />
+                          </div>
+                        )}
                       </button>
                     );
                   })}
@@ -180,6 +171,17 @@ export default function LanguageCurrencyModal({ isOpen, onClose }: LanguageCurre
               </div>
             )}
           </div>
+
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-[#EBEBEB] flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-6 py-2.5 rounded-xl bg-blue-600 text-white text-[14px] font-semibold hover:bg-[#444444] transition-colors"
+            >
+              Done
+            </button>
+          </div>
+
         </div>
       </motion.div>
     </AnimatePresence>

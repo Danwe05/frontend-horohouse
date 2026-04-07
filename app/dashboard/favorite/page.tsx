@@ -83,13 +83,6 @@ const FavoritePage = () => {
     const [priceRange, setPriceRange] = useState({ min: '', max: '' });
     const [sortBy, setSortBy] = useState('recent');
 
-    const pageConfig = {
-        title: 'Personal Favorites',
-        description: 'Properties you’ve saved for later',
-        icon: Heart,
-        color: 'text-pink-600 bg-pink-50'
-    };
-
     const fetchFavorites = async () => {
         try {
             setLoading(true);
@@ -192,216 +185,242 @@ const FavoritePage = () => {
         setPriceRange({ min: '', max: '' });
     };
 
-    const PageIcon = pageConfig.icon;
+    const inputClasses = "w-full px-4 py-3 bg-white border border-[#DDDDDD] rounded-lg text-[15px] text-[#222222] placeholder:text-[#717171] focus:outline-none focus:ring-1 focus:ring-[#222222] focus:border-blue-600 transition-colors";
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-[#f8fafc]">
+            <div className="flex min-h-screen w-full bg-white">
                 <AppSidebar />
                 <SidebarInset>
                     <NavDash />
 
-                    <main className="p-4 lg:p-8">
-                        <div className="max-w-7xl mx-auto space-y-6">
+                    <main className="p-6 lg:p-10">
+                        <div className="max-w-7xl mx-auto space-y-10">
 
-                            {/* HEADER SECTION */}
-                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                                <div className="space-y-1">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-xl ${pageConfig.color}`}>
-                                            <PageIcon className="w-6 h-6" />
-                                        </div>
-                                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">{pageConfig.title}</h1>
+                            {/* ── HEADER SECTION ── */}
+                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-4">
+                                        <h1 className="text-[32px] font-semibold tracking-tight text-[#222222]">Saved properties</h1>
                                     </div>
-                                    <p className="text-slate-500 pl-11">{pageConfig.description}</p>
+                                    <p className="text-[16px]">
+                                        Properties you’ve saved to review later.
+                                    </p>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                    <div className="hidden sm:flex items-center bg-white border rounded-lg px-3 py-1 -sm">
-                                        <div className="px-3">
-                                            <p className="text-[10px] uppercase font-bold text-slate-400">Total Saved</p>
-                                            <p className="text-sm font-semibold text-center">{allProperties.length}</p>
+                                <div className="flex items-center gap-3 md:pb-1">
+                                    <div className="hidden sm:flex items-center bg-[#F7F7F7] border border-[#DDDDDD] rounded-xl px-4 py-2">
+                                        <div>
+                                            <p className="text-[11px] font-bold text-[#717171] uppercase tracking-wider mb-0.5">Total Saved</p>
+                                            <p className="text-[18px] font-semibold text-[#222222] text-center leading-none">{allProperties.length}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* MODERN FILTER BAR */}
-                            <div className="bg-white p-2 rounded-2xl -sm border border-slate-200 sticky top-4 z-10">
-                                <div className="flex flex-col lg:flex-row gap-3">
-                                    {/* Search - Grows to fill space */}
-                                    <div className="relative flex-1">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                        <Input
-                                            placeholder="Search saved properties..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="pl-10 border-none bg-slate-50 focus-visible:ring-1 focus-visible:ring-blue-500 h-11"
-                                        />
-                                    </div>
+                            {/* ── MODERN FILTER BAR ── */}
+                            <div className="bg-white py-4 mt-2 border-t border-[#DDDDDD] sticky top-0 z-30">
+                                <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
 
-                                    <Separator orientation="vertical" className="hidden lg:block h-10" />
-
-                                    <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0">
+                                    {/* Left: Pills + Filters */}
+                                    <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide w-full lg:w-auto">
                                         {/* Listing Type Tabs */}
                                         <Tabs value={filterListingType} onValueChange={setFilterListingType} className="w-fit">
-                                            <TabsList className="bg-slate-100/80 p-1 h-11">
-                                                <TabsTrigger value="all" className="px-4 h-9">All</TabsTrigger>
-                                                <TabsTrigger value="sale" className="px-4 h-9">For Sale</TabsTrigger>
-                                                <TabsTrigger value="rent" className="px-4 h-9">For Rent</TabsTrigger>
-                                                <TabsTrigger value="short_term" className="px-4 h-9">Short Term</TabsTrigger>
+                                            <TabsList className="bg-transparent space-x-1 p-0 h-auto">
+                                                <TabsTrigger value="all" className="px-5 h-10 rounded-full border border-[#DDDDDD] text-[14px] font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-600 text-[#222222] hover:border-blue-600">All</TabsTrigger>
+                                                <TabsTrigger value="sale" className="px-5 h-10 rounded-full border border-[#DDDDDD] text-[14px] font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-600 text-[#222222] hover:border-blue-600">For Sale</TabsTrigger>
+                                                <TabsTrigger value="rent" className="px-5 h-10 rounded-full border border-[#DDDDDD] text-[14px] font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-600 text-[#222222] hover:border-blue-600">For Rent</TabsTrigger>
+                                                <TabsTrigger value="short_term" className="px-5 h-10 rounded-full border border-[#DDDDDD] text-[14px] font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-600 text-[#222222] hover:border-blue-600">Short Term</TabsTrigger>
                                             </TabsList>
                                         </Tabs>
 
                                         {/* Advanced Filter Drawer */}
                                         <Sheet>
                                             <SheetTrigger asChild>
-                                                <Button variant="outline" className="h-11 gap-2 border-dashed border-slate-300 hover:bg-slate-50">
-                                                    <SlidersHorizontal className="w-4 h-4" />
+                                                <Button variant="outline" className="h-10 px-5 gap-2 border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7] hover:border-blue-600 rounded-full font-medium text-[14px] transition-colors flex-shrink-0">
+                                                    <SlidersHorizontal className="w-4 h-4 stroke-[2]" />
                                                     <span className="hidden sm:inline">Filters</span>
                                                 </Button>
                                             </SheetTrigger>
-                                            <SheetContent className="w-[400px] sm:w-[540px]">
-                                                <SheetHeader className="pb-6 border-b">
-                                                    <SheetTitle className="flex items-center gap-2 text-2xl">
-                                                        <ListFilter className="w-5 h-5" /> Advanced Filters
+                                            <SheetContent className="w-[400px] sm:w-[540px] border-l-[#DDDDDD] p-0 flex flex-col">
+                                                <SheetHeader className="p-6 border-b border-[#DDDDDD]">
+                                                    <SheetTitle className="flex items-center gap-3 text-[22px] font-semibold text-[#222222]">
+                                                        <ListFilter className="w-5 h-5 stroke-[2]" /> Filters
                                                     </SheetTitle>
-                                                    <SheetDescription>Refine your saved properties</SheetDescription>
+                                                    <SheetDescription className="text-[#717171] text-[15px] mt-1">
+                                                        Refine your saved properties
+                                                    </SheetDescription>
                                                 </SheetHeader>
 
-                                                <div className="py-6 space-y-8">
+                                                <div className="p-6 space-y-8 overflow-y-auto flex-1 pb-32">
                                                     {/* Property Type */}
-                                                    <div className="space-y-3">
-                                                        <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500">Property Type</h4>
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                            {['House', 'Apartment', 'Condo', 'Villa', 'Land', 'Hotel', 'Guest House', 'Vacation Rental'].map((type) => (
-                                                                <Button
-                                                                    key={type}
-                                                                    variant={filterPropertyType === type.toLowerCase().replace(' ', '_') ? 'default' : 'outline'}
-                                                                    onClick={() => setFilterPropertyType(type.toLowerCase().replace(' ', '_'))}
-                                                                    className="justify-start h-10"
-                                                                >
-                                                                    {type}
-                                                                </Button>
-                                                            ))}
+                                                    <div className="space-y-4">
+                                                        <h4 className="text-[16px] font-semibold text-[#222222]">Property Type</h4>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            {['House', 'Apartment', 'Condo', 'Villa', 'Land', 'Hotel', 'Guest House', 'Vacation Rental'].map((type) => {
+                                                                const isActive = filterPropertyType === type.toLowerCase().replace(' ', '_');
+                                                                return (
+                                                                    <button
+                                                                        key={type}
+                                                                        onClick={() => setFilterPropertyType(type.toLowerCase().replace(' ', '_'))}
+                                                                        className={`justify-start h-12 px-4 rounded-lg border text-[14px] font-medium transition-all text-left ${isActive
+                                                                            ? 'bg-blue-600 border-blue-600 text-white'
+                                                                            : 'bg-white border-[#DDDDDD] text-[#222222] hover:border-blue-600'
+                                                                            }`}
+                                                                    >
+                                                                        {type}
+                                                                    </button>
+                                                                );
+                                                            })}
                                                         </div>
                                                     </div>
+
+                                                    <hr className="border-[#DDDDDD]" />
 
                                                     {/* Rooms */}
                                                     <div className="grid grid-cols-2 gap-6">
-                                                        <div className="space-y-3">
-                                                            <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Bedrooms</h4>
+                                                        <div className="space-y-4">
+                                                            <h4 className="text-[16px] font-semibold text-[#222222]">Bedrooms</h4>
                                                             <Select value={filterBedrooms} onValueChange={setFilterBedrooms}>
-                                                                <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="all">Any</SelectItem>
-                                                                    {[1, 2, 3, 4, 5].map(n => <SelectItem key={n} value={n.toString()}>{n}+ Beds</SelectItem>)}
+                                                                <SelectTrigger className={`${inputClasses} h-12`}><SelectValue placeholder="Any" /></SelectTrigger>
+                                                                <SelectContent className="border-[#DDDDDD] shadow-lg rounded-xl">
+                                                                    <SelectItem value="all" className="focus:bg-[#F7F7F7] cursor-pointer">Any</SelectItem>
+                                                                    {[1, 2, 3, 4, 5].map(n => <SelectItem key={n} value={n.toString()} className="focus:bg-[#F7F7F7] cursor-pointer">{n}+ Beds</SelectItem>)}
                                                                 </SelectContent>
                                                             </Select>
                                                         </div>
-                                                        <div className="space-y-3">
-                                                            <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Bathrooms</h4>
+                                                        <div className="space-y-4">
+                                                            <h4 className="text-[16px] font-semibold text-[#222222]">Bathrooms</h4>
                                                             <Select value={filterBathrooms} onValueChange={setFilterBathrooms}>
-                                                                <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="all">Any</SelectItem>
-                                                                    {[1, 2, 3, 4].map(n => <SelectItem key={n} value={n.toString()}>{n}+ Baths</SelectItem>)}
+                                                                <SelectTrigger className={`${inputClasses} h-12`}><SelectValue placeholder="Any" /></SelectTrigger>
+                                                                <SelectContent className="border-[#DDDDDD] shadow-lg rounded-xl">
+                                                                    <SelectItem value="all" className="focus:bg-[#F7F7F7] cursor-pointer">Any</SelectItem>
+                                                                    {[1, 2, 3, 4].map(n => <SelectItem key={n} value={n.toString()} className="focus:bg-[#F7F7F7] cursor-pointer">{n}+ Baths</SelectItem>)}
                                                                 </SelectContent>
                                                             </Select>
                                                         </div>
                                                     </div>
 
+                                                    <hr className="border-[#DDDDDD]" />
+
                                                     {/* Price Range */}
-                                                    <div className="space-y-3">
-                                                        <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Price Range (XAF)</h4>
-                                                        <div className="flex items-center gap-3">
-                                                            <Input type="number" placeholder="Min" value={priceRange.min} onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })} />
-                                                            <span className="text-slate-400">-</span>
-                                                            <Input type="number" placeholder="Max" value={priceRange.max} onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })} />
+                                                    <div className="space-y-4">
+                                                        <h4 className="text-[16px] font-semibold text-[#222222]">Price Range (XAF)</h4>
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="flex-1">
+                                                                <label className="text-[12px] text-[#717171] mb-1 block">Minimum</label>
+                                                                <input type="number" placeholder="No min" value={priceRange.min} onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })} className={inputClasses} />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <label className="text-[12px] text-[#717171] mb-1 block">Maximum</label>
+                                                                <input type="number" placeholder="No max" value={priceRange.max} onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })} className={inputClasses} />
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <SheetFooter className="absolute bottom-0 left-0 w-full p-6 bg-slate-50 border-t flex flex-row gap-3">
-                                                    <Button variant="ghost" onClick={clearAllFilters} className="flex-1">Reset All</Button>
+                                                <SheetFooter className="absolute bottom-0 left-0 w-full p-6 bg-white border-t border-[#DDDDDD] flex flex-row items-center justify-between gap-4">
+                                                    <button onClick={clearAllFilters} className="text-[15px] font-semibold text-[#222222] underline hover:text-black">
+                                                        Clear all
+                                                    </button>
                                                     <SheetTrigger asChild>
-                                                        <Button className="flex-1 bg-blue-600 hover:bg-blue-700">Apply Filters</Button>
+                                                        <Button className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[15px] font-semibold transition-colors">
+                                                            Show properties
+                                                        </Button>
                                                     </SheetTrigger>
                                                 </SheetFooter>
                                             </SheetContent>
                                         </Sheet>
 
-                                        <Separator orientation="vertical" className="hidden lg:block h-10 mx-1" />
+                                        <Separator orientation="vertical" className="hidden lg:block h-8 mx-1 bg-[#DDDDDD] my-auto" />
 
+                                        {/* Sort Select */}
                                         <Select value={sortBy} onValueChange={setSortBy}>
-                                            <SelectTrigger className="w-[160px] h-11 border-none bg-slate-50">
-                                                <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
+                                            <SelectTrigger className="w-[160px] h-10 rounded-full border border-[#DDDDDD] bg-white text-[#222222] hover:border-blue-600 text-[14px] font-medium transition-colors focus:ring-0 focus:ring-offset-0">
+                                                <ArrowUpDown className="w-4 h-4 mr-2 text-[#222222] stroke-[2]" />
                                                 <SelectValue placeholder="Sort" />
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="recent">Recently Saved</SelectItem>
-                                                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                                                <SelectItem value="price-high">Price: High to Low</SelectItem>
-                                                <SelectItem value="popular">Popularity</SelectItem>
+                                            <SelectContent className="border-[#DDDDDD] shadow-lg rounded-xl">
+                                                <SelectItem value="recent" className="focus:bg-[#F7F7F7] cursor-pointer">Recently Saved</SelectItem>
+                                                <SelectItem value="price-low" className="focus:bg-[#F7F7F7] cursor-pointer">Price: Low to High</SelectItem>
+                                                <SelectItem value="price-high" className="focus:bg-[#F7F7F7] cursor-pointer">Price: High to Low</SelectItem>
+                                                <SelectItem value="popular" className="focus:bg-[#F7F7F7] cursor-pointer">Popularity</SelectItem>
                                             </SelectContent>
                                         </Select>
+                                    </div>
+
+                                    {/* Right: Search input */}
+                                    <div className="relative w-full lg:w-[300px]">
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#222222] stroke-[2]" />
+                                        <Input
+                                            placeholder="Search saved properties..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="pl-11 h-12 rounded-full border border-[#DDDDDD] bg-white hover:shadow-md focus-visible:shadow-md focus-visible:ring-0 transition-shadow text-[15px] font-medium text-[#222222] placeholder:text-[#717171]"
+                                        />
                                     </div>
                                 </div>
                             </div>
 
-                            {/* ACTIVE FILTER BADGES */}
-                            {(searchTerm || filterListingType !== 'all') && (
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mr-2">Active Filters:</span>
+                            {/* ── ACTIVE FILTER BADGES ── */}
+                            {(searchTerm || filterListingType !== 'all' || filterPropertyType !== 'all' || filterBedrooms !== 'all' || filterBathrooms !== 'all' || priceRange.min || priceRange.max) && (
+                                <div className="flex flex-wrap items-center gap-2 pt-2">
+                                    <span className="text-[12px] font-bold text-[#222222] mr-2">Filters applied:</span>
                                     {searchTerm && (
-                                        <Badge variant="secondary" className="bg-white border text-slate-600 px-3 py-1 rounded-full gap-2">
-                                            "{searchTerm}" <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchTerm('')} />
+                                        <Badge variant="secondary" className="bg-white border border-[#DDDDDD] text-[#222222] px-3 py-1.5 rounded-full gap-2 text-[13px] font-medium hover:border-blue-600 transition-colors">
+                                            "{searchTerm}" <X className="w-3.5 h-3.5 cursor-pointer text-[#717171] hover:text-[#222222]" onClick={() => setSearchTerm('')} />
                                         </Badge>
                                     )}
-                                    <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs text-slate-400 hover:text-red-500">
+                                    {filterListingType !== 'all' && (
+                                        <Badge variant="secondary" className="bg-white border border-[#DDDDDD] text-[#222222] px-3 py-1.5 rounded-full gap-2 text-[13px] font-medium hover:border-blue-600 transition-colors">
+                                            {filterListingType.replace('_', ' ')} <X className="w-3.5 h-3.5 cursor-pointer text-[#717171] hover:text-[#222222]" onClick={() => setFilterListingType('all')} />
+                                        </Badge>
+                                    )}
+                                    {/* Additional active badges logic can be added here identically */}
+                                    <button onClick={clearAllFilters} className="text-[13px] font-semibold text-[#717171] hover:text-[#222222] underline ml-2 transition-colors">
                                         Clear all
-                                    </Button>
+                                    </button>
                                 </div>
                             )}
 
-                            {/* CONTENT AREA */}
-                            <div className="mt-8">
+                            {/* ── CONTENT AREA ── */}
+                            <div>
                                 {loading ? (
-                                    <div className="flex flex-col items-center justify-center py-32 space-y-4">
-                                        <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
-                                        <p className="text-slate-500 font-medium">Loading your favorites...</p>
+                                    <div className="flex items-center justify-center py-32 space-y-4 flex-col">
+                                        <Loader2 className="w-10 h-10 animate-spin text-[#222222]" />
+                                        <p className="text-[#717171] text-[16px] font-medium">Loading your favorites...</p>
                                     </div>
                                 ) : !user ? (
-                                    <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
-                                        <div className="p-6 rounded-full mb-6 bg-slate-100">
-                                            <Heart className="w-12 h-12 text-slate-400" />
+                                    <div className="bg-[#F7F7F7] rounded-2xl border border-[#DDDDDD] py-24 flex flex-col items-center text-center px-6">
+                                        <div className="w-16 h-16 bg-white border border-[#DDDDDD] text-[#222222] rounded-full flex items-center justify-center mb-6">
+                                            <Heart className="w-7 h-7 stroke-[1.5]" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-slate-900 mb-2">Sign in to view favorites</h3>
-                                        <p className="text-slate-500 max-w-xs mb-8">
+                                        <h3 className="text-[22px] font-semibold text-[#222222] mb-2">Sign in to view favorites</h3>
+                                        <p className="text-[16px] text-[#717171] max-w-sm mb-8">
                                             You need to be signed in to view and save properties to your favorites.
                                         </p>
-                                        <Button onClick={() => router.push('/auth/login')} className="rounded-full px-8 bg-blue-600 hover:bg-blue-700">
-                                            Sign In
+                                        <Button onClick={() => router.push('/auth/login')} className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[15px] font-semibold">
+                                            Sign in
                                         </Button>
                                     </div>
                                 ) : properties.length === 0 ? (
-                                    <div className="bg-white rounded-3xl border-1 border-dashed border-slate-200 py-24 flex flex-col items-center text-center px-4">
-                                        <div className={`p-6 rounded-full mb-6 ${pageConfig.color}`}>
-                                            <PageIcon className="w-12 h-12" />
+                                    <div className="bg-[#F7F7F7] rounded-2xl border border-[#DDDDDD] py-24 flex flex-col items-center text-center px-6">
+                                        <div className="w-16 h-16 bg-white border border-[#DDDDDD] text-[#222222] rounded-full flex items-center justify-center mb-6">
+                                            <Search className="w-7 h-7 stroke-[1.5]" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-slate-900 mb-2">No favorites found</h3>
-                                        <p className="text-slate-500 max-w-xs mb-8">
+                                        <h3 className="text-[22px] font-semibold text-[#222222] mb-2">No favorites found</h3>
+                                        <p className="text-[16px] text-[#717171] max-w-md mb-8">
                                             {allProperties.length === 0
                                                 ? "You haven't saved any properties yet. Start exploring to find your dream home!"
                                                 : "We couldn't find any properties matching your current filters. Try adjusting them."}
                                         </p>
                                         {allProperties.length === 0 ? (
-                                            <Button onClick={() => router.push('/dashboard/search')} className="rounded-full px-8 bg-blue-600 hover:bg-blue-700">
-                                                Explore Properties
+                                            <Button onClick={() => router.push('/dashboard/search')} className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[15px] font-semibold">
+                                                Start searching
                                             </Button>
                                         ) : (
-                                            <Button onClick={clearAllFilters} variant="outline" className="rounded-full px-8">
-                                                Reset all filters
+                                            <Button onClick={clearAllFilters} variant="outline" className="h-12 px-8 border-blue-600 text-[#222222] hover:bg-blue-600 hover:text-white rounded-xl text-[15px] font-semibold">
+                                                Clear all filters
                                             </Button>
                                         )}
                                     </div>
@@ -417,6 +436,7 @@ const FavoritePage = () => {
                                     </div>
                                 )}
                             </div>
+
                         </div>
                     </main>
                 </SidebarInset>

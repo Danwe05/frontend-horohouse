@@ -26,8 +26,8 @@ export default function TourViewer({
 
   // Fire-and-forget analytics — never blocks UX on slow connections
   useEffect(() => {
-  apiClient.trackTourView(propertyId); // already silent-fails internally
-}, [propertyId]);
+    apiClient.trackTourView(propertyId); // already silent-fails internally
+  }, [propertyId]);
 
   // Close on Escape
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function TourViewer({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-black flex flex-col"
+      className="fixed inset-0 z-[9999] bg-blue-700 flex flex-col"
       role="dialog"
       aria-modal="true"
       aria-label="Virtual tour"
@@ -125,7 +125,7 @@ export default function TourViewer({
                 <button
                   onClick={prev}
                   disabled={currentIdx === 0}
-                  className="absolute left-3 sm:left-6 w-11 h-11 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white disabled:opacity-30 transition-colors"
+                  className="absolute left-3 sm:left-6 w-11 h-11 rounded-full bg-blue-700/40 hover:bg-blue-700/60 flex items-center justify-center text-white disabled:opacity-30 transition-colors"
                   aria-label="Previous room"
                 >
                   <ChevronLeft className="h-6 w-6" />
@@ -133,7 +133,7 @@ export default function TourViewer({
                 <button
                   onClick={next}
                   disabled={currentIdx === images.length - 1}
-                  className="absolute right-3 sm:right-6 w-11 h-11 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white disabled:opacity-30 transition-colors"
+                  className="absolute right-3 sm:right-6 w-11 h-11 rounded-full bg-blue-700/40 hover:bg-blue-700/60 flex items-center justify-center text-white disabled:opacity-30 transition-colors"
                   aria-label="Next room"
                 >
                   <ChevronRight className="h-6 w-6" />
@@ -143,7 +143,7 @@ export default function TourViewer({
           </div>
 
           {/* Bottom nav bar */}
-          <div className="flex-none bg-black/80 px-4 py-3 flex items-center justify-between gap-4">
+          <div className="flex-none bg-blue-700/80 px-4 py-3 flex items-center justify-between gap-4">
             {/* Caption */}
             <p className="text-white/70 text-sm truncate flex-1">
               {images[currentIdx].caption ?? ""}
@@ -156,9 +156,8 @@ export default function TourViewer({
                   <button
                     key={i}
                     onClick={() => setCurrentIdx(i)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      i === currentIdx ? "bg-white scale-125" : "bg-white/40"
-                    }`}
+                    className={`w-2 h-2 rounded-full transition-all ${i === currentIdx ? "bg-white scale-125" : "bg-white/40"
+                      }`}
                     aria-label={`Go to image ${i + 1}`}
                   />
                 ))}

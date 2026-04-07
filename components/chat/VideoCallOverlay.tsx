@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, Maximize2, Minimize2 } from 'lucide-react';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, Maximize2, Minimize2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 interface VideoCallOverlayProps {
   onClose?: () => void;
   callStatus: string;
   remoteUser: any;
-  // FIXED: Accept nullable refs to match useVideoCall hook
   localVideoRef: React.RefObject<HTMLVideoElement | null>;
   remoteVideoRef: React.RefObject<HTMLVideoElement | null>;
   remoteStreamRef: React.MutableRefObject<MediaStream | null>;
@@ -35,7 +37,6 @@ export function VideoCallOverlay({
   // Attach remote stream when video element is ready
   useEffect(() => {
     if (callStatus === 'connected' && remoteVideoRef.current && remoteStreamRef.current) {
-      console.log('🎥 Attaching remote stream to video element');
       remoteVideoRef.current.srcObject = remoteStreamRef.current;
       remoteVideoRef.current.play().catch(err => console.error('Error playing remote video:', err));
     }
@@ -43,8 +44,6 @@ export function VideoCallOverlay({
 
   // Call duration timer
   useEffect(() => {
-    console.log('📊 VideoCallOverlay: callStatus =', callStatus);
-
     if (callStatus === 'connected') {
       const interval = setInterval(() => {
         setCallDuration(prev => prev + 1);
@@ -66,7 +65,6 @@ export function VideoCallOverlay({
   };
 
   const handleEndCall = () => {
-    console.log('📵 Ending call from overlay');
     endCall();
     onClose?.();
   };
@@ -74,22 +72,57 @@ export function VideoCallOverlay({
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Don't render if call is idle
-  if (callStatus === 'idle') {
-    console.log('⚠️ VideoCallOverlay: Not rendering (status=idle)');
-    return null;
-  }
-
-  console.log('✅ VideoCallOverlay: Rendering with status:', callStatus);
-  console.log('👤 Remote user:', remoteUser?.name || 'Unknown');
+  if (callStatus === 'idle') return null;
 
   return (
-    <div className={`fixed inset-0 bg-black z-50 flex flex-col ${isFullscreen ? '' : 'rounded-lg'}`}>
-      {/* Remote Video */}
-      <div className="flex-1 bg-gray-900 relative">
+    <div className={cn(
+      "fixed inset-0 z-[10000] bg-[#1A1A1A] flex flex-col overflow-hidden transition-all duration-500",
+      isFullscreen ? "m-0" : "sm:m-4 sm:rounded-2xl shadow-2xl border border-white/10"
+    )}>
+      
+      {/* ── Top Bar ── */}
+      <div className="absolute top-0 left-0 right-0 z-20 p-6 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20">
+            <Avatar className="w-full h-full">
+              <AvatarImage src={remoteUser?.profilePicture} className="object-cover" />
+              <AvatarFallback className="bg-[#222222] text-white">
+                {remoteUser?.name?.[0] || 'U'}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+          <div className="text-white">
+            <h3 className="text-[16px] font-semibold leading-none mb-1.5">
+              {remoteUser?.name || 'User'}
+            </h3>
+            {callStatus === 'connected' ? (
+              <p className="text-[13px] text-white/70 font-medium flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-[#008A05] rounded-full animate-pulse" />
+                {formatDuration(callDuration)}
+              </p>
+            ) : (
+              <p className="text-[13px] text-white/70 animate-pulse">
+                {callStatus === 'calling' && 'Calling...'}
+                {callStatus === 'ringing' && 'Ringing...'}
+                {callStatus === 'connecting' && 'Connecting...'}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <button 
+          onClick={() => setIsFullscreen(!isFullscreen)}
+          className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors focus:outline-none"
+        >
+          {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+        </button>
+      </div>
+
+      {/* ── Main Video Area ── */}
+      <div className="flex-1 relative flex items-center justify-center">
         {callStatus === 'connected' ? (
           <video
             ref={remoteVideoRef}
@@ -98,94 +131,66 @@ export function VideoCallOverlay({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center text-white">
-              <Avatar className="w-32 h-32 mx-auto mb-4">
-                <AvatarImage src={remoteUser?.profilePicture} />
-                <AvatarFallback className="text-4xl">
-                  {remoteUser?.name?.[0] || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <h3 className="text-2xl font-semibold mb-2">
-                {remoteUser?.name || 'Unknown User'}
-              </h3>
-              <p className="text-gray-300">
-                {callStatus === 'calling' && 'Calling...'}
-                {callStatus === 'ringing' && 'Ringing...'}
-                {callStatus === 'connecting' && 'Connecting...'}
-              </p>
-            </div>
+          <div className="flex flex-col items-center">
+             <div className="w-32 h-32 rounded-full border-2 border-white/10 p-1 mb-6">
+                <Avatar className="w-full h-full">
+                  <AvatarImage src={remoteUser?.profilePicture} className="object-cover" />
+                  <AvatarFallback className="bg-[#222222] text-white text-4xl">
+                    {remoteUser?.name?.[0] || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+             </div>
+             {callStatus === 'connecting' && <Loader2 className="w-6 h-6 text-white/40 animate-spin" />}
           </div>
         )}
 
-        {/* Local Video Preview */}
+        {/* Local Video PIP (Airbnb Style: Floating, rounded, sharp border) */}
         {isCameraEnabled && (
-          <div className="absolute bottom-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden border-1 border-white -lg">
+          <div className="absolute bottom-24 right-6 w-32 sm:w-48 aspect-[3/4] bg-[#222222] rounded-xl overflow-hidden border border-white/20 shadow-2xl z-20">
             <video
               ref={localVideoRef}
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover transform scale-x-[-1]"
+              className="w-full h-full object-cover scale-x-[-1]"
             />
           </div>
         )}
+      </div>
 
-        {/* Call Info */}
-        <div className="absolute top-8 left-8 text-white">
-          <h3 className="text-xl font-semibold flex items-center gap-2">
-            {remoteUser?.name || 'Unknown User'}
-            {callStatus === 'connected' && (
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            )}
-          </h3>
-          {callStatus === 'connected' ? (
-            <p className="text-green-400">{formatDuration(callDuration)}</p>
-          ) : (
-            <p className="text-gray-300 capitalize">{callStatus}</p>
+      {/* ── Bottom Controls ── */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 p-8 flex items-center justify-center gap-6 bg-gradient-to-t from-black/60 to-transparent">
+        
+        {/* Toggle Mic */}
+        <button
+          onClick={handleToggleMic}
+          className={cn(
+            "w-14 h-14 rounded-full flex items-center justify-center transition-all focus:outline-none",
+            isMicEnabled ? "bg-white/10 text-white hover:bg-white/20" : "bg-[#C2293F] text-white hover:bg-[#A31F33]"
           )}
-        </div>
-
-        {/* Fullscreen Toggle */}
-        <Button
-          onClick={() => setIsFullscreen(!isFullscreen)}
-          className="absolute top-8 right-8 bg-gray-700 hover:bg-gray-600 rounded-full w-10 h-10 p-0"
         >
-          {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-        </Button>
+          {isMicEnabled ? <Mic className="w-6 h-6 stroke-[1.5]" /> : <MicOff className="w-6 h-6 stroke-[1.5]" />}
+        </button>
 
-        {/* Call Controls */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4">
-          <Button
-            onClick={handleToggleMic}
-            className={`rounded-full w-14 h-14 transition-all ${isMicEnabled
-              ? 'bg-gray-700 hover:bg-gray-600'
-              : 'bg-red-500 hover:bg-red-600'
-              }`}
-            title={isMicEnabled ? 'Mute microphone' : 'Unmute microphone'}
-          >
-            {isMicEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
-          </Button>
+        {/* End Call (Airbnb Red: #C2293F) */}
+        <button
+          onClick={handleEndCall}
+          className="w-16 h-16 rounded-full bg-[#C2293F] text-white flex items-center justify-center hover:bg-[#A31F33] transition-all hover:scale-105 active:scale-95 focus:outline-none shadow-lg"
+        >
+          <PhoneOff className="w-7 h-7 stroke-[2]" />
+        </button>
 
-          <Button
-            onClick={handleToggleCamera}
-            className={`rounded-full w-14 h-14 transition-all ${isCameraEnabled
-              ? 'bg-gray-700 hover:bg-gray-600'
-              : 'bg-red-500 hover:bg-red-600'
-              }`}
-            title={isCameraEnabled ? 'Turn off camera' : 'Turn on camera'}
-          >
-            {isCameraEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
-          </Button>
+        {/* Toggle Camera */}
+        <button
+          onClick={handleToggleCamera}
+          className={cn(
+            "w-14 h-14 rounded-full flex items-center justify-center transition-all focus:outline-none",
+            isCameraEnabled ? "bg-white/10 text-white hover:bg-white/20" : "bg-[#C2293F] text-white hover:bg-[#A31F33]"
+          )}
+        >
+          {isCameraEnabled ? <Video className="w-6 h-6 stroke-[1.5]" /> : <VideoOff className="w-6 h-6 stroke-[1.5]" />}
+        </button>
 
-          <Button
-            onClick={handleEndCall}
-            className="bg-red-500 hover:bg-red-600 rounded-full w-14 h-14 transition-all hover:scale-110"
-            title="End call"
-          >
-            <PhoneOff className="w-6 h-6" />
-          </Button>
-        </div>
       </div>
     </div>
   );

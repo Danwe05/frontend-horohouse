@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { onboardingApi } from '@/lib/onboarding-api';
-import { Loader2, MapPin, ChevronRight, ChevronLeft, Plus, X } from 'lucide-react';
+import { Loader2, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function LocationStep() {
@@ -48,18 +48,16 @@ export function LocationStep() {
   const getStepData = () => {
     if (user?.role === 'agent') {
       return {
-        title: 'Service Areas',
+        title: 'Service areas',
         description: 'Where do you provide your real estate services?',
-        placeholder: 'Enter a city or neighborhood...',
-        helpText: 'Add all the areas where you actively work',
+        placeholder: 'e.g. Downtown',
         popularAreas: ['Downtown', 'Suburbs', 'Northside', 'West End', 'Historic District']
       };
     } else {
       return {
-        title: 'Preferred Locations',
+        title: 'Preferred locations',
         description: 'Where would you like to find properties?',
-        placeholder: 'Enter a city or neighborhood...',
-        helpText: 'Add all locations you\'d like to search in',
+        placeholder: 'e.g. City Center',
         popularAreas: ['City Center', 'Suburbs', 'Uptown', 'Near Transit', 'Quiet Neighborhoods']
       };
     }
@@ -68,9 +66,7 @@ export function LocationStep() {
   const stepData = getStepData();
 
   const handleNext = async () => {
-    if (!isFormValid()) {
-      return;
-    }
+    if (!isFormValid()) return;
 
     setIsLoading(true);
     try {
@@ -109,150 +105,140 @@ export function LocationStep() {
     }
   };
 
-  const fadeUpVariant = {
-    hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
-  };
-
-  return (
-    <div className="flex flex-col w-full max-w-2xl mx-auto">
-      <div className="text-center mb-6 sm:mb-8 shrink-0">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-14 h-14 bg-teal-50/80 rounded-2xl flex items-center justify-center mb-3 -inner border border-teal-100/50"
-        >
-          <MapPin className="h-7 w-7 text-teal-600" />
-        </motion.div>
-        <motion.h2 variants={fadeUpVariant} initial="hidden" animate="visible" className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-          {stepData.title}
-        </motion.h2>
-        <motion.p variants={fadeUpVariant} initial="hidden" animate="visible" className="text-slate-500 mt-2 text-sm sm:text-base px-4">
-          {stepData.description}
-        </motion.p>
-      </div>
-
-      <div className="flex-1 px-1 pb-4">
-        <div className="space-y-6 sm:space-y-8 max-w-xl mx-auto">
-
-          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <Label htmlFor="location" className="text-base font-semibold text-slate-800 mb-3 block">
-              Add Areas *
-            </Label>
-            <div className="flex gap-2">
-              <Input
-                id="location"
-                value={locationInput}
-                onChange={(e) => setLocationInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={stepData.placeholder}
-                className="flex-1 bg-white/70 border-slate-200 focus-visible:ring-teal-500 h-12 rounded-xl text-base -sm"
-              />
-              <Button
-                type="button"
-                onClick={handleAddLocation}
-                disabled={!locationInput.trim()}
-                className="h-12 w-12 rounded-xl shrink-0 bg-slate-900 hover:bg-slate-800 text-white p-0"
-              >
-                <Plus className="w-5 h-5" />
-              </Button>
-            </div>
-            <p className="text-sm text-slate-400 mt-2 text-center">
-              Press Enter or click + to add multiple locations
-            </p>
-          </motion.div>
-
-          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <div className="min-h-[120px] p-4 rounded-2xl border-1 border-dashed border-slate-200 bg-white/30 backdrop-blur-sm">
-              <AnimatePresence>
-                {locations.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {locations.map((loc, idx) => (
-                      <motion.div
-                        key={loc}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                        className="inline-flex items-center px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-100/50 text-teal-800 text-sm font-medium -sm"
-                      >
-                        <MapPin className="w-3.5 h-3.5 mr-1.5 text-teal-500" />
-                        {loc}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveLocation(loc)}
-                          className="ml-2 hover:bg-teal-200/50 rounded-md p-0.5 transition-colors text-teal-600"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-slate-400 py-6">
-                    <MapPin className="w-8 h-8 opacity-20 mb-2" />
-                    <span className="text-sm">No selected locations yet</span>
-                  </div>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-
-          <motion.div variants={fadeUpVariant} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <Label className="text-sm border-b border-slate-100 pb-2 font-medium text-slate-600 mb-3 block">
-              Suggestions
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {stepData.popularAreas.map((area) => (
-                <button
-                  key={area}
-                  type="button"
-                  onClick={() => handleAddLocationSuggestion(area)}
-                  disabled={locations.includes(area)}
-                  className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:bg-slate-50 text-slate-600"
-                >
-                  + {area}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-
-        </div>
-      </div>
-
-      <motion.div
-        variants={fadeUpVariant} initial="hidden" animate="visible"
-        className="shrink-0 pt-6 mt-4 border-t border-slate-100 flex justify-between items-center"
-      >
-        <Button
-          onClick={prevStep}
-          variant="ghost"
-          className="text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl px-4 sm:px-6"
-        >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back
-        </Button>
-
-        <Button
-          onClick={handleNext}
-          disabled={isLoading || !isFormValid()}
-          className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl px-6 sm:px-8 -md -teal-200/50"
-        >
-          {isLoading ? (
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-          ) : (
-            <span className="flex items-center font-medium">
-              Next Step
-              <ChevronRight className="w-5 h-5 ml-1" />
-            </span>
-          )}
-        </Button>
-      </motion.div>
-    </div>
-  );
-
   function handleAddLocationSuggestion(area: string) {
     if (!locations.includes(area)) {
       setLocations(prev => [...prev, area]);
     }
   }
+
+  // Airbnb input styling
+  const inputClasses = "flex h-14 w-full rounded-xl border border-[#B0B0B0] bg-white px-4 py-2 text-[16px] text-[#222222] placeholder:text-[#717171] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#222222] focus-visible:border-transparent transition-all";
+
+  return (
+    <div className="flex flex-col h-full">
+      
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto pb-32">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="mb-10">
+            <h2 className="text-[32px] sm:text-[36px] font-semibold text-[#222222] tracking-tight mb-2">
+              {stepData.title}
+            </h2>
+            <p className="text-[16px] text-[#717171]">
+              {stepData.description}
+            </p>
+          </div>
+
+          <div className="space-y-8 max-w-3xl">
+
+            {/* Input Area */}
+            <div>
+              <Label htmlFor="location" className="text-[18px] font-semibold text-[#222222] mb-4 block">
+                Add areas <span className="text-[#C2410C]">*</span>
+              </Label>
+              <div className="flex gap-3">
+                <Input
+                  id="location"
+                  value={locationInput}
+                  onChange={(e) => setLocationInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={stepData.placeholder}
+                  className={inputClasses}
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddLocation}
+                  disabled={!locationInput.trim()}
+                  className="h-14 w-14 rounded-xl shrink-0 bg-[#222222] hover:bg-black text-white p-0 disabled:opacity-50"
+                >
+                  <Plus className="w-6 h-6 stroke-[2]" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Selected Locations Container */}
+            <div className="min-h-[140px] p-6 rounded-2xl border border-[#DDDDDD] bg-[#F7F7F7]">
+              <AnimatePresence>
+                {locations.length > 0 ? (
+                  <div className="flex flex-wrap gap-2.5">
+                    {locations.map((loc) => (
+                      <motion.div
+                        key={loc}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.2 }}
+                        className="inline-flex items-center px-4 py-2 rounded-full bg-white border border-[#222222] text-[#222222] text-[15px] font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                      >
+                        {loc}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveLocation(loc)}
+                          className="ml-2 w-5 h-5 rounded-full bg-[#EBEBEB] hover:bg-[#DDDDDD] flex items-center justify-center transition-colors focus:outline-none"
+                        >
+                          <X className="w-3 h-3 text-[#222222] stroke-[2]" />
+                        </button>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-[#717171] py-8">
+                    <span className="text-[15px]">No locations added yet</span>
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Suggestions */}
+            <div className="pt-4">
+              <Label className="text-[16px] font-semibold text-[#222222] mb-4 block">
+                Popular suggestions
+              </Label>
+              <div className="flex flex-wrap gap-3">
+                {stepData.popularAreas.map((area) => {
+                  const isSelected = locations.includes(area);
+                  return (
+                    <button
+                      key={area}
+                      type="button"
+                      onClick={() => handleAddLocationSuggestion(area)}
+                      disabled={isSelected}
+                      className="px-4 py-2 text-[14px] font-medium border border-[#DDDDDD] rounded-full hover:border-[#222222] transition-all disabled:opacity-40 disabled:bg-[#F7F7F7] disabled:border-[#DDDDDD] text-[#222222]"
+                    >
+                      + {area}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Fixed Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DDDDDD] p-4 sm:p-6 z-50">
+        <div className="max-w-[850px] mx-auto flex items-center justify-between">
+          <button
+            onClick={prevStep}
+            className="text-[16px] font-semibold text-[#222222] underline hover:text-[#717171] transition-colors focus:outline-none"
+          >
+            Back
+          </button>
+          <Button
+            onClick={handleNext}
+            disabled={isLoading || !isFormValid()}
+            className="h-12 px-8 rounded-lg bg-[#222222] hover:bg-black text-white font-semibold text-[16px] transition-colors disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Next"}
+          </Button>
+        </div>
+      </div>
+
+    </div>
+  );
 }

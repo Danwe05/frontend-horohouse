@@ -34,7 +34,7 @@ export function SettingsModal({ open, onOpenChange, settings, onSettingsChange }
               id="voice-output"
               checked={settings.voiceOutput}
               onCheckedChange={(checked) => onSettingsChange({ ...settings, voiceOutput: checked })}
-              className="data-[state=checked]:bg-accent"
+              className="data-[state=checked]:bg-muted"
             />
           </div>
 

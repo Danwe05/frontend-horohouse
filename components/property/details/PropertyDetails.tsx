@@ -1,7 +1,9 @@
+"use client";
+
 import { useMemo } from "react";
 import {
-  Home, Ruler, Calendar, Car, Shield, Zap, Wifi,
-  TreePine, Waves, Dumbbell, Check,
+  Ruler, Calendar, Car, Shield, Zap, Wifi,
+  TreePine, Waves, Dumbbell, Check, Home
 } from "lucide-react";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -38,113 +40,79 @@ const PropertyDetails = ({ property }: PropertyDetailsProps) => {
   const { t } = useLanguage();
   const pd = t.propertyDetails;
 
-  const details = useMemo(() => [
-    { label: pd?.propertyType || "Property Type", value: property.type, icon: Home },
-    ...(property.yearBuilt
-      ? [{ label: pd?.builtIn || "Built in", value: property.yearBuilt.toString(), icon: Calendar }]
-      : []),
-    ...(property.area
-      ? [{ label: pd?.area || "Area", value: `${property.area} sqm`, icon: Ruler }]
-      : []),
-    ...(amenities.parkingSpaces
-      ? [{ label: pd?.parking || "Parking", value: pd?.parkingSpaces?.replace("{count}", amenities.parkingSpaces.toString()) || `${amenities.parkingSpaces} space${amenities.parkingSpaces > 1 ? "s" : ""}`, icon: Car }]
-      : []),
-  ], [property.type, property.yearBuilt, property.area, amenities.parkingSpaces, pd]);
-
   const specs = useMemo(() => [
-    ...(amenities.bedrooms ? [{ label: "Bedrooms", value: amenities.bedrooms.toString() }] : []),
-    ...(amenities.bathrooms ? [{ label: "Bathrooms", value: amenities.bathrooms.toString() }] : []),
-    ...(property.area ? [{ label: pd?.squareMeters || "Square Meters", value: property.area.toString() }] : []),
+    ...(amenities.bedrooms ? [{ label: pd?.bedrooms || "Bedrooms", value: amenities.bedrooms.toString() }] : []),
+    ...(amenities.bathrooms ? [{ label: pd?.bathrooms || "Bathrooms", value: amenities.bathrooms.toString() }] : []),
+    ...(property.area ? [{ label: pd?.squareMeters || "Area", value: `${property.area} sqm` }] : []),
     ...(property.area && property.price
       ? [{ label: pd?.pricePerSqm || "Price / sqm", value: formatMoney(Math.round(property.price / property.area)) }]
       : []),
     { label: pd?.available || "Available", value: property.availability },
     ...(property.listingType === "rent"
-      ? [{ label: pd?.leaseTerm || "Lease Term", value: pd?.twelveMonths || "12 months" }]
+      ? [{ label: pd?.leaseTerm || "Lease term", value: pd?.twelveMonths || "12 months" }]
       : []),
   ], [amenities.bedrooms, amenities.bathrooms, property.area, property.price, property.availability, property.listingType, pd, formatMoney]);
 
   interface Feature { name: string; icon?: React.ElementType }
+  
   const additionalFeatures: Feature[] = useMemo(() => [
-    ...(amenities.hasInternet ? [{ name: pd?.highSpeedInternet || "High-Speed Internet", icon: Wifi }] : []),
-    ...(amenities.hasSecurity ? [{ name: pd?.security || "24/7 Security", icon: Shield }] : []),
-    ...(amenities.hasAirConditioning ? [{ name: pd?.airConditioning || "Air Conditioning", icon: Zap }] : []),
+    ...(amenities.hasInternet ? [{ name: pd?.highSpeedInternet || "Wifi", icon: Wifi }] : []),
+    ...(amenities.hasSecurity ? [{ name: pd?.security || "Security", icon: Shield }] : []),
+    ...(amenities.hasAirConditioning ? [{ name: pd?.airConditioning || "Air conditioning", icon: Zap }] : []),
     ...(amenities.hasGarden ? [{ name: pd?.garden || "Garden", icon: TreePine }] : []),
-    ...(amenities.hasPool ? [{ name: pd?.swimmingPool || "Swimming Pool", icon: Waves }] : []),
+    ...(amenities.hasPool ? [{ name: pd?.swimmingPool || "Pool", icon: Waves }] : []),
     ...(amenities.hasGym ? [{ name: pd?.gym || "Gym", icon: Dumbbell }] : []),
     ...(amenities.hasElevator ? [{ name: pd?.elevator || "Elevator" }] : []),
     ...(amenities.hasBalcony ? [{ name: pd?.balcony || "Balcony" }] : []),
     ...(amenities.hasGenerator ? [{ name: pd?.generator || "Generator" }] : []),
     ...(amenities.furnished ? [{ name: pd?.furnished || "Furnished" }] : []),
+    ...(amenities.parkingSpaces ? [{ name: pd?.parkingSpaces?.replace("{count}", amenities.parkingSpaces.toString()) || `${amenities.parkingSpaces} parking space${amenities.parkingSpaces > 1 ? "s" : ""}`, icon: Car }] : []),
   ], [amenities, pd]);
 
   return (
-    <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 space-y-8 mt-10">
-      <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{pd?.title || "Property Details"}</h2>
-
-      {/* Quick-glance tiles */}
-      {details.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {details.map((detail, idx) => {
-            const Icon = detail.icon;
-            return (
-              <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col gap-2">
-                <Icon className="h-5 w-5 text-slate-400" />
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    {detail.label}
-                  </p>
-                  <p className="font-bold text-slate-900 mt-0.5">{detail.value}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="h-px bg-slate-100 w-full" />
-
-      {/* Key specifications */}
+    <section className="space-y-8 text-[#222222]">
+      
+      {/* Key Specifications */}
       {specs.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-slate-400 tracking-wider uppercase">
-            {pd?.keySpecifications || "Key Specifications"}
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8">
+        <div className="space-y-6">
+          <h2 className="text-[22px] font-semibold tracking-tight">
+            {pd?.title || "Property details"}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12">
             {specs.map((spec, idx) => (
               <div
                 key={idx}
-                className="flex justify-between items-center py-3 border-b border-slate-100"
+                className="flex justify-between items-center py-4 border-b border-[#DDDDDD]"
               >
-                <span className="text-slate-500 font-medium">{spec.label}</span>
-                <span className="font-bold text-slate-900 text-right">{spec.value}</span>
+                <span className="text-[16px] text-[#222222]">{spec.label}</span>
+                <span className="text-[16px] font-semibold text-[#222222]">{spec.value}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Additional features */}
+      {/* Additional Features Grid */}
       {additionalFeatures.length > 0 && (
-        <div className="pt-4 border-t border-slate-100 space-y-4">
-          <h3 className="text-sm font-bold text-slate-400 tracking-wider uppercase">
-            {pd?.additionalFeatures || "Additional Features"}
+        <div className="pt-4 space-y-6">
+          <h3 className="text-[18px] font-semibold text-[#222222]">
+            {pd?.additionalFeatures || "More about this property"}
           </h3>
-          <div className="flex flex-wrap gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6">
             {additionalFeatures.map((feature) => {
               const Icon = feature.icon;
               return (
-                <span
+                <div
                   key={feature.name}
-                  className="px-3.5 py-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-700 flex items-center gap-2"
+                  className="flex items-center gap-4 text-[#222222]"
                 >
                   {Icon ? (
-                    <Icon className="h-4 w-4 text-blue-500" />
+                    <Icon className="h-6 w-6 stroke-[1.5]" aria-hidden />
                   ) : (
-                    <Check className="h-4 w-4 text-emerald-500" />
+                    <Check className="h-6 w-6 stroke-[1.5]" aria-hidden />
                   )}
-                  {feature.name}
-                </span>
+                  <span className="text-[16px]">{feature.name}</span>
+                </div>
               );
             })}
           </div>

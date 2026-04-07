@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertCircle, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ import PetPolicy, { type PetPolicyInfo } from "@/components/property/details/Pet
 import SimilarProperties from "@/components/property/details/SimilarProperties";
 import StudentFeaturesPanel from "@/components/property/details/StudentFeaturesPanel";
 import apiClient from "@/lib/api";
-import TourPreview from "@/components/property/details/TourPreview";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -105,14 +104,8 @@ interface Property {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/**
- * Derives a PetPolicyInfo from the property's amenities / shortTermAmenities.
- * Adjust the rule list to match whatever pet data your API exposes.
- */
 function buildPetPolicy(property: Property): PetPolicyInfo {
-  const petsAllowed =
-    property.shortTermAmenities?.petsAllowed ??
-    false;
+  const petsAllowed = property.shortTermAmenities?.petsAllowed ?? false;
 
   if (!petsAllowed) {
     return { petsAllowed: false };
@@ -150,48 +143,39 @@ function buildPetPolicy(property: Property): PetPolicyInfo {
 // ─── Loading Skeleton ─────────────────────────────────────────────────────────
 
 const PropertyDetailSkeleton = () => (
-  <div className="min-h-screen bg-[#f8fafc]">
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-12">
-      {/* Back button placeholder */}
-      <Skeleton className="h-9 w-24 mb-8 rounded-xl" />
+  <div className="min-h-screen bg-white">
+    <main className="max-w-7xl mx-auto px-6 lg:px-10 py-4">
+      <Skeleton className="h-10 w-10 mb-8 rounded-full bg-[#F7F7F7]" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-6">
         {/* Left column */}
-        <div className="lg:col-span-8 space-y-8">
+        <div className="lg:col-span-8 space-y-10">
           {/* Gallery */}
-          <Skeleton className="h-[420px] w-full rounded-3xl" />
+          <Skeleton className="h-[450px] w-full rounded-2xl bg-[#F7F7F7]" />
 
-          {/* Property info card */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 -sm border border-slate-100 space-y-5">
+          {/* Title & Info */}
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-3/4 bg-[#F7F7F7]" />
             <div className="flex gap-2">
-              <Skeleton className="h-7 w-20 rounded-lg" />
-              <Skeleton className="h-7 w-24 rounded-lg" />
+              <Skeleton className="h-5 w-24 bg-[#F7F7F7]" />
+              <Skeleton className="h-5 w-32 bg-[#F7F7F7]" />
             </div>
-            <Skeleton className="h-9 w-3/4" />
-            <Skeleton className="h-5 w-1/2" />
-            <Skeleton className="h-24 w-full" />
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-20 w-full rounded-2xl" />
-              ))}
+            <div className="pt-6 border-t border-[#DDDDDD] mt-6">
+              <Skeleton className="h-24 w-full bg-[#F7F7F7]" />
             </div>
-          </div>
-
-          {/* Property details */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 -sm border border-slate-100 space-y-5">
-            <Skeleton className="h-7 w-40" />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <Skeleton key={i} className="h-24 w-full rounded-2xl" />
-              ))}
+            <div className="pt-6 border-t border-[#DDDDDD] mt-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[...Array(4)].map((_, i) => (
+                  <Skeleton key={i} className="h-24 w-full rounded-xl bg-[#F7F7F7]" />
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="lg:col-span-4 sticky top-20 space-y-6">
-          <Skeleton className="h-[480px] w-full rounded-3xl" />
-          <Skeleton className="h-64 w-full rounded-3xl" />
+        {/* Booking Sidebar */}
+        <div className="lg:col-span-4 sticky top-28">
+          <Skeleton className="h-[480px] w-full rounded-2xl bg-[#F7F7F7] border border-[#DDDDDD]" />
         </div>
       </div>
     </main>
@@ -209,7 +193,8 @@ export default function PropertyDetailClient() {
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+
+  const fallbackErrorMsg = t.propertyDetails?.failedToLoad ?? "Failed to load property details";
 
   const fetchProperty = useCallback(async () => {
     if (!propertyId) return;
@@ -219,7 +204,7 @@ export default function PropertyDetailClient() {
       const data = await apiClient.getProperty(propertyId);
       setProperty(data);
     } catch (err: any) {
-      setError(err.response?.data?.message ?? t.propertyDetails?.failedToLoad ?? "Failed to load property details");
+      setError(err.response?.data?.message ?? fallbackErrorMsg);
     } finally {
       setLoading(false);
     }
@@ -235,86 +220,89 @@ export default function PropertyDetailClient() {
   // ── Error ────────────────────────────────────────────────────────────────
   if (error || !property) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-12 space-y-6">
-        <Button
-          onClick={() => router.back()}
-          variant="outline"
-          className="rounded-xl font-bold h-11 px-6 border-slate-200 text-slate-600 hover:bg-slate-50"
-        >
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          {t.propertyDetails?.goBack || "Go Back"}
-        </Button>
-        <Alert className="border-red-200 bg-red-50 rounded-2xl -sm">
-          <AlertCircle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-600 font-medium">
-            {error || t.propertyDetails?.propertyNotFound || "Property not found"}
-          </AlertDescription>
-        </Alert>
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-12 space-y-6">
+          <Button
+            onClick={() => router.back()}
+            variant="ghost"
+            className="rounded-full h-12 w-12 p-0 text-[#222222] hover:bg-[#F7F7F7]"
+          >
+            <ChevronLeft className="h-5 w-5 stroke-[2]" />
+          </Button>
+          <Alert className="border-[#FFDFDF] bg-[#FFF8F8] rounded-xl p-6">
+            <AlertCircle className="h-5 w-5 text-[#E50000]" />
+            <AlertDescription className="text-[#E50000] font-medium text-[15px] ml-2">
+              {error || t.propertyDetails?.propertyNotFound || "Property not found"}
+            </AlertDescription>
+          </Alert>
+        </div>
       </div>
     );
   }
 
   // ── Derived data ─────────────────────────────────────────────────────────
-  // GeoJSON coordinates are [longitude, latitude]
   const [longitude, latitude] = property.location?.coordinates ?? [];
-
   const petPolicy = buildPetPolicy(property);
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-12">
-        {/* Back navigation */}
-        <Button
-          onClick={() => router.back()}
-          variant="ghost"
-          className="mb-6 -ml-2 rounded-xl font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100"
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          {t.propertyDetails?.back || "Back"}
-        </Button>
+    <div className="min-h-screen bg-white text-[#222222]">
+      <main className="max-w-7xl mx-auto px-6 lg:px-10 py-4">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-22">
           {/* ── Main content ── */}
           <div className="lg:col-span-8 space-y-10">
+            
+            {/* Gallery spans its container seamlessly */}
             <PropertyGallery property={property} />
 
-            <div className="bg-white rounded-3xl p-6 sm:p-8 -sm border border-slate-100">
+            {/* Information sections, cleanly divided by Airbnb-style borders */}
+            <div className="border-[#DDDDDD]">
               <PropertyInfo property={property} />
             </div>
 
-            <StudentFeaturesPanel property={property} />
+            <div className="py-4 border-b border-[#DDDDDD]">
+              <StudentFeaturesPanel property={property} />
+            </div>
 
-            <PropertyDetails property={property} />
+            <div className="py-4 border-b border-[#DDDDDD]">
+              <PropertyDetails property={property} />
+            </div>
 
-            <Neighborhood
-              property={{
-                city: property.city,
-                neighborhood: property.neighborhood,
-                nearbyAmenities: property.nearbyAmenities,
-                transportAccess: property.transportAccess,
-                // Pass coordinates extracted from GeoJSON
-                latitude: latitude,
-                longitude: longitude,
-              }}
-            />
+            <div className="py-4 border-b border-[#DDDDDD]">
+              <Neighborhood
+                property={{
+                  city: property.city,
+                  neighborhood: property.neighborhood,
+                  nearbyAmenities: property.nearbyAmenities,
+                  transportAccess: property.transportAccess,
+                  latitude: latitude,
+                  longitude: longitude,
+                }}
+              />
+            </div>
 
             {/* Only render PetPolicy when pets are relevant to this listing type */}
             {(property.listingType === "rent" || property.listingType === "short_term") && (
-              <PetPolicy policy={petPolicy} currency="XAF" />
+              <div className="py-4 border-b border-[#DDDDDD]">
+                <PetPolicy policy={petPolicy} currency="XAF" />
+              </div>
             )}
 
-            <Reviews propertyId={property._id} />
+            <div className="py-4 border-b border-[#DDDDDD]">
+              <Reviews propertyId={property._id} />
+            </div>
           </div>
 
           {/* ── Booking sidebar ── */}
-          <div className="lg:col-span-4 sticky top-20">
+          <div className="lg:col-span-4 sticky top-28 mt-8 lg:mt-0">
+            {/* BookingPanel generally handles its own internal styling, but sits cleanly here */}
             <BookingPanel property={property} />
           </div>
         </div>
 
         {/* ── Similar properties (full width) ── */}
-        <div className="mt-16 pt-12 border-t border-slate-200/60">
+        <div className="mt-16 pt-12 border-t border-[#DDDDDD]">
           <SimilarProperties
             propertyId={property._id}
             city={property.city}
