@@ -182,7 +182,7 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData, currentFilters 
   const inputClasses = "w-full pl-11 pr-4 py-3.5 bg-white border border-[#DDDDDD] rounded-lg text-[15px] text-[#222222] placeholder:text-[#717171] focus:outline-none focus:ring-1 focus:ring-[#222222] focus:border-blue-600 transition-colors appearance-none";
 
   return (
-    <div className="fixed inset-0 bg-blue-700/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
       <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
 
         {/* ── Header ── */}

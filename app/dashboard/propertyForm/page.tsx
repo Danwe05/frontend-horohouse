@@ -83,12 +83,8 @@ const PropertyFormPage = () => {
   };
 
   return (
-    <SidebarProvider>
       <div className="flex min-h-screen w-full">
         {/* Sidebar */}
-        <AppSidebar />
-        <SidebarInset>
-          <NavDash />
 
           {/* Main Content */}
           <div className="flex-1 min-h-screen  lg:pt-0">
@@ -99,9 +95,7 @@ const PropertyFormPage = () => {
               </div>
             </div>
           </div>
-        </SidebarInset>
       </div>
-    </SidebarProvider>
   );
 };
 

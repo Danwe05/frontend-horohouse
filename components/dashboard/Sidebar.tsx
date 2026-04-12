@@ -319,7 +319,7 @@ export const AppSidebar = () => {
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ffdfbf`;
 
   const getRoleBadge = () => {
-    if (isAdmin) return { icon: Shield, text: b.admin || "Admin", bgColor: "bg-red-50", textColor: "text-red-700", iconColor: "text-red-500" };
+    if (isAdmin) return { icon: Shield, text: b.admin || "Admin", bgColor: "bg-transparent", textColor: "text-red-700", iconColor: "text-red-500" };
     if (isLandlord) return { icon: KeyRound, text: "Landlord", bgColor: "bg-emerald-50", textColor: "text-emerald-700", iconColor: "text-emerald-500" };
     if (isAgent) return { icon: BadgeCheck, text: "Pro Agent", bgColor: "bg-blue-50", textColor: "text-blue-700", iconColor: "text-blue-500" };
     if (isStudent) return { icon: GraduationCap, text: verificationStatus === "verified" ? (b.verifiedStudent || "Verified Student") : (b.student || "Student"), bgColor: "bg-purple-50", textColor: "text-purple-700", iconColor: "text-purple-500" };
@@ -397,7 +397,7 @@ export const AppSidebar = () => {
       <SidebarHeader className="border-b border-border/30 p-4">
         <div className="flex items-center justify-between group">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="relative flex-shrink-0">
+            <div className="relative shrink-0">
               <Link href="/" className="block transition-transform duration-200">
                 <img
                   src="/logoHoroHouseBleueOrdinateur.png"
@@ -408,7 +408,7 @@ export const AppSidebar = () => {
             </div>
             {roleBadge && (
               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <roleBadge.icon className={cn("w-4 h-4 flex-shrink-0", roleBadge.iconColor)} />
+                <roleBadge.icon className={cn("w-4 h-4 shrink-0", roleBadge.iconColor)} />
                 <span className={cn("text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap", roleBadge.bgColor, roleBadge.textColor)}>
                   {roleBadge.text}
                 </span>
@@ -467,7 +467,7 @@ export const AppSidebar = () => {
                     "w-full flex items-center gap-3 px-3 py-2.5 text-foreground rounded-lg transition-all duration-200 group/action hover:translate-x-1 cursor-pointer",
                     isAdmin ? "hover:bg-red-50    hover:text-red-700" :
                       isStudent ? "hover:bg-purple-50 hover:text-purple-700" :
-                        "hover:text-blue-50   hover:text-blue-700"
+                        "hover:bg-blue-50 hover:text-blue-700"
                   )}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
@@ -535,7 +535,7 @@ export const AppSidebar = () => {
                       {group.label}
                     </span>
                     <ChevronRight className={cn(
-                      "w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200",
+                      "w-3.5 h-3.5 shrink-0 transition-transform duration-200",
                       isOpen && "rotate-90",
                       isAdminGroup ? "text-red-400" :
                         isStudentGroup ? "text-purple-400" :
@@ -561,14 +561,14 @@ export const AppSidebar = () => {
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <span className={cn(
-                              "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors duration-200",
+                              "w-1.5 h-1.5 rounded-full shrink-0 transition-colors duration-200",
                               active ? accentDot : "bg-border group-hover/sub:bg-muted-foreground/50"
                             )} />
                             <span className="truncate">{item.label}</span>
                           </div>
                           {item.badge && (
                             <span className={cn(
-                              "px-1.5 py-0.5 text-[10px] font-semibold rounded-full flex-shrink-0 leading-none",
+                              "px-1.5 py-0.5 text-[10px] font-semibold rounded-full shrink-0 leading-none",
                               item.badge === "Admin" ? "bg-red-100 text-red-700" :
                                 item.badge === "Student" ? "bg-purple-100 text-purple-700" :
                                   "bg-emerald-100 text-emerald-700"
@@ -601,12 +601,12 @@ export const AppSidebar = () => {
                   className={cn(
                     "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-all duration-200 group/bottom",
                     isActive
-                      ? "bg-blue-50 text-blue-700 font-medium"
+                      ? "bg-transparent text-blue-700 font-medium"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
                   <div className={cn(
-                    "flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0 transition-colors duration-200",
+                    "flex items-center justify-center w-7 h-7 rounded-md shrink-0 transition-colors duration-200",
                     isActive
                       ? "bg-blue-100 text-blue-600"
                       : "text-muted-foreground group-hover/bottom:text-foreground"

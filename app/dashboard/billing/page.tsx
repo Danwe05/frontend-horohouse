@@ -234,7 +234,7 @@ function WithdrawModal({ wallet, onClose, onSuccess }: { wallet: WalletData; onC
   const inputClasses = "w-full border border-[#DDDDDD] bg-white text-[#222222] rounded-lg px-4 py-3.5 text-[15px] focus:outline-none focus:ring-1 focus:ring-[#222222] focus:border-blue-600 transition-colors placeholder:text-[#717171]";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 bg-blue-700/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="p-6 border-b border-[#DDDDDD] flex items-center justify-between">
           <div>
@@ -387,7 +387,7 @@ function TxModal({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
   const tm = TYPE_META[tx.type] ?? TYPE_META.booking;
   const mm = METHOD_META[tx.paymentMethod] ?? METHOD_META.card;
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 bg-blue-700/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="p-6 border-b border-[#DDDDDD] flex items-start justify-between">
           <div className="flex items-center gap-4">

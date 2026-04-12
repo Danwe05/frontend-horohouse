@@ -1,14 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  GraduationCap, MapPin, Droplets, Zap, Sofa, Users,
-  Clock, ShieldCheck, Wallet, BedDouble, ChevronDown,
-  CheckCircle2, Info, X,
+  GraduationCap, MapPin, Droplets, ShieldCheck, Wallet, BedDouble, Info
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -42,40 +38,53 @@ interface Props {
   onChange: (data: StudentEnrollmentData) => void;
 }
 
-// Options are now moved inside the component to use translations
+// ─── Airbnb-Style Shared UI Components ────────────────────────────────────────
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function SectionHeader({ icon: Icon, title, color = 'text-blue-600', bg = 'bg-blue-50' }: {
-  icon: React.ElementType; title: string; color?: string; bg?: string;
-}) {
+function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="flex items-center gap-2.5 mb-4">
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bg} ${color}`}>
-        <Icon className="w-4 h-4" />
-      </div>
-      <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">{title}</h4>
+    <div className="mb-6">
+      <h3 className="text-2xl font-semibold text-[#222222]">{title}</h3>
+      {subtitle && <p className="text-base text-[#717171] mt-1">{subtitle}</p>}
     </div>
   );
 }
 
-function SelectField({ label, value, options, onChange, placeholder = 'Select…' }: {
-  label: string;
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (v: string) => void;
-  placeholder?: string;
-}) {
+function FormInput({ className, suffix, ...props }: any) {
   return (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</Label>
+    <div className="relative w-full">
+      <input
+        {...props}
+        className={`w-full p-4 text-base border border-[#B0B0B0] rounded-xl text-[#222222] bg-white transition-colors outline-none focus:border-[#222222] focus:ring-1 focus:ring-[#222222] placeholder-[#717171] ${suffix ? 'pr-16' : ''} ${className}`}
+      />
+      {suffix && (
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-base font-semibold text-[#222222]">
+          {suffix}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function InputLabel({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div className="mb-2">
+      <Label className="text-[#222222] text-base font-semibold block">{title}</Label>
+      {subtitle && <span className="text-sm text-[#717171]">{subtitle}</span>}
+    </div>
+  );
+}
+
+function SelectField({ label, value, options, onChange, placeholder = 'Select…' }: any) {
+  return (
+    <div className="w-full">
+      <InputLabel title={label} />
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full px-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 appearance-none"
+        className="w-full p-4 text-base border border-[#B0B0B0] rounded-xl text-[#222222] bg-white outline-none focus:border-[#222222] appearance-none"
       >
-        <option value="">{placeholder}</option>
-        {options.map(o => (
+        <option value="" disabled>{placeholder}</option>
+        {options.map((o: any) => (
           <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </select>
@@ -83,48 +92,38 @@ function SelectField({ label, value, options, onChange, placeholder = 'Select…
   );
 }
 
-function NumberField({ label, value, onChange, min = 0, placeholder = '0', suffix }: {
-  label: string; value: number | undefined; onChange: (v: number | undefined) => void;
-  min?: number; placeholder?: string; suffix?: string;
-}) {
+function AirbnbToggleRow({ label, desc, value, onChange }: { label: string; desc?: string; value: boolean; onChange: (v: boolean) => void; }) {
   return (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</Label>
-      <div className="relative">
-        <Input
-          type="number"
-          min={min}
-          value={value ?? ''}
-          onChange={e => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-          placeholder={placeholder}
-          className="border-slate-200 bg-slate-50 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-400 pr-12"
-        />
-        {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">{suffix}</span>
-        )}
+    <div className="flex items-center justify-between py-6 border-b border-[#EBEBEB] cursor-pointer" onClick={() => onChange(!value)}>
+      <div className="pr-4">
+        <div className="text-base text-[#222222] font-semibold">{label}</div>
+        {desc && <div className="text-sm text-[#717171] mt-1 leading-snug">{desc}</div>}
       </div>
+      <button 
+        type="button" 
+        className={`w-12 h-8 rounded-full transition-colors relative flex-shrink-0 ${value ? 'bg-[#222222]' : 'bg-[#B0B0B0]'}`}
+      >
+        <div className={`w-7 h-7 bg-white rounded-full absolute top-0.5 transition-transform ${value ? 'right-0.5' : 'left-0.5'}`} />
+      </button>
     </div>
   );
 }
 
-function ToggleRow({ label, desc, value, onChange }: {
-  label: string; desc?: string; value: boolean; onChange: (v: boolean) => void;
-}) {
+function CounterRow({ title, subtitle, value = 0, onIncrement, onDecrement }: any) {
   return (
-    <div
-      onClick={() => onChange(!value)}
-      className={`flex items-center justify-between p-3.5 rounded-xl border-1 cursor-pointer transition-all duration-200 ${value
-        ? 'border-emerald-300 bg-emerald-50'
-        : 'border-slate-200 bg-slate-50 hover:border-slate-300'
-        }`}
-    >
+    <div className="flex items-center justify-between py-6 border-b border-[#EBEBEB]">
       <div>
-        <p className={`text-sm font-semibold ${value ? 'text-emerald-800' : 'text-slate-700'}`}>{label}</p>
-        {desc && <p className="text-xs text-slate-400 mt-0.5">{desc}</p>}
+        <div className="text-base text-[#222222] font-semibold">{title}</div>
+        {subtitle && <div className="text-sm text-[#717171] mt-1">{subtitle}</div>}
       </div>
-      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${value ? 'bg-emerald-500' : 'bg-slate-200'
-        }`}>
-        {value && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+      <div className="flex items-center gap-4">
+        <button type="button" onClick={onDecrement} className="w-8 h-8 rounded-full border border-[#B0B0B0] flex items-center justify-center text-[#717171] hover:border-[#222222] hover:text-[#222222] disabled:opacity-30">
+          -
+        </button>
+        <span className="w-4 text-center text-base text-[#222222]">{value}</span>
+        <button type="button" onClick={onIncrement} className="w-8 h-8 rounded-full border border-[#B0B0B0] flex items-center justify-center text-[#717171] hover:border-[#222222] hover:text-[#222222]">
+          +
+        </button>
       </div>
     </div>
   );
@@ -168,52 +167,48 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-      {/* Header opt-in card */}
+      {/* Main Opt-in Card */}
       <div
         onClick={() => set('enabled', !data.enabled)}
-        className={`relative overflow-hidden rounded-2xl border-1 cursor-pointer transition-all duration-300 ${data.enabled
-          ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50'
-          : 'border-slate-200 bg-slate-50 hover:border-blue-300'
-          }`}
+        className={`relative overflow-hidden rounded-2xl border-2 cursor-pointer transition-all duration-300 p-6 sm:p-8 flex items-start gap-6 ${
+          data.enabled
+            ? 'border-[#222222] bg-[#F7F7F7]'
+            : 'border-[#B0B0B0] bg-white hover:border-[#222222]'
+        }`}
       >
-        <div className="p-5 flex items-start gap-4">
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all ${data.enabled ? 'bg-blue-600' : 'bg-slate-200'
-            }`}>
-            <GraduationCap className={`w-6 h-6 ${data.enabled ? 'text-white' : 'text-slate-400'}`} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <p className={`font-bold text-base ${data.enabled ? 'text-blue-900' : 'text-slate-700'}`}>
-                {s.enrollTitle || 'Enroll in Student Housing Programme'}
-              </p>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-1 transition-all ${data.enabled ? 'border-blue-500 bg-blue-500' : 'border-slate-300'
-                }`}>
-                {data.enabled && <CheckCircle2 className="w-4 h-4 text-white" />}
-              </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-2xl font-semibold text-[#222222] mb-2">
+            {s.enrollTitle || 'Enroll in Student Housing Programme'}
+          </h2>
+          <p className="text-base text-[#717171] leading-relaxed">
+            {s.enrollDesc || 'Make this property visible in the dedicated student housing search. Students can filter by campus distance, water source, electricity backup, and more.'}
+          </p>
+          
+          {data.enabled && (
+            <div className="flex flex-wrap gap-2 mt-6">
+              {[(s.tagSearch || 'Student search'), (s.tagFilters || 'Campus filters'), (s.tagApproved || 'Student-Approved')].map(tag => (
+                <span key={tag} className="text-xs font-semibold bg-white border border-[#DDDDDD] text-[#222222] px-3 py-1.5 rounded-full">
+                  {tag}
+                </span>
+              ))}
             </div>
-            <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-              {s.enrollDesc || 'Make this property visible in the student housing search. Students can filter by campus distance, water source, electricity backup, and more.'}
-            </p>
-            {data.enabled && (
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                {[(s.tagSearch || 'Student search'), (s.tagFilters || 'Campus filters'), (s.tagApproved || 'Student-Approved eligible')].map(tag => (
-                  <span key={tag} className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wide">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+          )}
+        </div>
+
+        {/* Toggle Switch inside the card */}
+        <div className="pt-1 hidden sm:block">
+           <button type="button" className={`w-14 h-8 rounded-full transition-colors relative ${data.enabled ? 'bg-[#222222]' : 'bg-[#B0B0B0]'}`}>
+            <div className={`w-7 h-7 bg-white rounded-full absolute top-0.5 transition-transform ${data.enabled ? 'right-0.5' : 'left-0.5'}`} />
+          </button>
         </div>
       </div>
 
-      {/* Optional tip */}
       {!data.enabled && (
-        <div className="flex items-start gap-2.5 p-3.5 bg-amber-50 border border-amber-200 rounded-xl">
-          <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-700 leading-relaxed">
+        <div className="flex items-start gap-3 text-[#717171]">
+          <Info className="w-5 h-5 shrink-0" />
+          <p className="text-sm leading-relaxed">
             {s.optionalTip || 'This step is optional. You can enroll your property later from your property management dashboard.'}
           </p>
         </div>
@@ -223,111 +218,120 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
       <AnimatePresence>
         {data.enabled && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            initial={{ opacity: 0, y: 10, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: 10, height: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="space-y-8 pt-2">
+            <div className="space-y-12 pt-6">
 
               {/* ── 1. Campus distance ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
-                <SectionHeader icon={MapPin} title={s.campusDistanceTitle || "Campus Distance"} color="text-blue-600" bg="bg-blue-50" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{s.nearestCampusLabel || 'Nearest Campus'}</Label>
-                    <Input
+              <section>
+                <SectionHeader title={s.campusDistanceTitle || "Campus Distance"} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="sm:col-span-2">
+                    <InputLabel title={s.nearestCampusLabel || 'Nearest Campus'} subtitle="e.g. University of Buea" />
+                    <FormInput
                       value={data.nearestCampus ?? ''}
-                      onChange={e => set('nearestCampus', e.target.value)}
-                      placeholder={s.nearestCampusPlaceholder || "e.g. University of Buea"}
-                      className="border-slate-200 bg-slate-50 rounded-xl focus:ring-2 focus:ring-blue-300"
+                      onChange={(e: any) => set('nearestCampus', e.target.value)}
+                      placeholder={s.nearestCampusPlaceholder || "Enter institution name"}
                     />
                   </div>
-                  <NumberField
-                    label={s.campusProximityLabel || "Campus Proximity"}
-                    value={data.campusProximityMeters}
-                    onChange={v => set('campusProximityMeters', v)}
-                    placeholder={s.campusProximityPlaceholder || "e.g. 500"}
-                    suffix="m"
-                  />
-                  <NumberField
-                    label={s.walkingTimeLabel || "Walking Time"}
-                    value={data.walkingMinutes}
-                    onChange={v => set('walkingMinutes', v)}
-                    placeholder={s.walkingTimePlaceholder || "e.g. 7"}
-                    suffix="min"
-                  />
-                  <NumberField
-                    label={s.taxiTimeLabel || "Taxi / Moto Time"}
-                    value={data.taxiMinutes}
-                    onChange={v => set('taxiMinutes', v)}
-                    placeholder={s.taxiTimePlaceholder || "e.g. 3"}
-                    suffix="min"
-                  />
+                  <div>
+                    <InputLabel title={s.campusProximityLabel || "Distance to Campus"} />
+                    <FormInput
+                      type="number"
+                      min={0}
+                      value={data.campusProximityMeters ?? ''}
+                      onChange={(e: any) => set('campusProximityMeters', e.target.value === '' ? undefined : Number(e.target.value))}
+                      placeholder="500"
+                      suffix="m"
+                    />
+                  </div>
+                  <div>
+                    <InputLabel title={s.walkingTimeLabel || "Walking Time"} />
+                    <FormInput
+                      type="number"
+                      min={0}
+                      value={data.walkingMinutes ?? ''}
+                      onChange={(e: any) => set('walkingMinutes', e.target.value === '' ? undefined : Number(e.target.value))}
+                      placeholder="7"
+                      suffix="min"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <InputLabel title={s.taxiTimeLabel || "Taxi / Moto Time"} />
+                    <FormInput
+                      type="number"
+                      min={0}
+                      value={data.taxiMinutes ?? ''}
+                      onChange={(e: any) => set('taxiMinutes', e.target.value === '' ? undefined : Number(e.target.value))}
+                      placeholder="3"
+                      suffix="min"
+                    />
+                  </div>
                 </div>
               </section>
 
+              <hr className="border-[#EBEBEB]" />
+
               {/* ── 2. Infrastructure ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
-                <SectionHeader icon={Droplets} title={s.infrastructureTitle || "Infrastructure"} color="text-teal-600" bg="bg-teal-50" />
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <section>
+                <SectionHeader title={s.infrastructureTitle || "Infrastructure & Setup"} />
+                <div className="grid grid-cols-1 gap-6">
                   <SelectField
                     label={s.waterSourceLabel || "Water Source"}
                     value={data.waterSource ?? ''}
                     options={WATER_OPTIONS}
-                    onChange={v => set('waterSource', v)}
-                    placeholder={s.selectPlaceholder || "Select…"}
+                    onChange={(v: string) => set('waterSource', v)}
                   />
                   <SelectField
                     label={s.electricityBackupLabel || "Electricity Backup"}
                     value={data.electricityBackup ?? ''}
                     options={ELECTRICITY_OPTIONS}
-                    onChange={v => set('electricityBackup', v)}
-                    placeholder={s.selectPlaceholder || "Select…"}
+                    onChange={(v: string) => set('electricityBackup', v)}
                   />
                   <SelectField
-                    label={s.furnishingLabel || "Furnishing"}
+                    label={s.furnishingLabel || "Furnishing Status"}
                     value={data.furnishingStatus ?? ''}
                     options={FURNISHING_OPTIONS}
-                    onChange={v => set('furnishingStatus', v)}
-                    placeholder={s.selectPlaceholder || "Select…"}
+                    onChange={(v: string) => set('furnishingStatus', v)}
                   />
                 </div>
               </section>
 
+              <hr className="border-[#EBEBEB]" />
+
               {/* ── 3. House rules ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
-                <SectionHeader icon={Clock} title={s.houseRulesTitle || "House Rules"} color="text-amber-600" bg="bg-amber-50" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <section>
+                <SectionHeader title={s.houseRulesTitle || "House Rules"} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
                   <SelectField
                     label={s.genderRestrictionLabel || "Gender Restriction"}
                     value={data.genderRestriction ?? ''}
                     options={GENDER_OPTIONS}
-                    onChange={v => set('genderRestriction', v)}
-                    placeholder={s.selectPlaceholder || "Select…"}
+                    onChange={(v: string) => set('genderRestriction', v)}
                   />
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{s.curfewTimeLabel || "Curfew Time"}</Label>
-                    <Input
+                  <div>
+                    <InputLabel title={s.curfewTimeLabel || "Curfew Time"} subtitle={s.curfewTimeHelp || "Leave empty if no curfew"} />
+                    <FormInput
                       type="time"
                       value={data.curfewTime ?? ''}
-                      onChange={e => set('curfewTime', e.target.value)}
-                      className="border-slate-200 bg-slate-50 rounded-xl focus:ring-2 focus:ring-blue-300"
+                      onChange={(e: any) => set('curfewTime', e.target.value)}
                     />
-                    <p className="text-[10px] text-slate-400">{s.curfewTimeHelp || "Leave empty if no curfew."}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <ToggleRow
+                <div className="mt-4">
+                  <AirbnbToggleRow
                     label={s.visitorsAllowedLabel || "Visitors allowed"}
-                    desc={s.visitorsAllowedDesc || "Guests can enter the compound"}
+                    desc={s.visitorsAllowedDesc || "Guests can enter the compound and visit rooms."}
                     value={data.visitorsAllowed ?? false}
                     onChange={v => set('visitorsAllowed', v)}
                   />
-                  <ToggleRow
+                  <AirbnbToggleRow
                     label={s.cookingAllowedLabel || "Cooking allowed"}
-                    desc={s.cookingAllowedDesc || "Students can cook in their room"}
+                    desc={s.cookingAllowedDesc || "Students are permitted to cook inside their room."}
                     value={data.cookingAllowed ?? false}
                     onChange={v => set('cookingAllowed', v)}
                   />
@@ -335,20 +339,21 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
               </section>
 
               {/* ── 4. Security ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
-                <SectionHeader icon={ShieldCheck} title={s.securityTitle || "Security"} color="text-emerald-600" bg="bg-emerald-50" />
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <ToggleRow
+              <section>
+                <SectionHeader title={s.securityTitle || "Security"} />
+                <div>
+                  <AirbnbToggleRow
                     label={s.gatedCompoundLabel || "Gated compound"}
                     value={data.hasGatedCompound ?? false}
                     onChange={v => set('hasGatedCompound', v)}
                   />
-                  <ToggleRow
+                  <AirbnbToggleRow
                     label={s.nightWatchmanLabel || "Night watchman"}
+                    desc="Property has a dedicated security guard at night."
                     value={data.hasNightWatchman ?? false}
                     onChange={v => set('hasNightWatchman', v)}
                   />
-                  <ToggleRow
+                  <AirbnbToggleRow
                     label={s.secureFenceLabel || "Secure fence"}
                     value={data.hasFence ?? false}
                     onChange={v => set('hasFence', v)}
@@ -357,55 +362,58 @@ export function StudentEnrollmentStep({ data, onChange }: Props) {
               </section>
 
               {/* ── 5. Rent terms ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
-                <SectionHeader icon={Wallet} title={s.rentTermsTitle || "Rent Terms"} color="text-purple-600" bg="bg-purple-50" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <NumberField
-                    label={s.maxAdvanceMonthsLabel || "Max Advance Months"}
-                    value={data.maxAdvanceMonths}
-                    onChange={v => set('maxAdvanceMonths', v)}
-                    min={1}
-                    placeholder={s.maxAdvanceMonthsPlaceholder || "e.g. 3"}
-                    suffix="mo"
-                  />
-                  <NumberField
-                    label={s.pricePerPersonLabel || "Price Per Person / Mo"}
-                    value={data.pricePerPersonMonthly}
-                    onChange={v => set('pricePerPersonMonthly', v)}
-                    placeholder={s.pricePerPersonPlaceholder || "e.g. 25000"}
-                    suffix="XAF"
+              <section>
+                <SectionHeader title={s.rentTermsTitle || "Rent Terms"} subtitle="Special payment terms for students" />
+                <div className="grid grid-cols-1 gap-6 mb-6">
+                  <div>
+                    <InputLabel title={s.maxAdvanceMonthsLabel || "Max Advance Months"} subtitle="Maximum number of months rent required upfront." />
+                    <FormInput
+                      type="number"
+                      min={1}
+                      value={data.maxAdvanceMonths ?? ''}
+                      onChange={(e: any) => set('maxAdvanceMonths', e.target.value === '' ? undefined : Number(e.target.value))}
+                      placeholder="e.g. 3"
+                      suffix="Months"
+                    />
+                  </div>
+                  <div>
+                    <InputLabel title={s.pricePerPersonLabel || "Price Per Person (Monthly)"} subtitle="Useful if charging per student rather than per room." />
+                    <FormInput
+                      type="number"
+                      min={0}
+                      value={data.pricePerPersonMonthly ?? ''}
+                      onChange={(e: any) => set('pricePerPersonMonthly', e.target.value === '' ? undefined : Number(e.target.value))}
+                      placeholder="e.g. 25000"
+                      suffix="XAF"
+                    />
+                  </div>
+                </div>
+                <div className="border-t border-[#EBEBEB]">
+                  <AirbnbToggleRow
+                    label={s.acceptsRentAdvanceLabel || "Accept HoroHouse rent-advance scheme"}
+                    desc={s.acceptsRentAdvanceDesc || "Allow students to pay rent in installments via HoroHouse microfinance. You still get paid upfront."}
+                    value={data.acceptsRentAdvanceScheme ?? false}
+                    onChange={v => set('acceptsRentAdvanceScheme', v)}
                   />
                 </div>
-                <ToggleRow
-                  label={s.acceptsRentAdvanceLabel || "Accept HoroHouse rent-advance scheme"}
-                  desc={s.acceptsRentAdvanceDesc || "Allow students to pay rent in installments via HoroHouse microfinance"}
-                  value={data.acceptsRentAdvanceScheme ?? false}
-                  onChange={v => set('acceptsRentAdvanceScheme', v)}
-                />
               </section>
 
               {/* ── 6. Colocation ── */}
-              <section className="bg-white rounded-2xl border border-slate-100 p-5 -sm">
-                <SectionHeader icon={BedDouble} title={s.colocationTitle || "Colocation (Shared Housing)"} color="text-pink-600" bg="bg-pink-50" />
-                <p className="text-xs text-slate-400 mb-4 -mt-2">
-                  {s.colocationDesc || "Fill this section if multiple students share the same unit."}
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <NumberField
-                    label={s.totalBedsLabel || "Total Beds in Unit"}
-                    value={data.totalBeds}
-                    onChange={v => set('totalBeds', v)}
-                    min={1}
-                    placeholder={s.totalBedsPlaceholder || "e.g. 2"}
-                    suffix={s.bedsSuffix || "beds"}
+              <section>
+                <SectionHeader title={s.colocationTitle || "Colocation (Shared Housing)"} subtitle={s.colocationDesc || "Complete this section if multiple students will share the exact same room or unit."} />
+                <div className="border-t border-[#EBEBEB]">
+                  <CounterRow
+                    title={s.totalBedsLabel || "Total Beds in Unit"}
+                    value={data.totalBeds ?? 0}
+                    onDecrement={() => set('totalBeds', Math.max(0, (data.totalBeds ?? 0) - 1))}
+                    onIncrement={() => set('totalBeds', (data.totalBeds ?? 0) + 1)}
                   />
-                  <NumberField
-                    label={s.availableBedsLabel || "Available Beds"}
-                    value={data.availableBeds}
-                    onChange={v => set('availableBeds', v)}
-                    min={0}
-                    placeholder={s.availableBedsPlaceholder || "e.g. 1"}
-                    suffix={s.freeSuffix || "free"}
+                  <CounterRow
+                    title={s.availableBedsLabel || "Available Beds"}
+                    subtitle="Number of beds currently open for rent."
+                    value={data.availableBeds ?? 0}
+                    onDecrement={() => set('availableBeds', Math.max(0, (data.availableBeds ?? 0) - 1))}
+                    onIncrement={() => set('availableBeds', (data.availableBeds ?? 0) + 1)}
                   />
                 </div>
               </section>

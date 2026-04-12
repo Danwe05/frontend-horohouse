@@ -110,14 +110,11 @@ export default function PremiumNotificationDropdown() {
       className="overflow-hidden sm:rounded-2xl border border-[#DDDDDD] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.18)] flex flex-col w-full h-full sm:h-auto"
     >
       {/* Header */}
-      <div className="px-6 py-5 border-b border-[#DDDDDD] bg-white flex items-center justify-between flex-shrink-0">
+      <div className="px-6 py-4 border-b border-[#DDDDDD] bg-white flex items-center justify-between flex-shrink-0">
         <div>
           <h3 className="text-[16px] font-semibold text-[#222222] tracking-tight">Notifications</h3>
-          <div className="flex items-center gap-1.5 mt-1">
-            <div className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-[#008A05]' : 'bg-[#DDDDDD]'}`} />
-            <span className="text-[12px] font-medium text-[#717171]">
-              {isConnected ? 'Real-time' : 'Reconnecting...'}
-            </span>
+          <div className="flex items-center mt-1">
+        
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -201,13 +198,6 @@ export default function PremiumNotificationDropdown() {
       {/* Footer */}
       <div className="px-6 py-4 bg-white border-t border-[#DDDDDD] flex items-center justify-between flex-shrink-0">
         <div className="flex gap-2">
-          <button
-            onClick={loadNotifications}
-            className="p-2 -ml-2 text-[#222222] hover:bg-[#F7F7F7] rounded-full transition-colors focus:outline-none"
-            aria-label="Refresh"
-          >
-            <RefreshCw className={`w-5 h-5 stroke-[1.5] ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
           <button className="p-2 text-[#222222] hover:bg-[#F7F7F7] rounded-full transition-colors focus:outline-none" aria-label="Settings">
             <Settings className="w-5 h-5 stroke-[1.5]" />
           </button>
@@ -279,7 +269,7 @@ export default function PremiumNotificationDropdown() {
           <>
             <div
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-blue-700/50 backdrop-blur-sm z-[9998]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
             />
             <div
               className="fixed bottom-0 left-0 right-0 z-[9999] bg-white rounded-t-3xl overflow-hidden shadow-[0_-4px_16px_rgba(0,0,0,0.15)]"

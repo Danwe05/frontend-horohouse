@@ -120,7 +120,7 @@ const Navigation = () => {
 
         {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 bg-blue-700/50 z-40" onClick={() => setMobileMenuOpen(false)}>
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
             <div
               className="fixed right-0 top-0 h-full w-64 bg-white -2xl p-6 animate-in slide-in-from-right duration-300"
               onClick={(e) => e.stopPropagation()}

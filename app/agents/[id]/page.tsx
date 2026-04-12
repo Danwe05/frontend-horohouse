@@ -215,7 +215,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-blue-700/50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-lg border border-gray-200 -xl">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">

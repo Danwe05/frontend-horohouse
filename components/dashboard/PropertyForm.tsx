@@ -1,18 +1,30 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
 import { createPropertyWithMedia } from '@/lib/services/propertyCreateWithMedia';
 import { apiClient } from '@/lib/api';
-import { Building2, MapPin, Hash, ArrowLeft, ArrowRight, Home, DollarSign, Bed, Bath, Maximize, CheckCircle2, FileText, Wrench, Image as ImageIcon, Globe, X, Star, Users, Shield, GraduationCap, Zap, Tag, Coffee, Warehouse, Hotel, Trees, Dumbbell, Landmark, ShoppingBag, Car, Wifi } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import {
+  Building2, Home, CheckCircle2, Wrench, Image as ImageIcon,
+  Globe, X, Star, Users, Shield, GraduationCap, Zap, Tag, Coffee,
+  Hotel, Trees, Dumbbell, Landmark, ShoppingBag, Car, Wifi,
+  Navigation, Train, Bus, Plane, ChevronDown, Wind,
+} from 'lucide-react';
 import { StudentEnrollmentStep, StudentEnrollmentData } from '@/components/dashboard/StudentEnrollmentStep';
-import MapView from '@/components/property/MapView';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+
+// Lazy-load MapView — never blocks form paint, survives step transitions
+const MapView = dynamic(() => import('@/components/property/MapView'), {
+  ssr: false,
+  loading: () => <div className="h-[300px] rounded-xl bg-[#EBEBEB] animate-pulse" />,
+});
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type LocationSuggestion = {
   id: string;
@@ -33,14 +45,11 @@ interface PropertyImage {
 }
 
 interface PropertyFormData {
-  // Basic Information
   title: string;
   description: string;
   type: string;
   listingType: string;
   price: string;
-
-  // Property Details
   area: string;
   yearBuilt: string;
   floorNumber: string;
@@ -48,16 +57,12 @@ interface PropertyFormData {
   pricePerSqm: string;
   depositAmount: string;
   maintenanceFee: string;
-
-  // Location
   address: string;
   city: string;
   neighborhood: string;
   country: string;
   latitude: string;
   longitude: string;
-
-  // Amenities
   bedrooms: number;
   bathrooms: number;
   parkingSpaces: number;
@@ -71,8 +76,6 @@ interface PropertyFormData {
   hasInternet: boolean;
   hasGenerator: boolean;
   furnished: boolean;
-
-  // Short-Term Rental Fields
   pricingUnit: string;
   minNights: number;
   maxNights: number;
@@ -84,8 +87,6 @@ interface PropertyFormData {
   bookingWindowDays: number;
   weeklyDiscountPercent: number;
   monthlyDiscountPercent: number;
-
-  // Short-Term Amenities
   maxGuests: number;
   checkInTime: string;
   checkOutTime: string;
@@ -102,13 +103,9 @@ interface PropertyFormData {
   airportTransfer: boolean;
   conciergeService: boolean;
   dailyHousekeeping: boolean;
-
-  // Features
   keywords: string;
   nearbyAmenities: string[];
   transportAccess: string[];
-
-  // Media
   images: PropertyImage[];
   floorPlan: File | null;
   floorPlanPreview: string;
@@ -125,153 +122,320 @@ interface PropertyFormProps {
   isEditMode?: boolean;
 }
 
+// ─── Draft helpers ────────────────────────────────────────────────────────────
+
+const DRAFT_KEY = 'horohouse_property_draft';
+
+function saveDraft(data: PropertyFormData) {
+  try {
+    const { images, floorPlan, documents, ...rest } = data;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(rest));
+  } catch { /* quota exceeded — silently skip */ }
+}
+
+function loadDraft(): Partial<PropertyFormData> | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch { }
+}
+
+// ─── Step system ──────────────────────────────────────────────────────────────
+
+type StepDef = { id: string; label: string };
+
+function getSteps(listingType: string): StepDef[] {
+  const base: StepDef[] = [
+    { id: 'basics', label: 'Basics' },
+    { id: 'location', label: 'Location' },
+    { id: 'details', label: 'Details' },
+    { id: 'amenities', label: 'Amenities' },
+    { id: 'nearby', label: 'Nearby' },
+    { id: 'photos', label: 'Photos' },
+  ];
+  if (listingType === 'rent') base.push({ id: 'students', label: 'Students' });
+  if (listingType === 'short_term') base.push({ id: 'booking', label: 'Booking' });
+  base.push({ id: 'review', label: 'Review' });
+  return base;
+}
+
+// ─── Default state ────────────────────────────────────────────────────────────
+
+const DEFAULT_FORM: PropertyFormData = {
+  title: '', description: '', type: 'apartment', listingType: 'sale',
+  price: '', area: '', yearBuilt: '', floorNumber: '', totalFloors: '',
+  pricePerSqm: '', depositAmount: '', maintenanceFee: '',
+  address: '', city: '', neighborhood: '', country: '',
+  latitude: '', longitude: '',
+  bedrooms: 1, bathrooms: 1, parkingSpaces: 0,
+  hasGarden: false, hasPool: false, hasGym: false, hasSecurity: false,
+  hasElevator: false, hasBalcony: false, hasAirConditioning: false,
+  hasInternet: false, hasGenerator: false, furnished: false,
+  pricingUnit: 'nightly', minNights: 1, maxNights: 365,
+  cleaningFee: '0', serviceFee: '0', isInstantBookable: false,
+  cancellationPolicy: 'flexible', advanceNoticeDays: 0, bookingWindowDays: 365,
+  weeklyDiscountPercent: 0, monthlyDiscountPercent: 0, maxGuests: 2,
+  checkInTime: '14:00', checkOutTime: '11:00',
+  hasWifi: false, hasBreakfast: false, hasTv: false, hasKitchen: false,
+  hasWasher: false, hasHeating: false, petsAllowed: false, smokingAllowed: false,
+  partiesAllowed: false, wheelchairAccessible: false, airportTransfer: false,
+  conciergeService: false, dailyHousekeeping: false,
+  keywords: '', nearbyAmenities: [], transportAccess: [],
+  images: [], floorPlan: null, floorPlanPreview: '', documents: [],
+  virtualTourUrl: '', videoUrl: '', tourType: 'images',
+};
+
+// ─── Icon stand-ins for lucide versions that may lack newer icons ──────────────
+// Replace these with the real imports once you confirm they exist in your version.
+const Waves = (p: any) => <Globe {...p} />;
+const WashingMachine = (p: any) => <Wrench {...p} />;
+const Tv = (p: any) => <Globe {...p} />;
+const Flame = (p: any) => <Zap {...p} />;
+const PawPrint = (p: any) => <Star {...p} />;
+const Cigarette = (p: any) => <Globe {...p} />;
+const Accessibility = (p: any) => <Users {...p} />;
+const ConciergeBell = (p: any) => <Star {...p} />;
+const Sparkles = (p: any) => <Star {...p} />;
+const PartyPopper = (p: any) => <Star {...p} />;
+const BedDouble = (p: any) => <Home {...p} />;
+const Bath = (p: any) => <Home {...p} />;
+const ParkingCircle = (p: any) => <Car {...p} />;
+const SquareDashed = (p: any) => <Globe {...p} />;
+const CalendarClock = (p: any) => <Hotel {...p} />;
+const Utensils = (p: any) => <Coffee {...p} />;
+
+// ─── Small UI atoms ───────────────────────────────────────────────────────────
+
+const SelectCard = ({ selected, onClick, icon: Icon, title }: any) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`flex flex-col items-start gap-3 p-4 rounded-xl border-1 transition-all w-full text-left
+      ${selected
+        ? 'border-[#222222] bg-[#F7F7F7]'
+        : 'border-[#DDDDDD] hover:border-[#222222] bg-white'}`}
+  >
+    <Icon className="w-7 h-7 text-[#222222]" />
+    <span className="font-semibold text-[#222222] text-sm leading-snug">{title}</span>
+  </button>
+);
+
+const InputLabel = ({ title, subtitle }: any) => (
+  <div className="mb-2">
+    <Label className="text-[#222222] text-base font-semibold block">{title}</Label>
+    {subtitle && <span className="text-sm text-[#717171]">{subtitle}</span>}
+  </div>
+);
+
+const FormInput = ({ className = '', ...props }: any) => (
+  <input
+    {...props}
+    className={`w-full p-4 text-base border border-[#DDDDDD] rounded-xl text-[#222222] bg-white transition-colors outline-none focus:border-[#222222] focus:ring-1 focus:ring-[#222222] placeholder-[#B0B0B0] ${className}`}
+  />
+);
+
+const CounterRow = ({ title, subtitle, value, onIncrement, onDecrement, min = 0, icon: Icon }: any) => (
+  <div className="flex items-center justify-between py-5 border-b border-[#EBEBEB] last:border-0">
+    <div className="flex items-center gap-3">
+      {Icon && <Icon className="w-5 h-5 text-[#717171]" />}
+      <div>
+        <div className="text-base text-[#222222] font-semibold">{title}</div>
+        {subtitle && <div className="text-sm text-[#717171]">{subtitle}</div>}
+      </div>
+    </div>
+    <div className="flex items-center gap-4">
+      <button
+        type="button"
+        onClick={onDecrement}
+        disabled={value <= min}
+        className="w-9 h-9 rounded-full border border-[#DDDDDD] flex items-center justify-center text-xl text-[#717171] hover:border-[#222222] hover:text-[#222222] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >−</button>
+      <span className="w-6 text-center text-base font-semibold text-[#222222]">{value}</span>
+      <button
+        type="button"
+        onClick={onIncrement}
+        className="w-9 h-9 rounded-full border border-[#DDDDDD] flex items-center justify-center text-xl text-[#717171] hover:border-[#222222] hover:text-[#222222] transition-colors"
+      >+</button>
+    </div>
+  </div>
+);
+
+// Amenity card — icon + label, distinct per feature
+const AmenityCard = ({ name, label, icon: Icon, checked, onToggle }: {
+  name: string; label: string; icon: any; checked: boolean; onToggle: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className={`flex items-center gap-3 px-4 py-3 rounded-xl border-1 transition-all text-left w-full
+      ${checked
+        ? 'border-[#222222] bg-[#F7F7F7] text-[#222222]'
+        : 'border-[#DDDDDD] bg-white text-[#717171] hover:border-[#222222] hover:text-[#222222]'}`}
+  >
+    <Icon className="w-5 h-5 shrink-0" />
+    <span className="text-sm font-semibold">{label}</span>
+  </button>
+);
+
+// Persistent listing type badge in header
+const ListingTypeBadge = ({ type }: { type: string }) => {
+  const map: Record<string, { label: string; color: string }> = {
+    sale: { label: 'For Sale', color: 'bg-emerald-100 text-emerald-700' },
+    rent: { label: 'For Rent', color: 'bg-blue-100 text-blue-700' },
+    short_term: { label: 'Short Stay', color: 'bg-orange-100 text-orange-700' },
+  };
+  const cfg = map[type] || map.sale;
+  return (
+    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${cfg.color}`}>
+      {cfg.label}
+    </span>
+  );
+};
+
+// Breadcrumb in header — shows all step names, highlights current
+const StepBreadcrumb = ({ steps, current }: { steps: StepDef[]; current: number }) => (
+  <div className="hidden sm:flex items-center gap-1 text-sm">
+    {steps.map((s, i) => (
+      <React.Fragment key={s.id}>
+        <span className={`font-semibold transition-colors ${i === current - 1 ? 'text-[#222222]' : 'text-[#B0B0B0]'}`}>
+          {s.label}
+        </span>
+        {i < steps.length - 1 && <span className="text-[#DDDDDD] mx-0.5">›</span>}
+      </React.Fragment>
+    ))}
+  </div>
+);
+
+// ─── Amenity definitions (each with its own distinct icon) ────────────────────
+
+const BASE_AMENITIES = [
+  { name: 'hasWifi', label: 'WiFi', icon: Wifi },
+  { name: 'hasTv', label: 'TV', icon: Tv },
+  { name: 'hasKitchen', label: 'Kitchen', icon: Utensils },
+  { name: 'hasWasher', label: 'Washer', icon: WashingMachine },
+  { name: 'hasAirConditioning', label: 'Air Conditioning', icon: Wind },
+  { name: 'hasPool', label: 'Pool', icon: Waves },
+  { name: 'hasGarden', label: 'Garden', icon: Trees },
+  { name: 'hasGym', label: 'Gym', icon: Dumbbell },
+  { name: 'hasSecurity', label: 'Security', icon: Shield },
+  { name: 'hasElevator', label: 'Elevator', icon: Building2 },
+  { name: 'hasBalcony', label: 'Balcony', icon: SquareDashed },
+  { name: 'hasGenerator', label: 'Generator', icon: Zap },
+  { name: 'hasInternet', label: 'Internet', icon: Globe },
+  { name: 'furnished', label: 'Furnished', icon: Home },
+  { name: 'hasHeating', label: 'Heating', icon: Flame },
+];
+
+const SHORT_TERM_AMENITIES = [
+  { name: 'hasBreakfast', label: 'Breakfast', icon: Coffee },
+  { name: 'petsAllowed', label: 'Pets OK', icon: PawPrint },
+  { name: 'smokingAllowed', label: 'Smoking OK', icon: Cigarette },
+  { name: 'wheelchairAccessible', label: 'Wheelchair', icon: Accessibility },
+  { name: 'airportTransfer', label: 'Airport Transfer', icon: Plane },
+  { name: 'conciergeService', label: 'Concierge', icon: ConciergeBell },
+  { name: 'dailyHousekeeping', label: 'Housekeeping', icon: Sparkles },
+  { name: 'partiesAllowed', label: 'Parties OK', icon: PartyPopper },
+];
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 const PropertyForm: React.FC<PropertyFormProps> = ({
   onAdd,
   initialData = null,
   propertyId = null,
-  isEditMode = false
+  isEditMode = false,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [stepDirection, setStepDirection] = useState(1);
   const [dragActive, setDragActive] = useState(false);
+  const [showLatLng, setShowLatLng] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
   const { t } = useLanguage();
-  const _t = t as any;
-  const s = _t.propertyForm || {};
 
-  const [formData, setFormData] = useState<PropertyFormData>({
-    title: '',
-    description: '',
-    type: 'apartment',
-    listingType: 'sale',
-    price: '',
-    area: '',
-    yearBuilt: '',
-    floorNumber: '',
-    totalFloors: '',
-    pricePerSqm: '',
-    depositAmount: '',
-    maintenanceFee: '',
-    address: '',
-    city: '',
-    neighborhood: '',
-    country: '',
-    latitude: '',
-    longitude: '',
-    bedrooms: 1,
-    bathrooms: 1,
-    parkingSpaces: 0,
-    hasGarden: false,
-    hasPool: false,
-    hasGym: false,
-    hasSecurity: false,
-    hasElevator: false,
-    hasBalcony: false,
-    hasAirConditioning: false,
-    hasInternet: false,
-    hasGenerator: false,
-    furnished: false,
-    // Short-term defaults
-    pricingUnit: 'nightly',
-    minNights: 1,
-    maxNights: 365,
-    cleaningFee: '0',
-    serviceFee: '0',
-    isInstantBookable: false,
-    cancellationPolicy: 'flexible',
-    advanceNoticeDays: 0,
-    bookingWindowDays: 365,
-    weeklyDiscountPercent: 0,
-    monthlyDiscountPercent: 0,
-    maxGuests: 2,
-    checkInTime: '14:00',
-    checkOutTime: '11:00',
-    hasWifi: false,
-    hasBreakfast: false,
-    hasTv: false,
-    hasKitchen: false,
-    hasWasher: false,
-    hasHeating: false,
-    petsAllowed: false,
-    smokingAllowed: false,
-    partiesAllowed: false,
-    wheelchairAccessible: false,
-    airportTransfer: false,
-    conciergeService: false,
-    dailyHousekeeping: false,
-    keywords: '',
-    nearbyAmenities: [],
-    transportAccess: [],
-    images: [],
-    floorPlan: null,
-    floorPlanPreview: '',
-    documents: [],
-    virtualTourUrl: '',
-    videoUrl: '',
-    tourType: 'images',
+  // Initialize from initialData (edit) or draft or defaults
+  const [formData, setFormData] = useState<PropertyFormData>(() => {
+    if (initialData) return initialData;
+    const draft = loadDraft();
+    return draft ? { ...DEFAULT_FORM, ...draft } : DEFAULT_FORM;
   });
+
+  const steps = useMemo(() => getSteps(formData.listingType), [formData.listingType]);
+  const totalSteps = steps.length;
+  const currentStepId = steps[currentStep - 1]?.id;
+  const progressPercent = Math.round((currentStep / totalSteps) * 100);
+
+  const displayedAmenities = formData.listingType === 'short_term'
+    ? [...BASE_AMENITIES, ...SHORT_TERM_AMENITIES]
+    : BASE_AMENITIES;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [createdPropertyId, setCreatedPropertyId] = useState<string | null>(null);
-  const [studentEnrollment, setStudentEnrollment] = useState<StudentEnrollmentData>({
-    enabled: false,
-  });
+  const [studentEnrollment, setStudentEnrollment] = useState<StudentEnrollmentData>({ enabled: false });
   const [selectedMapLocation, setSelectedMapLocation] = useState<{ lng: number; lat: number } | null>(null);
-  const [manualCoordsEnabled, setManualCoordsEnabled] = useState(false);
   const [cityTouched, setCityTouched] = useState(false);
   const [locationQuery, setLocationQuery] = useState('');
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
-  // Video upload state
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string>('');
   const [videoSourceTab, setVideoSourceTab] = useState<'local' | 'url'>('local');
   const router = useRouter();
 
-  const mapTilerKey = useMemo(() => {
-    return process.env.NEXT_PUBLIC_MAPTILER_API_KEY || "8jddBt6KuR7qSSoop7Yv";
-  }, []);
+  const mapTilerKey = useMemo(() => process.env.NEXT_PUBLIC_MAPTILER_API_KEY || '', []);
+
+  // Stable map location — only changes when coords actually differ
+  const memoizedMapLocation = useMemo(
+    () => selectedMapLocation,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedMapLocation?.lng, selectedMapLocation?.lat]
+  );
 
   const propertyTypes = [
-    'apartment', 'house', 'villa', 'studio', 'duplex', 'bungalow',
-    'penthouse', 'land', 'commercial', 'office', 'shop', 'warehouse',
-    'hotel', 'motel', 'vacation_rental', 'guesthouse', 'hostel', 'resort', 'serviced_apartment'
+    'apartment', 'house', 'villa', 'studio', 'duplex', 'bungalow', 'penthouse',
+    'land', 'commercial', 'office', 'shop', 'warehouse', 'hotel', 'motel',
+    'vacation_rental', 'guesthouse', 'hostel', 'resort', 'serviced_apartment',
   ];
 
   const nearbyAmenitiesOptions = [
-    { value: 'Schools', label: s.features?.options?.schools || 'Schools' },
-    { value: 'Hospitals', label: s.features?.options?.hospitals || 'Hospitals' },
-    { value: 'Shopping Malls', label: s.features?.options?.shopping || 'Shopping Malls' },
-    { value: 'Restaurants', label: s.features?.options?.restaurants || 'Restaurants' },
-    { value: 'Parks', label: s.features?.options?.parks || 'Parks' },
-    { value: 'Banks', label: s.features?.options?.banks || 'Banks' },
-    { value: 'Pharmacies', label: s.features?.options?.pharmacies || 'Pharmacies' },
-    { value: 'Gas Stations', label: s.features?.options?.gasStations || 'Gas Stations' },
-    { value: 'Markets', label: s.features?.options?.markets || 'Markets' },
-    { value: 'Churches', label: s.features?.options?.churches || 'Churches' },
-    { value: 'Mosques', label: s.features?.options?.mosques || 'Mosques' },
-    { value: 'Government Offices', label: s.features?.options?.govOffices || 'Government Offices' }
+    { value: 'Schools', label: 'Schools', icon: GraduationCap },
+    { value: 'Hospitals', label: 'Hospitals', icon: Shield },
+    { value: 'Shopping Malls', label: 'Shopping', icon: ShoppingBag },
+    { value: 'Restaurants', label: 'Restaurants', icon: Utensils },
+    { value: 'Parks', label: 'Parks', icon: Trees },
+    { value: 'Banks', label: 'Banks', icon: Landmark },
   ];
 
   const transportAccessOptions = [
-    { value: 'Bus Stop', label: s.features?.options?.busStop || 'Bus Stop' },
-    { value: 'Taxi Station', label: s.features?.options?.taxiStation || 'Taxi Station' },
-    { value: 'Train Station', label: s.features?.options?.trainStation || 'Train Station' },
-    { value: 'Airport', label: s.features?.options?.airport || 'Airport' },
-    { value: 'Highway Access', label: s.features?.options?.highway || 'Highway Access' },
-    { value: 'Metro Station', label: s.features?.options?.metro || 'Metro Station' },
-    { value: 'Ferry Terminal', label: s.features?.options?.ferry || 'Ferry Terminal' }
+    { value: 'Bus Stop', label: 'Bus Stop', icon: Bus },
+    { value: 'Taxi Station', label: 'Taxi Station', icon: Car },
+    { value: 'Train Station', label: 'Train Station', icon: Train },
+    { value: 'Airport', label: 'Airport', icon: Plane },
   ];
 
+  // ─── Check for existing draft ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!isEditMode && loadDraft()) setHasDraft(true);
+  }, [isEditMode]);
+
+  // ─── Auto-save draft (debounced 1s) ──────────────────────────────────────
+  useEffect(() => {
+    if (isEditMode) return;
+    const id = setTimeout(() => saveDraft(formData), 1000);
+    return () => clearTimeout(id);
+  }, [formData, isEditMode]);
+
+  // ─── Init edit mode ───────────────────────────────────────────────────────
   useEffect(() => {
     if (initialData && isEditMode) {
       setFormData(initialData);
-      setCityTouched(false);
-
-      // Set map location if coordinates exist
       if (initialData.latitude && initialData.longitude) {
         setSelectedMapLocation({
           lng: parseFloat(initialData.longitude),
@@ -281,1029 +445,446 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     }
   }, [initialData, isEditMode]);
 
-
+  // ─── Handlers ─────────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
       const target = e.target as HTMLInputElement;
-      setFormData({ ...formData, [name]: target.checked });
+      setFormData(prev => ({ ...prev, [name]: target.checked }));
     } else {
-      if (name === 'price') {
+      if (name === 'price' || name === 'latitude' || name === 'longitude') {
         const sanitized = value
-          .replace(/[^0-9.]/g, '')
-          .replace(/(\..*)\./g, '$1');
-        setFormData({ ...formData, [name]: sanitized });
-        return;
-      }
-      if (name === 'latitude' || name === 'longitude') {
-        const sanitized = value
-          .replace(/[^0-9.-]/g, '')
+          .replace(name === 'price' ? /[^0-9.]/g : /[^0-9.-]/g, '')
           .replace(/(?!^)-/g, '')
           .replace(/(\..*)\./g, '$1');
-        setFormData({ ...formData, [name]: sanitized });
+        setFormData(prev => ({ ...prev, [name]: sanitized }));
         return;
       }
-      setFormData({ ...formData, [name]: value });
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
+  const handleNumberChange = (name: string, value: number) =>
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+  const toggleArrayItem = (arrayName: 'nearbyAmenities' | 'transportAccess', item: string) => {
+    const array = formData[arrayName];
+    setFormData(prev => ({
+      ...prev,
+      [arrayName]: array.includes(item) ? array.filter(i => i !== item) : [...array, item],
+    }));
+  };
+
+  // ─── Location autocomplete ────────────────────────────────────────────────
   useEffect(() => {
     const query = (locationQuery || '').trim();
-    if (!query || query.length < 3) {
-      setLocationSuggestions([]);
-      setLocationDropdownOpen(false);
-      return;
-    }
-
+    if (!query || query.length < 3) { setLocationSuggestions([]); setLocationDropdownOpen(false); return; }
     if (!mapTilerKey) return;
-
     const controller = new AbortController();
     const timeout = setTimeout(async () => {
       try {
         setLocationLoading(true);
         const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${mapTilerKey}&limit=6`;
         const res = await fetch(url, { signal: controller.signal });
-        if (!res.ok) {
-          setLocationSuggestions([]);
-          setLocationDropdownOpen(false);
-          return;
-        }
+        if (!res.ok) throw new Error();
         const data = await res.json();
-        const features = Array.isArray(data?.features) ? data.features : [];
-        const suggestions: LocationSuggestion[] = features
-          .map((feat: any) => {
-            const coords = feat?.geometry?.coordinates;
-            const lng = Array.isArray(coords) ? Number(coords[0]) : NaN;
-            const lat = Array.isArray(coords) ? Number(coords[1]) : NaN;
-            if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
-
-            const label = feat?.place_name || feat?.properties?.label || feat?.text || '';
-            let city = '';
-            let country = '';
-            if (feat?.context && Array.isArray(feat.context)) {
-              feat.context.forEach((c: any) => {
-                if (c.id?.startsWith('place')) city = city || c.text;
-                if (c.id?.startsWith('country')) country = country || c.text;
-              });
-
-              feat.context.forEach((c: any) => {
-                if (!city && c.id?.startsWith('locality')) city = c.text;
-                if (!city && c.id?.startsWith('county')) city = c.text;
-                if (!city && c.id?.startsWith('region')) city = c.text;
-              });
-            }
-            city = city || feat?.properties?.place || feat?.properties?.city || feat?.properties?.locality || feat?.properties?.county || feat?.properties?.region || '';
-            country = country || feat?.properties?.country || '';
-
-            return {
-              id: feat?.id || `${lng}-${lat}-${label}`,
-              label,
-              lng,
-              lat,
-              city: city || undefined,
-              country: country || undefined,
-              raw: feat,
-            } as LocationSuggestion;
-          })
-          .filter(Boolean)
-          .slice(0, 6) as LocationSuggestion[];
-
+        const suggestions: LocationSuggestion[] = (data?.features ?? []).map((feat: any) => {
+          const coords = feat?.geometry?.coordinates;
+          const lng = Array.isArray(coords) ? Number(coords[0]) : NaN;
+          const lat = Array.isArray(coords) ? Number(coords[1]) : NaN;
+          if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+          let city = '', country = '';
+          (feat?.context ?? []).forEach((c: any) => {
+            if (c.id?.startsWith('place') || c.id?.startsWith('locality')) city = city || c.text;
+            if (c.id?.startsWith('country')) country = country || c.text;
+          });
+          return { id: feat?.id, label: feat?.place_name, lng, lat, city, country, raw: feat };
+        }).filter(Boolean).slice(0, 6);
         setLocationSuggestions(suggestions);
         setLocationDropdownOpen(suggestions.length > 0);
-      } catch (err: any) {
-        if (err?.name === 'AbortError') return;
+      } catch {
         setLocationSuggestions([]);
-        setLocationDropdownOpen(false);
       } finally {
         setLocationLoading(false);
       }
     }, 300);
-
-    return () => {
-      controller.abort();
-      clearTimeout(timeout);
-    };
+    return () => { controller.abort(); clearTimeout(timeout); };
   }, [locationQuery, mapTilerKey]);
 
+  // ─── Debounced reverse-geocode on map pin ─────────────────────────────────
   useEffect(() => {
-    if (!selectedMapLocation) return;
-    if (!mapTilerKey || mapTilerKey === 'demo-key') return;
-
+    if (!selectedMapLocation || !mapTilerKey) return;
     const { lng, lat } = selectedMapLocation;
-    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
-
     const controller = new AbortController();
-    (async () => {
+    const timeout = setTimeout(async () => {
       try {
-        const url = `https://api.maptiler.com/geocoding/${lng},${lat}.json?key=${mapTilerKey}`;
-        const res = await fetch(url, { signal: controller.signal });
+        const res = await fetch(
+          `https://api.maptiler.com/geocoding/${lng},${lat}.json?key=${mapTilerKey}`,
+          { signal: controller.signal }
+        );
         if (!res.ok) return;
         const data = await res.json();
         const feat = data?.features?.[0];
         if (!feat) return;
-
-        const label = feat.place_name || feat.properties?.label || '';
-        let city = '';
-        let country = '';
-        if (feat.context && Array.isArray(feat.context)) {
-          feat.context.forEach((c: any) => {
-            if (c.id?.startsWith('place')) city = city || c.text;
-            if (c.id?.startsWith('country')) country = country || c.text;
-          });
-
-          feat.context.forEach((c: any) => {
-            if (!city && c.id?.startsWith('locality')) city = c.text;
-            if (!city && c.id?.startsWith('county')) city = c.text;
-            if (!city && c.id?.startsWith('region')) city = c.text;
-          });
-        }
-        city = city || feat.properties?.place || feat.properties?.city || feat.properties?.locality || feat.properties?.county || feat.properties?.region || '';
-        country = country || feat.properties?.country || '';
-
-        setFormData((prev) => ({
+        let city = '', country = '';
+        (feat.context ?? []).forEach((c: any) => {
+          if (c.id?.startsWith('place') || c.id?.startsWith('locality')) city = city || c.text;
+          if (c.id?.startsWith('country')) country = country || c.text;
+        });
+        setFormData(prev => ({
           ...prev,
-          address: prev.address?.trim() ? prev.address : (label || prev.address),
+          address: prev.address?.trim() ? prev.address : (feat.place_name || prev.address),
           city: (prev.city?.trim() && cityTouched) ? prev.city : (city || prev.city),
           country: prev.country?.trim() ? prev.country : (country || prev.country),
         }));
-      } catch (err: any) {
-        if (err?.name === 'AbortError') return;
-      }
-    })();
-
-    return () => controller.abort();
+      } catch { }
+    }, 400);
+    return () => { controller.abort(); clearTimeout(timeout); };
   }, [selectedMapLocation, mapTilerKey, cityTouched]);
 
-  const handleNumberChange = (name: string, value: number) => {
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const toggleArrayItem = (arrayName: 'nearbyAmenities' | 'transportAccess', item: string) => {
-    const array = formData[arrayName];
-    if (array.includes(item)) {
-      setFormData({ ...formData, [arrayName]: array.filter(i => i !== item) });
-    } else {
-      setFormData({ ...formData, [arrayName]: [...array, item] });
-    }
-  };
-
-  // Image upload handlers
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+  // ─── Image handlers ───────────────────────────────────────────────────────
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent, filesToUpload?: FileList | File[]) => {
+    const files = filesToUpload || (e.target as HTMLInputElement).files;
     if (!files) return;
-
     const newImages: PropertyImage[] = [];
     let processedCount = 0;
-
-    Array.from(files).forEach((file) => {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} is too large. Maximum size is 5MB.`);
-        processedCount++;
-        return;
-      }
-
+    Array.from(files).forEach(file => {
+      if (file.size > 5 * 1024 * 1024) { alert(`${file.name} is too large. Max 5MB.`); processedCount++; return; }
       const reader = new FileReader();
-      reader.onload = (event) => {
-        newImages.push({
-          id: `${Date.now()}-${Math.random()}`,
-          file,
-          preview: event.target?.result as string,
-          caption: '',
-          category: 'general',
-        });
-
+      reader.onload = event => {
+        newImages.push({ id: `${Date.now()}-${Math.random()}`, file, preview: event.target?.result as string, caption: '', category: 'general' });
         processedCount++;
-        if (processedCount === files.length) {
-          setFormData({ ...formData, images: [...formData.images, ...newImages] });
-        }
+        if (processedCount === files.length)
+          setFormData(prev => ({ ...prev, images: [...prev.images, ...newImages] }));
       };
       reader.readAsDataURL(file);
     });
   };
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
-  };
-
+  const handleDrag = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setDragActive(e.type === 'dragenter' || e.type === 'dragover'); };
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    const files = e.dataTransfer.files;
-    if (!files) return;
-
-    const newImages: PropertyImage[] = [];
-    const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-    let processedCount = 0;
-
-    imageFiles.forEach((file) => {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} is too large. Maximum size is 5MB.`);
-        processedCount++;
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        newImages.push({
-          id: `${Date.now()}-${Math.random()}`,
-          file,
-          preview: event.target?.result as string,
-          caption: '',
-          category: 'general',
-        });
-
-        processedCount++;
-        if (processedCount === imageFiles.length) {
-          setFormData({ ...formData, images: [...formData.images, ...newImages] });
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    e.preventDefault(); e.stopPropagation(); setDragActive(false);
+    handleImageUpload(e, Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
   };
+  const removeImage = (id: string) => setFormData(prev => ({ ...prev, images: prev.images.filter(img => img.id !== id) }));
 
-  const removeImage = (id: string) => {
-    setFormData({
-      ...formData,
-      images: formData.images.filter(img => img.id !== id),
-    });
-  };
-
-  const updateImageCaption = (id: string, caption: string) => {
-    setFormData({
-      ...formData,
-      images: formData.images.map(img =>
-        img.id === id ? { ...img, caption } : img
-      ),
-    });
-  };
-
-  const setFeaturedImage = (id: string) => {
-    const imageIndex = formData.images.findIndex(img => img.id === id);
-    if (imageIndex === -1) return;
-
-    const newImages = [...formData.images];
-    const [featuredImage] = newImages.splice(imageIndex, 1);
-    newImages.unshift(featuredImage);
-    setFormData({ ...formData, images: newImages });
-  };
-
-  // Floor plan handler
-  const handleFloorPlanUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Floor plan file is too large. Maximum size is 10MB.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setFormData({
-        ...formData,
-        floorPlan: file,
-        floorPlanPreview: event.target?.result as string,
-      });
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const removeFloorPlan = () => {
-    setFormData({ ...formData, floorPlan: null, floorPlanPreview: '' });
-  };
-
-  // Documents handler
-  const handleDocumentsUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
-    const validFiles = Array.from(files).filter(file => {
-      if (file.size > 20 * 1024 * 1024) {
-        alert(`${file.name} is too large. Maximum size is 20MB.`);
-        return false;
-      }
-      return true;
-    });
-
-    setFormData({ ...formData, documents: [...formData.documents, ...validFiles] });
-  };
-
-  const removeDocument = (index: number) => {
-    setFormData({
-      ...formData,
-      documents: formData.documents.filter((_, i) => i !== index),
-    });
-  };
-
+  // ─── Step validation ──────────────────────────────────────────────────────
   const validateStep = (step: number): boolean => {
-    switch (step) {
-      case 1:
-        return formData.title.trim() !== '' &&
-          formData.description.trim() !== '' &&
-          formData.price.trim() !== '';
-      case 2: {
-        const lat = Number.parseFloat(formData.latitude);
-        const lng = Number.parseFloat(formData.longitude);
-        return formData.address.trim() !== '' &&
-          formData.city.trim() !== '' &&
-          Number.isFinite(lat) &&
-          Number.isFinite(lng) &&
-          lat >= -90 && lat <= 90 &&
-          lng >= -180 && lng <= 180;
-      }
-      case 3:
-        return true;
-      case 4:
-        return true;
-      case 5:
-        return true;
-      case 6:
-        return true;
-      case 7:
-        return true;
-      case 8:
-        return true;
-      default:
-        return false;
-    }
+    const id = steps[step - 1]?.id;
+    if (id === 'basics') return formData.title.trim() !== '' && formData.description.trim() !== '';
+    if (id === 'location') return formData.address.trim() !== '' && formData.city.trim() !== '' && Number.isFinite(parseFloat(formData.latitude));
+    return true;
   };
 
+  const getValidationHint = (step: number): string | null => {
+    const id = steps[step - 1]?.id;
+    if (id === 'basics') {
+      if (!formData.title.trim()) return 'Add a title to continue';
+      if (!formData.description.trim()) return 'Add a description to continue';
+    }
+    if (id === 'location') {
+      if (!formData.address.trim()) return 'Enter an address to continue';
+      if (!formData.city.trim()) return 'Enter a city to continue';
+      if (!Number.isFinite(parseFloat(formData.latitude))) return 'Pin a location on the map';
+    }
+    return null;
+  };
+
+  // ─── Navigation ───────────────────────────────────────────────────────────
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setStepDirection(1);
-      setCurrentStep(currentStep + 1);
+      setCurrentStep(s => s + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
       setStepDirection(-1);
-      setCurrentStep(currentStep - 1);
+      setCurrentStep(s => s - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
+  const handleSaveAndExit = () => {
+    saveDraft(formData);
+    router.push('/dashboard');
+  };
+
+  // ─── Submit ───────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
     if (isSubmitting) return;
-    setSubmitError(null);
-    setUploadProgress(0);
-    setIsSubmitting(true);
-
-    const onImageUploadProgress = (progressEvent: any) => {
-      try {
-        const { loaded, total } = progressEvent;
-        if (total && total > 0) {
-          const percent = Math.round((loaded * 100) / total);
-          setUploadProgress(percent);
-        }
-      } catch (e) {
-        // ignore
-      }
-    };
-
+    setSubmitError(null); setUploadProgress(0); setIsSubmitting(true);
+    const onImageUploadProgress = (e: any) =>
+      e.total && setUploadProgress(Math.round((e.loaded * 100) / e.total));
     try {
-      // Build payload from formData
       const payload: any = {
-        title: formData.title,
-        description: formData.description,
-        type: formData.type,
-        listingType: formData.listingType,
-        price: Number(formData.price || 0),
-        area: Number(formData.area || 0),
-        yearBuilt: Number(formData.yearBuilt || 0),
-        floorNumber: Number(formData.floorNumber || 0),
-        totalFloors: Number(formData.totalFloors || 0),
-        pricePerSqm: Number(formData.pricePerSqm || 0),
-        depositAmount: Number(formData.depositAmount || 0),
-        maintenanceFee: Number(formData.maintenanceFee || 0),
-        address: formData.address,
-        city: formData.city,
-        neighborhood: formData.neighborhood,
-        country: formData.country,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
+        ...formData,
+        price: Number(formData.price),
+        area: Number(formData.area),
+        latitude: Number(formData.latitude),
+        longitude: Number(formData.longitude),
+        keywords: formData.keywords ? formData.keywords.split(',').map(k => k.trim()).filter(k => k) : [],
         amenities: {
-          bedrooms: Number(formData.bedrooms || 0),
-          bathrooms: Number(formData.bathrooms || 0),
-          parkingSpaces: Number(formData.parkingSpaces || 0),
-          hasGarden: formData.hasGarden,
-          hasPool: formData.hasPool,
-          hasGym: formData.hasGym,
-          hasSecurity: formData.hasSecurity,
-          hasElevator: formData.hasElevator,
-          hasBalcony: formData.hasBalcony,
-          hasAirConditioning: formData.hasAirConditioning,
-          hasInternet: formData.hasInternet,
-          hasGenerator: formData.hasGenerator,
-          furnished: formData.furnished,
-        },
-        keywords: Array.isArray(formData.keywords)
-          ? formData.keywords
-          : formData.keywords
-            ? formData.keywords.split(',').map(k => k.trim()).filter(Boolean)
-            : [],
-        nearbyAmenities: formData.nearbyAmenities,
-        transportAccess: formData.transportAccess,
-        virtualTourUrl: formData.virtualTourUrl,
-        videoUrl: formData.videoUrl,
-        tourType: formData.tourType,
-
-        // Short-term specific fields
-        pricingUnit: formData.pricingUnit,
-        minNights: Number(formData.minNights || 1),
-        maxNights: Number(formData.maxNights || 365),
-        cleaningFee: Number(formData.cleaningFee || 0),
-        serviceFee: Number(formData.serviceFee || 0),
-        isInstantBookable: formData.isInstantBookable,
-        cancellationPolicy: formData.cancellationPolicy,
-        advanceNoticeDays: Number(formData.advanceNoticeDays || 0),
-        bookingWindowDays: Number(formData.bookingWindowDays || 365),
-        weeklyDiscountPercent: Number(formData.weeklyDiscountPercent || 0),
-        monthlyDiscountPercent: Number(formData.monthlyDiscountPercent || 0),
-        shortTermAmenities: {
-          maxGuests: Number(formData.maxGuests || 2),
-          checkInTime: formData.checkInTime,
-          checkOutTime: formData.checkOutTime,
-          hasWifi: formData.hasWifi,
-          hasBreakfast: formData.hasBreakfast,
-          hasTv: formData.hasTv,
-          hasKitchen: formData.hasKitchen,
-          hasWasher: formData.hasWasher,
-          hasHeating: formData.hasHeating,
-          petsAllowed: formData.petsAllowed,
-          smokingAllowed: formData.smokingAllowed,
-          partiesAllowed: formData.partiesAllowed,
-          wheelchairAccessible: formData.wheelchairAccessible,
-          airportTransfer: formData.airportTransfer,
-          conciergeService: formData.conciergeService,
-          dailyHousekeeping: formData.dailyHousekeeping,
+          ...formData,
+          price: Number(formData.price),
+          area: Number(formData.area) || 0,
+          yearBuilt: Number(formData.yearBuilt) || 0,
+          floorNumber: Number(formData.floorNumber) || 0,
+          totalFloors: Number(formData.totalFloors) || 0,
+          pricePerSqm: Number(formData.pricePerSqm) || 0,
+          depositAmount: Number(formData.depositAmount) || 0,
+          maintenanceFee: Number(formData.maintenanceFee) || 0,
+          minNights: Number(formData.minNights) || 1,
+          maxNights: Number(formData.maxNights) || 365,
+          cleaningFee: Number(formData.cleaningFee) || 0,
+          serviceFee: Number(formData.serviceFee) || 0,
+          weeklyDiscountPercent: Number(formData.weeklyDiscountPercent) || 0,
+          monthlyDiscountPercent: Number(formData.monthlyDiscountPercent) || 0,
+          advanceNoticeDays: Number(formData.advanceNoticeDays) || 0,
+          bookingWindowDays: Number(formData.bookingWindowDays) || 365,
+          maxGuests: Number(formData.maxGuests) || 1,
         },
       };
-
-      // Filter only NEW images (those with File objects)
-      const imageFiles: File[] = formData.images
-        .filter(img => img.file)  // Only new uploads have file property
-        .map((img) => img.file)
-        .filter(Boolean);
-
+      const imageFiles = formData.images.filter(img => img.file).map(img => img.file);
       let created;
-
       if (isEditMode && propertyId) {
-        // ===== EDIT MODE: Update existing property =====
         created = await apiClient.updateProperty(propertyId, payload);
-
-        // If there are new images, upload them separately
-        if (imageFiles.length > 0) {
-          await apiClient.uploadPropertyImages(propertyId, imageFiles, onImageUploadProgress);
-        }
-
-        // If there is a new local video file, upload it
-        if (videoSourceTab === 'local' && videoFile) {
-          await apiClient.uploadPropertyVideos(propertyId, [videoFile], onImageUploadProgress);
-        }
-
+        if (imageFiles.length > 0) await apiClient.uploadPropertyImages(propertyId, imageFiles, onImageUploadProgress);
       } else {
-        // ===== CREATE MODE: Create new property =====
         created = await createPropertyWithMedia(
-          payload,
-          imageFiles,
+          payload, imageFiles,
           videoSourceTab === 'local' && videoFile ? [videoFile] : [],
           onImageUploadProgress
         );
       }
-
-      // Notify parent component
-      try {
-        onAdd(formData);
-      } catch (_) {
-        // ignore
-      }
-
-      // Reset form only in create mode
-      if (!isEditMode) {
-        setFormData({
-          title: '',
-          description: '',
-          type: 'apartment',
-          listingType: 'sale',
-          price: '',
-          area: '',
-          yearBuilt: '',
-          floorNumber: '',
-          totalFloors: '',
-          pricePerSqm: '',
-          depositAmount: '',
-          maintenanceFee: '',
-          address: '',
-          city: '',
-          neighborhood: '',
-          country: '',
-          latitude: '',
-          longitude: '',
-          bedrooms: 1,
-          bathrooms: 1,
-          parkingSpaces: 0,
-          hasGarden: false,
-          hasPool: false,
-          hasGym: false,
-          hasSecurity: false,
-          hasElevator: false,
-          hasBalcony: false,
-          hasAirConditioning: false,
-          hasInternet: false,
-          hasGenerator: false,
-          furnished: false,
-          // Short-term defaults
-          pricingUnit: 'nightly',
-          minNights: 1,
-          maxNights: 365,
-          cleaningFee: '0',
-          serviceFee: '0',
-          isInstantBookable: false,
-          cancellationPolicy: 'flexible',
-          advanceNoticeDays: 0,
-          bookingWindowDays: 365,
-          weeklyDiscountPercent: 0,
-          monthlyDiscountPercent: 0,
-          maxGuests: 2,
-          checkInTime: '14:00',
-          checkOutTime: '11:00',
-          hasWifi: false,
-          hasBreakfast: false,
-          hasTv: false,
-          hasKitchen: false,
-          hasWasher: false,
-          hasHeating: false,
-          petsAllowed: false,
-          smokingAllowed: false,
-          partiesAllowed: false,
-          wheelchairAccessible: false,
-          airportTransfer: false,
-          conciergeService: false,
-          dailyHousekeeping: false,
-          keywords: '',
-          nearbyAmenities: [],
-          transportAccess: [],
-          images: [],
-          floorPlan: null,
-          floorPlanPreview: '',
-          documents: [],
-          virtualTourUrl: '',
-          videoUrl: '',
-          tourType: 'images',
-        });
-        setCurrentStep(1);
-        setVideoFile(null);
-        setVideoPreview('');
-        setVideoSourceTab('local');
-      }
-
-      // Success handling
-      const createdId = propertyId ||
-        (created && (created.id || created._id)) ||
-        (created?.property && (created.property.id || created.property._id));
-
-      if (createdId) {
-        setCreatedPropertyId(String(createdId));
-      }
-
-      // Enroll in student programme if opted in
-      if (studentEnrollment.enabled) {
-        const enrollId = String(
-          propertyId ||
-          (created && (created.id || created._id)) ||
-          (created?.property && (created.property.id || created.property._id))
-        );
-        if (enrollId) {
-          try {
-            await apiClient.enrollPropertyInStudentProgramme(enrollId, {
-              campusProximityMeters: studentEnrollment.campusProximityMeters,
-              nearestCampus: studentEnrollment.nearestCampus,
-              walkingMinutes: studentEnrollment.walkingMinutes,
-              taxiMinutes: studentEnrollment.taxiMinutes,
-              waterSource: studentEnrollment.waterSource,
-              electricityBackup: studentEnrollment.electricityBackup,
-              furnishingStatus: studentEnrollment.furnishingStatus,
-              genderRestriction: studentEnrollment.genderRestriction,
-              curfewTime: studentEnrollment.curfewTime,
-              visitorsAllowed: studentEnrollment.visitorsAllowed,
-              cookingAllowed: studentEnrollment.cookingAllowed,
-              hasGatedCompound: studentEnrollment.hasGatedCompound,
-              hasNightWatchman: studentEnrollment.hasNightWatchman,
-              hasFence: studentEnrollment.hasFence,
-              maxAdvanceMonths: studentEnrollment.maxAdvanceMonths,
-              acceptsRentAdvanceScheme: studentEnrollment.acceptsRentAdvanceScheme,
-              availableBeds: studentEnrollment.availableBeds,
-              totalBeds: studentEnrollment.totalBeds,
-              pricePerPersonMonthly: studentEnrollment.pricePerPersonMonthly,
-            });
-          } catch (err) {
-            console.warn('Student enrollment failed (property was still created):', err);
-          }
-        }
-      }
-
+      const createdId = propertyId || created?.id || created?._id || created?.property?.id;
+      if (createdId) setCreatedPropertyId(String(createdId));
+      clearDraft();
       setSuccessModalOpen(true);
-
-      // Navigate after delay
-      setTimeout(() => {
-        const targetId = createdId || created?.id || created?._id;
-        if (targetId) {
-          router.push(`/properties/${targetId}`);
-        }
-      }, 800);
-
+      setTimeout(() => { if (createdId) router.push(`/properties/${createdId}`); }, 1500);
     } catch (error: any) {
-      console.error(`${isEditMode ? 'Update' : 'Create'} property failed`, error);
       setSubmitError(error?.message || String(error));
       setErrorModalOpen(true);
     } finally {
-      setIsSubmitting(false);
-      setUploadProgress(0);
+      setIsSubmitting(false); setUploadProgress(0);
     }
   };
 
-  const steps = [
-    { number: 1, label: s.header?.steps?.basicInfo || 'Basic Info', icon: FileText },
-    { number: 2, label: s.header?.steps?.location || 'Location', icon: MapPin },
-    { number: 3, label: s.header?.steps?.details || 'Details', icon: Building2 },
-    { number: 4, label: s.header?.steps?.amenities || 'Amenities', icon: Home },
-    { number: 5, label: s.header?.steps?.features || 'Features', icon: Wrench },
-    { number: 6, label: s.header?.steps?.media || 'Media', icon: ImageIcon },
-    ...(formData.listingType === 'rent'
-      ? [{ number: 7, label: s.header?.steps?.students || 'Students', icon: GraduationCap }]
-      : []),
-    { number: formData.listingType === 'rent' ? 8 : 7, label: s.header?.steps?.review || 'Review', icon: CheckCircle2 },
-  ];
+  const validationHint = getValidationHint(currentStep);
 
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4">
-      <Card
-        className="w-full border-blue-200 py-0"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            const target = e.target as HTMLElement;
-            if (target.tagName.toLowerCase() === 'textarea') return;
-            if (target.tagName.toLowerCase() === 'button') return;
-            if (locationDropdownOpen) return;
+    <div className="min-h-screen bg-white text-[#222222] font-sans flex flex-col">
 
-            e.preventDefault();
+      {/* ── HEADER ── */}
+      <header className="fixed top-0 left-0 right-0 h-[72px] px-6 lg:px-12 flex items-center justify-between bg-white z-50 border-b border-[#EBEBEB]">
+        {/* Left: logo + badge */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="font-bold text-lg tracking-tight flex items-center gap-2 shrink-0">
+            <Link href="/" className="flex items-center">
+              <img src="/logoHoroHouseBleueOrdinateur.png" alt="HoroHouse" className="h-10 md:h-12 object-contain" />
+            </Link> </div>
+          {formData.listingType && <ListingTypeBadge type={formData.listingType} />}
+        </div>
 
-            if (!validateStep(currentStep)) {
-              setSubmitError(s.actions?.fillRequired || 'Please fill in all required fields correctly before proceeding.');
-              setErrorModalOpen(true);
-              return;
-            }
+        {/* Center: breadcrumb */}
+        <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none">
+          <StepBreadcrumb steps={steps} current={currentStep} />
+        </div>
 
-            const isLastStep = currentStep === (formData.listingType === 'rent' ? 8 : 7);
-            if (!isLastStep) {
-              handleNext();
-            } else {
-              if (!isSubmitting) {
-                handleSubmit();
-              }
-            }
-          }
-        }}
-      >
-        <CardHeader className="space-y-1 py-6 bg-blue-600 text-white rounded-t-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-white/20 rounded-lg backdrop-blur">
-              <Building2 className="w-6 h-6" />
-            </div>
-            <CardTitle className="text-2xl font-bold">
-              {isEditMode ? (s.header?.editTitle || 'Edit Property Listing') : (s.header?.addTitle || 'Add Property Listing')}
-            </CardTitle>
-          </div>
-          <CardDescription className="text-blue-50">
-            {isEditMode
-              ? (s.header?.editDesc || 'Update your property information and publish changes.')
-              : (s.header?.addDesc || 'Complete all steps to publish your property listing.')}
-          </CardDescription>
+        {/* Right: step counter + save */}
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-sm text-[#717171] font-medium hidden sm:block">
+            {currentStep} of {totalSteps}
+          </span>
+          <button
+            onClick={handleSaveAndExit}
+            className="px-4 py-2 rounded-full font-semibold text-sm hover:bg-[#F7F7F7] transition-colors border border-[#DDDDDD] text-[#222222]"
+          >
+            Save & exit
+          </button>
+        </div>
+      </header>
 
-          {/* Step Indicator */}
-          <div className="flex items-center gap-1 pt-4 overflow-x-auto pb-2">
-            {steps.map((step, index) => (
-              <React.Fragment key={step.number}>
-                <div className="flex flex-col items-center gap-1 min-w-fit">
-                  <motion.div
-                    animate={{
-                      scale: currentStep === step.number ? 1.15 : 1,
-                      backgroundColor: currentStep >= step.number ? '#ffffff' : 'rgba(255,255,255,0.2)',
-                      color: currentStep >= step.number ? '#2563eb' : '#ffffff',
-                    }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold  overflow-hidden"
-                  >
-                    {currentStep > step.number ? (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                      >
-                        <CheckCircle2 className="w-5 h-5" />
-                      </motion.div>
-                    ) : (
-                      step.number
-                    )}
-                  </motion.div>
-                  <span
-                    className={`text-xs font-medium transition-colors whitespace-nowrap ${currentStep >= step.number ? 'text-white' : 'text-blue-200'
-                      }`}
-                  >
-                    {step.label}
-                  </span>
-                </div>
-                {index < steps.length - 1 && (
-                  <div className="h-px w-8 mb-5 bg-white/30 relative">
-                    <motion.div
-                      className="absolute inset-y-0 left-0 bg-white"
-                      initial={{ width: currentStep > step.number ? '100%' : '0%' }}
-                      animate={{ width: currentStep > step.number ? '100%' : '0%' }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </div>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-        </CardHeader>
+      {/* ── DRAFT BANNER ── */}
+      {hasDraft && !isEditMode && (
+        <div className="fixed top-[72px] left-0 right-0 bg-[#FFFBEB] border-b border-yellow-200 px-6 py-3 flex items-center justify-between z-40">
+          <span className="text-sm text-yellow-800 font-medium">Draft restored — your previous progress is back.</span>
+          <button
+            onClick={() => { clearDraft(); setFormData(DEFAULT_FORM); setHasDraft(false); }}
+            className="text-sm text-yellow-700 font-semibold underline ml-4 shrink-0"
+          >
+            Start fresh
+          </button>
+        </div>
+      )}
 
-        <CardContent className="pt-6 overflow-hidden min-h-[400px] relative">
+      {/* ── MAIN ── */}
+      <main className={`flex-1 overflow-x-hidden overflow-y-auto w-full flex justify-center pb-12 ${hasDraft && !isEditMode ? 'mt-[120px]' : 'mt-[72px]'} mb-[90px]`}>
+        <div className="w-full max-w-[680px] px-6 py-10 lg:py-16">
           <AnimatePresence mode="wait" custom={stepDirection}>
             <motion.div
               key={currentStep}
               custom={stepDirection}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              variants={{
-                enter: (direction: number) => ({
-                  x: direction > 0 ? 30 : -30,
-                  opacity: 0,
-                }),
-                center: {
-                  zIndex: 1,
-                  x: 0,
-                  opacity: 1,
-                },
-                exit: (direction: number) => ({
-                  zIndex: 0,
-                  x: direction < 0 ? 30 : -30,
-                  opacity: 0,
-                }),
-              }}
-              transition={{ duration: 0.3, type: 'spring', bounce: 0.2 }}
+              initial={{ x: stepDirection > 0 ? 40 : -40, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: stepDirection < 0 ? 40 : -40, opacity: 0 }}
+              transition={{ duration: 0.32, ease: [0.25, 1, 0.5, 1] }}
             >
-              {/* Step 1: Basic Information */}
-              {currentStep === 1 && (
-                <div className="space-y-7">
-                  {/* Property Title */}
-                  <div className="space-y-2">
-                    <Label htmlFor="title" className="text-sm font-semibold flex items-center gap-2 text-gray-700">
-                      <FileText className="w-4 h-4 text-blue-600" />
-                      {s.basicInfo?.title || 'Property Title *'}
-                    </Label>
-                    <div className="relative">
-                      <input
-                        id="title"
-                        name="title"
-                        type="text"
-                        value={formData.title}
-                        onChange={handleChange}
-                        placeholder={s.basicInfo?.titlePlaceholder || 'e.g., Luxury 3BR Apartment in Downtown'}
-                        className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white transition-colors outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400 hover:border-gray-300"
-                      />
-                      {formData.title && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="absolute right-3 top-1/2 -translate-y-1/2"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-blue-500" />
-                        </motion.div>
-                      )}
-                    </div>
+
+              {/* ── basics ── */}
+              {currentStepId === 'basics' && (
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Step 1 — The essentials</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Tell us about your place</h1>
                   </div>
 
-                  {/* Property Description */}
-                  <div className="space-y-2">
-                    <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
-                      {s.basicInfo?.description || 'Property Description *'}
-                    </Label>
-                    <div className="relative">
-                      <textarea
-                        id="description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        placeholder={s.basicInfo?.descriptionPlaceholder || 'Describe the property, its features, and unique selling points...'}
-                        rows={3}
-                        className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white transition-colors outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400 hover:border-gray-300 resize-none"
-                      />
-                      <div className="absolute bottom-2 right-3 text-xs text-gray-300">{formData.description.length}</div>
-                    </div>
+                  <div>
+                    <InputLabel title="Title" subtitle="A clear, descriptive name for your listing." />
+                    <FormInput name="title" value={formData.title} onChange={handleChange} placeholder="e.g., Luxury 3BR Apartment in Downtown Yaoundé" />
                   </div>
 
-                  {/* Type + Listing Type row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="type" className="text-sm font-semibold text-gray-700">
-                        {s.basicInfo?.propertyType || 'Property Type *'}
-                      </Label>
-                      <select
-                        id="type"
-                        name="type"
-                        value={formData.type}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors text-gray-700"
-                      >
-                        {propertyTypes.map(type => (
-                          <option key={type} value={type}>
-                            {s.basicInfo?.types?.[type] || type.charAt(0).toUpperCase() + type.slice(1)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Listing Type — compact horizontal radio strip */}
-                    <div className="space-y-1.5">
-                      <Label className="text-sm font-semibold text-gray-700">
-                        {s.basicInfo?.listingType || 'Listing Type *'}
-                      </Label>
-                      <div className="flex rounded-lg border border-gray-200 overflow-hidden">
-                        {[
-                          { value: 'sale', label: s.basicInfo?.listingTypes?.sale || 'Sale' },
-                          { value: 'rent', label: s.basicInfo?.listingTypes?.rent || 'Rent' },
-                          { value: 'short_term', label: s.basicInfo?.listingTypes?.short_term || 'Short' },
-                        ].map(({ value, label }) => {
-                          const selected = formData.listingType === value;
-                          return (
-                            <button
-                              key={value}
-                              type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, listingType: value }))}
-                              className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${selected
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white text-gray-500 hover:bg-gray-50'
-                                } border-r border-gray-200 last:border-r-0`}
-                            >
-                              {label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                  <div>
+                    <InputLabel title="Description" subtitle="Share what makes your place special." />
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      rows={4}
+                      className="w-full p-4 text-base border border-[#DDDDDD] rounded-xl text-[#222222] bg-white outline-none focus:border-[#222222] focus:ring-1 focus:ring-[#222222] placeholder-[#B0B0B0] resize-none transition-colors"
+                      placeholder="Describe the space, its standout features, and who it's ideal for…"
+                    />
                   </div>
 
-                  {/* Price */}
-                  <div className="space-y-1.5">
-                    <Label htmlFor="price" className="text-sm font-semibold flex items-center gap-2 text-gray-700">
-                      <DollarSign className="w-4 h-4 text-blue-500" />
-                      {s.basicInfo?.price || 'Price *'}{' '}
-                      <span className="font-normal text-gray-400 text-xs">
-                        {formData.listingType === 'rent' ? (s.basicInfo?.priceMonthly || '/ month') : formData.listingType === 'short_term' ? (s.basicInfo?.priceNightly || '/ night') : ''}
-                      </span>
-                    </Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm select-none">XAF</span>
-                      <input
-                        id="price"
-                        name="price"
-                        type="text"
-                        inputMode="decimal"
-                        pattern="[0-9]*[.]?[0-9]*"
-                        value={formData.price}
-                        onChange={handleChange}
-                        placeholder={s.basicInfo?.pricePlaceholder || '0'}
-                        className="w-full pl-12 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white transition-colors outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400 hover:border-gray-300 font-medium"
-                      />
+                  <div>
+                    <InputLabel title="Property type" />
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      {[
+                        { value: 'apartment', label: 'Apartment', icon: Building2 },
+                        { value: 'house', label: 'House', icon: Home },
+                        { value: 'villa', label: 'Villa', icon: Star },
+                        { value: 'studio', label: 'Studio', icon: SquareDashed },
+                      ].map(({ value, label, icon }) => (
+                        <SelectCard key={value} title={label} icon={icon}
+                          selected={formData.type === value}
+                          onClick={() => setFormData(prev => ({ ...prev, type: value }))} />
+                      ))}
                     </div>
+                    <select name="type" value={formData.type} onChange={handleChange}
+                      className="w-full p-4 border border-[#DDDDDD] rounded-xl text-[#222222] bg-white outline-none focus:border-[#222222] transition-colors text-sm">
+                      <option value="" disabled>Or choose another type…</option>
+                      {propertyTypes.map(tp => <option key={tp} value={tp}>{tp.replace(/_/g, ' ')}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <InputLabel title="Listing type" />
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { value: 'sale', label: 'For Sale', icon: Tag },
+                        { value: 'rent', label: 'For Rent', icon: Home },
+                        { value: 'short_term', label: 'Short Stay', icon: CalendarClock },
+                      ].map(({ value, label, icon }) => (
+                        <SelectCard key={value} title={label} icon={icon}
+                          selected={formData.listingType === value}
+                          onClick={() => setFormData(prev => ({ ...prev, listingType: value }))} />
+                      ))}
+                    </div>
+                    {/* Inform the user when the listing type adds extra steps */}
+                    {formData.listingType === 'rent' && (
+                      <p className="mt-3 text-sm text-[#717171] bg-[#F7F7F7] px-4 py-3 rounded-xl">
+                        Rental listings include a student suitability step later.
+                      </p>
+                    )}
+                    {formData.listingType === 'short_term' && (
+                      <p className="mt-3 text-sm text-[#717171] bg-[#F7F7F7] px-4 py-3 rounded-xl">
+                        Short stays include a booking configuration step later.
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <InputLabel
+                      title="Price"
+                      subtitle={`${formData.listingType === 'rent' ? 'Monthly rent' : formData.listingType === 'short_term' ? 'Nightly rate' : 'Sale price'} in XAF`}
+                    />
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#222222] font-bold text-sm select-none">XAF</span>
+                      <FormInput name="price" value={formData.price} onChange={handleChange}
+                        placeholder="0" className="pl-14 text-lg font-semibold" inputMode="decimal" />
+                    </div>
+                    <p className="mt-1 text-xs text-[#B0B0B0]">You can update this before publishing.</p>
                   </div>
                 </div>
               )}
 
-              {/* Step 2: Location */}
-              {currentStep === 2 && (
+              {/* ── location ── */}
+              {currentStepId === 'location' && (
                 <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="address" className="text-sm font-semibold flex items-center gap-2">
-                      <Home className="w-4 h-4 text-blue-600" />
-                      {s.location?.address || 'Street Address *'}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="address"
-                        name="address"
-                        type="text"
-                        value={formData.address}
-                        onChange={(e) => {
-                          const v = (e.target as HTMLInputElement).value;
-                          setFormData((prev) => ({ ...prev, address: v }));
-                          setLocationQuery(v);
-                          if (v.trim().length >= 3) setLocationDropdownOpen(true);
-                        }}
-                        onFocus={() => {
-                          if ((locationSuggestions || []).length > 0) setLocationDropdownOpen(true);
-                        }}
-                        onBlur={() => {
-                          setTimeout(() => setLocationDropdownOpen(false), 150);
-                        }}
-                        placeholder={s.location?.addressPlaceholder || "Search address (pick a suggestion)"}
-                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
-
-                      {locationDropdownOpen && (
-                        <div className="absolute z-20 mt-1 w-full rounded-md border border-gray-200 bg-white  overflow-hidden">
-                          {locationLoading && (
-                            <div className="px-3 py-2 text-xs text-gray-500">{s.location?.searching || "Searching..."}</div>
-                          )}
-                          {!locationLoading && locationSuggestions.length === 0 && (
-                            <div className="px-3 py-2 text-xs text-gray-500">{s.location?.noResults || "No results"}</div>
-                          )}
-                          {!locationLoading && locationSuggestions.map((s) => (
-                            <button
-                              key={s.id}
-                              type="button"
-                              onMouseDown={(ev) => ev.preventDefault()}
-                              onClick={() => {
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  address: s.label || prev.address,
-                                  city: s.city || prev.city,
-                                  country: s.country || prev.country,
-                                  latitude: String(s.lat),
-                                  longitude: String(s.lng),
-                                }));
-                                setSelectedMapLocation({ lng: s.lng, lat: s.lat });
-                                setLocationQuery(s.label);
-                                setCityTouched(false);
-                                setLocationDropdownOpen(false);
-                              }}
-                              className="w-full text-left px-3 py-2 hover:bg-gray-50"
-                            >
-                              <div className="text-sm text-gray-900 truncate">{s.label}</div>
-                              {(s.city || s.country) && (
-                                <div className="text-xs text-gray-500 truncate">{[s.city, s.country].filter(Boolean).join(' • ')}</div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-xs text-gray-500">{s.location?.searchHint || "Pick a suggestion, click the map, or use your device location to fill coordinates."}</div>
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Step 2 — Location</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Where's your place located?</h1>
+                    <p className="text-sm text-[#717171] mt-2">Your exact address is only shared with confirmed guests.</p>
                   </div>
 
-                  {/* Interactive map for picking location */}
-                  <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-200">
-                    <div className="p-2 flex items-center justify-end gap-2 bg-white/60">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
-                            navigator.geolocation.getCurrentPosition(
-                              (pos) => {
-                                const lng = pos.coords.longitude;
-                                const lat = pos.coords.latitude;
-                                // set local form coords and selectedMapLocation so MapView centers and reverse-geocodes
-                                setFormData((prev) => ({ ...prev, latitude: String(lat), longitude: String(lng) }));
-                                setSelectedMapLocation({ lng, lat });
-                                setCityTouched(false);
-                              },
-                              (err) => {
-                                console.error('Geolocation error', err);
-                                setSubmitError('Unable to get your location. Please enable location services.');
-                                setErrorModalOpen(true);
-                              }
-                            );
-                          } else {
-                            setSubmitError('Geolocation is not supported by your browser.');
-                            setErrorModalOpen(true);
-                          }
-                        }}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded bg-white border border-gray-200 hover:bg-gray-50"
-                      >
-                        {s.location?.useMyLocation || 'Use my location'}
-                      </button>
-                    </div>
+                  <div className="relative z-20">
+                    <FormInput
+                      name="address"
+                      value={formData.address}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const v = e.target.value;
+                        setFormData(prev => ({ ...prev, address: v }));
+                        setLocationQuery(v);
+                        if (v.length >= 3) setLocationDropdownOpen(true);
+                      }}
+                      onBlur={() => setTimeout(() => setLocationDropdownOpen(false), 150)}
+                      placeholder="Search for your address…"
+                    />
+                    {locationDropdownOpen && locationSuggestions.length > 0 && (
+                      <div className="absolute w-full bg-white border border-[#DDDDDD] border-t-0 rounded-b-xl shadow-xl z-50 overflow-hidden">
+                        {locationLoading && <div className="p-4 text-sm text-[#717171]">Searching…</div>}
+                        {locationSuggestions.map(sug => (
+                          <button
+                            key={sug.id}
+                            type="button"
+                            onMouseDown={e => e.preventDefault()}
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                address: sug.label,
+                                city: sug.city || prev.city,
+                                country: sug.country || prev.country,
+                                latitude: String(sug.lat),
+                                longitude: String(sug.lng),
+                              }));
+                              setSelectedMapLocation({ lng: sug.lng, lat: sug.lat });
+                              setLocationDropdownOpen(false);
+                            }}
+                            className="w-full text-left p-4 hover:bg-[#F7F7F7] flex flex-col border-b border-[#EBEBEB] last:border-0"
+                          >
+                            <span className="font-semibold text-[#222222] truncate text-sm">{sug.label}</span>
+                            <span className="text-xs text-[#717171]">{[sug.city, sug.country].filter(Boolean).join(', ')}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
+                  {/* Map: mounted with dynamic() — stays alive across step transitions */}
+                  <div className="h-[300px] w-full rounded-xl overflow-hidden border border-[#DDDDDD] relative z-10">
                     <MapView
                       properties={[]}
-                      selectedLocation={selectedMapLocation}
-                      onMapClick={(lng, lat) => {
-                        setFormData((prev) => ({ ...prev, latitude: String(lat), longitude: String(lng) }));
+                      selectedLocation={memoizedMapLocation}
+                      onMapClick={(lng: number, lat: number) => {
+                        setFormData(prev => ({ ...prev, latitude: String(lat), longitude: String(lng) }));
                         setSelectedMapLocation({ lng, lat });
                         setCityTouched(false);
                       }}
-                      onLocationSelect={(lng, lat, addr) => {
-                        setFormData((prev) => ({
+                      onLocationSelect={(lng: number, lat: number, addr: any) => {
+                        setFormData(prev => ({
                           ...prev,
                           latitude: String(lat),
                           longitude: String(lng),
@@ -1315,1370 +896,445 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         if (addr?.city) setCityTouched(false);
                       }}
                     />
-
-                    <div className="p-2 text-xs text-gray-500">{s.location?.mapHint || "Click on the map to pick the location — latitude and longitude will be filled automatically. You can also use your device location."}</div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="city" className="text-sm font-semibold">
-                        {s.location?.city || 'City *'}
-                      </Label>
-                      <Input
-                        id="city"
-                        name="city"
-                        type="text"
-                        value={formData.city}
-                        onChange={(e) => {
-                          setCityTouched(true);
-                          handleChange(e);
-                        }}
-                        placeholder={s.location?.cityPlaceholder || "Enter city"}
-                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">City *</Label>
+                      <FormInput name="city" value={formData.city}
+                        onChange={(e: any) => { setCityTouched(true); handleChange(e); }}
+                        placeholder="e.g., Yaoundé" />
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="neighborhood" className="text-sm font-semibold">
-                        {s.location?.neighborhood || 'Neighborhood'}
-                      </Label>
-                      <Input
-                        id="neighborhood"
-                        name="neighborhood"
-                        type="text"
-                        value={formData.neighborhood}
-                        onChange={handleChange}
-                        placeholder={s.location?.neighborhoodPlaceholder || "Enter neighborhood"}
-                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Neighborhood</Label>
+                      <FormInput name="neighborhood" value={formData.neighborhood} onChange={handleChange} placeholder="Optional" />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="latitude" className="text-sm font-semibold flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-blue-600" />
-                        {s.location?.latitude || 'Latitude *'}
-                      </Label>
-                      <Input
-                        id="latitude"
-                        name="latitude"
-                        type="text"
-                        value={formData.latitude}
-                        onChange={handleChange}
-                        readOnly={!manualCoordsEnabled}
-                        inputMode="decimal"
-                        placeholder={s.location?.latitudePlaceholder || "e.g., 3.8480"}
-                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="longitude" className="text-sm font-semibold flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-blue-600" />
-                        {s.location?.longitude || 'Longitude *'}
-                      </Label>
-                      <Input
-                        id="longitude"
-                        name="longitude"
-                        type="text"
-                        value={formData.longitude}
-                        onChange={handleChange}
-                        readOnly={!manualCoordsEnabled}
-                        inputMode="decimal"
-                        placeholder={s.location?.longitudePlaceholder || "e.g., 11.5021"}
-                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
+                  {/* Precise coordinates hidden by default */}
+                  <div>
                     <button
                       type="button"
-                      onClick={() => setManualCoordsEnabled((v) => !v)}
-                      className="text-xs font-medium text-blue-700 hover:text-blue-800"
+                      onClick={() => setShowLatLng(v => !v)}
+                      className="flex items-center gap-2 text-sm text-[#717171] hover:text-[#222222] transition-colors"
                     >
-                      {manualCoordsEnabled ? (s.location?.lockCoords || 'Lock coordinates') : (s.location?.editCoords || 'Edit coordinates manually')}
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showLatLng ? 'rotate-180' : ''}`} />
+                      {showLatLng ? 'Hide' : 'Show'} precise coordinates
                     </button>
-                    <div className="text-xs text-gray-500">{s.location?.coordsHint || "Latitude must be -90..90, longitude -180..180."}</div>
+                    {showLatLng && (
+                      <div className="grid grid-cols-2 gap-4 mt-3">
+                        <div>
+                          <Label className="text-sm font-semibold text-[#222222] mb-1 block">Latitude</Label>
+                          <FormInput name="latitude" value={formData.latitude} onChange={handleChange} placeholder="e.g., 3.8480" inputMode="decimal" />
+                        </div>
+                        <div>
+                          <Label className="text-sm font-semibold text-[#222222] mb-1 block">Longitude</Label>
+                          <FormInput name="longitude" value={formData.longitude} onChange={handleChange} placeholder="e.g., 11.5021" inputMode="decimal" />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* Step 3: Property Details */}
-              {currentStep === 3 && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="area" className="text-sm font-semibold flex items-center gap-2">
-                        <Maximize className="w-4 h-4 text-blue-600" />
-                        {s.details?.area || 'Area (m²)'}
-                      </Label>
-                      <Input
-                        id="area"
-                        name="area"
-                        type="text"
-                        value={formData.area}
-                        onChange={handleChange}
-                        placeholder={s.details?.areaPlaceholder || "e.g., 120"}
-                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="yearBuilt" className="text-sm font-semibold">
-                        {s.details?.yearBuilt || 'Year Built'}
-                      </Label>
-                      <Input
-                        id="yearBuilt"
-                        name="yearBuilt"
-                        type="text"
-                        value={formData.yearBuilt}
-                        onChange={handleChange}
-                        placeholder={s.details?.yearBuiltPlaceholder || "e.g., 2020"}
-                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
+              {/* ── details ── */}
+              {currentStepId === 'details' && (
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Step 3 — Details</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Share some basics about your place</h1>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="floorNumber" className="text-sm font-semibold">
-                        {s.details?.floorNumber || 'Floor Number'}
-                      </Label>
-                      <Input
-                        id="floorNumber"
-                        name="floorNumber"
-                        type="text"
-                        value={formData.floorNumber}
-                        onChange={handleChange}
-                        placeholder={s.details?.floorNumberPlaceholder || "e.g., 5"}
-                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="totalFloors" className="text-sm font-semibold">
-                        {s.details?.totalFloors || 'Total Floors'}
-                      </Label>
-                      <Input
-                        id="totalFloors"
-                        name="totalFloors"
-                        type="text"
-                        value={formData.totalFloors}
-                        onChange={handleChange}
-                        placeholder={s.details?.totalFloorsPlaceholder || "e.g., 10"}
-                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
+                  <div className="flex flex-col">
+                    {formData.listingType === 'short_term' && (
+                      <CounterRow title="Max guests" subtitle="Maximum capacity" icon={Users} value={formData.maxGuests} min={1}
+                        onDecrement={() => handleNumberChange('maxGuests', Math.max(1, formData.maxGuests - 1))}
+                        onIncrement={() => handleNumberChange('maxGuests', formData.maxGuests + 1)} />
+                    )}
+                    <CounterRow title="Bedrooms" icon={BedDouble} value={formData.bedrooms}
+                      onDecrement={() => handleNumberChange('bedrooms', Math.max(0, formData.bedrooms - 1))}
+                      onIncrement={() => handleNumberChange('bedrooms', formData.bedrooms + 1)} />
+                    <CounterRow title="Bathrooms" icon={Bath} value={formData.bathrooms}
+                      onDecrement={() => handleNumberChange('bathrooms', Math.max(0, formData.bathrooms - 1))}
+                      onIncrement={() => handleNumberChange('bathrooms', formData.bathrooms + 1)} />
+                    <CounterRow title="Parking spaces" icon={ParkingCircle} value={formData.parkingSpaces}
+                      onDecrement={() => handleNumberChange('parkingSpaces', Math.max(0, formData.parkingSpaces - 1))}
+                      onIncrement={() => handleNumberChange('parkingSpaces', formData.parkingSpaces + 1)} />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="pricePerSqm" className="text-sm font-semibold">
-                      {s.details?.pricePerSqm || 'Price per m²'}
-                    </Label>
-                    <Input
-                      id="pricePerSqm"
-                      name="pricePerSqm"
-                      type="text"
-                      value={formData.pricePerSqm}
-                      onChange={handleChange}
-                      placeholder={s.details?.pricePerSqmPlaceholder || "Auto-calculated or enter manually"}
-                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  {formData.listingType === 'short_term' && (
-                    <div className="pt-4 border-t border-blue-100 space-y-6">
-                      <h3 className="text-base font-bold text-blue-700">{s.details?.shortTermConfig || 'Short-term Rental Configuration'}</h3>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="pricingUnit" className="text-sm font-semibold">{s.details?.pricingUnit || 'Pricing Unit'}</Label>
-                          <select
-                            id="pricingUnit"
-                            name="pricingUnit"
-                            value={formData.pricingUnit}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
-                          >
-                            <option value="nightly">{s.details?.units?.nightly || 'Nightly'}</option>
-                            <option value="weekly">{s.details?.units?.weekly || 'Weekly'}</option>
-                          </select>
-                        </div>
-
-                        <div className="space-y-2 flex items-center gap-2 pt-6">
-                          <input
-                            type="checkbox"
-                            id="isInstantBookable"
-                            name="isInstantBookable"
-                            checked={formData.isInstantBookable}
-                            onChange={handleChange}
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                          />
-                          <Label htmlFor="isInstantBookable" className="text-sm font-semibold cursor-pointer">
-                            {s.details?.instantBookable || 'Instant Bookable (No approval needed)'}
-                          </Label>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="minNights" className="text-sm font-semibold">{s.details?.minNights || 'Min Nights'}</Label>
-                          <Input
-                            id="minNights"
-                            name="minNights"
-                            type="number"
-                            min={1}
-                            value={formData.minNights}
-                            onChange={(e) => handleNumberChange('minNights', parseInt(e.target.value) || 1)}
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="maxNights" className="text-sm font-semibold">{s.details?.maxNights || 'Max Nights'}</Label>
-                          <Input
-                            id="maxNights"
-                            name="maxNights"
-                            type="number"
-                            min={1}
-                            value={formData.maxNights}
-                            onChange={(e) => handleNumberChange('maxNights', parseInt(e.target.value) || 365)}
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="cleaningFee" className="text-sm font-semibold">{s.details?.cleaningFee || 'Cleaning Fee (One-time)'}</Label>
-                          <Input
-                            id="cleaningFee"
-                            name="cleaningFee"
-                            type="text"
-                            value={formData.cleaningFee}
-                            onChange={handleChange}
-                            placeholder={s.details?.cleaningFeePlaceholder || "e.g., 5000"}
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="serviceFee" className="text-sm font-semibold">{s.details?.serviceFee || 'Service Fee (Optional)'}</Label>
-                          <Input
-                            id="serviceFee"
-                            name="serviceFee"
-                            type="text"
-                            value={formData.serviceFee}
-                            onChange={handleChange}
-                            placeholder={s.details?.serviceFeePlaceholder || "e.g., 2000"}
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="cancellationPolicy" className="text-sm font-semibold">{s.details?.cancellationPolicy || 'Cancellation Policy'}</Label>
-                        <select
-                          id="cancellationPolicy"
-                          name="cancellationPolicy"
-                          value={formData.cancellationPolicy}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
-                        >
-                          <option value="flexible">{s.details?.policies?.flexible || 'Flexible (100% refund up to 24h before)'}</option>
-                          <option value="moderate">{s.details?.policies?.moderate || 'Moderate (100% refund up to 5 days before)'}</option>
-                          <option value="strict">{s.details?.policies?.strict || 'Strict (50% refund up to 7 days before, no refund after)'}</option>
-                          <option value="no_refund">{s.details?.policies?.no_refund || 'No Refund'}</option>
-                        </select>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="advanceNoticeDays" className="text-sm font-semibold">{s.details?.advanceNotice || 'Advance Notice (Days)'}</Label>
-                          <Input
-                            id="advanceNoticeDays"
-                            name="advanceNoticeDays"
-                            type="number"
-                            min={0}
-                            value={formData.advanceNoticeDays}
-                            onChange={(e) => handleNumberChange('advanceNoticeDays', parseInt(e.target.value) || 0)}
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="bookingWindowDays" className="text-sm font-semibold">{s.details?.bookingWindow || 'Booking Window (Days ahead)'}</Label>
-                          <Input
-                            id="bookingWindowDays"
-                            name="bookingWindowDays"
-                            type="number"
-                            min={1}
-                            value={formData.bookingWindowDays}
-                            onChange={(e) => handleNumberChange('bookingWindowDays', parseInt(e.target.value) || 365)}
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Long-stay Discounts */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="weeklyDiscountPercent" className="text-sm font-semibold">{s.details?.weeklyDiscount || 'Weekly Discount (%)'}</Label>
-                          <Input
-                            id="weeklyDiscountPercent"
-                            name="weeklyDiscountPercent"
-                            type="number"
-                            min={0}
-                            max={80}
-                            value={formData.weeklyDiscountPercent}
-                            onChange={(e) => handleNumberChange('weeklyDiscountPercent', parseInt(e.target.value) || 0)}
-                            placeholder="e.g. 10"
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                          <p className="text-xs text-gray-500">{s.details?.weeklyDiscountHint || 'Applied when stay ≥ 7 nights'}</p>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="monthlyDiscountPercent" className="text-sm font-semibold">{s.details?.monthlyDiscount || 'Monthly Discount (%)'}</Label>
-                          <Input
-                            id="monthlyDiscountPercent"
-                            name="monthlyDiscountPercent"
-                            type="number"
-                            min={0}
-                            max={80}
-                            value={formData.monthlyDiscountPercent}
-                            onChange={(e) => handleNumberChange('monthlyDiscountPercent', parseInt(e.target.value) || 0)}
-                            placeholder="e.g. 20"
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                          <p className="text-xs text-gray-500">{s.details?.monthlyDiscountHint || 'Applied when stay ≥ 28 nights'}</p>
-                        </div>
-                      </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Area (m²)</Label>
+                      <FormInput name="area" value={formData.area} onChange={handleChange} placeholder="e.g., 120" />
                     </div>
-                  )}
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Year Built</Label>
+                      <FormInput name="yearBuilt" value={formData.yearBuilt} onChange={handleChange} placeholder="e.g., 2020" />
+                    </div>
+                  </div>
 
                   {formData.listingType === 'rent' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="depositAmount" className="text-sm font-semibold">
-                          {s.details?.deposit || 'Deposit Amount'}
-                        </Label>
-                        <Input
-                          id="depositAmount"
-                          name="depositAmount"
-                          type="text"
-                          value={formData.depositAmount}
-                          onChange={handleChange}
-                          placeholder={s.details?.depositPlaceholder || "Enter deposit"}
-                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        />
+                    <div className="grid grid-cols-2 gap-4 pt-2">
+                      <div>
+                        <Label className="text-sm font-semibold text-[#222222] mb-1 block">Deposit (XAF)</Label>
+                        <FormInput name="depositAmount" value={formData.depositAmount} onChange={handleChange} placeholder="e.g., 50000" />
                       </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="maintenanceFee" className="text-sm font-semibold">
-                          {s.details?.maintenance || 'Maintenance Fee'}
-                        </Label>
-                        <Input
-                          id="maintenanceFee"
-                          name="maintenanceFee"
-                          type="text"
-                          value={formData.maintenanceFee}
-                          onChange={handleChange}
-                          placeholder={s.details?.maintenancePlaceholder || "Monthly fee"}
-                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        />
+                      <div>
+                        <Label className="text-sm font-semibold text-[#222222] mb-1 block">Maintenance fee</Label>
+                        <FormInput name="maintenanceFee" value={formData.maintenanceFee} onChange={handleChange} placeholder="Monthly" />
                       </div>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Step 4: Amenities */}
-              {currentStep === 4 && (
+              {/* ── amenities ── */}
+              {currentStepId === 'amenities' && (
                 <div className="space-y-8">
-                  {/* Stepper row: Beds / Baths / Parking */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {(
-                      [
-                        { key: 'bedrooms', label: s.amenities?.bedrooms || 'Bedrooms', icon: Bed },
-                        { key: 'bathrooms', label: s.amenities?.bathrooms || 'Bathrooms', icon: Bath },
-                        { key: 'parkingSpaces', label: s.amenities?.parking || 'Parking', icon: Car },
-                      ] as { key: 'bedrooms' | 'bathrooms' | 'parkingSpaces'; label: string; icon: React.ElementType }[]
-                    ).map(({ key, label, icon: Icon }) => (
-                      <div key={key} className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-2xl border border-gray-200">
-                        <Icon className="w-5 h-5 text-blue-500" />
-                        <span className="text-xs font-semibold text-gray-600">{label}</span>
-                        <div className="flex items-center gap-3">
-                          <motion.button
-                            type="button"
-                            whileTap={{ scale: 0.85 }}
-                            onClick={() => handleNumberChange(key, Math.max(0, (formData[key] as number) - 1))}
-                            className="w-8 h-8 rounded-full bg-white border-1 border-blue-200 text-blue-600 font-bold flex items-center justify-center hover:bg-blue-50 hover:border-blue-400 transition-colors"
-                          >
-                            −
-                          </motion.button>
-                          <motion.span
-                            key={formData[key] as number}
-                            initial={{ scale: 1.4, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="text-2xl font-bold text-gray-800 min-w-[2rem] text-center"
-                          >
-                            {formData[key] as number}
-                          </motion.span>
-                          <motion.button
-                            type="button"
-                            whileTap={{ scale: 0.85 }}
-                            onClick={() => handleNumberChange(key, (formData[key] as number) + 1)}
-                            className="w-8 h-8 rounded-full bg-blue-600 border-1 border-blue-600 text-white font-bold flex items-center justify-center hover:bg-blue-700 transition-colors"
-                          >
-                            +
-                          </motion.button>
-                        </div>
-                      </div>
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Step 4 — Amenities</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">What does your place offer?</h1>
+                    <p className="text-sm text-[#717171] mt-2">Select all that apply. You can update these later.</p>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {displayedAmenities.map(amenity => (
+                      <AmenityCard
+                        key={amenity.name}
+                        name={amenity.name}
+                        label={amenity.label}
+                        icon={amenity.icon}
+                        checked={formData[amenity.name as keyof PropertyFormData] as boolean}
+                        onToggle={() => setFormData(prev => ({ ...prev, [amenity.name]: !prev[amenity.name as keyof PropertyFormData] }))}
+                      />
                     ))}
                   </div>
-
-                  {/* Property Features — animated chip toggles */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold text-gray-700">{s.amenities?.featuresTitle || 'Property Features'}</Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                      {[
-                        { name: 'hasGarden', label: s.amenities?.features?.hasGarden || 'Garden', icon: Trees },
-                        { name: 'hasPool', label: s.amenities?.features?.hasPool || 'Swimming Pool', icon: Zap },
-                        { name: 'hasGym', label: s.amenities?.features?.hasGym || 'Gym', icon: Dumbbell },
-                        { name: 'hasSecurity', label: s.amenities?.features?.hasSecurity || '24/7 Security', icon: Shield },
-                        { name: 'hasElevator', label: s.amenities?.features?.hasElevator || 'Elevator', icon: Building2 },
-                        { name: 'hasBalcony', label: s.amenities?.features?.hasBalcony || 'Balcony', icon: Globe },
-                        { name: 'hasAirConditioning', label: s.amenities?.features?.hasAirConditioning || 'A/C', icon: Zap },
-                        { name: 'hasInternet', label: s.amenities?.features?.hasInternet || 'Internet/WiFi', icon: Wifi },
-                        { name: 'hasGenerator', label: s.amenities?.features?.hasGenerator || 'Generator', icon: Zap },
-                        { name: 'furnished', label: s.amenities?.features?.furnished || 'Furnished', icon: Home },
-                      ].map(feature => {
-                        const checked = formData[feature.name as keyof PropertyFormData] as boolean;
-                        const Icon = feature.icon;
-                        return (
-                          <motion.button
-                            key={feature.name}
-                            type="button"
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setFormData(prev => ({ ...prev, [feature.name]: !prev[feature.name as keyof PropertyFormData] }))}
-                            className={`relative flex items-center gap-2 px-4 py-3 rounded-xl border-1 text-sm font-medium transition-all duration-150 ${checked
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
-                              }`}
-                          >
-                            <Icon className={`w-4 h-4 shrink-0 ${checked ? 'text-blue-500' : 'text-gray-400'}`} />
-                            <span>{feature.label}</span>
-                            <AnimatePresence>
-                              {checked && (
-                                <motion.div
-                                  initial={{ scale: 0, opacity: 0 }}
-                                  animate={{ scale: 1, opacity: 1 }}
-                                  exit={{ scale: 0, opacity: 0 }}
-                                  className="ml-auto w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center shrink-0"
-                                >
-                                  <CheckCircle2 className="w-3 h-3 text-white" />
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </motion.button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {formData.listingType === 'short_term' && (
-                    <div className="pt-6 border-t border-blue-100 space-y-6">
-                      <h3 className="text-base font-bold text-blue-700">{s.amenities?.shortTermTitle || 'Short-term / Hospitality Amenities'}</h3>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="maxGuests" className="text-sm font-semibold flex items-center gap-2">
-                            <Users className="w-4 h-4 text-blue-600" />
-                            {s.amenities?.maxGuests || 'Max Guests'}
-                          </Label>
-                          <div className="flex items-center gap-2">
-                            <motion.button type="button" whileTap={{ scale: 0.85 }} onClick={() => handleNumberChange('maxGuests', Math.max(1, formData.maxGuests - 1))} className="w-8 h-8 rounded-full bg-white border-1 border-blue-200 text-blue-600 font-bold flex items-center justify-center hover:bg-blue-50">−</motion.button>
-                            <motion.span key={formData.maxGuests} initial={{ scale: 1.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-2xl font-bold text-gray-800 min-w-[2rem] text-center">{formData.maxGuests}</motion.span>
-                            <motion.button type="button" whileTap={{ scale: 0.85 }} onClick={() => handleNumberChange('maxGuests', formData.maxGuests + 1)} className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center hover:bg-blue-700">+</motion.button>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="checkInTime" className="text-sm font-semibold">{s.amenities?.checkInTime || 'Check-in Time'}</Label>
-                          <input id="checkInTime" name="checkInTime" type="time" value={formData.checkInTime} onChange={handleChange} className="w-full px-3 py-2 border-1 border-gray-200 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="checkOutTime" className="text-sm font-semibold">{s.amenities?.checkOutTime || 'Check-out Time'}</Label>
-                          <input id="checkOutTime" name="checkOutTime" type="time" value={formData.checkOutTime} onChange={handleChange} className="w-full px-3 py-2 border-1 border-gray-200 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100" />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                        {[
-                          { name: 'hasWifi', label: s.amenities?.shortTermFeatures?.hasWifi || 'Wifi', icon: Wifi },
-                          { name: 'hasBreakfast', label: s.amenities?.shortTermFeatures?.hasBreakfast || 'Breakfast', icon: Coffee },
-                          { name: 'hasTv', label: s.amenities?.shortTermFeatures?.hasTv || 'TV', icon: Globe },
-                          { name: 'hasKitchen', label: s.amenities?.shortTermFeatures?.hasKitchen || 'Kitchen', icon: Home },
-                          { name: 'hasWasher', label: s.amenities?.shortTermFeatures?.hasWasher || 'Washer', icon: Wrench },
-                          { name: 'hasHeating', label: s.amenities?.shortTermFeatures?.hasHeating || 'Heating', icon: Zap },
-                          { name: 'petsAllowed', label: s.amenities?.shortTermFeatures?.petsAllowed || 'Pets Allowed', icon: Star },
-                          { name: 'smokingAllowed', label: s.amenities?.shortTermFeatures?.smokingAllowed || 'Smoking OK', icon: Globe },
-                          { name: 'partiesAllowed', label: s.amenities?.shortTermFeatures?.partiesAllowed || 'Parties OK', icon: Users },
-                          { name: 'wheelchairAccessible', label: s.amenities?.shortTermFeatures?.wheelchairAccessible || 'Wheelchair', icon: Shield },
-                          { name: 'airportTransfer', label: s.amenities?.shortTermFeatures?.airportTransfer || 'Airport Transfer', icon: Car },
-                          { name: 'conciergeService', label: s.amenities?.shortTermFeatures?.conciergeService || 'Concierge', icon: Star },
-                          { name: 'dailyHousekeeping', label: s.amenities?.shortTermFeatures?.dailyHousekeeping || 'Housekeeping', icon: Wrench },
-                        ].map(amenity => {
-                          const checked = formData[amenity.name as keyof PropertyFormData] as boolean;
-                          const Icon = amenity.icon;
-                          return (
-                            <motion.button
-                              key={amenity.name}
-                              type="button"
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => setFormData(prev => ({ ...prev, [amenity.name]: !prev[amenity.name as keyof PropertyFormData] }))}
-                              className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-1 text-sm font-medium transition-all duration-150 ${checked ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
-                                }`}
-                            >
-                              <Icon className={`w-4 h-4 shrink-0 ${checked ? 'text-blue-500' : 'text-gray-400'}`} />
-                              <span className="text-xs">{amenity.label}</span>
-                              {checked && <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 ml-auto shrink-0" />}
-                            </motion.button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
 
-              {/* Step 5: Features */}
-              {currentStep === 5 && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="keywords" className="text-sm font-semibold text-gray-700">
-                      {s.features?.keywords || 'Keywords'}
-                      <span className="font-normal text-gray-400 ml-1">{s.features?.keywordsHint || '(comma-separated)'}</span>
-                    </Label>
-                    <input
-                      id="keywords"
-                      name="keywords"
-                      type="text"
-                      value={formData.keywords}
-                      onChange={handleChange}
-                      placeholder={s.features?.keywordsPlaceholder || 'e.g., luxury, modern, downtown, spacious'}
-                      className="w-full px-4 py-3 text-sm border-1 border-gray-200 rounded-xl bg-white transition-all duration-200 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 placeholder:text-gray-400 hover:border-gray-300"
-                    />
+              {/* ── nearby ── */}
+              {currentStepId === 'nearby' && (
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Step 5 — Nearby</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Highlight what's nearby</h1>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold text-gray-700">
-                      {s.features?.nearbyAmenitiesTitle || 'Nearby Amenities'}
-                      <span className="ml-2 text-xs font-normal text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{formData.nearbyAmenities.length} selected</span>
-                    </Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                      {nearbyAmenitiesOptions.map(amenity => {
-                        const selected = formData.nearbyAmenities.includes(amenity.value);
+                  <div>
+                    <InputLabel title="Keywords" subtitle="Comma-separated tags that describe the property" />
+                    <FormInput name="keywords" value={formData.keywords} onChange={handleChange} placeholder="e.g., luxury, downtown, quiet, modern" />
+                  </div>
+
+                  <div>
+                    <InputLabel title="Nearby amenities" />
+                    <div className="flex flex-wrap gap-3">
+                      {nearbyAmenitiesOptions.map(({ value, label, icon: Icon }) => {
+                        const selected = formData.nearbyAmenities.includes(value);
                         return (
-                          <motion.button
-                            key={amenity.value}
-                            type="button"
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => toggleArrayItem('nearbyAmenities', amenity.value)}
-                            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-1 text-sm font-medium transition-all duration-150 ${selected
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
-                              }`}
-                          >
-                            {selected && (
-                              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-3 h-3 bg-blue-500 rounded-full shrink-0" />
-                            )}
-                            {!selected && <div className="w-3 h-3 border border-gray-300 rounded-full shrink-0" />}
-                            {amenity.label}
-                          </motion.button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold text-gray-700">
-                      {s.features?.transportAccessTitle || 'Transport Access'}
-                      <span className="ml-2 text-xs font-normal text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">{formData.transportAccess.length} selected</span>
-                    </Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                      {transportAccessOptions.map(transport => {
-                        const selected = formData.transportAccess.includes(transport.value);
-                        return (
-                          <motion.button
-                            key={transport.value}
-                            type="button"
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => toggleArrayItem('transportAccess', transport.value)}
-                            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-1 text-sm font-medium transition-all duration-150 ${selected
-                              ? 'border-purple-500 bg-purple-50 text-purple-700'
-                              : 'bg-white text-gray-600 border-gray-200 hover:border-purple-300'
-                              }`}
-                          >
-                            {selected && (
-                              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-3 h-3 bg-purple-500 rounded-full shrink-0" />
-                            )}
-                            {!selected && <div className="w-3 h-3 border border-gray-300 rounded-full shrink-0" />}
-                            {transport.label}
-                          </motion.button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 6: Media */}
-              {currentStep === 6 && (
-                <div className="space-y-6">
-                  {/* Image Upload Section */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-blue-600" />
-                      {s.media?.images || 'Property Images'}
-                      <span className="text-xs text-gray-500 font-normal ml-2">
-                        ({formData.images.length} {s.media?.imagesUploaded || 'uploaded, recommended: at least 5'})
-                      </span>
-                    </Label>
-
-                    <div
-                      className={`border-1 border-dashed rounded-lg p-6 transition-all ${dragActive
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:border-blue-400'
-                        }`}
-                      onDragEnter={handleDrag}
-                      onDragLeave={handleDrag}
-                      onDragOver={handleDrag}
-                      onDrop={handleDrop}
-                    >
-                      <div className="flex flex-col items-center justify-center text-center">
-                        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-3">
-                          <ImageIcon className="w-8 h-8 text-blue-600" />
-                        </div>
-                        <h4 className="text-sm font-semibold text-gray-700 mb-1">{s.media?.uploadTitle || 'Upload Property Images'}</h4>
-                        <p className="text-xs text-gray-500 mb-4">{s.media?.dragDrop || 'Drag and drop or click to browse'}</p>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          className="hidden"
-                          id="image-upload"
-                          onChange={handleImageUpload}
-                        />
-                        <label htmlFor="image-upload">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="border-blue-600 text-blue-600 hover:bg-blue-50"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              document.getElementById('image-upload')?.click();
-                            }}
-                          >
-                            {s.media?.selectBtn || 'Select Images'}
-                          </Button>
-                        </label>
-                        <p className="text-xs text-gray-400 mt-3">{s.media?.formatHint || 'JPG, PNG, WebP (Max 5MB each)'}</p>
-                      </div>
-                    </div>
-
-                    {/* Image Preview Grid */}
-                    {formData.images.length > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                        {formData.images.map((image, index) => (
-                          <div key={image.id} className="relative group">
-                            <div className="aspect-video rounded-lg overflow-hidden border-1 border-gray-200 bg-gray-100">
-                              <img
-                                src={image.preview}
-                                alt={`Property ${index + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-
-                            {index === 0 && (
-                              <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-                                <Star className="w-3 h-3 fill-white" />
-                                {s.media?.featured || 'Featured'}
-                              </div>
-                            )}
-
-                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              {index !== 0 && (
-                                <button
-                                  type="button"
-                                  onClick={() => setFeaturedImage(image.id)}
-                                  className="bg-white p-1.5 rounded  hover:bg-gray-100"
-                                  title="Set as featured"
-                                >
-                                  <Star className="w-4 h-4 text-gray-700" />
-                                </button>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => removeImage(image.id)}
-                                className="bg-red-500 text-white p-1.5 rounded  hover:bg-red-600"
-                                title="Remove image"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                            </div>
-
-                            <input
-                              type="text"
-                              placeholder="Add caption..."
-                              value={image.caption}
-                              onChange={(e) => updateImageCaption(image.id, e.target.value)}
-                              className="w-full mt-2 px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Photo Tips */}
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                      <p className="text-xs font-semibold text-gray-700 mb-2">{s.media?.photoTipsTitle || 'Photo Tips:'}</p>
-                      <ul className="text-xs text-gray-600 space-y-1 ml-4 list-disc">
-                        {(s.media?.tips || [
-                          "Take photos in good natural lighting",
-                          "Include exterior, living room, kitchen, bedrooms, and bathrooms",
-                          "Show unique features and recent renovations",
-                          "Keep photos well-framed and clutter-free"
-                        ]).map((tip: string, i: number) => (
-                          <li key={i}>{tip}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Floor Plan Upload */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-blue-600" />
-                      {s.media?.floorPlan || 'Floor Plan (Optional)'}
-                    </Label>
-
-                    {!formData.floorPlan ? (
-                      <div className="border-1 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
-                              <FileText className="w-6 h-6 text-gray-400" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-700">{s.media?.uploadFloorPlan || 'Upload Floor Plan'}</p>
-                              <p className="text-xs text-gray-500">{s.media?.floorPlanHint || 'PDF, JPG, PNG (Max 10MB)'}</p>
-                            </div>
-                          </div>
-                          <input
-                            type="file"
-                            accept="image/*,.pdf"
-                            className="hidden"
-                            id="floorplan-upload"
-                            onChange={handleFloorPlanUpload}
-                          />
-                          <label htmlFor="floorplan-upload">
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              className="border-blue-600 text-blue-600 hover:bg-blue-50"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                document.getElementById('floorplan-upload')?.click();
-                              }}
-                            >
-                              {s.media?.browseBtn || 'Browse'}
-                            </Button>
-                          </label>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="border-1 border-green-200 bg-green-50 rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            {formData.floorPlanPreview && formData.floorPlan.type.startsWith('image/') ? (
-                              <img
-                                src={formData.floorPlanPreview}
-                                alt="Floor plan"
-                                className="w-16 h-16 object-cover rounded border-1 border-gray-300"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 bg-white rounded flex items-center justify-center">
-                                <FileText className="w-6 h-6 text-green-600" />
-                              </div>
-                            )}
-                            <div>
-                              <p className="text-sm font-medium text-gray-700">{formData.floorPlan.name}</p>
-                              <p className="text-xs text-gray-500">
-                                {(formData.floorPlan.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={removeFloorPlan}
-                            className="text-red-500 hover:text-red-600 font-medium text-sm px-3 py-1 rounded hover:bg-red-50"
-                          >
-                            {s.media?.removeBtn || 'Remove'}
+                          <button key={value} type="button" onClick={() => toggleArrayItem('nearbyAmenities', value)}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-semibold transition-colors
+                              ${selected ? 'border-[#222222] bg-[#F7F7F7] text-[#222222]' : 'border-[#DDDDDD] text-[#717171] hover:border-[#222222] hover:text-[#222222]'}`}>
+                            <Icon className="w-4 h-4" />{label}
                           </button>
-                        </div>
-                      </div>
-                    )}
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  {/* Virtual Tour */}
-                  <div className="space-y-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <Label className="text-sm font-semibold flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-blue-600" />
-                      {s.media?.virtualTour || 'Virtual Tour (Optional)'}
-                    </Label>
-
-                    {/* Tour type — pick first */}
-                    <div className="space-y-2">
-                      <Label htmlFor="tourType" className="text-sm font-medium text-gray-700">
-                        {s.media?.tourType || 'Tour Type'}
-                      </Label>
-                      <select
-                        id="tourType"
-                        name="tourType"
-                        value={formData.tourType}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500 bg-white"
-                      >
-                        <option value="none">{s.media?.tourTypes?.none || 'No virtual tour'}</option>
-                        <option value="kuula">{s.media?.tourTypes?.kuula || '360° Tour (Kuula)'}</option>
-                        <option value="youtube">{s.media?.tourTypes?.youtube || 'Video Walkthrough (YouTube)'}</option>
-                        <option value="images">{s.media?.tourTypes?.images || 'Photo Tour (use uploaded images)'}</option>
-                      </select>
+                  <div>
+                    <InputLabel title="Transport access" />
+                    <div className="flex flex-wrap gap-3">
+                      {transportAccessOptions.map(({ value, label, icon: Icon }) => {
+                        const selected = formData.transportAccess.includes(value);
+                        return (
+                          <button key={value} type="button" onClick={() => toggleArrayItem('transportAccess', value)}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-semibold transition-colors
+                              ${selected ? 'border-[#222222] bg-[#F7F7F7] text-[#222222]' : 'border-[#DDDDDD] text-[#717171] hover:border-[#222222] hover:text-[#222222]'}`}>
+                            <Icon className="w-4 h-4" />{label}
+                          </button>
+                        );
+                      })}
                     </div>
+                  </div>
+                </div>
+              )}
 
-                    {/* URL field — only shown when kuula or youtube is selected */}
-                    {(formData.tourType === 'kuula' || formData.tourType === 'youtube') && (
-                      <div className="space-y-2">
-                        <Label htmlFor="virtualTourUrl" className="text-sm font-medium text-gray-700">
-                          {formData.tourType === 'kuula' ? (s.media?.kuulaEmbed || 'Kuula Embed URL') : (s.media?.youtubeId || 'YouTube Video ID')}
-                        </Label>
-                        <Input
-                          id="virtualTourUrl"
-                          name="virtualTourUrl"
-                          type="text"
-                          value={formData.virtualTourUrl}
-                          onChange={handleChange}
-                          placeholder={
-                            formData.tourType === 'kuula'
-                              ? 'https://kuula.co/share/...'
-                              : 'e.g., dQw4w9WgXcQ'
-                          }
-                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
-                        />
-                        <p className="text-xs text-gray-500">
-                          {formData.tourType === 'kuula'
-                            ? (s.media?.kuulaHint || 'In Kuula, go to Share → Embed → copy the src URL from the iframe code.')
-                            : (s.media?.youtubeHint || 'Paste only the video ID from the YouTube URL, not the full link. e.g. from youtube.com/watch?v=dQw4w9WgXcQ use dQw4w9WgXcQ')}
-                        </p>
-                      </div>
-                    )}
+              {/* ── photos ── */}
+              {currentStepId === 'photos' && (
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Step 6 — Photos</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Add some photos of your place</h1>
+                    <p className="text-sm text-[#717171] mt-2">Aim for at least 5 photos. You can add more after publishing.</p>
+                  </div>
 
-                    {/* Photo tour info */}
-                    {formData.tourType === 'images' && (
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                          <Globe className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
-                          <p className="text-xs text-blue-700">
-                            {s.media?.photoTourActive || 'Your uploaded photos will be used as the virtual tour automatically.'}
-                            <span className="font-semibold ml-1">
-                              ({formData.images.length} {s.media?.photoTourCount || 'ready'})
-                            </span>
-                          </p>
-                        </div>
+                  <div
+                    className={`border-1 border-dashed rounded-2xl p-10 text-center transition-all cursor-pointer flex flex-col items-center justify-center
+                      ${dragActive ? 'border-[#222222] bg-[#F7F7F7]' : 'border-[#DDDDDD] hover:border-[#222222]'}`}
+                    onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}
+                    onClick={() => document.getElementById('image-upload')?.click()}
+                  >
+                    <ImageIcon className="w-12 h-12 text-[#B0B0B0] mb-4" />
+                    <h3 className="text-lg font-semibold text-[#222222] mb-1">Drag photos here</h3>
+                    <p className="text-sm text-[#717171] mb-5">Max 5 MB per image · JPG, PNG, WEBP</p>
+                    <span className="font-semibold underline text-[#222222] text-sm">Browse files</span>
+                    <input type="file" multiple accept="image/*" className="hidden" id="image-upload" onChange={handleImageUpload} />
+                  </div>
 
-                        {/* Live mini-preview of uploaded images */}
-                        {formData.images.length > 0 && (
-                          <div className="flex gap-2 overflow-x-auto pb-1">
-                            {formData.images.slice(0, 6).map((img, i) => (
-                              <div
-                                key={img.id}
-                                className="relative shrink-0 w-20 h-14 rounded-lg overflow-hidden border-1 border-blue-200"
-                              >
-                                <img
-                                  src={img.preview}
-                                  alt={`Tour photo ${i + 1}`}
-                                  className="w-full h-full object-cover"
-                                />
-                                {i === 0 && (
-                                  <div className="absolute bottom-0 inset-x-0 bg-blue-600/80 text-white text-[9px] text-center py-0.5 font-bold">
-                                    {s.media?.photoTourCover || 'COVER'}
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                            {formData.images.length > 6 && (
-                              <div className="shrink-0 w-20 h-14 rounded-lg border-1 border-dashed border-blue-200 flex items-center justify-center text-xs text-blue-500 font-bold">
-                                +{formData.images.length - 6} {s.media?.photoTourMore || 'more'}
+                  {formData.images.length > 0 && (
+                    <>
+                      <p className="text-sm text-[#717171]">
+                        {formData.images.length} photo{formData.images.length !== 1 ? 's' : ''} added
+                        {formData.images.length < 5 && <span className="text-orange-500 ml-1">· add {5 - formData.images.length} more for best results</span>}
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {formData.images.map((image, index) => (
+                          <div key={image.id} className="relative aspect-video rounded-xl overflow-hidden group">
+                            <img src={image.preview} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
+                            {index === 0 && (
+                              <div className="absolute top-2 left-2 bg-[#222222] text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 font-semibold">
+                                <Star className="w-3 h-3 fill-white" /> Cover
                               </div>
                             )}
-                          </div>
-                        )}
-
-                        {formData.images.length === 0 && (
-                          <p className="text-xs text-amber-600 font-medium">
-                            {s.media?.photoTourNoImages || 'No images uploaded yet. Upload images above first.'}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {/* Video — tabbed local / URL */}
-                  <div className="space-y-3 border border-gray-200 rounded-xl overflow-hidden">
-                    {/* Tab header */}
-                    <div className="flex border-b border-gray-200">
-                      {(['local', 'url'] as const).map(tab => (
-                        <button
-                          key={tab}
-                          type="button"
-                          onClick={() => setVideoSourceTab(tab)}
-                          className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${videoSourceTab === tab
-                            ? 'bg-white text-blue-600 border-b-2 border-blue-600'
-                            : 'bg-gray-50 text-gray-500 hover:text-gray-700'
-                            }`}
-                        >
-                          {tab === 'local' ? 'Upload from device' : 'Paste URL'}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="px-4 pb-4">
-                      {videoSourceTab === 'local' ? (
-                        videoFile ? (
-                          <div className="space-y-3">
-                            <video
-                              src={videoPreview}
-                              controls
-                              className="w-full rounded-lg border border-gray-200 bg-blue-700 max-h-44 object-contain"
-                            />
-                            <div className="flex items-center justify-between">
-                              <div className="text-xs text-gray-600">
-                                <span className="font-medium">{videoFile.name}</span>
-                                <span className="ml-2 text-gray-400">{(videoFile.size / 1024 / 1024).toFixed(1)} MB</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => { setVideoFile(null); setVideoPreview(''); }}
-                                className="text-xs text-red-500 hover:text-red-600 font-medium"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <label
-                            htmlFor="video-local-upload"
-                            className="flex flex-col items-center justify-center gap-2 py-8 border-1 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors"
-                          >
-                            <input
-                              id="video-local-upload"
-                              type="file"
-                              accept="video/mp4,video/quicktime,video/webm,video/avi"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                setVideoFile(file);
-                                setVideoPreview(URL.createObjectURL(file));
-                              }}
-                            />
-                            <ImageIcon className="w-8 h-8 text-gray-300" />
-                            <span className="text-sm font-medium text-gray-500">Click to select a video</span>
-                            <span className="text-xs text-gray-400">MP4, MOV, WebM · max 200 MB</span>
-                          </label>
-                        )
-                      ) : (
-                        <div className="space-y-2 pt-1">
-                          <Label htmlFor="videoUrl" className="text-xs font-semibold text-gray-600">
-                            {s.media?.videoUrl || 'Video URL'}
-                          </Label>
-                          <input
-                            id="videoUrl"
-                            name="videoUrl"
-                            type="text"
-                            value={formData.videoUrl}
-                            onChange={handleChange}
-                            placeholder={s.media?.videoUrlPlaceholder || 'https://youtube.com/watch?v=...'}
-                            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400 transition-colors"
-                          />
-                          <p className="text-xs text-gray-400">{s.media?.videoUrlHint || 'YouTube, Vimeo, or direct .mp4 link'}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Documents Upload */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-blue-600" />
-                      {s.media?.documents || 'Property Documents (Optional)'}
-                      <span className="text-xs text-gray-500 font-normal ml-2">
-                        ({formData.documents.length} {s.media?.documentsUploaded || 'uploaded'})
-                      </span>
-                    </Label>
-
-                    <div className="border-1 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
-                            <FileText className="w-6 h-6 text-gray-400" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-700">{s.media?.uploadDocs || 'Upload Documents'}</p>
-                            <p className="text-xs text-gray-500">{s.media?.docsHint || 'Certificates, brochures, legal docs (PDF, Max 20MB)'}</p>
-                          </div>
-                        </div>
-                        <input
-                          type="file"
-                          multiple
-                          accept=".pdf"
-                          className="hidden"
-                          id="documents-upload"
-                          onChange={handleDocumentsUpload}
-                        />
-                        <label htmlFor="documents-upload">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="border-blue-600 text-blue-600 hover:bg-blue-50"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              document.getElementById('documents-upload')?.click();
-                            }}
-                          >
-                            {s.media?.browseBtn || 'Browse'}
-                          </Button>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Documents List */}
-                    {formData.documents.length > 0 && (
-                      <div className="space-y-2">
-                        {formData.documents.map((doc, index) => (
-                          <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded border border-gray-200 hover:border-gray-300 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-red-100 rounded flex items-center justify-center">
-                                <FileText className="w-5 h-5 text-red-600" />
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium text-gray-700">{doc.name}</p>
-                                <p className="text-xs text-gray-500">
-                                  {(doc.size / 1024 / 1024).toFixed(2)} MB
-                                </p>
-                              </div>
-                            </div>
                             <button
                               type="button"
-                              onClick={() => removeDocument(index)}
-                              className="text-red-500 hover:text-red-600 text-sm font-medium px-3 py-1 rounded hover:bg-red-50"
+                              onClick={e => { e.stopPropagation(); removeImage(image.id); }}
+                              className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-transform opacity-0 group-hover:opacity-100"
                             >
-                              {s.media?.removeBtn || 'Remove'}
+                              <X className="w-3.5 h-3.5 text-[#222222]" />
                             </button>
                           </div>
                         ))}
                       </div>
-                    )}
-                  </div>
-
-                  {/* Media Summary */}
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <ImageIcon className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-blue-900 mb-2">{s.media?.whyMediaMattersTitle || 'Why quality media matters:'}</p>
-                        <ul className="text-xs text-blue-800 space-y-1">
-                          {(s.media?.whyMediaMattersTips || [
-                            "• Properties with 5+ photos get 3x more views",
-                            "• Virtual tours increase inquiry rates by 40%",
-                            "• Floor plans help buyers understand the layout faster"
-                          ]).map((tip: string, i: number) => (
-                            <li key={i}>{tip}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
               )}
 
-              {/* Step 7: Student Enrollment — rent only */}
-              {currentStep === 7 && formData.listingType === 'rent' && (
-                <StudentEnrollmentStep
-                  data={studentEnrollment}
-                  onChange={setStudentEnrollment}
-                />
+              {/* ── students (rent only) ── */}
+              {currentStepId === 'students' && (
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Step 7 — Students</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Is this suitable for students?</h1>
+                  </div>
+                  <StudentEnrollmentStep data={studentEnrollment} onChange={setStudentEnrollment} />
+                </div>
               )}
 
-              {/* Final step: Review
-    — step 7 for sale/short_term, step 8 for rent */}
-              {((currentStep === 7 && formData.listingType !== 'rent') ||
-                (currentStep === 8 && formData.listingType === 'rent')) && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                      <h3 className="text-lg font-semibold text-blue-600">{s.review?.title || 'Review Your Property Listing'}</h3>
+              {/* ── booking (short_term only) ── */}
+              {currentStepId === 'booking' && (
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Step 7 — Booking</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Set up your booking rules</h1>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Check-in time</Label>
+                      <input type="time" name="checkInTime" value={formData.checkInTime} onChange={handleChange}
+                        className="w-full p-4 border border-[#DDDDDD] rounded-xl text-[#222222] bg-white outline-none focus:border-[#222222] transition-colors" />
                     </div>
-
-                    <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                      {/* Basic Information */}
-                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-blue-600" />
-                          {s.review?.basicInfo || 'Basic Information'}
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <p><span className="font-semibold">{s.basicInfo?.title || 'Property Title'}:</span> {formData.title}</p>
-                          <p><span className="font-semibold">{s.basicInfo?.description || 'Description'}:</span> {formData.description}</p>
-                          <p><span className="font-semibold">{s.basicInfo?.propertyType || 'Property Type'}:</span> {formData.type.charAt(0).toUpperCase() + formData.type.slice(1)}</p>
-                          <p><span className="font-semibold">{s.basicInfo?.listingType || 'Listing Type'}:</span> {formData.listingType === 'sale' ? (s.basicInfo?.listingTypes?.sale || 'For Sale') : formData.listingType === 'short_term' ? (s.basicInfo?.listingTypes?.short_term || 'Short-term Rental') : (s.basicInfo?.listingTypes?.rent || 'For Rent')}</p>
-                          <p><span className="font-semibold">{s.basicInfo?.price || 'Price'}:</span> {formData.price}</p>
-                        </div>
-                      </div>
-
-                      {/* Location */}
-                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-blue-600" />
-                          {s.review?.location || 'Location'}
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <p><span className="font-semibold">{s.location?.address || 'Street Address'}:</span> {formData.address}</p>
-                          <p><span className="font-semibold">{s.location?.city || 'City'}:</span> {formData.city}</p>
-                          {formData.neighborhood && <p><span className="font-semibold">{s.location?.neighborhood || 'Neighborhood'}:</span> {formData.neighborhood}</p>}
-                          {formData.country && <p><span className="font-semibold">Country:</span> {formData.country}</p>}
-                          <p><span className="font-semibold">{s.location?.coordinates || 'Coordinates'}:</span> {formData.latitude}, {formData.longitude}</p>
-                        </div>
-                      </div>
-
-                      {/* Amenities */}
-                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                          <Home className="w-4 h-4 text-blue-600" />
-                          {s.review?.amenities || 'Amenities'}
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <p><span className="font-semibold">{s.amenities?.bedrooms || 'Bedrooms'}:</span> {formData.bedrooms}</p>
-                          <p><span className="font-semibold">{s.amenities?.bathrooms || 'Bathrooms'}:</span> {formData.bathrooms}</p>
-                          <p><span className="font-semibold">{s.amenities?.parking || 'Parking Spaces'}:</span> {formData.parkingSpaces}</p>
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {formData.hasGarden && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.garden || 'Garden'}</span>}
-                            {formData.hasPool && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.pool || 'Pool'}</span>}
-                            {formData.hasGym && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.gym || 'Gym'}</span>}
-                            {formData.hasSecurity && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.security || 'Security'}</span>}
-                            {formData.hasElevator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.elevator || 'Elevator'}</span>}
-                            {formData.hasBalcony && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.balcony || 'Balcony'}</span>}
-                            {formData.hasAirConditioning && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.ac || 'A/C'}</span>}
-                            {formData.hasInternet && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.internet || 'Internet'}</span>}
-                            {formData.hasGenerator && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.generator || 'Generator'}</span>}
-                            {formData.furnished && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{s.amenities?.features?.furnished || 'Furnished'}</span>}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Media */}
-                      {(formData.images.length > 0 || formData.virtualTourUrl || formData.videoUrl) && (
-                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                          <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                            <ImageIcon className="w-4 h-4 text-blue-600" />
-                            {s.review?.media || 'Media'}
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            <p><span className="font-semibold">{s.media?.images || 'Images'}:</span> {formData.images.length} {s.media?.imagesUploaded || 'uploaded'}</p>
-                            {formData.virtualTourUrl && <p><span className="font-semibold">{s.media?.virtualTour || 'Virtual Tour'}:</span> {formData.virtualTourUrl}</p>}
-                            {formData.videoUrl && <p><span className="font-semibold">{s.media?.videoUrl || 'Video'}:</span> {formData.videoUrl}</p>}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Student enrollment summary */}
-                      {studentEnrollment.enabled && (
-                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                          <h4 className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
-                            <GraduationCap className="w-4 h-4" />
-                            {s.review?.studentProgramme || 'Student Programme — Enrolled'}
-                          </h4>
-                          <div className="grid grid-cols-2 gap-2 text-sm text-blue-900">
-                            {studentEnrollment.nearestCampus && <p><span className="font-semibold">{s.review?.campus || 'Campus'}:</span> {studentEnrollment.nearestCampus}</p>}
-                            {studentEnrollment.campusProximityMeters && <p><span className="font-semibold">{s.review?.distance || 'Distance'}:</span> {studentEnrollment.campusProximityMeters}m</p>}
-                            {studentEnrollment.waterSource && <p><span className="font-semibold">{s.review?.water || 'Water'}:</span> {studentEnrollment.waterSource}</p>}
-                            {studentEnrollment.electricityBackup && <p><span className="font-semibold">{s.review?.powerBackup || 'Power backup'}:</span> {studentEnrollment.electricityBackup}</p>}
-                            {studentEnrollment.pricePerPersonMonthly && <p><span className="font-semibold">{s.review?.perPerson || 'Per person'}:</span> {studentEnrollment.pricePerPersonMonthly.toLocaleString()} XAF</p>}
-                          </div>
-                        </div>
-                      )}
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Check-out time</Label>
+                      <input type="time" name="checkOutTime" value={formData.checkOutTime} onChange={handleChange}
+                        className="w-full p-4 border border-[#DDDDDD] rounded-xl text-[#222222] bg-white outline-none focus:border-[#222222] transition-colors" />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Cleaning fee (XAF)</Label>
+                      <FormInput name="cleaningFee" value={formData.cleaningFee} onChange={handleChange} placeholder="e.g., 5000" />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Service fee (XAF)</Label>
+                      <FormInput name="serviceFee" value={formData.serviceFee} onChange={handleChange} placeholder="e.g., 2000" />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Min nights</Label>
+                      <FormInput type="number" name="minNights" value={formData.minNights} onChange={handleChange} min="1" />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Max nights</Label>
+                      <FormInput type="number" name="maxNights" value={formData.maxNights} onChange={handleChange} min="1" />
                     </div>
                   </div>
-                )}
+
+                  <div>
+                    <Label className="text-sm font-semibold text-[#222222] mb-1 block">Cancellation policy</Label>
+                    <select name="cancellationPolicy" value={formData.cancellationPolicy} onChange={handleChange}
+                      className="w-full p-4 border border-[#DDDDDD] rounded-xl text-[#222222] bg-white outline-none focus:border-[#222222] transition-colors">
+                      <option value="flexible">Flexible — 100% refund up to 24h before</option>
+                      <option value="moderate">Moderate — 100% refund up to 5 days before</option>
+                      <option value="strict">Strict — 50% refund up to 7 days before</option>
+                    </select>
+                  </div>
+
+                  <label className="flex items-start gap-3 cursor-pointer p-4 border border-[#DDDDDD] rounded-xl hover:border-[#222222] transition-colors">
+                    <input type="checkbox" name="isInstantBookable" checked={formData.isInstantBookable} onChange={handleChange}
+                      className="mt-0.5 w-5 h-5 rounded border-[#DDDDDD] focus:ring-[#222222]" />
+                    <div>
+                      <span className="text-base text-[#222222] font-semibold block">Instant booking</span>
+                      <span className="text-sm text-[#717171]">Guests can book without waiting for your approval</span>
+                    </div>
+                  </label>
+                </div>
+              )}
+
+              {/* ── review ── */}
+              {currentStepId === 'review' && (
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Final step — Review</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Review your listing</h1>
+                    <p className="text-sm text-[#717171] mt-2">Double-check everything before publishing.</p>
+                  </div>
+
+                  {/* Preview card */}
+                  <div className="p-5 border border-[#DDDDDD] rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] flex flex-col sm:flex-row gap-5 items-start">
+                    <div className="w-full sm:w-[220px] h-[150px] rounded-xl bg-[#EBEBEB] overflow-hidden shrink-0">
+                      {formData.images[0] ? (
+                        <img src={formData.images[0].preview} className="w-full h-full object-cover" alt="Cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ImageIcon className="text-[#B0B0B0] w-8 h-8" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-1.5 min-w-0">
+                      <h2 className="text-base font-semibold text-[#222222] truncate">{formData.title || 'Untitled Property'}</h2>
+                      <p className="text-sm text-[#717171] truncate">{[formData.neighborhood, formData.city, formData.country].filter(Boolean).join(', ')}</p>
+                      <p className="text-sm text-[#717171]">{formData.type.replace(/_/g, ' ')} · {formData.bedrooms} bed · {formData.bathrooms} bath</p>
+                      <div className="pt-3 border-t border-[#EBEBEB] flex items-baseline gap-1">
+                        <span className="text-base font-bold text-[#222222]">
+                          {formData.price ? Number(formData.price).toLocaleString() : '—'} XAF
+                        </span>
+                        <span className="text-xs text-[#717171]">
+                          {formData.listingType === 'rent' ? '/ month' : formData.listingType === 'short_term' ? '/ night' : ''}
+                        </span>
+                      </div>
+                      <ListingTypeBadge type={formData.listingType} />
+                    </div>
+                  </div>
+
+                  {/* Checklist summary */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { label: 'Photos', value: `${formData.images.length} added`, ok: formData.images.length >= 5 },
+                      { label: 'Location', value: formData.city || 'Not set', ok: !!formData.city },
+                      { label: 'Price', value: formData.price ? `${Number(formData.price).toLocaleString()} XAF` : 'Not set', ok: !!formData.price },
+                      { label: 'Amenities', value: `${displayedAmenities.filter(a => formData[a.name as keyof PropertyFormData]).length} selected`, ok: true },
+                    ].map(item => (
+                      <div key={item.label} className={`p-4 rounded-xl border ${item.ok ? 'border-[#EBEBEB]' : 'border-orange-200 bg-orange-50'}`}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold text-[#B0B0B0] uppercase tracking-wide">{item.label}</span>
+                          <span className={`w-2 h-2 rounded-full ${item.ok ? 'bg-emerald-400' : 'bg-orange-400'}`} />
+                        </div>
+                        <span className="text-sm font-semibold text-[#222222]">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="text-xs text-[#B0B0B0] leading-relaxed">
+                    By submitting you agree to the Host Terms. All details will be visible to potential guests after review.
+                  </p>
+                </div>
+              )}
+
             </motion.div>
           </AnimatePresence>
+        </div>
+      </main>
 
-          {/* Step progress strip */}
-          <div className="mt-4 mb-2 px-1">
-            <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
-                animate={{ width: `${(currentStep / steps.length) * 100}%` }}
-                transition={{ duration: 0.4, type: 'spring', bounce: 0.2 }}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>Step {currentStep} of {steps.length}</span>
-              <span>{Math.round((currentStep / steps.length) * 100)}%</span>
-            </div>
-          </div>
+      {/* ── BOTTOM FOOTER ── */}
+      <footer className="fixed bottom-0 left-0 right-0 h-[88px] bg-white border-t border-[#EBEBEB] z-50">
+        <div className="w-full h-0.5 bg-[#EBEBEB] absolute top-0 left-0">
+          <motion.div
+            className="h-full bg-[#222222]"
+            initial={false}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
 
-          {/* Upload progress */}
-          {isSubmitting && uploadProgress > 0 && (
-            <div className="w-full px-2 mb-4">
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <motion.div
-                  className="bg-green-500 h-2 rounded-full"
-                  animate={{ width: `${uploadProgress}%` }}
-                  transition={{ duration: 0.2 }}
-                />
-              </div>
-              <p className="text-sm text-gray-600 mt-1">{s.actions?.uploadingImages?.replace('{progress}', uploadProgress.toString()) || `Uploading images: ${uploadProgress}%`}</p>
-            </div>
-          )}
+        <div className="h-full max-w-[1200px] mx-auto px-6 lg:px-10 flex items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={handleBack}
+            className={`font-semibold underline text-sm px-2 py-2 text-[#222222] hover:text-[#717171] transition-colors ${currentStep === 1 ? 'invisible' : ''}`}
+          >
+            Back
+          </button>
 
-          <div className="flex justify-between items-center pt-4 border-t pb-2">
-            <motion.button
-              type="button"
-              whileHover={currentStep !== 1 ? { x: -2 } : {}}
-              whileTap={currentStep !== 1 ? { scale: 0.96 } : {}}
-              onClick={handleBack}
-              disabled={currentStep === 1}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border-1 border-blue-200 text-blue-600 font-medium text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-blue-200"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {s.actions?.back || 'Back'}
-            </motion.button>
+          <div className="flex items-center gap-3">
+            {/* Inline hint when Next is blocked */}
+            {!validateStep(currentStep) && validationHint && (
+              <span className="text-sm text-[#717171] hidden sm:block">{validationHint}</span>
+            )}
 
-            {currentStep < (formData.listingType === 'rent' ? 8 : 7) ? (
-              <motion.button
+            {currentStep < totalSteps ? (
+              <button
                 type="button"
-                disabled={!validateStep(currentStep)}
-                whileHover={validateStep(currentStep) ? { x: 2 } : {}}
-                whileTap={validateStep(currentStep) ? { scale: 0.96 } : {}}
                 onClick={handleNext}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
+                disabled={!validateStep(currentStep)}
+                className="bg-[#222222] text-white px-8 py-3 rounded-xl font-semibold text-sm hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {s.actions?.next || 'Next'}
-                <ArrowRight className="w-4 h-4" />
-              </motion.button>
+                Next
+              </button>
             ) : (
-              <motion.button
+              <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                whileHover={!isSubmitting ? { scale: 1.02 } : {}}
-                whileTap={!isSubmitting ? { scale: 0.97 } : {}}
-                className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 transition-colors ${isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
-                  }`}
+                className="bg-blue-600 text-white px-9 py-3 rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
-                  <span className="inline-flex items-center gap-2">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                      className="w-4 h-4 border-1 border-white border-t-transparent rounded-full"
-                    />
-                    {isEditMode ? (s.actions?.updating || 'Updating') : (s.actions?.submitting || 'Submitting')}
-                    {uploadProgress > 0 ? ` (${uploadProgress}%)` : '...'}
-                  </span>
-                ) : (
                   <>
-                    {isEditMode ? (s.actions?.updateProperty || 'Update Property') : (s.actions?.submitProperty || 'Submit Property')}
-                    <CheckCircle2 className="w-4 h-4" />
+                    <div className="w-4 h-4 border-1 border-white border-t-transparent rounded-full animate-spin" />
+                    {uploadProgress > 0 ? `Uploading (${uploadProgress}%)` : 'Saving…'}
                   </>
-                )}
-              </motion.button>
+                ) : isEditMode ? 'Update listing' : 'Publish listing'}
+              </button>
             )}
           </div>
-        </CardContent>
-      </Card>
-      {/* Success Modal */}
+        </div>
+      </footer>
+
+      {/* ── SUCCESS MODAL ── */}
       <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
-        <DialogContent className="max-w-sm p-8 bg-white border-0 -2xl rounded-3xl [&>button]:hidden sm:rounded-3xl">
-          <div className="flex flex-col items-center justify-center text-center space-y-2">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4 text-green-600"
-            >
-              <CheckCircle2 className="w-10 h-10" />
-            </motion.div>
-            <DialogTitle className="text-2xl font-bold text-gray-900">
-              {isEditMode ? (s.modals?.success?.updateTitle || 'Property Updated') : (s.modals?.success?.createTitle || 'Property Created')}
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-500 max-w-[280px] mx-auto">
-              {isEditMode
-                ? (s.modals?.success?.updateDesc || 'Your property has been updated successfully. Redirecting...')
-                : (s.modals?.success?.createDesc || 'Your property was created successfully. Redirecting to the property page…')}
-            </DialogDescription>
-            <div className="flex gap-3 w-full pt-6">
-              <Button
-                variant="outline"
-                className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 font-medium"
-                onClick={() => setSuccessModalOpen(false)}
-              >
-                {s.modals?.close || 'Close'}
-              </Button>
-              <Button
-                className="flex-1 h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold"
-                onClick={() => {
-                  setSuccessModalOpen(false);
-                  if (createdPropertyId) router.push(`/properties/${createdPropertyId}`);
-                }}
-              >
-                {s.modals?.success?.viewBtn || 'View Property'}
-              </Button>
-            </div>
+        <DialogContent className="max-w-sm p-10 bg-white border border-[#EBEBEB] rounded-2xl [&>button]:hidden text-center shadow-2xl">
+          <div className="w-14 h-14 bg-[#222222] rounded-full flex items-center justify-center mx-auto mb-5">
+            <CheckCircle2 className="w-7 h-7 text-white" />
           </div>
+          <DialogTitle className="text-xl font-semibold text-[#222222] mb-2">
+            {isEditMode ? 'Listing updated!' : 'You are live!'}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-[#717171] mb-6">
+            {isEditMode ? 'Your changes have been saved.' : 'Your property is published and visible to guests.'}
+          </DialogDescription>
+          <Button
+            className="w-full h-11 rounded-xl bg-[#222222] hover:bg-black text-white font-semibold text-sm"
+            onClick={() => { setSuccessModalOpen(false); if (createdPropertyId) router.push(`/properties/${createdPropertyId}`); }}
+          >
+            View listing
+          </Button>
         </DialogContent>
       </Dialog>
 
-      {/* Error Modal */}
+      {/* ── ERROR MODAL ── */}
       <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
-        <DialogContent className="max-w-sm p-8 bg-white border-0 -2xl rounded-3xl [&>button]:hidden sm:rounded-3xl">
-          <div className="flex flex-col items-center justify-center text-center space-y-2">
-            <motion.div
-              initial={{ scale: 0, rotate: -10 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4 text-red-600"
-            >
-              <X className="w-10 h-10" />
-            </motion.div>
-            <DialogTitle className="text-2xl font-bold text-gray-900">
-              {isEditMode ? (s.modals?.error?.updateTitle || 'Update Failed') : (s.modals?.error?.createTitle || 'Submission Failed')}
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-500 max-w-[280px] mx-auto">
-              {submitError || (isEditMode ? (s.modals?.error?.updateDesc || 'An unknown error occurred while updating the property.') : (s.modals?.error?.createDesc || 'An unknown error occurred while creating the property.'))}
-            </DialogDescription>
-            <div className="w-full pt-6">
-              <Button
-                className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold"
-                onClick={() => setErrorModalOpen(false)}
-              >
-                {s.modals?.close || 'Close'}
-              </Button>
-            </div>
+        <DialogContent className="max-w-sm p-10 bg-white border border-[#EBEBEB] rounded-2xl [&>button]:hidden text-center shadow-2xl">
+          <div className="w-14 h-14 bg-[#FEE2E2] rounded-full flex items-center justify-center mx-auto mb-5">
+            <X className="w-7 h-7 text-[#E51D53]" />
           </div>
+          <DialogTitle className="text-xl font-semibold text-[#222222] mb-2">Something went wrong</DialogTitle>
+          <DialogDescription className="text-sm text-[#717171] mb-6">
+            {submitError || 'An error occurred while saving. Please try again.'}
+          </DialogDescription>
+          <Button
+            className="w-full h-11 rounded-xl bg-[#222222] hover:bg-black text-white font-semibold text-sm"
+            onClick={() => setErrorModalOpen(false)}
+          >
+            Try again
+          </Button>
         </DialogContent>
       </Dialog>
     </div>
