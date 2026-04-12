@@ -12,7 +12,7 @@ import {
   X, Check, AlertTriangle, Phone, Mail, Calendar, Loader2,
   RefreshCw, CheckCircle2, XCircle, Clock, ShieldCheck,
   Eye, ImageIcon, Users, MoreVertical, MapPin, BookOpen,
-  Award,
+  Award, LucideIcon,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,7 +61,7 @@ interface StudentStats {
 // ─── Status config ────────────────────────────────────────────────────────────
 
 const STATUS_CFG: Record<VerificationStatus, {
-  label: string; icon: React.ElementType;
+  label: string; icon: LucideIcon;
   badge: string; row: string;
 }> = {
   unverified: { label: 'Unverified', icon: XCircle, badge: 'bg-slate-100 text-slate-500', row: '' },
@@ -82,7 +82,7 @@ function StatusBadge({ status }: { status: VerificationStatus }) {
 }
 
 function StatCard({ label, value, icon: Icon, color }: {
-  label: string; value: number | string; icon: React.ElementType; color: string;
+  label: string; value: number | string; icon: LucideIcon; color: string;
 }) {
   return (
     <Card className="border-none -sm ring-1 ring-slate-200/60 hover:-md transition-all duration-300 group">

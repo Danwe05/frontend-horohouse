@@ -142,7 +142,7 @@ const PAYMENT_STATUS_CFG: Record<string, { label: string; color: string; bg: str
 
 function Section({ title, icon: Icon, children, defaultOpen = true }: {
   title: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   children: React.ReactNode;
   defaultOpen?: boolean;
 }) {

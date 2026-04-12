@@ -1209,7 +1209,7 @@ const MapView = ({
                 {poiLoading && <p className="text-[13px] text-[#717171] mb-3 animate-pulse">Loading nearby places…</p>}
                 <div className="space-y-3">
                   {POI_CATEGORIES.map((cat) => {
-                    const Icon = cat.icon;
+                    const Icon = cat.icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
                     const isActive = activePOICategories.has(cat.id);
                     return (
                       <button key={cat.id} onClick={() => togglePOICategory(cat.id)} className="w-full flex items-center justify-between py-2 group">

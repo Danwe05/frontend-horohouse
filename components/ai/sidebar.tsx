@@ -269,7 +269,7 @@ function SidebarLink({
   label,
   badge,
 }: {
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
   label: string
   badge?: string
 }) {

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import * as React from "react";
 import dynamic from "next/dynamic";
 import { Play, CalendarClock, Video, Image as ImageIcon, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -133,7 +134,7 @@ export default function TourPreview({
 
                 {/* Label bottom */}
                 <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
-                    <meta.Icon className="h-5 w-5 text-white/80" />
+                    {React.createElement(meta.Icon, { className: "h-5 w-5 text-white/80" })}
                     <span className="text-white font-semibold text-sm drop-">
                         {meta.label}
                     </span>
@@ -146,7 +147,7 @@ export default function TourPreview({
                     onClick={() => setIsOpen(true)}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 font-bold"
                 >
-                    <meta.Icon className="h-4 w-4 mr-2" />
+                    {React.createElement(meta.Icon, { className: "h-4 w-4 mr-2" })}
                     {meta.label}
                 </Button>
                 <Button

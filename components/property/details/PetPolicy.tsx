@@ -29,8 +29,10 @@ interface PetPolicyProps {
 }
 
 // ─── Icon map ─────────────────────────────────────────────────────────────────
+import type { LucideIcon } from "lucide-react";
+type IconComponent = LucideIcon;
 
-const ICON_MAP: Record<NonNullable<PetPolicyRule["icon"]>, React.ElementType> = {
+const ICON_MAP: Record<NonNullable<PetPolicyRule["icon"]>, IconComponent> = {
   dog: Dog,
   cat: Cat,
   bird: Bird,

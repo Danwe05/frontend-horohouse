@@ -15,7 +15,7 @@ import { motion } from 'framer-motion';
 import {
     ChevronLeft, Mail, Phone, MapPin, Calendar, CheckCircle2,
     XCircle, Shield, BadgeCheck, UserCheck, Circle, Building2,
-    Star, Home, TrendingUp, AlertTriangle, Loader2, UserX, UserCog, Ban
+    Star, Home, TrendingUp, AlertTriangle, Loader2, UserX, UserCog, Ban, LucideIcon
 } from 'lucide-react';
 
 // Types
@@ -43,7 +43,7 @@ interface User {
     reviewCount?: number;
 }
 
-const ROLE_CONFIG: Record<UserRole, { label: string; color: string; bg: string; icon: React.ElementType }> = {
+const ROLE_CONFIG: Record<UserRole, { label: React.ReactNode; color: string; bg: string; icon: LucideIcon }> = {
     admin: { label: 'Admin', color: 'text-red-700', bg: 'bg-red-50', icon: Shield },
     agent: { label: 'Agent', color: 'text-blue-700', bg: 'bg-blue-50', icon: BadgeCheck },
     registered_user: { label: 'User', color: 'text-slate-700', bg: 'bg-slate-100', icon: UserCheck },

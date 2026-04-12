@@ -24,7 +24,9 @@ interface NeighborhoodProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const AMENITY_ICON_MAP: [RegExp, React.ElementType][] = [
+type IconComponent = React.FC<{ className?: string; 'aria-hidden'?: boolean | 'true' }>;
+
+const AMENITY_ICON_MAP: [RegExp, IconComponent][] = [
   [/market|grocery|supermarket|shop|mall/i, ShoppingBag],
   [/station|metro|train|rail|subway/i, Train],
   [/bus|tram/i, Bus],
@@ -40,20 +42,20 @@ const AMENITY_ICON_MAP: [RegExp, React.ElementType][] = [
   [/bike|cycle/i, Bike],
 ];
 
-const TRANSPORT_ICON_MAP: [RegExp, React.ElementType][] = [
+const TRANSPORT_ICON_MAP: [RegExp, IconComponent][] = [
   [/train|rail|metro|subway/i, Train],
   [/bus|tram|BRT/i, Bus],
   [/bike|cycle/i, Bike],
 ];
 
-function getAmenityIcon(label: string): React.ElementType {
+function getAmenityIcon(label: string): React.FC<{ className?: string; 'aria-hidden'?: boolean | 'true' }> {
   for (const [pattern, Icon] of AMENITY_ICON_MAP) {
     if (pattern.test(label)) return Icon;
   }
   return MapPin;
 }
 
-function getTransportIcon(label: string): React.ElementType {
+function getTransportIcon(label: string): React.FC<{ className?: string; 'aria-hidden'?: boolean | 'true' }> {
   for (const [pattern, Icon] of TRANSPORT_ICON_MAP) {
     if (pattern.test(label)) return Icon;
   }

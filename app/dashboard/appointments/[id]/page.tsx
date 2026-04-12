@@ -195,7 +195,7 @@ export default function AppointmentDetailPage() {
         setIsEditOpen(true);
     };
 
-    const InfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: React.ReactNode }) => (
+    const InfoItem = ({ icon: Icon, label, value }: { icon: React.ComponentType<{ className: string }>; label: string; value: React.ReactNode }) => (
         <div className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
             <Icon className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
             <div className="min-w-0">

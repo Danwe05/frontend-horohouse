@@ -12,7 +12,7 @@ import {
     ChevronLeft, ChevronRight, MoreVertical, Trash2,
     X, Check, AlertTriangle, Loader2, RefreshCw,
     Eye, MapPin, DollarSign, User, Shield, Home,
-    BadgeCheck, ThumbsDown, ThumbsUp,
+    BadgeCheck, ThumbsDown, ThumbsUp, LucideIcon,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -72,7 +72,7 @@ const APPROVAL_CONFIG = {
     pending: { label: 'Pending', color: 'text-amber-700' as string, bg: 'bg-amber-50' as string, icon: Clock, dot: 'bg-amber-400' as string },
     approved: { label: 'Approved', color: 'text-emerald-700' as string, bg: 'bg-emerald-50' as string, icon: CheckCircle2, dot: 'bg-emerald-500' as string },
     rejected: { label: 'Rejected', color: 'text-red-700' as string, bg: 'bg-red-50' as string, icon: XCircle, dot: 'bg-red-500' as string },
-} satisfies Record<ApprovalStatus, { label: string; color: string; bg: string; icon: React.ElementType; dot: string }>;
+} satisfies Record<ApprovalStatus, { label: string; color: string; bg: string; icon: LucideIcon; dot: string }>;
 
 function formatPrice(price: number): string {
     if (price >= 1_000_000) return `${(price / 1_000_000).toFixed(1)}M FCFA`;

@@ -336,7 +336,6 @@ export default function TransactionList() {
                         "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium",
                         cfg.color
                       )}>
-                        <StatusIcon className="w-3 h-3" />
                         {s?.[tx.status] || (tx.status.charAt(0).toUpperCase() + tx.status.slice(1))}
                       </span>
                     </td>

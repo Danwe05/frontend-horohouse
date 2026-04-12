@@ -682,7 +682,7 @@ export default function AppointmentsPage() {
 
                               {!loading && appointments.map((a, idx) => {
                                 const dt = formatDateTime(a.date);
-                                const TypeIcon = TYPE_ICON[a.type] ?? MapPin;
+                                const TypeIcon = (TYPE_ICON[a.type as AppointmentType] ?? MapPin) as React.ElementType;
                                 return (
                                   <motion.tr
                                     key={a._id || a.id}
@@ -718,7 +718,7 @@ export default function AppointmentsPage() {
                                     </TableCell>
                                     <TableCell className="hidden md:table-cell py-4">
                                       <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-medium text-xs gap-1.5 px-2 py-1">
-                                        <TypeIcon className="w-3.5 h-3.5" />
+                                        {TypeIcon && typeof TypeIcon !== 'string' && <TypeIcon className="w-3.5 h-3.5" />}
                                         {a.type === 'in-person' ? 'In-person' : a.type === 'virtual' ? 'Virtual' : 'Phone Call'}
                                       </Badge>
                                     </TableCell>

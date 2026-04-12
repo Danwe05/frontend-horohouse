@@ -11,7 +11,7 @@ import {
     Clock, CheckCircle2, XCircle, Search, Filter,
     ChevronLeft, ChevronRight, MoreVertical, Trash2,
     X, AlertTriangle, Loader2, RefreshCw, Eye,
-    Building2, MapPin, User, FileText, Check
+    Building2, MapPin, User, FileText, Check, LucideIcon
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,7 +61,7 @@ interface PaginatedReports {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<ReportStatus, { label: string; color: string; bg: string; icon: React.ElementType; dot: string }> = {
+const STATUS_CONFIG: Record<ReportStatus, { label: string; color: string; bg: string; icon: LucideIcon; dot: string }> = {
     pending: { label: 'Pending', color: 'text-amber-700', bg: 'bg-amber-50', icon: Clock, dot: 'bg-amber-400' },
     reviewed: { label: 'Reviewed', color: 'text-blue-700', bg: 'bg-blue-50', icon: Eye, dot: 'bg-blue-500' },
     resolved: { label: 'Resolved', color: 'text-emerald-700', bg: 'bg-emerald-50', icon: CheckCircle2, dot: 'bg-emerald-500' },

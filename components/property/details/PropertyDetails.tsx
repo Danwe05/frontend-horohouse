@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import {
   Ruler, Calendar, Car, Shield, Zap, Wifi,
-  TreePine, Waves, Dumbbell, Check, Home
+  TreePine, Waves, Dumbbell, Check, Home,
+  LucideIcon
 } from "lucide-react";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -53,7 +54,7 @@ const PropertyDetails = ({ property }: PropertyDetailsProps) => {
       : []),
   ], [amenities.bedrooms, amenities.bathrooms, property.area, property.price, property.availability, property.listingType, pd, formatMoney]);
 
-  interface Feature { name: string; icon?: React.ElementType }
+interface Feature { name: string; icon?: LucideIcon }
   
   const additionalFeatures: Feature[] = useMemo(() => [
     ...(amenities.hasInternet ? [{ name: pd?.highSpeedInternet || "Wifi", icon: Wifi }] : []),

@@ -11,7 +11,7 @@ import {
     ArrowLeft, Clock, CheckCircle2, XCircle, Eye,
     Building2, MapPin, User, Calendar, AlertTriangle,
     Mail, Phone, ExternalLink, Shield, Loader2,
-    Trash2, MessageSquareWarning, X, ChevronDown,
+    Trash2, MessageSquareWarning, X, ChevronDown, LucideIcon,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -69,7 +69,7 @@ interface Report {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<ReportStatus, {
-    label: string; color: string; bg: string; icon: React.ElementType; border: string; dot: string;
+    label: string; color: string; bg: string; icon: LucideIcon; border: string; dot: string;
 }> = {
     pending: { label: 'Pending Review', color: 'text-amber-600', bg: 'bg-amber-50', icon: Clock, border: 'border-amber-200', dot: 'bg-amber-400' },
     reviewed: { label: 'In Review', color: 'text-sky-600', bg: 'bg-sky-50', icon: Eye, border: 'border-sky-200', dot: 'bg-sky-400' },

@@ -51,13 +51,13 @@ interface PaymentCycle {
 
 // ─── Status config ────────────────────────────────────────────────────────────
 
-const CYCLE_STATUS: Record<string, { label: string; icon: React.ElementType; badge: string }> = {
+const CYCLE_STATUS = {
     pending: { label: 'Pending', icon: Clock, badge: 'border-[#DDDDDD] text-[#717171]' },
     partial: { label: 'Partial', icon: ChevronUp, badge: 'border-[#C2410C]/30 text-[#C2410C] bg-[#FFF7ED]' },
     complete: { label: 'Complete', icon: CheckCircle2, badge: 'border-[#008A05]/30 text-[#008A05] bg-[#EBFBF0]' },
     disbursed: { label: 'Disbursed', icon: CheckCircle2, badge: 'border-[#222222] text-[#222222] bg-[#F7F7F7]' },
     overdue: { label: 'Overdue', icon: AlertTriangle, badge: 'border-[#C2293F]/30 text-[#C2293F] bg-[#FFF8F6]' },
-};
+} as const;
 
 const SHARE_STATUS: Record<string, { label: string; color: string }> = {
     unpaid: { label: 'Unpaid', color: 'border-[#DDDDDD] text-[#717171]' },

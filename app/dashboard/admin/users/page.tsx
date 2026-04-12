@@ -66,7 +66,7 @@ interface PaginatedUsers {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const ROLE_CONFIG: Record<UserRole, { label: string; color: string; bg: string; icon: React.ElementType }> = {
+const ROLE_CONFIG: Record<UserRole, { label: string; color: string; bg: string; icon: React.ComponentType<{ className?: string }> }> = {
     admin: { label: 'Admin', color: 'text-red-700', bg: 'bg-red-50', icon: Shield },
     agent: { label: 'Agent', color: 'text-blue-700', bg: 'bg-blue-50', icon: BadgeCheck },
     registered_user: { label: 'User', color: 'text-slate-700', bg: 'bg-slate-100', icon: UserCheck },
@@ -94,7 +94,7 @@ function Avatar({ user }: { user: User }) {
     );
 }
 
-function StatCard({ label, value, icon: Icon, color }: { label: string; value: number | string; icon: React.ElementType; color: string }) {
+function StatCard({ label, value, icon: Icon, color }: { label: string; value: number | string; icon: React.ComponentType<{ className?: string }>; color: string }) {
     return (
         <Card className="border-none -sm ring-1 ring-slate-200/60 hover:-md transition-all duration-300 group">
             <CardContent className="p-5 flex items-center gap-4">
