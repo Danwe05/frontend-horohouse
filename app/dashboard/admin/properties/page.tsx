@@ -68,11 +68,11 @@ interface PaginatedProperties {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const APPROVAL_CONFIG: Record<ApprovalStatus, { label: string; color: string; bg: string; icon: React.ElementType; dot: string }> = {
-    pending: { label: 'Pending', color: 'text-amber-700', bg: 'bg-amber-50', icon: Clock, dot: 'bg-amber-400' },
-    approved: { label: 'Approved', color: 'text-emerald-700', bg: 'bg-emerald-50', icon: CheckCircle2, dot: 'bg-emerald-500' },
-    rejected: { label: 'Rejected', color: 'text-red-700', bg: 'bg-red-50', icon: XCircle, dot: 'bg-red-500' },
-};
+const APPROVAL_CONFIG = {
+    pending: { label: 'Pending', color: 'text-amber-700' as string, bg: 'bg-amber-50' as string, icon: Clock, dot: 'bg-amber-400' as string },
+    approved: { label: 'Approved', color: 'text-emerald-700' as string, bg: 'bg-emerald-50' as string, icon: CheckCircle2, dot: 'bg-emerald-500' as string },
+    rejected: { label: 'Rejected', color: 'text-red-700' as string, bg: 'bg-red-50' as string, icon: XCircle, dot: 'bg-red-500' as string },
+} satisfies Record<ApprovalStatus, { label: string; color: string; bg: string; icon: React.ElementType; dot: string }>;
 
 function formatPrice(price: number): string {
     if (price >= 1_000_000) return `${(price / 1_000_000).toFixed(1)}M FCFA`;
@@ -95,7 +95,7 @@ function ApprovalBadge({ status }: { status: ApprovalStatus }) {
 function StatCard({
     label, value, icon: Icon, color, subLabel, highlight
 }: {
-    label: string; value: number | string; icon: React.ElementType; color: string; subLabel?: string; highlight?: boolean
+    label: string; value: number | string; icon: React.FC<{ className?: string }>; color: string; subLabel?: string; highlight?: boolean
 }) {
     return (
         <Card className={cn(
@@ -104,7 +104,7 @@ function StatCard({
         )}>
             <CardContent className="p-5 flex items-center gap-4">
                 <div className={cn('p-3 rounded-xl transition-transform group-hover:scale-110 duration-300', color)}>
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
