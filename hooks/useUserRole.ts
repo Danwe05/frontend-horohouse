@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
-export type UserRole = 'user' | 'agent' | 'landlord' | 'admin' | 'student';
+export type UserRole = 'user' | 'registered_user' | 'agent' | 'landlord' | 'host' | 'guest' | 'admin' | 'student';
 
 export interface RolePermissions {
   // Property Management
@@ -55,6 +55,7 @@ export interface UseUserRoleReturn {
   isUser: boolean;
   isAgent: boolean;
   isLandlord: boolean;
+  isHost: boolean;
   isAdmin: boolean;
   isAgentOnly: boolean;
   isLandlordOnly: boolean;
@@ -75,63 +76,36 @@ export interface UseUserRoleReturn {
 
 // Role configuration constants
 const ROLE_CONFIGS: Record<UserRole, RoleCapabilities> = {
-  user: {
-    maxProperties: 0,
-    maxImagesPerProperty: 5,
-    canAccessPremiumFeatures: false,
-    prioritySupport: false,
-    apiAccessLevel: 'none',
-  },
-  student: {
-    maxProperties: 0,
-    maxImagesPerProperty: 5,
-    canAccessPremiumFeatures: false,
-    prioritySupport: false,
-    apiAccessLevel: 'none',
-  },
-  agent: {
-    maxProperties: 50,
-    maxImagesPerProperty: 20,
-    canAccessPremiumFeatures: true,
-    prioritySupport: true,
-    apiAccessLevel: 'basic',
-  },
-  landlord: {
-    maxProperties: 20,
-    maxImagesPerProperty: 15,
-    canAccessPremiumFeatures: true,
-    prioritySupport: false,
-    apiAccessLevel: 'basic',
-  },
-  admin: {
-    maxProperties: null,
-    maxImagesPerProperty: 50,
-    canAccessPremiumFeatures: true,
-    prioritySupport: true,
-    apiAccessLevel: 'full',
-  },
+  user:            { maxProperties: 0,    maxImagesPerProperty: 5,  canAccessPremiumFeatures: false, prioritySupport: false, apiAccessLevel: 'none' },
+  registered_user: { maxProperties: 0,    maxImagesPerProperty: 5,  canAccessPremiumFeatures: false, prioritySupport: false, apiAccessLevel: 'none' },
+  student:         { maxProperties: 0,    maxImagesPerProperty: 5,  canAccessPremiumFeatures: false, prioritySupport: false, apiAccessLevel: 'none' },
+  guest:           { maxProperties: 0,    maxImagesPerProperty: 5,  canAccessPremiumFeatures: false, prioritySupport: false, apiAccessLevel: 'none' },
+  agent:           { maxProperties: 50,   maxImagesPerProperty: 20, canAccessPremiumFeatures: true,  prioritySupport: true,  apiAccessLevel: 'basic' },
+  landlord:        { maxProperties: 20,   maxImagesPerProperty: 15, canAccessPremiumFeatures: true,  prioritySupport: false, apiAccessLevel: 'basic' },
+  host:            { maxProperties: 10,   maxImagesPerProperty: 15, canAccessPremiumFeatures: true,  prioritySupport: false, apiAccessLevel: 'basic' },
+  admin:           { maxProperties: null, maxImagesPerProperty: 50, canAccessPremiumFeatures: true,  prioritySupport: true,  apiAccessLevel: 'full' },
 };
 
 // Resource access mapping
 const RESOURCE_ACCESS_MAP: Record<string, UserRole[]> = {
-  'dashboard':          ['user', 'agent', 'landlord', 'admin', 'student'],
-  'properties':         ['user', 'agent', 'landlord', 'admin', 'student'],
-  'properties:create':  ['agent', 'landlord', 'admin'],
-  'properties:manage':  ['agent', 'landlord', 'admin'],
+  'dashboard':          ['user', 'registered_user', 'agent', 'landlord', 'host', 'guest', 'admin', 'student'],
+  'properties':         ['user', 'registered_user', 'agent', 'landlord', 'host', 'guest', 'admin', 'student'],
+  'properties:create':  ['agent', 'landlord', 'host', 'admin'],
+  'properties:manage':  ['agent', 'landlord', 'host', 'admin'],
   'properties:all':     ['admin'],
-  'analytics':          ['agent', 'landlord', 'admin'],
+  'analytics':          ['agent', 'landlord', 'host', 'admin'],
   'analytics:all':      ['admin'],
   'users':              ['admin'],
   'settings':           ['admin'],
   'admin-panel':        ['admin'],
-  'reports':            ['agent', 'landlord', 'admin'],
-  'reviews':            ['user', 'agent', 'landlord', 'admin', 'student'],
+  'reports':            ['agent', 'landlord', 'host', 'admin'],
+  'reviews':            ['user', 'registered_user', 'agent', 'landlord', 'host', 'guest', 'admin', 'student'],
   'reviews:moderate':   ['admin'],
-  'favorites':          ['user', 'agent', 'landlord', 'admin', 'student'],
-  'inquiries':          ['agent', 'landlord', 'admin'],
-  'messages':           ['user', 'agent', 'landlord', 'admin', 'student'],
+  'favorites':          ['user', 'registered_user', 'agent', 'landlord', 'host', 'guest', 'admin', 'student'],
+  'inquiries':          ['agent', 'landlord', 'host', 'admin'],
+  'messages':           ['user', 'registered_user', 'agent', 'landlord', 'host', 'guest', 'admin', 'student'],
   'tenants':            ['landlord', 'admin'],
-  // Student-specific
+  'host-bookings':      ['host', 'landlord', 'admin'],
   'student-housing':    ['student', 'admin'],
   'roommate-pool':      ['student', 'admin'],
 };
@@ -142,14 +116,15 @@ export const useUserRole = (): UseUserRoleReturn => {
   const role = (user?.role as UserRole) || 'user';
 
   const computed = useMemo(() => {
-    const isStudent    = role === 'student';
-    const isUser       = role === 'user';
-    const isAgentOnly  = role === 'agent';
+    const isStudent      = role === 'student';
+    const isUser         = role === 'user' || role === 'registered_user' || role === 'guest';
+    const isHost         = role === 'host';
+    const isAgentOnly    = role === 'agent';
     const isLandlordOnly = role === 'landlord';
-    const isLandlord   = role === 'landlord';
-    const isAdmin      = role === 'admin';
-    // isAgent is true for any role that can manage properties
-    const isAgent      = role === 'agent' || role === 'landlord' || role === 'admin';
+    const isLandlord     = role === 'landlord';
+    const isAdmin        = role === 'admin';
+    // isAgent = any role that can manage/create short-term or long-term properties
+    const isAgent        = role === 'agent' || role === 'landlord' || role === 'host' || role === 'admin';
 
     const permissions: RolePermissions = {
       // Property Management
@@ -205,24 +180,30 @@ export const useUserRole = (): UseUserRoleReturn => {
 
     const getRoleName = (): string => {
       const names: Record<UserRole, string> = {
-        user:     'User',
-        student:  'Student',
-        agent:    'Agent',
-        landlord: 'Landlord',
-        admin:    'Administrator',
+        user:             'User',
+        registered_user:  'User',
+        student:          'Student',
+        guest:            'Guest',
+        agent:            'Agent',
+        landlord:         'Landlord',
+        host:             'Host',
+        admin:            'Administrator',
       };
-      return names[role];
+      return names[role] ?? role;
     };
 
     const getRoleBadge = (): { text: string; color: string } => {
       const badges: Record<UserRole, { text: string; color: string }> = {
-        user:     { text: 'User',      color: 'bg-gray-100 text-gray-700'     },
-        student:  { text: 'Student',   color: 'bg-blue-100 text-blue-700'     },
-        agent:    { text: 'Agent',     color: 'bg-blue-100 text-blue-700'     },
-        landlord: { text: 'Landlord',  color: 'bg-emerald-100 text-emerald-700' },
-        admin:    { text: 'Admin',     color: 'bg-purple-100 text-purple-700' },
+        user:             { text: 'User',      color: 'bg-gray-100 text-gray-700' },
+        registered_user:  { text: 'User',      color: 'bg-gray-100 text-gray-700' },
+        student:          { text: 'Student',   color: 'bg-blue-100 text-blue-700' },
+        guest:            { text: 'Guest',     color: 'bg-gray-100 text-gray-600' },
+        agent:            { text: 'Agent',     color: 'bg-blue-100 text-blue-700' },
+        landlord:         { text: 'Landlord',  color: 'bg-emerald-100 text-emerald-700' },
+        host:             { text: 'Host',      color: 'bg-emerald-100 text-emerald-700' },
+        admin:            { text: 'Admin',     color: 'bg-purple-100 text-purple-700' },
       };
-      return badges[role];
+      return badges[role] ?? { text: role, color: 'bg-gray-100 text-gray-700' };
     };
 
     return {
@@ -230,6 +211,7 @@ export const useUserRole = (): UseUserRoleReturn => {
       isUser,
       isAgent,
       isLandlord,
+      isHost,
       isAdmin,
       isAgentOnly,
       isLandlordOnly,

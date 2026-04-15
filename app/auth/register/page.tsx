@@ -2,18 +2,19 @@
 
 import React, { useState, useEffect, useRef, Suspense, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
+import { FaFacebook, FaApple } from "react-icons/fa";
 import PromoSection from '@/components/auth/RightSideAuth';
 import { authService } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
+import { Loader2, Eye, EyeOff, User, Mail, Lock, ChevronDown } from 'lucide-react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { languages } from '@/lib/i18n';
+import LanguageCurrencyModal from '@/components/layout/LanguageCurrencyModal';
 
-// Constants moved outside component
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Memoized Google Icon
 const GoogleIcon = React.memo(() => (
   <svg className="w-5 h-5" viewBox="0 0 533.5 544.3" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M533.5 278.4c0-17.5-1.6-34.3-4.7-50.7H272v95.8h146.9c-6.3 34-25 62.8-53.2 82v68h85.8c50.2-46.3 79-114.4 79-195.1z" fill="#4285F4" />
@@ -24,7 +25,6 @@ const GoogleIcon = React.memo(() => (
 ));
 GoogleIcon.displayName = 'GoogleIcon';
 
-// Password strength calculator moved outside
 const calculatePasswordStrength = (password: string) => {
   if (!password) return { strength: 0, label: '', color: '' };
   let strength = 0;
@@ -38,12 +38,32 @@ const calculatePasswordStrength = (password: string) => {
   return { strength: 100, label: 'Strong', color: 'bg-green-500' };
 };
 
+function LangButton({ onClick, lang, className = '' }: {
+  onClick: () => void;
+  lang: { flag: string; name: string };
+  className?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-2 bg-white text-gray-700 font-semibold rounded-xl px-3 py-2 text-xs border border-gray-200 hover:border-blue-300 transition-all duration-200 shadow-sm ${className}`}
+      aria-label="Select language"
+    >
+      <img src={lang.flag} alt="" className="w-5 h-5 rounded-full object-cover" loading="lazy" />
+      <span>{lang.name}</span>
+      <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+    </button>
+  );
+}
+
 function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, login } = useAuth();
+  const { language } = useLanguage();
   const firstNameInputRef = useRef<HTMLInputElement>(null);
 
+  const [showLangModal, setShowLangModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState({ google: false, facebook: false, apple: false });
@@ -51,29 +71,16 @@ function RegisterContent() {
   const [success, setSuccess] = useState('');
   const [phone, setPhone] = useState('237');
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    role: 'registered_user',
+    firstName: '', lastName: '', email: '', phone: '', password: '', role: 'registered_user',
   });
   const [errors, setErrors] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    role: '',
+    firstName: '', lastName: '', email: '', phone: '', password: '', role: '',
   });
   const [touched, setTouched] = useState({
-    firstName: false,
-    lastName: false,
-    email: false,
-    phone: false,
-    password: false,
-    role: false,
+    firstName: false, lastName: false, email: false, phone: false, password: false, role: false,
   });
+
+  const currentLang = languages[language] ?? languages['en'];
 
   const validateField = useCallback((id: string, value: string) => {
     let error = '';
@@ -97,14 +104,10 @@ function RegisterContent() {
         else if (cleanPhone.length > 15) error = 'Phone number is too long';
         break;
       }
-      case 'password': {
-  if (!value.trim()) {
-    error = 'Password is required';
-  } else if (value.length < 8) {
-    error = 'Password must be at least 8 characters';
-  }
-  break;
-}
+      case 'password':
+        if (!value.trim()) error = 'Password is required';
+        else if (value.length < 8) error = 'Password must be at least 8 characters';
+        break;
       case 'role':
         if (!value) error = 'Please select an account type';
         break;
@@ -116,18 +119,14 @@ function RegisterContent() {
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
     setForm(prev => ({ ...prev, [id]: value }));
-    if (touched[id as keyof typeof touched]) {
-      validateField(id, value);
-    }
+    if (touched[id as keyof typeof touched]) validateField(id, value);
     setError('');
   }, [touched, validateField]);
 
   const handlePhoneChange = useCallback((value: string) => {
     setPhone(value);
     setForm(prev => ({ ...prev, phone: value }));
-    if (touched.phone) {
-      validateField('phone', value);
-    }
+    if (touched.phone) validateField('phone', value);
     setError('');
   }, [touched.phone, validateField]);
 
@@ -138,16 +137,7 @@ function RegisterContent() {
 
   const handleEmailRegister = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-
-    setTouched({
-      firstName: true,
-      lastName: true,
-      email: true,
-      phone: true,
-      password: true,
-      role: true,
-    });
-
+    setTouched({ firstName: true, lastName: true, email: true, phone: true, password: true, role: true });
     const isValid =
       validateField('firstName', form.firstName) &&
       validateField('lastName', form.lastName) &&
@@ -155,19 +145,11 @@ function RegisterContent() {
       validateField('phone', form.phone) &&
       validateField('password', form.password) &&
       validateField('role', form.role);
-
-    if (!isValid) {
-      setError('Please fill in all required fields correctly');
-      return;
-    }
-
+    if (!isValid) { setError('Please fill in all required fields correctly'); return; }
     setIsLoading(true);
     setError('');
-
     try {
-      // react-phone-input-2 already includes country code digits
       const fullPhoneNumber = '+' + form.phone.replace(/\D/g, '');
-
       const tokens = await authService.registerWithEmail({
         name: `${form.firstName} ${form.lastName}`,
         email: form.email,
@@ -175,7 +157,6 @@ function RegisterContent() {
         phoneNumber: fullPhoneNumber,
         role: form.role,
       });
-
       login(tokens);
       setSuccess('Registration successful! Redirecting...');
       setTimeout(() => router.push('/onboarding'), 800);
@@ -190,11 +171,8 @@ function RegisterContent() {
     setSocialLoading(prev => ({ ...prev, [provider]: true }));
     setError('');
     try {
-      if (provider === 'google') {
-        await authService.loginWithGoogle();
-      } else {
-        throw new Error(`${provider} registration is not yet implemented`);
-      }
+      if (provider === 'google') await authService.loginWithGoogle();
+      else throw new Error(`${provider} registration is not yet implemented`);
     } catch (error: any) {
       setError(error.message || `${provider.charAt(0).toUpperCase() + provider.slice(1)} registration failed`);
       setSocialLoading(prev => ({ ...prev, [provider]: false }));
@@ -202,30 +180,38 @@ function RegisterContent() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push(searchParams.get('redirect') || '/');
-      return;
-    }
+    if (isAuthenticated) { router.push(searchParams.get('redirect') || '/'); return; }
     firstNameInputRef.current?.focus();
   }, [isAuthenticated, router, searchParams]);
 
   const passwordStrength = useMemo(() => calculatePasswordStrength(form.password), [form.password]);
   const isAnyLoading = useMemo(() =>
-    isLoading || Object.values(socialLoading).some(loading => loading),
+    isLoading || Object.values(socialLoading).some(Boolean),
     [isLoading, socialLoading]
   );
 
-  // Shared input class builder
   const inputClass = (field: keyof typeof touched) =>
-    `w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${touched[field] && errors[field]
-      ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
-      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
+    `w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${
+      touched[field] && errors[field]
+        ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
+        : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
     }`;
 
   return (
     <div className="min-h-screen flex pt-11 relative">
+
+      {/* Mobile: floating top-right */}
+      <div className="fixed top-4 right-4 z-50 md:hidden">
+        <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
+      </div>
+
       <div className="w-full md:w-1/2 md:mr-[50%] flex flex-col justify-center items-center px-6 md:px-16 mb-10">
         <div className="w-full max-w-md">
+
+          {/* Desktop: top-right of form panel */}
+          <div className="hidden md:flex justify-end mb-4">
+            <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
+          </div>
 
           {/* Header */}
           <div className="mb-8 flex justify-center flex-col items-center">
@@ -234,11 +220,8 @@ function RegisterContent() {
             <p className="text-gray-600 text-center text-sm">Create your account and start your journey</p>
           </div>
 
-          {/* Messages */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg text-sm" role="alert">
-              {error}
-            </div>
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg text-sm" role="alert">{error}</div>
           )}
           {success && (
             <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg text-sm flex gap-3" role="alert">
@@ -250,49 +233,25 @@ function RegisterContent() {
 
             {/* Name */}
             <div className="grid lg:grid-cols-2 gap-4">
-              {/* First Name */}
               <div>
                 <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                  <input
-                    ref={firstNameInputRef}
-                    id="firstName"
-                    type="text"
-                    autoComplete="given-name"
-                    value={form.firstName}
-                    onChange={handleChange}
-                    onBlur={() => handleBlur('firstName')}
-                    placeholder="John"
-                    disabled={isAnyLoading}
-                    className={inputClass('firstName')}
-                  />
+                  <input ref={firstNameInputRef} id="firstName" type="text" autoComplete="given-name"
+                    value={form.firstName} onChange={handleChange} onBlur={() => handleBlur('firstName')}
+                    placeholder="John" disabled={isAnyLoading} className={inputClass('firstName')} />
                 </div>
-                {touched.firstName && errors.firstName && (
-                  <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.firstName}</p>
-                )}
+                {touched.firstName && errors.firstName && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.firstName}</p>}
               </div>
-
-              {/* Last Name */}
               <div>
                 <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                  <input
-                    id="lastName"
-                    type="text"
-                    autoComplete="family-name"
-                    value={form.lastName}
-                    onChange={handleChange}
-                    onBlur={() => handleBlur('lastName')}
-                    placeholder="Doe"
-                    disabled={isAnyLoading}
-                    className={inputClass('lastName')}
-                  />
+                  <input id="lastName" type="text" autoComplete="family-name"
+                    value={form.lastName} onChange={handleChange} onBlur={() => handleBlur('lastName')}
+                    placeholder="Doe" disabled={isAnyLoading} className={inputClass('lastName')} />
                 </div>
-                {touched.lastName && errors.lastName && (
-                  <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.lastName}</p>
-                )}
+                {touched.lastName && errors.lastName && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.lastName}</p>}
               </div>
             </div>
 
@@ -301,111 +260,48 @@ function RegisterContent() {
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  onBlur={() => handleBlur('email')}
-                  placeholder="john.doe@example.com"
-                  disabled={isAnyLoading}
-                  className={inputClass('email')}
-                />
+                <input id="email" type="email" autoComplete="email"
+                  value={form.email} onChange={handleChange} onBlur={() => handleBlur('email')}
+                  placeholder="john.doe@example.com" disabled={isAnyLoading} className={inputClass('email')} />
               </div>
-              {touched.email && errors.email && (
-                <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.email}</p>
-              )}
+              {touched.email && errors.email && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.email}</p>}
             </div>
 
             {/* Phone */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
               <PhoneInput
-                country="cm"
-                value={phone}
-                onChange={handlePhoneChange}
-                onBlur={() => handleBlur('phone')}
-                disabled={isAnyLoading}
-                enableSearch
-                searchPlaceholder="Search country..."
-                inputProps={{
-                  id: 'phone',
-                  name: 'phone',
-                  autoComplete: 'tel',
-                }}
+                country="cm" value={phone} onChange={handlePhoneChange}
+                onBlur={() => handleBlur('phone')} disabled={isAnyLoading}
+                enableSearch searchPlaceholder="Search country..."
+                inputProps={{ id: 'phone', name: 'phone', autoComplete: 'tel' }}
                 containerClass="w-full"
-                inputStyle={{
-                  width: '100%',
-                  height: '48px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  borderRadius: '12px',
-                  border: touched.phone && errors.phone
-                    ? '1px solid #fca5a5'
-                    : '1px solid #e5e7eb',
-                  backgroundColor: touched.phone && errors.phone ? '#fef2f2' : '#ffffff',
-                  color: '#1f2937',
-                  paddingLeft: '52px',
-                }}
-                buttonStyle={{
-                  borderRadius: '12px 0 0 12px',
-                  border: touched.phone && errors.phone
-                    ? '1px solid #fca5a5'
-                    : '1px solid #e5e7eb',
-                  backgroundColor: '#ffffff',
-                  borderRight: 'none',
-                  paddingLeft: '4px',
-                  paddingRight: '4px',
-                }}
-                dropdownStyle={{
-                  borderRadius: '12px',
-                  border: '1px solid #e5e7eb',
-                  fontSize: '13px',
-                  maxHeight: '220px',
-                  zIndex: 9999,
-                }}
-                searchStyle={{
-                  width: '93%',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb',
-                  padding: '6px 10px',
-                  fontSize: '13px',
-                  margin: '4px 0',
-                }}
+                inputStyle={{ width: '100%', height: '48px', fontSize: '14px', fontWeight: '500', borderRadius: '12px', border: touched.phone && errors.phone ? '1px solid #fca5a5' : '1px solid #e5e7eb', backgroundColor: touched.phone && errors.phone ? '#fef2f2' : '#ffffff', color: '#1f2937', paddingLeft: '52px' }}
+                buttonStyle={{ borderRadius: '12px 0 0 12px', border: touched.phone && errors.phone ? '1px solid #fca5a5' : '1px solid #e5e7eb', backgroundColor: '#ffffff', borderRight: 'none', paddingLeft: '4px', paddingRight: '4px' }}
+                dropdownStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', fontSize: '13px', maxHeight: '220px', zIndex: 9999 }}
+                searchStyle={{ width: '93%', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '6px 10px', fontSize: '13px', margin: '4px 0' }}
               />
-              {touched.phone && errors.phone && (
-                <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.phone}</p>
-              )}
+              {touched.phone && errors.phone && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.phone}</p>}
             </div>
 
             {/* Account Type */}
             <div>
               <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2">Account Type</label>
               <div className="relative">
-                <select
-                  id="role"
-                  value={form.role}
-                  onChange={handleChange}
-                  onBlur={() => handleBlur('role')}
+                <select id="role" value={form.role} onChange={handleChange} onBlur={() => handleBlur('role')}
                   disabled={isAnyLoading}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm appearance-none bg-white cursor-pointer transition-all duration-200 hover:border-gray-300 disabled:opacity-50 ${touched.role && errors.role
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
-                    }`}
-                >
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm appearance-none bg-white cursor-pointer transition-all duration-200 hover:border-gray-300 disabled:opacity-50 ${touched.role && errors.role ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'}`}>
                   <option value="registered_user">Regular User</option>
-                  <option value="student">Student</option>
                   <option value="agent">Agent</option>
+                  <option value="host">Host</option>
                   <option value="landlord">Landlord</option>
+                  <option value="student">Student</option>
                 </select>
                 <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
-              {touched.role && errors.role && (
-                <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.role}</p>
-              )}
+              {touched.role && errors.role && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.role}</p>}
             </div>
 
             {/* Password */}
@@ -413,108 +309,67 @@ function RegisterContent() {
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  value={form.password}
-                  onChange={handleChange}
-                  onBlur={() => handleBlur('password')}
-                  placeholder="Enter your password"
-                  disabled={isAnyLoading}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${touched.password && errors.password
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
-                    : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'
-                    }`}
+                <input id="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password"
+                  value={form.password} onChange={handleChange} onBlur={() => handleBlur('password')}
+                  placeholder="Enter your password" disabled={isAnyLoading}
+                  className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400 ${touched.password && errors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'}`}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}>
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-
-             
-              {touched.password && errors.password && (
-                <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.password}</p>
+              {/* Password strength */}
+              {form.password && (
+                <div className="mt-2 space-y-1">
+                  <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all duration-300 ${passwordStrength.color}`} style={{ width: `${passwordStrength.strength}%` }} />
+                  </div>
+                  <p className={`text-xs font-medium ${passwordStrength.strength === 100 ? 'text-green-600' : passwordStrength.strength >= 66 ? 'text-yellow-600' : 'text-red-500'}`}>
+                    {passwordStrength.label}
+                  </p>
+                </div>
               )}
+              {touched.password && errors.password && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.password}</p>}
             </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isAnyLoading}
-              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 -sm mt-6 ${!isAnyLoading
-                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:-md active:scale-[0.98]'
-                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-            >
+            <button type="submit" disabled={isAnyLoading}
+              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6 ${!isAnyLoading ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 active:scale-[0.98]' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}>
               {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Creating your account...
-                </span>
+                <span className="flex items-center justify-center gap-2"><Loader2 className="h-5 w-5 animate-spin" />Creating your account...</span>
               ) : 'Create Account'}
             </button>
           </form>
 
-          {/* Sign in link */}
           <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{' '}
             <a href="/auth/login" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">Sign in</a>
           </p>
 
-          {/* Social auth */}
           <div className="mt-8">
             <div className="relative flex items-center justify-center mb-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
-              </div>
-              <div className="relative bg-white px-4">
-                <p className="text-sm text-gray-500 font-medium">Or continue with</p>
-              </div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
+              <div className="relative bg-white px-4"><p className="text-sm text-gray-500 font-medium">Or continue with</p></div>
             </div>
-
             <div className="grid lg:grid-cols-3 gap-3">
-              <button
-                type="button"
-                onClick={() => handleSocialRegister('google')}
-                disabled={isAnyLoading}
-                className="flex items-center justify-center gap-2 border border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50"
-              >
-                {socialLoading.google ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
-                <span className="text-sm">Google</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSocialRegister('facebook')}
-                disabled={isAnyLoading}
-                className="flex items-center justify-center gap-2 border border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50"
-              >
-                {socialLoading.facebook ? <Loader2 className="w-5 h-5 animate-spin" /> : <FaFacebook className="w-5 h-5" color="#1877F2" />}
-                <span className="text-sm">Facebook</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSocialRegister('apple')}
-                disabled={isAnyLoading}
-                className="flex items-center justify-center gap-2 border border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50"
-              >
-                {socialLoading.apple ? <Loader2 className="w-5 h-5 animate-spin" /> : <FaApple className="w-5 h-5" color="#000000" />}
-                <span className="text-sm">Apple</span>
-              </button>
+              {(['google', 'facebook', 'apple'] as const).map(p => (
+                <button key={p} type="button" onClick={() => handleSocialRegister(p)} disabled={isAnyLoading}
+                  className="flex items-center justify-center gap-2 border border-gray-200 rounded-full px-4 py-3 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-semibold transition-all duration-200 disabled:opacity-50">
+                  {socialLoading[p] ? <Loader2 className="w-5 h-5 animate-spin" /> :
+                    p === 'google' ? <GoogleIcon /> :
+                    p === 'facebook' ? <FaFacebook className="w-5 h-5" color="#1877F2" /> :
+                    <FaApple className="w-5 h-5" color="#000" />}
+                  <span className="text-sm capitalize">{p}</span>
+                </button>
+              ))}
             </div>
           </div>
-
         </div>
       </div>
 
       <PromoSection />
+      <LanguageCurrencyModal isOpen={showLangModal} onClose={() => setShowLangModal(false)} />
     </div>
   );
 }

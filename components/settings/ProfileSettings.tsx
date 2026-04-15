@@ -106,15 +106,26 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
     }
   };
 
+  // REGISTERED_USER → AGENT → LANDLORD → HOST → REGISTERED_USER
+  const ROLE_CYCLE: Record<string, string> = {
+    registered_user: 'agent',
+    agent: 'landlord',
+    landlord: 'host',
+    host: 'registered_user',
+    guest: 'registered_user',
+    student: 'registered_user',
+  };
+
   const handleToggleRole = async () => {
+    const nextRole = ROLE_CYCLE[user.role] ?? 'registered_user';
     try {
       setIsLoading(true);
       setMessage(null);
 
-      await apiClient.toggleRole();
+      await apiClient.setRole(nextRole);
       await refreshAuth();
 
-      setMessage({ type: 'success', text: 'Account role switched.' });
+      setMessage({ type: 'success', text: `Role switched to ${formatRole(nextRole)}.` });
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error('Failed to switch role:', error);
@@ -136,9 +147,13 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
   const formatRole = (role: string) => {
     switch (role) {
       case 'registered_user': return s?.regularUser || 'Regular User';
-      case 'agent': return s?.realEstateAgent || 'Real Estate Agent';
-      case 'admin': return s?.administrator || 'Administrator';
-      default: return role;
+      case 'agent':           return s?.realEstateAgent || 'Real Estate Agent';
+      case 'landlord':        return s?.landlord || 'Landlord';
+      case 'host':            return s?.host || 'Host';
+      case 'guest':           return s?.guest || 'Guest';
+      case 'student':         return s?.student || 'Student';
+      case 'admin':           return s?.administrator || 'Administrator';
+      default:                return role;
     }
   };
 

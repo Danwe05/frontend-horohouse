@@ -181,7 +181,7 @@ const subscribe = useCallback(async (data: CreateSubscriptionRequest) => {
   setLoading(true);
   setError(null);
   try {
-    const response = await paiementApi.subscribeToPlan(data);
+    const response = await paiementApi.subscribeToPlan(data as any);
     // ✅ Return the response so the component can access paymentLink
     return response;
   } catch (err: any) {

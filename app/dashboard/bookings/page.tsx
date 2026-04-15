@@ -149,11 +149,11 @@ export default function BookingsPage() {
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-white">
+            <div className="flex min-h-screen w-full bg-white overflow-x-hidden">
                 <AppSidebar />
-                <SidebarInset>
+                <SidebarInset className="flex flex-col min-w-0 overflow-x-hidden">
                     <NavDash />
-                    <main className="p-6 md:p-10 max-w-7xl mx-auto w-full space-y-10">
+                    <main className="p-6 md:p-10 max-w-7xl mx-auto w-full space-y-10 min-w-0">
 
                         {/* ── Header ── */}
                         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">

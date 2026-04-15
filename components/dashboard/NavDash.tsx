@@ -61,6 +61,25 @@ export const NavDash = () => {
     }
   };
 
+  // REGISTERED_USER → AGENT → LANDLORD → HOST → REGISTERED_USER
+  const ROLE_CYCLE: Record<string, string> = {
+    registered_user: 'agent',
+    agent:           'landlord',
+    landlord:        'host',
+    host:            'registered_user',
+    guest:           'registered_user',
+    student:         'registered_user',
+  };
+
+  const ROLE_LABELS: Record<string, string> = {
+    registered_user: _t.navdash?.roleModal?.roles?.user     || 'Regular User',
+    agent:           _t.navdash?.roleModal?.roles?.agent    || 'Agent',
+    landlord:        _t.navdash?.roleModal?.roles?.landlord || 'Landlord',
+    host:            _t.navdash?.roleModal?.roles?.host     || 'Host',
+    guest:           _t.navdash?.roleModal?.roles?.guest    || 'Guest',
+    student:         _t.navdash?.roleModal?.roles?.student  || 'Student',
+  };
+
   const handleToggleRoleClick = () => {
     setShowRoleModal(true);
   };
@@ -68,7 +87,7 @@ export const NavDash = () => {
   const handleConfirmToggleRole = async () => {
     setIsSwappingRole(true);
     try {
-      await apiClient.toggleRole();
+      await apiClient.setRole(nextRole);
       setShowRoleModal(false);
       setShowRoleSuccess(true);
 
@@ -119,6 +138,7 @@ export const NavDash = () => {
   const displayName = user?.name || 'User';
   const displayEmail = user?.email || user?.phoneNumber || '';
   const userRole = user?.role || 'user';
+  const nextRole = ROLE_CYCLE[userRole] ?? 'registered_user';
   const avatarUrl = user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=EBEBEB`;
 
   return (
@@ -163,7 +183,7 @@ export const NavDash = () => {
                 <span className="hidden sm:inline">
                   {isSwappingRole
                     ? (_t.navdash?.switching || 'Switching...')
-                    : `${_t.navdash?.switchRole || 'Switch to'} ${userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'User')}`}
+                    : `${_t.navdash?.switchRole || 'Switch to'} ${ROLE_LABELS[nextRole]}`}
                 </span>
               </button>
             </TooltipTrigger>
@@ -174,7 +194,7 @@ export const NavDash = () => {
         )}
 
         {/* Add Property Button (Hidden on strict mobile to save space, added to dropdown) */}
-        {(userRole === 'agent' || userRole === 'landlord' || userRole === 'admin') && (
+        {(userRole === 'agent' || userRole === 'landlord' || userRole === 'host' || userRole === 'admin') && (
           <button
             onClick={handleAddProperty}
             className="hidden sm:flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-colors shrink-0 focus:outline-none font-semibold text-[14px]"
@@ -233,7 +253,7 @@ export const NavDash = () => {
 
                 <div className="flex flex-col">
                   {/* Mobile Only: Add Property Fallback */}
-                  {(userRole === 'agent' || userRole === 'landlord' || userRole === 'admin') && (
+                  {(userRole === 'agent' || userRole === 'landlord' || userRole === 'host' || userRole === 'admin') && (
                     <div className="sm:hidden block">
                       <DropdownItem onClick={handleAddProperty} label={_t.navdash?.addProperty || 'Create listing'} />
                       <div className="h-px bg-[#EBEBEB] my-2" />
@@ -241,7 +261,7 @@ export const NavDash = () => {
                   )}
 
                   <DropdownItem onClick={handleViewProfile} label={_t.navdash?.dropdown?.profile || "Profile"} />
-                  {(userRole === 'agent' || userRole === 'landlord' || userRole === 'admin') && (
+                  {(userRole === 'agent' || userRole === 'landlord' || userRole === 'host' || userRole === 'admin') && (
                     <DropdownItem onClick={handleViewProperties} label={_t.navdash?.dropdown?.myProperties || "My listings"} />
                   )}
                   <DropdownItem onClick={handleViewSettings} label={_t.navdash?.dropdown?.settings || "Account settings"} />
@@ -274,11 +294,11 @@ export const NavDash = () => {
             <DialogDescription className="text-[15px] text-[#717171] mt-2 leading-relaxed">
               {_t.navdash?.roleModal?.desc1 || "Are you sure you want to switch from a "}
               <span className="font-semibold text-[#222222]">
-                {userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.agent || 'Real Estate Agent') : userRole === 'landlord' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'Regular User')}
+                {ROLE_LABELS[userRole]}
               </span>{' '}
               {_t.navdash?.roleModal?.desc2 || " to a "}
               <span className="font-semibold text-[#222222]">
-                {userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Real Estate Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'Regular User')}
+                {ROLE_LABELS[nextRole]}
               </span>
               {_t.navdash?.roleModal?.desc3 || "?"}
             </DialogDescription>
@@ -287,10 +307,12 @@ export const NavDash = () => {
           <div className="px-6 py-6">
             <div className="bg-[#F7F7F7] p-5 rounded-xl text-[15px] text-[#222222] border border-[#EBEBEB] leading-relaxed">
               {userRole === 'agent'
-                ? (_t.navdash?.roleModal?.agentDesc || 'As a landlord, you will gain access to tenant management, rental income tracking, and portfolio analytics.')
+                ? (_t.navdash?.roleModal?.agentDesc || 'As a landlord, you can track tenants, rental income, and manage your portfolio.')
                 : userRole === 'landlord'
-                  ? (_t.navdash?.roleModal?.landlordDesc || 'As a regular user, you will no longer have access to property management, tenant tracking, and analytics.')
-                  : (_t.navdash?.roleModal?.userDesc || 'As an agent, you will gain access to tools for managing properties, scheduling tours, and connecting with clients.')}
+                  ? (_t.navdash?.roleModal?.landlordDesc || 'As a host, you can list short-term stays, set availability, and track earnings.')
+                  : userRole === 'host'
+                    ? (_t.navdash?.roleModal?.hostDesc || 'As a regular user, you will no longer have access to property management tools.')
+                    : (_t.navdash?.roleModal?.userDesc || 'As an agent, you gain tools for managing properties, scheduling tours, and connecting with clients.')}
             </div>
           </div>
 
@@ -331,7 +353,7 @@ export const NavDash = () => {
             <DialogDescription className="text-[15px] text-[#717171] leading-relaxed mt-2">
               {_t.navdash?.roleModal?.successDesc1 || 'Your account is now set to '}
               <span className="font-semibold text-[#222222]">
-                {userRole === 'registered_user' ? (_t.navdash?.roleModal?.roles?.agent || 'Real Estate Agent') : userRole === 'agent' ? (_t.navdash?.roleModal?.roles?.landlord || 'Landlord') : (_t.navdash?.roleModal?.roles?.user || 'Regular User')}
+                {ROLE_LABELS[nextRole]}
               </span>
               {_t.navdash?.roleModal?.successDesc2 || '.'}
               <br />

@@ -153,12 +153,12 @@ const PropertyPage = () => {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-white">
+      <div className="flex min-h-screen w-full bg-white overflow-x-hidden">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex flex-col min-w-0 overflow-x-hidden">
           <NavDash />
 
-          <main className="p-6 lg:p-10">
+          <main className="p-6 lg:p-10 min-w-0">
             <div className="max-w-7xl mx-auto space-y-10">
 
               {/* HEADER SECTION */}

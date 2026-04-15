@@ -111,11 +111,11 @@ export default function HostBookingsPage() {
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-white">
+        <div className="flex min-h-screen w-full bg-white overflow-x-hidden">
                 <AppSidebar />
-                <SidebarInset>
+                <SidebarInset className="flex flex-col min-w-0 overflow-x-hidden">
                     <NavDash />
-                    <main className="p-6 md:p-10 max-w-7xl mx-auto w-full space-y-10">
+                    <main className="p-6 md:p-10 max-w-7xl mx-auto w-full space-y-10 min-w-0">
 
                         {/* ── Header ── */}
                         <div>
@@ -298,8 +298,8 @@ export default function HostBookingsPage() {
                                     </div>
                                 ) : (
                                     <div className="bg-white rounded-2xl border border-[#DDDDDD] overflow-hidden w-full">
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left border-collapse min-w-[900px]">
+                                        <div className="w-full overflow-x-auto">
+                                            <table className="w-full text-left border-collapse" style={{ minWidth: '900px' }}>
                                                 <thead className="bg-[#F7F7F7] border-b border-[#DDDDDD]">
                                                     <tr>
                                                         <th className="px-6 py-4 text-[12px] font-semibold text-[#717171] uppercase tracking-wider">Property</th>

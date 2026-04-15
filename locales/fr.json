@@ -1136,11 +1136,13 @@
       "desc2": " à ",
       "desc3": " ?",
       "agentDesc": "En tant que propriétaire, vous aurez accès à la gestion des locataires, au suivi des revenus locatifs et aux analyses de portefeuille.",
-      "landlordDesc": "En tant qu'utilisateur régulier, vous n'aurez plus accès à la gestion de biens, au suivi des locataires et aux analyses.",
+      "landlordDesc": "En tant qu'hôte, vous pourrez proposer des séjours courts, définir vos disponibilités et percevoir des revenus.",
+      "hostDesc": "En tant qu'utilisateur régulier, vous n'aurez plus accès aux outils de gestion immobilière.",
       "userDesc": "En tant qu'agent immobilier, vous pourrez lister des biens, gérer des prospects et voir les analyses du marché.",
       "roles": {
         "agent": "Agent Immobilier",
         "landlord": "Propriétaire",
+        "host": "Hôte",
         "user": "Utilisateur Régulier"
       },
       "cancel": "Annuler",

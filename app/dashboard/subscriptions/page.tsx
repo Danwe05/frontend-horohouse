@@ -36,6 +36,8 @@ export default function SubscriptionsPage() {
     cancelSubscription,
   } = useSubscription();
 
+  const [activeTab, setActiveTab] = useState<'plans' | 'current'>('plans');
+
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [selectedBillingCycle, setSelectedBillingCycle] = useState<BillingCycle>(BillingCycle.MONTHLY);
@@ -51,14 +53,8 @@ export default function SubscriptionsPage() {
   const [savedProvider, setSavedProvider] = useState<'MTN' | 'ORANGE' | null>(null);
 
   useEffect(() => {
-    import('@/lib/api').then(({ apiClient }) => {
-      apiClient.getWallet().then((w: any) => {
-        const momo = w?.mobileMoneyAccount;
-        if (momo?.phoneNumber) setSavedPhone(momo.phoneNumber);
-        if (momo?.provider) setSavedProvider(momo.provider as 'MTN' | 'ORANGE');
-      }).catch(() => { });
-    });
-  }, []);
+  fetchUsage();
+}, [fetchUsage]);
 
   // --- Handlers ---
   const handleSelectPlan = (plan: SubscriptionPlan, billingCycle: BillingCycle) => {
@@ -98,20 +94,24 @@ export default function SubscriptionsPage() {
     }
   };
 
-  const handleCancelConfirmed = async () => {
-    setCancelling(true);
-    setCancelError(null);
-    try {
-      await cancelSubscription({ reason: cancelReason || 'User requested cancellation', feedback: '' });
-      await fetchSubscription();
-      setShowCancelConfirm(false);
-      setCancelReason('');
-    } catch (err: any) {
-      setCancelError(err?.response?.data?.message ?? 'Cancellation failed. Please try again.');
-    } finally {
-      setCancelling(false);
-    }
-  };
+ const handleCancelConfirmed = async () => {
+  setCancelling(true);
+  setCancelError(null);
+  try {
+    await cancelSubscription({
+      reason: 'User requested cancellation',   // fixed intent string
+      feedback: cancelReason || '',             // free-text the user typed
+      cancelImmediately: false,                 // keep active until endDate
+    });
+    await fetchSubscription();
+    setShowCancelConfirm(false);
+    setCancelReason('');
+  } catch (err: any) {
+    setCancelError(err?.response?.data?.message ?? 'Cancellation failed. Please try again.');
+  } finally {
+    setCancelling(false);
+  }
+};
 
   // --- Helpers ---
   const remainingDays = useMemo(() => {
@@ -129,12 +129,13 @@ export default function SubscriptionsPage() {
 
   const currentPrice = useMemo(() => {
     if (!selectedPlan) return 0;
-    const pricingMap = {
-      [BillingCycle.MONTHLY]: selectedPlan.pricing.monthly,
-      [BillingCycle.QUARTERLY]: selectedPlan.pricing.quarterly || 0,
-      [BillingCycle.YEARLY]: selectedPlan.pricing.yearly,
+    const pricingMap: Record<string, number> = {
+      [BillingCycle.WEEKLY]:   selectedPlan.pricing.weekly   ?? selectedPlan.pricing.monthly,
+      [BillingCycle.MONTHLY]:  selectedPlan.pricing.monthly,
+      [BillingCycle.QUARTERLY]:selectedPlan.pricing.quarterly ?? 0,
+      [BillingCycle.YEARLY]:   selectedPlan.pricing.yearly   ?? selectedPlan.pricing.monthly,
     };
-    return pricingMap[selectedBillingCycle] || selectedPlan.pricing.monthly;
+    return pricingMap[selectedBillingCycle] ?? selectedPlan.pricing.monthly;
   }, [selectedPlan, selectedBillingCycle]);
 
   const isInitialLoading = loading && !subscription && plans.length === 0;
@@ -192,7 +193,7 @@ export default function SubscriptionsPage() {
                 </div>
               )}
 
-              <Tabs defaultValue="plans" className="w-full">
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'plans' | 'current')} className="w-full">
                 <div className="flex mb-8 border-b border-[#EBEBEB]">
                   <TabsList className="bg-transparent h-auto p-0 flex gap-8">
                     <TabsTrigger 
@@ -411,10 +412,7 @@ export default function SubscriptionsPage() {
                         Unlock premium tools, increase your visibility, and scale your real estate portfolio today.
                       </p>
                       <Button
-                        onClick={() => {
-                          const el = document.querySelector('[data-value="plans"]');
-                          if (el instanceof HTMLElement) el.click();
-                        }}
+                        onClick={() => setActiveTab('plans')}
                         className="px-8 h-12 bg-[#222222] hover:bg-black text-white font-semibold rounded-lg text-[15px] transition-colors"
                       >
                         View available plans

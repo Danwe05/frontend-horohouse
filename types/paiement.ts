@@ -33,6 +33,7 @@ export enum TransactionStatus {
 }
 
 export enum BillingCycle {
+  WEEKLY = 'weekly',
   MONTHLY = 'monthly',
   QUARTERLY = 'quarterly',
   YEARLY = 'yearly',
@@ -169,22 +170,39 @@ export interface SubscriptionPlan {
   displayName: string;
   description: string;
   pricing: {
+    weekly?: number;
     monthly: number;
     quarterly?: number;
-    yearly: number;
+    yearly?: number;
   };
   features: {
+    // Generic
     maxListings: number;
     boostsPerMonth: number;
     featuredListings: boolean;
     prioritySupport: boolean;
-    analyticsAccess: boolean;
-    customBranding: boolean;
-    apiAccess: boolean;
+    analyticsAccess?: boolean;
+    analytics?: boolean;
+    customBranding?: boolean;
+    apiAccess?: boolean;
+    // Landlord / Host
+    role?: 'landlord' | 'agent' | 'student' | 'user';
+    maxProperties?: number;
+    bookingCalendar?: boolean;
+    shortTermRentalSupport?: boolean;
+    smartPricing?: boolean;
+    maintenanceTracking?: boolean;
+    premiumVisibility?: boolean;
+    dedicatedSupport?: boolean;
     [key: string]: any;
   };
   popular?: boolean;
   recommended?: boolean;
+  metadata?: {
+    role?: string;
+    badge?: string;
+    [key: string]: any;
+  };
 }
 
 export interface Subscription {
@@ -691,10 +709,30 @@ export interface PaymentConfig {
 // ============================================
 
 export const SUBSCRIPTION_PLAN_NAMES = {
-  FREE: 'free',
-  BASIC: 'basic',
-  PROFESSIONAL: 'professional',
-  ENTERPRISE: 'enterprise',
+  // STUDENT
+  STUDENT_FREE: 'student_free',
+
+  // USER
+  USER_FREE: 'user_free',
+  USER_PREMIUM: 'user_premium',
+
+  // AGENT
+  AGENT_FREE: 'agent_free',
+  AGENT_BASIC: 'agent_basic',
+  AGENT_PRO: 'agent_pro',
+  AGENT_ELITE: 'agent_elite',
+
+  // LANDLORD
+  LANDLORD_FREE: 'landlord_free',
+  LANDLORD_BASIC: 'landlord_basic',
+  LANDLORD_PRO: 'landlord_pro',
+
+  // HOST
+  HOST_FREE: 'host_free',
+  HOST_STARTER: 'host_starter',
+  HOST_GROWTH: 'host_growth',
+  HOST_PRO: 'host_pro',
+  HOST_ELITE: 'host_elite',
 } as const;
 
 export const BOOST_DURATIONS = {

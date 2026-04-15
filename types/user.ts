@@ -2,6 +2,7 @@ export type UserRole =
   | 'admin'
   | 'agent'
   | 'landlord'
+  | 'host'
   | 'registered_user'
   | 'guest'
   | 'student';

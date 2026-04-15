@@ -111,6 +111,7 @@ export async function activateSubscription(transactionId: string) {
 export async function cancelSubscription(data: {
   reason?: string;
   feedback?: string;
+  cancelImmediately?: boolean;
 }) {
   const response = await apiClient.request({
     method: 'PATCH',

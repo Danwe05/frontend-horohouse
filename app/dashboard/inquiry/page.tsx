@@ -8,12 +8,12 @@ const PropertyPage = () => {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full overflow-x-hidden">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex flex-col min-w-0 overflow-x-hidden">
           <NavDash />
 
-         <div className="flex-1 min-h-screen pt-3 px-6 lg:pt-3">
+         <div className="flex-1 min-h-screen pt-3 px-6 lg:pt-3 min-w-0">
             <InquiriesPage/>
           </div>
         </SidebarInset>

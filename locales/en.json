@@ -1136,11 +1136,13 @@
       "desc2": " to a ",
       "desc3": "?",
       "agentDesc": "As a landlord, you will gain access to tenant management, rental income tracking, and portfolio analytics.",
-      "landlordDesc": "As a regular user, you will no longer have access to property management, tenant tracking, and analytics.",
+      "landlordDesc": "As a host, you can list short-term stays, set your availability, and earn from guests.",
+      "hostDesc": "As a regular user, you will no longer have access to property management tools.",
       "userDesc": "As a Real Estate Agent, you will be able to list properties, manage leads, and view market analytics.",
       "roles": {
         "agent": "Real Estate Agent",
         "landlord": "Landlord",
+        "host": "Host",
         "user": "Regular User"
       },
       "cancel": "Cancel",

@@ -12,6 +12,7 @@ import AgentRole from "./roles/AgentRole";
 import UserRole from "./roles/UserRole";
 import AdminRole from "./roles/AdminRole";
 import LandlordRole from "./roles/LandlordRole";
+import HostRole from "./roles/HostRole";
 import StudentRole from "./roles/StudentRole";
 
 import { useUserRole } from "@/hooks/useUserRole";
@@ -47,6 +48,7 @@ const Index = () => {
     isStudent,
   } = useUserRole();
 
+  // @ts-ignore - existing hooks lack strict 'host' typing
   const { stats, statsTrend, loading: loadingStats } = useDashboardStats(role);
   const {
     properties,
@@ -72,6 +74,7 @@ const Index = () => {
     fetchLease();
   }, [isAgentOnly, isAdmin, isLandlordOnly, isStudent]);
 
+  // @ts-ignore - allows 'host' to fall through cleanly
   const statsCards = useStatsCardConfig(role, stats, statsTrend);
 
   // ── Auth loading spinner ────────────────────────────────────────────────────
@@ -112,9 +115,13 @@ const Index = () => {
   //                  BUT also show RentalIncomeChart (spend) + OccupancyRateChart (engagement)
   //                  in a second row below so users see their activity too
   //
+  // User (default) → lease card (if any) + price trends + upcoming tours
+  //                  BUT also hide everything for hosts, because HostRole has its own UI
+  //
+  const isHostOnly = role === 'host';
   const showAdminAgentCharts = isAgentOnly || isAdmin;
   const showLandlordCharts   = isLandlordOnly;
-  const showUserCharts       = !showAdminAgentCharts && !showLandlordCharts;
+  const showUserCharts       = !showAdminAgentCharts && !showLandlordCharts && !isHostOnly;
 
   return (
     <SidebarProvider>
@@ -129,16 +136,18 @@ const Index = () => {
               {/* Welcome */}
               <WelcomeHorohouse />
 
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {loadingStats
-                  ? Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="h-32 bg-muted animate-pulse rounded-lg" />
-                    ))
-                  : statsCards.map((card, index) => (
-                      <StatsCard key={index} {...card} />
-                    ))}
-              </div>
+              {/* Stats Cards (Hidden for Host natively since HostRole wraps its own StatsRow) */}
+              {!isHostOnly && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {loadingStats
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-32 bg-muted animate-pulse rounded-lg" />
+                      ))
+                    : statsCards.map((card, index) => (
+                        <StatsCard key={index} {...card} />
+                      ))}
+                </div>
+              )}
 
               {/* ── Charts ──────────────────────────────────────────────────── */}
 
@@ -178,8 +187,8 @@ const Index = () => {
                 </>
               )}
 
-              {/* ── Property Listings ────────────────────────────────────────── */}
-              {/* <div>
+              {/* ── Role Dashboards ────────────────────────────────────────── */}
+              <div className="mt-8">
                 {isAdmin ? (
                   <AdminRole
                     properties={properties}
@@ -198,6 +207,24 @@ const Index = () => {
                     handlePropertyUpdate={handlePropertyUpdate}
                     router={router}
                   />
+                ) : isLandlordOnly ? (
+                  <LandlordRole
+                    properties={properties}
+                    loadingProperties={loadingProperties}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    handlePropertyUpdate={handlePropertyUpdate}
+                    router={router}
+                  />
+                ) : role === "host" ? (
+                  <HostRole
+                    properties={properties}
+                    loadingProperties={loadingProperties}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    handlePropertyUpdate={handlePropertyUpdate}
+                    router={router}
+                  />
                 ) : (
                   <UserRole
                     properties={properties}
@@ -206,7 +233,7 @@ const Index = () => {
                     router={router}
                   />
                 )}
-              </div> */}
+              </div>
 
               {/* Transactions — all roles */}
               <TransactionList />
