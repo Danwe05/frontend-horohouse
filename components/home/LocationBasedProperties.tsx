@@ -338,7 +338,7 @@ export default function LocationBasedProperties() {
                     <CarouselItem
                       key={property.id}
                       className="pl-4 lg:pl-6"
-                      style={{ flexBasis: `calc(110% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
+                      style={{ flexBasis: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
                     >
                       {/* Make sure your PropertyCard component matches Airbnb styles natively too */}
                       <PropertyCard {...property} />

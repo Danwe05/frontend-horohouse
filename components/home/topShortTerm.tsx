@@ -232,7 +232,7 @@ export default function TopShortTerm() {
                     <CarouselItem
                       key={property.id}
                       className="pl-4 lg:pl-6"
-                        style={{ flexBasis: `calc(110% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
+                        style={{ flexBasis: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
                     >
                       <PropertyCard {...property} />
                     </CarouselItem>

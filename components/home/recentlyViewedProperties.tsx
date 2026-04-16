@@ -152,7 +152,7 @@ export default function RecentlyViewedProperties() {
 
   const maxIndex    = useMemo(() => Math.max(0, formattedProperties.length - cardsPerView), [formattedProperties.length, cardsPerView]);
   const showPeek    = formattedProperties.length > cardsPerView;
-  const itemBasis   = useMemo(() => `calc(110% / ${cardsPerView + (showPeek ? 0.15 : 0)})`, [cardsPerView, showPeek]);
+  const itemBasis   = useMemo(() => `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})`, [cardsPerView, showPeek]);
   const dotArray    = useMemo(() => Array.from({ length: maxIndex + 1 }, (_, i) => i), [maxIndex]);
   const skeletonArr = useMemo(() => Array.from({ length: cardsPerView + 1 }, (_, i) => i), [cardsPerView]);
 

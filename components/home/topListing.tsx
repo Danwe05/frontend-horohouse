@@ -180,7 +180,7 @@ export default function TopListing() {
   const rightDisabled = isRtl ? scrollSnap === 0             : scrollSnap === maxStartIndex;
 
   const skeletonCount = useMemo(() => cardsVisible + 1, [cardsVisible]);
-  const itemBasis = useMemo(() => `calc(110% / ${cardsVisible + (showPeek ? 0.15 : 0)})`, [cardsVisible, showPeek]);
+  const itemBasis = useMemo(() => `calc(100% / ${cardsVisible + (showPeek ? 0.15 : 0)})`, [cardsVisible, showPeek]);
   const dotArray = useMemo(() => Array.from({ length: maxStartIndex + 1 }, (_, i) => i), [maxStartIndex]);
 
   const propertyCountLabel = useMemo(() => {
