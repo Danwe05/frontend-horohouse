@@ -25,7 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ReportModal } from "./ReportModal";
-import { formatTimeAgo, isNew } from "@/lib/propertyutils";
+import { buildPropertyPath, formatTimeAgo, isNew } from "@/lib/propertyutils";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -37,6 +37,7 @@ interface PropertyCardProps {
   image: string | StaticImageData;
   images?: (string | StaticImageData)[];
   price: number | string;
+  title?: string;
   timeAgo: string;
   address: string;
   beds?: number;
@@ -128,7 +129,7 @@ const StopPropagationWrapper = ({ children, className }: { children: React.React
 // ---------------------------------------------------------------------------
 
 const PropertyCard = ({
-  id, image, images, price, timeAgo, address, beds, baths, sqft, tag,
+  id, image, images, price, title, timeAgo, address, beds, baths, sqft, tag,
   initialIsFavorite, listingType = "sale", isCompared = false,
   onCompareChange, showCompare = false, isVerified = false,
   isBlockchainVerified = false, pricingUnit, maxGuests,
@@ -226,7 +227,7 @@ const PropertyCard = ({
           </div>
         )}
 
-        <Link href={`/properties/${id}`} className="block">
+      <Link href={buildPropertyPath(id, address, title)} className="block">
 
           {/* ── Image section ── */}
           <StopPropagationWrapper
@@ -314,13 +315,13 @@ const PropertyCard = ({
               className="absolute top-3 right-3 flex items-center gap-1.5 z-10"
               onClick={(e) => e.preventDefault()}
             >
-              <button
+              {/* <button
                 onClick={handleShare}
                 aria-label={t.propertyCardExtras?.shareThisProperty || "Share"}
                 className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-transform opacity-0 group-hover:opacity-100"
               >
                 <Share2 className="h-3.5 w-3.5 text-[#222222]" />
-              </button>
+              </button> */}
 
               <button
                 onClick={handleToggleFavorite}

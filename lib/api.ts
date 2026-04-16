@@ -802,61 +802,9 @@ class ApiClient {
   async getHostingBookings(params?: any) { return (await this.client.get('/bookings/hosting', { params })).data; }
 
   /** Live dashboard stats for a host synthesized from live bookings and properties data. */
-  async getHostStats(userId: string) {
-    try {
-      const [bookingsRes, propertiesRes] = await Promise.all([
-        this.client.get('/bookings/hosting', { params: { limit: 1000 } }).catch(() => ({ data: { bookings: [] } })),
-        this.client.get('/properties/my/properties').catch(() => ({ data: { properties: [] } }))
-      ]);
-
-      const rawBookings = bookingsRes.data?.bookings ?? bookingsRes.data ?? [];
-      const bookings: any[] = Array.isArray(rawBookings) ? rawBookings : [];
-      const rawProperties = propertiesRes.data?.properties ?? propertiesRes.data?.data ?? propertiesRes.data ?? [];
-      const properties: any[] = Array.isArray(rawProperties) ? rawProperties : [];
-
-      const now = new Date();
-      const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-      // Completed stays = bookings fully checked out
-      const completedStays = bookings.filter(b =>
-        b.status === 'completed' || b.status === 'checked_out'
-      ).length;
-
-      // This month's earnings from confirmed/completed bookings starting this month
-      const currentMonthEarnings = bookings
-        .filter(b => ['confirmed', 'completed', 'checked_out'].includes(b.status))
-        .filter(b => new Date(b.checkIn ?? b.createdAt) >= currentMonthStart)
-        .reduce((sum, b) => sum + (b.totalPrice ?? 0), 0);
-
-      // Occupancy = distinct properties with an active booking today / total properties
-      const totalProps = properties.length;
-      const occupiedPropIds = new Set(
-        bookings
-          .filter(b => b.status === 'confirmed' || b.status === 'checked_in')
-          .filter(b => {
-            const checkIn = b.checkIn ? new Date(b.checkIn) : null;
-            const checkOut = b.checkOut ? new Date(b.checkOut) : null;
-            return checkIn && checkOut && checkIn <= now && checkOut >= now;
-          })
-          .map(b => b.property?._id ?? b.property?.id ?? b.propertyId)
-          .filter(Boolean)
-      );
-      const occupancyRate = totalProps > 0 ? (occupiedPropIds.size / totalProps) * 100 : 0;
-
-      // Average rating from property.averageRating (seeded by reviews system)
-      const ratedProperties = properties.filter(p => (p.averageRating ?? 0) > 0);
-      const avgRating = ratedProperties.length > 0
-        ? ratedProperties.reduce((sum, p) => sum + (p.averageRating ?? 0), 0) / ratedProperties.length
-        : 0;
-
-      // Superhost: ≥10 completed stays AND avg rating ≥ 4.8
-      const isSuperhost = completedStays >= 10 && avgRating >= 4.8;
-
-      return { totalListings: totalProps, completedStays, currentMonthEarnings, avgRating, occupancyRate, isSuperhost };
-    } catch {
-      return { totalListings: 0, completedStays: 0, currentMonthEarnings: 0, avgRating: 0, occupancyRate: 0, isSuperhost: false };
-    }
-  }
+  async getHostStats(_userId?: string) {
+  return (await this.client.get('/bookings/host-stats')).data;
+}
 
   /**
    * PATCH host profile fields (HOST or ADMIN only).

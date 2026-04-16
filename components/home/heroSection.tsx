@@ -253,7 +253,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 overflow-hidden mt-12">
+    <section className="relative min-h-screen bg-linear-to-br from-slate-50 to-blue-50 overflow-hidden mt-18">
       <div className="relative flex flex-col lg:flex-row items-center justify-between min-h-screen">
 
         {/* Left Side: Enhanced Text & Filters */}
@@ -495,9 +495,9 @@ export default function HeroSection() {
           </div>
 
           {/* Mobile Search Box */}
-          <div className="lg:hidden w-full px-4 mt-4 relative z-20">
+          <div className="lg:hidden w-full  mt-4 relative z-20">
             <div
-              className="bg-white/90 backdrop-blur-lg p-4 sm:p-5 rounded-2xl w-full max-w-md mx-auto -lg"
+              className="bg-white/90 backdrop-blur-lg p-4 sm:p-0 rounded-2xl w-full  mx-auto -lg"
               style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}
             >
               <div className="grid grid-cols-1 gap-3 mb-3">

@@ -217,6 +217,7 @@
   },
   "topListing": {
     "mostViewed": "العقارات الأكثر مشاهدة",
+    "description": "اكتشف أفضل العقارات في منطقتك",
     "topListings": "أفضل 15 عقار",
     "propertiesAvailable": "{{count}} عقار",
     "propertiesAvailable_plural": "{{count}} عقارات",
@@ -225,6 +226,7 @@
   },
   "topShortTerm": {
     "title": "عطلات نهاية الأسبوع المثالية",
+    "description": "اكتشف أفضل العطلات نهاية الأسبوع في منطقتك",
     "ready": "{{count}} عقار جاهز",
     "ready_plural": "{{count}} عقارات جاهزة لك",
     "noStays": "لم يتم العثور على إقامات قصيرة",
@@ -233,6 +235,7 @@
   },
   "recentlyViewed": {
     "title": "العقارات المعروضة مؤخراً",
+    "description": "عقارات تمت مشاهدتها مؤخراً بناءً على نشاطك",
     "subtitle_one": "عقار واحد تمت مشاهدته مؤخراً بناءً على نشاطك",
     "subtitle_other": "{{count}} عقارات تمت مشاهدتها مؤخراً بناءً على نشاطك",
     "viewAll": "عرض السجل الزمني كامل"
@@ -299,6 +302,7 @@
   },
   "locationProperties": {
     "title": "عقارات في منطقتك",
+    "description": "استكشف العقارات في منطقتك.",
     "showingDefault": "عرض الموقع الافتراضي",
     "foundNear": "{{count}} عقار وجد بالقرب من",
     "foundNear_plural": "{{count}} عقارات وجدت بالقرب من",

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AlertCircle, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -184,10 +184,12 @@ const PropertyDetailSkeleton = () => (
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function PropertyDetailClient() {
-  const params = useParams();
+export default function PropertyDetailClient({ id }: { id: string }) {
   const router = useRouter();
-  const propertyId = params.id as string;
+  const propertyId = id;
+  
+ 
+
   const { t } = useLanguage();
 
   const [property, setProperty] = useState<Property | null>(null);
@@ -256,7 +258,7 @@ export default function PropertyDetailClient() {
             {/* Gallery spans its container seamlessly */}
             <PropertyGallery property={property} />
 
-            {/* Information sections, cleanly divided by Airbnb-style borders */}
+            {/* Information sections, cleanly divided by  borders */}
             <div className="border-[#DDDDDD]">
               <PropertyInfo property={property} />
             </div>

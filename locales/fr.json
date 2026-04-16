@@ -217,14 +217,16 @@
   },
   "topListing": {
     "mostViewed": "Biens les plus consultés",
-    "topListings": "Top 15 Annonces",
+    "topListings": "Top 10 Annonces",
+      "description": "Découvrez notre sélection d'annonces les plus consultées.",
     "propertiesAvailable": "{{count}} bien",
     "propertiesAvailable_plural": "{{count}} biens",
     "seeAll": "Voir toutes les annonces",
     "noProperties": "Aucun bien trouvé à {{city}}"
   },
   "topShortTerm": {
-    "title": "Escapades Parfaites",
+    "title": "Reservez un séjour",
+    "description": "Découvrez notre sélection soigneusement choisie de locations à court terme, parfaites pour votre prochaine escapade de week-end.",
     "ready": "{{count}} bien prêt",
     "ready_plural": "{{count}} biens prêts pour vous",
     "noStays": "Aucun Court Séjour Trouvé",
@@ -233,6 +235,7 @@
   },
   "recentlyViewed": {
     "title": "Biens Récemment Consultés",
+      "description": "Biens que vous avez récemment consultés.",
     "subtitle_one": "{{count}} bien récemment consulté basé sur votre activité",
     "subtitle_other": "{{count}} biens récemment consultés basés sur votre activité",
     "viewAll": "Voir Tout l'Historique"
@@ -299,6 +302,7 @@
   },
   "locationProperties": {
     "title": "Biens dans votre zone",
+    "description": "Explorez les biens dans votre zone.",
     "showingDefault": "Localisation par défaut affichée",
     "foundNear": "{{count}} bien trouvé près de",
     "foundNear_plural": "{{count}} biens trouvés près de",

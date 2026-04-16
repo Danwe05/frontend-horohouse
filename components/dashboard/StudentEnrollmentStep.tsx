@@ -38,7 +38,7 @@ interface Props {
   onChange: (data: StudentEnrollmentData) => void;
 }
 
-// ─── Airbnb-Style Shared UI Components ────────────────────────────────────────
+// ───  Shared UI Components ────────────────────────────────────────
 
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (

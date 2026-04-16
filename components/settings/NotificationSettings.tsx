@@ -48,7 +48,7 @@ interface NotificationPreference {
   category: 'general' | 'property' | 'account' | 'marketing';
 }
 
-// Custom Airbnb-style Toggle Switch
+// Custom  Toggle Switch
 const Toggle = ({ active, onChange, disabled = false }: { active: boolean; onChange: (v: boolean) => void; disabled?: boolean }) => (
   <button
     type="button"

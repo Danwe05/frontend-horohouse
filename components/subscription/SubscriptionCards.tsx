@@ -48,7 +48,7 @@ function getPropertyFeatures(plan: SubscriptionPlan): { label: string; check: bo
   return [
     { label: `${props} ${props === 1 ? 'property' : 'properties'}`, check: true },
     { label: 'Booking calendar',                           check: !!f.bookingCalendar },
-    { label: 'Short-term rental support (Airbnb-style)',   check: !!f.shortTermRentalSupport },
+    { label: 'Short-term rental support ()',   check: !!f.shortTermRentalSupport },
     { label: 'Analytics dashboard',                        check: !!f.analytics },
     { label: 'Maintenance tracking',                       check: !!f.maintenanceTracking },
     { label: 'AI smart pricing',                           check: !!f.smartPricing },

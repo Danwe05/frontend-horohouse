@@ -88,7 +88,7 @@ export default function OurPartners() {
                 <img
                   src={partner.logo}
                   alt={partner.name}
-                  className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-50 group-hover:opacity-100"
+                  className="max-w-full max-h-full object-contain filter transition-all duration-300"
                   onError={(e) => {
                     const target = e.currentTarget;
                     target.style.display = 'none';
@@ -116,7 +116,7 @@ export default function OurPartners() {
                 <img
                   src={partner.logo}
                   alt={partner.name}
-                  className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-50 group-hover:opacity-100"
+                  className="max-w-full max-h-full object-contain filter transition-all duration-300"
                   onError={(e) => {
                     const target = e.currentTarget;
                     target.style.display = 'none';

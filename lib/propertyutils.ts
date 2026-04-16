@@ -79,7 +79,38 @@ export function formatPrice(price: string, currency = "XAF"): string {
       maximumFractionDigits: 0,
     }).format(numeric);
   } catch {
-    // Fallback if currency code unsupported by locale
     return `${numeric.toLocaleString()} ${currency}`;
   }
+}
+
+/**
+ * Converts a string into a URL-safe slug.
+ * Handles accented characters, strips punctuation, collapses spaces to hyphens.
+ * Example: "Bastos, Yaoundé – 3 Bed" → "bastos-yaounde-3-bed"
+ */
+export function toSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")                  // decompose accented chars (é → e + ́)
+    .replace(/[\u0300-\u036f]/g, "")  // strip combining diacritics
+    .replace(/[^a-z0-9\s-]/g, "")    // strip everything else non-alphanumeric
+    .trim()
+    .replace(/\s+/g, "-")            // spaces → hyphens
+    .replace(/-+/g, "-");            // collapse repeated hyphens
+}
+
+/**
+ * Builds a SEO-friendly property path from address, optional title, and id.
+ * The id is always the last segment so the backend can resolve by id alone.
+ * Example: "/properties/bastos-yaounde/3-bedroom-apartment/abc123"
+ */
+export function buildPropertyPath(
+  id: string,
+  address: string,
+  title?: string
+): string {
+  const parts: string[] = ["/properties", toSlug(address)];
+  if (title?.trim()) parts.push(toSlug(title));
+  parts.push(id);
+  return parts.join("/");
 }

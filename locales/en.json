@@ -218,14 +218,16 @@
   "topListing": {
     "mostViewed": "Most Viewed Properties",
     "topListings": "Top 15 Listings",
+      "description": "Discover our selection of top listings.",
     "propertiesAvailable": "{{count}} property",
     "propertiesAvailable_plural": "{{count}} properties",
     "seeAll": "See all Properties",
     "noProperties": "No properties found in {{city}}"
   },
   "topShortTerm": {
-    "title": "Perfect Weekend Getaways",
+    "title": "Book a Stay",
     "ready": "{{count}} property ready",
+    "description": "Discover our handpicked selection of short-term rentals, perfect for your next weekend escape.",
     "ready_plural": "{{count}} properties ready for you",
     "noStays": "No Short Stays Found",
     "noStaysDesc": "We couldn't find any short-term listings at the moment.",
@@ -233,6 +235,7 @@
   },
   "recentlyViewed": {
     "title": "Recently Viewed Properties",
+    "description": "Properties you have recently viewed.",
     "subtitle_one": "{{count}} property recently viewed based on your activity",
     "subtitle_other": "{{count}} properties recently viewed based on your activity",
     "viewAll": "View All History"
@@ -299,6 +302,7 @@
   },
   "locationProperties": {
     "title": "Properties in Your Area",
+    "description": "Explore properties in your area.",
     "showingDefault": "Showing default location",
     "foundNear": "{{count}} property found near",
     "foundNear_plural": "{{count}} properties found near",

@@ -45,7 +45,7 @@ function LangButton({ onClick, lang, className = '' }: {
 function SigninContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, login, user } = useAuth();
   const { language } = useLanguage();
   const emailInputRef = useRef<HTMLInputElement>(null);
 
@@ -101,7 +101,10 @@ function SigninContent() {
       else localStorage.removeItem('rememberedEmail');
       login(tokens);
       setSuccess('Login successful! Redirecting...');
-      setTimeout(() => router.push('/dashboard'), 800);
+      
+      const role = (tokens.user as any)?.role || '';
+      const dest = ['host', 'agent', 'landlord', 'admin'].includes(role) ? '/dashboard' : '/';
+      setTimeout(() => router.push(dest), 800);
     } catch (error: any) {
       setError(error.message || 'Login failed. Please check your credentials.');
     } finally {
@@ -123,14 +126,21 @@ function SigninContent() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push(searchParams?.get('redirect') || '/');
+      if (searchParams?.get('redirect')) {
+        router.push(searchParams.get('redirect')!);
+      } else if (user) {
+        const dest = ['host', 'agent', 'landlord', 'admin'].includes(user.role) ? '/dashboard' : '/';
+        router.push(dest);
+      } else {
+        router.push('/');
+      }
       return;
     }
     if (searchParams?.get('error') === 'oauth_failed') setError('Google authentication failed. Please try again.');
     emailInputRef.current?.focus();
     const savedEmail = localStorage.getItem('rememberedEmail');
     if (savedEmail) { setEmailData(prev => ({ ...prev, email: savedEmail })); setRememberMe(true); }
-  }, [isAuthenticated, router, searchParams]);
+  }, [isAuthenticated, user, router, searchParams]);
 
   const isAnyLoading = useMemo(() =>
     isLoading || Object.values(socialLoading).some(Boolean),

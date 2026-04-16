@@ -37,7 +37,7 @@ export default function AppDownloadSection() {
             transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col sm:flex-row items-center md:items-start gap-6"
           >
-            {/* Airbnb-style QR Code Box (Hidden on small mobile) */}
+            {/*  QR Code Box (Hidden on small mobile) */}
             <div className="hidden sm:flex flex-col items-center gap-3 p-4 bg-white border border-[#EBEBEB] rounded-xl shadow-sm">
               {/* Place a QR code PNG in your public folder as /qr-code.png */}
               <div className="w-24 h-24 bg-[#F7F7F7] flex items-center justify-center rounded">

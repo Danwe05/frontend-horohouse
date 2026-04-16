@@ -10,7 +10,7 @@ export default function NotFound() {
           404
         </h1>
         
-        {/* Clean Airbnb-style Headline */}
+        {/* Clean  Headline */}
         <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#222222]">
           We can't seem to find that page.
         </h2>

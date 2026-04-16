@@ -428,6 +428,7 @@ const IndexContent = () => {
   const uiProperties = useMemo(() =>
     properties.map((p) => ({
       id: p._id || p.id,
+      title: p.title || "",
       image: p.images?.[0]?.url || "/placeholder.svg",
       images: p.images?.map((img: { url: string }) => img.url).filter(Boolean),
       price: p.price,

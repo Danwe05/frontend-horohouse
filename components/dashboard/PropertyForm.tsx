@@ -495,7 +495,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
           if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
           let city = '', country = '';
           (feat?.context ?? []).forEach((c: any) => {
-            if (c.id?.startsWith('place') || c.id?.startsWith('locality')) city = city || c.text;
+            if (c.id?.startsWith('place') || c.id?.startsWith('locality') || c.id?.startsWith('region') || c.id?.startsWith('province')) city = city || c.text;
             if (c.id?.startsWith('country')) country = country || c.text;
           });
           return { id: feat?.id, label: feat?.place_name, lng, lat, city, country, raw: feat };
@@ -528,7 +528,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         if (!feat) return;
         let city = '', country = '';
         (feat.context ?? []).forEach((c: any) => {
-          if (c.id?.startsWith('place') || c.id?.startsWith('locality')) city = city || c.text;
+          if (c.id?.startsWith('place') || c.id?.startsWith('locality') || c.id?.startsWith('region') || c.id?.startsWith('province')) city = city || c.text;
           if (c.id?.startsWith('country')) country = country || c.text;
         });
         setFormData(prev => ({
@@ -549,15 +549,13 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     const newImages: PropertyImage[] = [];
     let processedCount = 0;
     Array.from(files).forEach(file => {
-      if (file.size > 5 * 1024 * 1024) { alert(`${file.name} is too large. Max 5MB.`); processedCount++; return; }
-      const reader = new FileReader();
-      reader.onload = event => {
-        newImages.push({ id: `${Date.now()}-${Math.random()}`, file, preview: event.target?.result as string, caption: '', category: 'general' });
-        processedCount++;
-        if (processedCount === files.length)
-          setFormData(prev => ({ ...prev, images: [...prev.images, ...newImages] }));
-      };
-      reader.readAsDataURL(file);
+      // No size cap here — the backend (Cloudinary) accepts large files.
+      // We use createObjectURL for previews to avoid huge base64 strings in state.
+      const preview = URL.createObjectURL(file);
+      newImages.push({ id: `${Date.now()}-${Math.random()}`, file, preview, caption: '', category: 'general' });
+      processedCount++;
+      if (processedCount === files.length)
+        setFormData(prev => ({ ...prev, images: [...prev.images, ...newImages] }));
     });
   };
 
@@ -566,12 +564,17 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     e.preventDefault(); e.stopPropagation(); setDragActive(false);
     handleImageUpload(e, Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
   };
-  const removeImage = (id: string) => setFormData(prev => ({ ...prev, images: prev.images.filter(img => img.id !== id) }));
+  const removeImage = (id: string) => setFormData(prev => {
+    const removed = prev.images.find(img => img.id === id);
+    // Revoke the blob URL to free memory (createObjectURL previews)
+    if (removed?.preview?.startsWith('blob:')) URL.revokeObjectURL(removed.preview);
+    return { ...prev, images: prev.images.filter(img => img.id !== id) };
+  });
 
   // ─── Step validation ──────────────────────────────────────────────────────
   const validateStep = (step: number): boolean => {
     const id = steps[step - 1]?.id;
-    if (id === 'basics') return formData.title.trim() !== '' && formData.description.trim() !== '';
+    if (id === 'basics') return formData.title.trim() !== '' && formData.description.trim() !== '' && Number(formData.price) > 0;
     if (id === 'location') return formData.address.trim() !== '' && formData.city.trim() !== '' && Number.isFinite(parseFloat(formData.latitude));
     return true;
   };
@@ -581,6 +584,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     if (id === 'basics') {
       if (!formData.title.trim()) return 'Add a title to continue';
       if (!formData.description.trim()) return 'Add a description to continue';
+      if (!formData.price || Number(formData.price) <= 0) return 'Add a valid price to continue';
     }
     if (id === 'location') {
       if (!formData.address.trim()) return 'Enter an address to continue';
@@ -619,34 +623,83 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     const onImageUploadProgress = (e: any) =>
       e.total && setUploadProgress(Math.round((e.loaded * 100) / e.total));
     try {
+      // Build a clean payload using only fields known to CreatePropertyDto.
+      // Spreading the entire formData object causes ValidationPipe (forbidNonWhitelisted)
+      // to reject the request with a 400 because of File/preview/draft-only fields.
       const payload: any = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        type: formData.type,
+        listingType: formData.listingType,
         price: Number(formData.price),
-        area: Number(formData.area),
-        latitude: Number(formData.latitude),
-        longitude: Number(formData.longitude),
-        keywords: formData.keywords ? formData.keywords.split(',').map(k => k.trim()).filter(k => k) : [],
+        area: formData.area ? Number(formData.area) : undefined,
+        yearBuilt: formData.yearBuilt ? Number(formData.yearBuilt) : undefined,
+        floorNumber: formData.floorNumber ? Number(formData.floorNumber) : undefined,
+        totalFloors: formData.totalFloors ? Number(formData.totalFloors) : undefined,
+        pricePerSqm: formData.pricePerSqm ? Number(formData.pricePerSqm) : undefined,
+        depositAmount: formData.depositAmount ? Number(formData.depositAmount) : undefined,
+        maintenanceFee: formData.maintenanceFee ? Number(formData.maintenanceFee) : undefined,
+        address: formData.address,
+        city: formData.city,
+        neighborhood: formData.neighborhood || undefined,
+        country: formData.country || undefined,
+        latitude: formData.latitude ? Number(formData.latitude) : undefined,
+        longitude: formData.longitude ? Number(formData.longitude) : undefined,
+        keywords: formData.keywords ? formData.keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k) : [],
+        nearbyAmenities: formData.nearbyAmenities,
+        transportAccess: formData.transportAccess,
+        virtualTourUrl: formData.virtualTourUrl || undefined,
+        videoUrl: formData.videoUrl || undefined,
+        tourType: formData.tourType || undefined,
+        // Short-term fields
+        pricingUnit: formData.pricingUnit || undefined,
+        minNights: Number(formData.minNights) || 1,
+        maxNights: Number(formData.maxNights) || 365,
+        cleaningFee: Number(formData.cleaningFee) || 0,
+        serviceFee: Number(formData.serviceFee) || 0,
+        isInstantBookable: formData.isInstantBookable,
+        cancellationPolicy: formData.cancellationPolicy || undefined,
+        advanceNoticeDays: Number(formData.advanceNoticeDays) || 0,
+        bookingWindowDays: Number(formData.bookingWindowDays) || 365,
+        weeklyDiscountPercent: Number(formData.weeklyDiscountPercent) || 0,
+        monthlyDiscountPercent: Number(formData.monthlyDiscountPercent) || 0,
+        // Amenities object (long-term + short-term merged)
         amenities: {
-          ...formData,
-          price: Number(formData.price),
-          area: Number(formData.area) || 0,
-          yearBuilt: Number(formData.yearBuilt) || 0,
-          floorNumber: Number(formData.floorNumber) || 0,
-          totalFloors: Number(formData.totalFloors) || 0,
-          pricePerSqm: Number(formData.pricePerSqm) || 0,
-          depositAmount: Number(formData.depositAmount) || 0,
-          maintenanceFee: Number(formData.maintenanceFee) || 0,
-          minNights: Number(formData.minNights) || 1,
-          maxNights: Number(formData.maxNights) || 365,
-          cleaningFee: Number(formData.cleaningFee) || 0,
-          serviceFee: Number(formData.serviceFee) || 0,
-          weeklyDiscountPercent: Number(formData.weeklyDiscountPercent) || 0,
-          monthlyDiscountPercent: Number(formData.monthlyDiscountPercent) || 0,
-          advanceNoticeDays: Number(formData.advanceNoticeDays) || 0,
-          bookingWindowDays: Number(formData.bookingWindowDays) || 365,
-          maxGuests: Number(formData.maxGuests) || 1,
+          bedrooms: formData.bedrooms,
+          bathrooms: formData.bathrooms,
+          parkingSpaces: formData.parkingSpaces,
+          hasGarden: formData.hasGarden,
+          hasPool: formData.hasPool,
+          hasGym: formData.hasGym,
+          hasSecurity: formData.hasSecurity,
+          hasElevator: formData.hasElevator,
+          hasBalcony: formData.hasBalcony,
+          hasAirConditioning: formData.hasAirConditioning,
+          hasInternet: formData.hasInternet,
+          hasGenerator: formData.hasGenerator,
+          furnished: formData.furnished,
         },
+        shortTermAmenities: formData.listingType === 'short_term' ? {
+          hasWifi: formData.hasWifi,
+          hasBreakfast: formData.hasBreakfast,
+          hasTv: formData.hasTv,
+          hasKitchen: formData.hasKitchen,
+          hasWasher: formData.hasWasher,
+          hasHeating: formData.hasHeating,
+          hasAirConditioning: formData.hasAirConditioning,
+          petsAllowed: formData.petsAllowed,
+          smokingAllowed: formData.smokingAllowed,
+          partiesAllowed: formData.partiesAllowed,
+          wheelchairAccessible: formData.wheelchairAccessible,
+          airportTransfer: formData.airportTransfer,
+          conciergeService: formData.conciergeService,
+          dailyHousekeeping: formData.dailyHousekeeping,
+          maxGuests: Number(formData.maxGuests) || 2,
+          checkInTime: formData.checkInTime || undefined,
+          checkOutTime: formData.checkOutTime || undefined,
+        } : undefined,
       };
+
       const imageFiles = formData.images.filter(img => img.file).map(img => img.file);
       let created;
       if (isEditMode && propertyId) {
@@ -665,7 +718,32 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
       setSuccessModalOpen(true);
       setTimeout(() => { if (createdId) router.push(`/properties/${createdId}`); }, 1500);
     } catch (error: any) {
-      setSubmitError(error?.message || String(error));
+      // NestJS ValidationPipe returns an array of ValidationError objects, not strings.
+      // Recursively flatten them into readable messages.
+      const flattenErrors = (errors: any[]): string[] =>
+        errors.flatMap((e: any) => {
+          const lines: string[] = [];
+          if (e.constraints) {
+            lines.push(`${e.property}: ${Object.values(e.constraints).join('; ')}`);
+          }
+          if (e.children?.length) {
+            lines.push(...flattenErrors(e.children).map((m: string) => `${e.property}.${m}`));
+          }
+          return lines;
+        });
+
+      const data = error?.response?.data;
+      console.error('[PropertyForm] Submit error:', data ?? error);
+
+      let msg: string;
+      if (data?.message && Array.isArray(data.message)) {
+        msg = flattenErrors(data.message).join('\n') || JSON.stringify(data.message);
+      } else if (typeof data?.message === 'string') {
+        msg = data.message;
+      } else {
+        msg = error?.message || String(error);
+      }
+      setSubmitError(msg);
       setErrorModalOpen(true);
     } finally {
       setIsSubmitting(false); setUploadProgress(0);
@@ -679,23 +757,26 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     <div className="min-h-screen bg-white text-[#222222] font-sans flex flex-col">
 
       {/* ── HEADER ── */}
-      <header className="fixed top-0 left-0 right-0 h-[72px] px-6 lg:px-12 flex items-center justify-between bg-white z-50 border-b border-[#EBEBEB]">
+      <header className="fixed top-0 left-0 right-0 h-[72px] px-4 md:px-6 lg:px-12 flex items-center justify-between bg-white z-50 border-b border-[#EBEBEB]">
         {/* Left: logo + badge */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="font-bold text-lg tracking-tight flex items-center gap-2 shrink-0">
-            <Link href="/" className="flex items-center">
-              <img src="/logoHoroHouseBleueOrdinateur.png" alt="HoroHouse" className="h-10 md:h-12 object-contain" />
-            </Link> </div>
-          {formData.listingType && <ListingTypeBadge type={formData.listingType} />}
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 pr-2">
+          <div className="font-bold text-lg tracking-tight flex items-center shrink-0">
+            <Link href="/" className="flex items-center block">
+              <img src="/logoHoroHouseBleueOrdinateur.png" alt="HoroHouse" className="h-8 sm:h-10 md:h-12 w-auto object-contain max-w-[140px] sm:max-w-none" />
+            </Link>
+          </div>
+          <div className="hidden sm:block shrink-0">
+            {formData.listingType && <ListingTypeBadge type={formData.listingType} />}
+          </div>
         </div>
 
         {/* Center: breadcrumb */}
-        <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none">
+        <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none hidden md:block">
           <StepBreadcrumb steps={steps} current={currentStep} />
         </div>
 
         {/* Right: step counter + save */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <span className="text-sm text-[#717171] font-medium hidden sm:block">
             {currentStep} of {totalSteps}
           </span>
@@ -1075,7 +1156,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   >
                     <ImageIcon className="w-12 h-12 text-[#B0B0B0] mb-4" />
                     <h3 className="text-lg font-semibold text-[#222222] mb-1">Drag photos here</h3>
-                    <p className="text-sm text-[#717171] mb-5">Max 5 MB per image · JPG, PNG, WEBP</p>
+                    <p className="text-sm text-[#717171] mb-5">Any size · JPG, PNG, WEBP · up to 50 files</p>
                     <span className="font-semibold underline text-[#222222] text-sm">Browse files</span>
                     <input type="file" multiple accept="image/*" className="hidden" id="image-upload" onChange={handleImageUpload} />
                   </div>
@@ -1188,11 +1269,17 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                     <p className="text-sm text-[#717171] mt-2">Double-check everything before publishing.</p>
                   </div>
 
-                  {/* Preview card */}
+                  {/* Preview card — uses objectURL previews so no heavy base64 in DOM */}
                   <div className="p-5 border border-[#DDDDDD] rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] flex flex-col sm:flex-row gap-5 items-start">
                     <div className="w-full sm:w-[220px] h-[150px] rounded-xl bg-[#EBEBEB] overflow-hidden shrink-0">
                       {formData.images[0] ? (
-                        <img src={formData.images[0].preview} className="w-full h-full object-cover" alt="Cover" />
+                        <img
+                          src={formData.images[0].preview}
+                          className="w-full h-full object-cover"
+                          alt="Cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <ImageIcon className="text-[#B0B0B0] w-8 h-8" />
@@ -1300,11 +1387,11 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
 
       {/* ── SUCCESS MODAL ── */}
       <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
-        <DialogContent className="max-w-sm p-10 bg-white border border-[#EBEBEB] rounded-2xl [&>button]:hidden text-center shadow-2xl">
-          <div className="w-14 h-14 bg-[#222222] rounded-full flex items-center justify-center mx-auto mb-5">
+        <DialogContent className="max-w-sm p-10 bg-white border border-green-600 rounded-2xl [&>button]:hidden text-center shadow-2xl">
+          <div className="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-5">
             <CheckCircle2 className="w-7 h-7 text-white" />
           </div>
-          <DialogTitle className="text-xl font-semibold text-[#222222] mb-2">
+          <DialogTitle className="text-xl font-semibold text-white mb-2">
             {isEditMode ? 'Listing updated!' : 'You are live!'}
           </DialogTitle>
           <DialogDescription className="text-sm text-[#717171] mb-6">

@@ -41,7 +41,7 @@ interface PrivacySetting {
   level: 'public' | 'registered' | 'agents' | 'private';
 }
 
-// Custom Airbnb-style Toggle Switch
+// Custom  Toggle Switch
 const Toggle = ({ active, onChange, disabled = false }: { active: boolean; onChange: (v: boolean) => void; disabled?: boolean }) => (
   <button
     type="button"
