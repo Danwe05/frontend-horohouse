@@ -802,8 +802,6 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
       </div>
 
       <SaveSearchModal isOpen={showSaveModal} onClose={() => setShowSaveModal(false)} onSave={handleSaveSearch} currentFilters={getCurrentFilters()} />
-
-
     </div>
   );
 };

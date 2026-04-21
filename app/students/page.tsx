@@ -35,6 +35,7 @@ import Link from 'next/link';
 // --- Components & Styles ---
 
 import { useLanguage } from '@/contexts/LanguageContext';
+import StudentHero from '@/components/students/StudentHero';
 
 export default function StudentsPage() {
   const router = useRouter();
@@ -108,7 +109,7 @@ export default function StudentsPage() {
         {/* Background Image & Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1531545514256-b1400bc00f31?q=80&w=1974&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1600&h=800&fit=crop"
             alt="African students on campus"
             className="w-full h-full object-cover object-top"
           />
@@ -149,7 +150,7 @@ export default function StudentsPage() {
             <form onSubmit={handleSearch} className="w-full max-w-3xl mb-12">
               <div className="flex flex-col sm:flex-row bg-white rounded-full p-2.5 shadow-lg">
                 <div className="flex items-center flex-1 px-6 h-14">
-                  <MapPin className="w-5 h-5 text-[#222222] mr-3 shrink-0 stroke-[2]" />
+                  <MapPin className="w-5 h-5 text-[#222222] mr-3 shrink-0 stroke-2" />
                   <Input
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -159,13 +160,15 @@ export default function StudentsPage() {
                 </div>
                 <Button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 h-14 font-semibold text-[16px] w-full sm:w-auto transition-colors mt-2 sm:mt-0 active:scale-[0.98]"
+                  className="bg-blue-700 hover:bg-blue-800 text-white rounded-full px-8 h-14 font-semibold text-[16px] w-full sm:w-auto transition-colors mt-2 sm:mt-0 active:scale-[0.98]"
                 >
-                  <Search className="w-5 h-5 mr-2 stroke-[2]" />
+                  <Search className="w-5 h-5 mr-2 stroke-2" />
                   {s.searchBtn || 'Search'}
                 </Button>
               </div>
             </form>
+
+            {/* <StudentHero/> */}
 
             {/* Trust USPs */}
             <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-white text-[14px] font-medium">

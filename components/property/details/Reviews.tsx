@@ -122,7 +122,7 @@ export default function Reviews({ propertyId }: ReviewsProps) {
     <section className="text-[#222222] space-y-8">
       {/* ── Header & Rating Summary ── */}
       <div className="flex items-center gap-2 mb-6">
-        <Star className="h-6 w-6 fill-[#222222] text-[#222222]" />
+        <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
         <h2 className="text-[22px] font-semibold tracking-tight">
           {stats?.totalReviews && stats.totalReviews > 0
             ? `${averageRating.toFixed(2)} · ${stats.totalReviews} ${stats.totalReviews === 1 ? 'review' : 'reviews'}`
@@ -207,7 +207,7 @@ export default function Reviews({ propertyId }: ReviewsProps) {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`h-3 w-3 ${star <= review.rating ? "fill-[#222222] text-[#222222]" : "text-[#DDDDDD]"}`}
+                          className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-[#DDDDDD]"}`}
                         />
                       ))}
                     </div>

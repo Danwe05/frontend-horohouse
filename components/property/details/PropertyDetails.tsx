@@ -72,26 +72,6 @@ interface Feature { name: string; icon?: LucideIcon }
 
   return (
     <section className="space-y-8 text-[#222222]">
-      
-      {/* Key Specifications */}
-      {specs.length > 0 && (
-        <div className="space-y-6">
-          <h2 className="text-[22px] font-semibold tracking-tight">
-            {pd?.title || "Property details"}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12">
-            {specs.map((spec, idx) => (
-              <div
-                key={idx}
-                className="flex justify-between items-center py-4 border-b border-[#DDDDDD]"
-              >
-                <span className="text-[16px] text-[#222222]">{spec.label}</span>
-                <span className="text-[16px] font-semibold text-[#222222]">{spec.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Additional Features Grid */}
       {additionalFeatures.length > 0 && (

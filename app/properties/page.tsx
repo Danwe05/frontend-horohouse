@@ -642,7 +642,7 @@ const IndexContent = () => {
             {/* Show Map FAB */}
             <button
               onClick={() => setMobileMapFullScreen(true)}
-              className="fixed bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-6 py-3 text-[14px] font-semibold text-white bg-blue-600 rounded-xl shadow-lg z-40 hover:bg-[#444444] transition-colors"
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-6 py-3 text-[14px] font-semibold text-white bg-blue-600 rounded-full shadow-lg z-40 hover:bg-[#444444] transition-colors"
             >
               <Map className="h-5 w-5" />
               {t.propertiesPage?.showMap || "Show Map"} ({total})
@@ -705,7 +705,7 @@ const IndexContent = () => {
 
         {/* Map panel */}
         {showMap && (
-          <div className="w-3/6 h-full p-4 sticky top-[70px] overflow-hidden">
+          <div className="w-[600px] h-full p-4 sticky top-[70px] overflow-hidden">
             <div className="h-[calc(100vh-90px-5px)] relative rounded-2xl overflow-hidden">
               <MapView
                 properties={mapProperties}
@@ -723,81 +723,6 @@ const IndexContent = () => {
 
         {/* Listings panel */}
         <div className={`flex-1 overflow-y-auto px-6 py-5 relative ${compareIds.size > 0 ? "pb-24" : ""}`}>
-
-          {/* Toolbar */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <p className="text-[14px] text-[#717171]">
-                {loading && properties.length === 0
-                  ? (t.propertiesPage?.loading || "Loading…")
-                  : error ? ""
-                    : `${total} ${t.propertiesPage?.listings || "listings found"}`}
-              </p>
-
-              {/* Sort */}
-              <div className="h-4 w-px bg-[#DDDDDD]" />
-              <Select value={sortValue} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-[180px] h-9 text-[13px] border-[#DDDDDD] rounded-xl text-[#222222]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl border-[#DDDDDD] shadow-[0_8px_28px_rgba(0,0,0,0.12)]">
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="price-low">Price: Low → High</SelectItem>
-                  <SelectItem value="price-high">Price: High → Low</SelectItem>
-                  <SelectItem value="most-viewed">Most Viewed</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Filters button */}
-              <button
-                onClick={() => setShowFilters((v) => !v)}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-[13px] font-semibold rounded-xl border transition-colors ${showFilters
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-[#222222] border-[#DDDDDD] hover:border-blue-600"
-                  }`}
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-                {showFilters
-                  ? (t.propertiesPage?.hideFilters || "Hide Filters")
-                  : (t.propertiesPage?.showFilters || "Filters")}
-                {activeFilterCount > 0 && (
-                  <span className="bg-[#1A56DB] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-            </div>
-
-            {/* Grid / List toggle */}
-            <div className="flex items-center gap-1 border border-[#DDDDDD] rounded-xl p-1">
-              <button
-                onClick={() => setGridLayout("grid")}
-                aria-pressed={gridLayout === "grid"}
-                className={`p-1.5 rounded-lg transition-colors ${gridLayout === "grid"
-                  ? "bg-blue-600 text-white"
-                  : "text-[#717171] hover:text-[#222222]"
-                  }`}
-              >
-                <Grid className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setGridLayout("list")}
-                aria-pressed={gridLayout === "list"}
-                className={`p-1.5 rounded-lg transition-colors ${gridLayout === "list"
-                  ? "bg-blue-600 text-white"
-                  : "text-[#717171] hover:text-[#222222]"
-                  }`}
-              >
-                <List className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {error && (
-            <p className="text-[13px] text-red-600 mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-              {error}
-            </p>
-          )}
 
           {/* Cluster banner */}
           {clusterFilterIds && (
@@ -875,8 +800,8 @@ const IndexContent = () => {
             className="fixed bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-6 py-3 text-[14px] font-semibold text-white bg-blue-600 rounded-xl z-40 hover:bg-blue-700 transition-colors"
           >
             {showMap
-              ? <><EyeOff className="h-5 w-5" />{t.propertiesPage?.hideMap || "Hide Map"}</>
-              : <><Eye className="h-5 w-5" />{t.propertiesPage?.showMap || "Show Map"}</>}
+              ? <><List className="h-5 w-5" />{t.propertiesPage?.hideMap || "Show List"}</>
+              : <><Map className="h-5 w-5" />{t.propertiesPage?.showMap || "Show Map"}</>}
           </button>
         </div>
       </main>

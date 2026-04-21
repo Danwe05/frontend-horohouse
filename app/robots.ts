@@ -1,14 +1,19 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://horohouse.com';
-
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/dashboard/', '/api/', '/auth/'],
-    },
-    sitemap: `${baseUrl}/sitemap.xml`,
-  };
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: [
+          '/dashboard/',
+          '/auth/',
+          '/onboarding/',
+          '/api/',
+        ],
+      },
+    ],
+    sitemap: 'https://www.horohouse.com/sitemap.xml',
+  }
 }

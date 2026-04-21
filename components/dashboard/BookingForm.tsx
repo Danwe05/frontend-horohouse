@@ -80,12 +80,6 @@ function isDateBlocked(
 }
 
 // ─── CSS grid-rows accordion ──────────────────────────────────────────────────
-//
-// Animates grid-template-rows: 0fr → 1fr.
-// overflow:hidden lives on the INNER div only — the outer grid wrapper has no
-// clipping, so rounded borders on the parent container are never affected.
-// No JS scrollHeight measurement needed — no stale-height or paint-race bugs.
-//
 function Accordion({ open, children }: { open: boolean; children: React.ReactNode }) {
   return (
     <div
@@ -119,14 +113,10 @@ export default function BookingForm({ property }: Props) {
     return fallback;
   };
 
-  // Single enum for mobile panels — prevents both ever being open simultaneously
-  // and avoids the state-race that caused the old dateOpen/guestOpen conflict.
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>(null);
   const toggleMobilePanel = (panel: MobilePanel) =>
     setMobilePanel((prev) => (prev === panel ? null : panel));
 
-  // Desktop popovers are completely separate — they live outside the Dialog
-  // so they have no portal/focus-trap conflict.
   const [desktopDateOpen, setDesktopDateOpen] = useState(false);
   const [desktopGuestOpen, setDesktopGuestOpen] = useState(false);
 
@@ -307,21 +297,21 @@ export default function BookingForm({ property }: Props) {
   // ─── SHARED PIECES ────────────────────────────────────────────────────────
 
   const renderPriceHeader = () => (
-    <div className="flex items-start justify-between mb-5">
+    <div className="flex items-start justify-between mb-6">
       <div className="flex items-baseline gap-1">
         <span className="text-[22px] font-semibold text-[#222222] tracking-tight">
           {formatMoney(pricePerUnit)}
         </span>
-        <span className="text-[#222222] text-[15px]">{unitLabel}</span>
+        <span className="text-[#222222] text-[15px] font-medium">/{unitLabel}</span>
       </div>
       {property.rating && (
-        <div className="flex items-center gap-1 text-[14px] text-[#222222]">
+        <div className="flex items-center gap-1 text-[14px] text-[#222222] mt-1.5">
           <Star className="w-3.5 h-3.5 fill-[#222222]" />
           <span className="font-semibold">{property.rating.toFixed(2)}</span>
           {property.reviewCount && (
             <span className="text-[#717171]">
               &nbsp;·&nbsp;
-              <span className="underline underline-offset-2 cursor-pointer">
+              <span className="underline underline-offset-2 cursor-pointer font-medium hover:text-[#222222] transition-colors">
                 {property.reviewCount} review{property.reviewCount !== 1 ? 's' : ''}
               </span>
             </span>
@@ -333,9 +323,9 @@ export default function BookingForm({ property }: Props) {
 
   const renderRoomSelector = () =>
     isMultiRoom && rooms.length > 0 ? (
-      <div className="mb-3">
+      <div className="mb-4">
         <Select value={selectedRoomId} onValueChange={setSelectedRoomId}>
-          <SelectTrigger className="w-full h-[52px] rounded-xl border border-[#222222] text-[14px] font-medium text-[#222222] px-4 focus:ring-0 focus:border-[#222222]">
+          <SelectTrigger className="w-full h-[52px] rounded-xl border border-[#B0B0B0] text-[15px] font-medium text-[#222222] px-4 focus:ring-2 focus:ring-[#222222] focus:border-transparent transition-all">
             <SelectValue placeholder="Choose a room type" />
           </SelectTrigger>
           <SelectContent className="rounded-2xl border-[#DDDDDD] shadow-[0_8px_28px_rgba(0,0,0,0.15)] z-[9999]">
@@ -344,7 +334,7 @@ export default function BookingForm({ property }: Props) {
                 key={room._id}
                 value={room._id}
                 disabled={!room.isActive}
-                className="text-[14px] py-3"
+                className="text-[14px] py-3 cursor-pointer"
               >
                 {room.name}{room.roomNumber && ` · #${room.roomNumber}`} · {room.maxGuests} guests max
               </SelectItem>
@@ -354,7 +344,6 @@ export default function BookingForm({ property }: Props) {
       </div>
     ) : null;
 
-  // Shared guest counter content — used by both desktop popover and mobile accordion
   const renderGuestContent = () => (
     <div className="p-4">
       <div className="space-y-0">
@@ -373,7 +362,7 @@ export default function BookingForm({ property }: Props) {
             )}
           >
             <div>
-              <p className="text-[15px] font-medium text-[#222222]">{label}</p>
+              <p className="text-[15px] font-semibold text-[#222222]">{label}</p>
               <p className="text-[13px] text-[#717171] mt-0.5">{sub}</p>
             </div>
             <div className="flex items-center gap-4">
@@ -421,9 +410,9 @@ export default function BookingForm({ property }: Props) {
         disabled={!canBook || submitting}
         onClick={handleBook}
         className={cn(
-          'w-full h-[52px] rounded-xl font-semibold text-[16px] transition-all mb-4',
+          'w-full h-[52px] rounded-xl font-semibold text-[16px] transition-all mb-4 active:scale-[0.98]',
           canBook && !submitting
-            ? 'bg-blue-600 hover:opacity-90 text-white shadow-sm'
+            ? 'bg-blue-600 hover:bg-blue-700 text-white'
             : 'bg-[#DDDDDD] text-[#717171] cursor-not-allowed',
         )}
       >
@@ -439,7 +428,7 @@ export default function BookingForm({ property }: Props) {
       <button
         type="button"
         onClick={() => router.push('/auth/login')}
-        className="w-full h-[52px] rounded-xl font-semibold text-[16px] text-white bg-blue-600 hover:opacity-90 transition-opacity shadow-sm mb-4"
+        className="w-full h-[52px] rounded-xl font-semibold text-[16px] text-white bg-blue-600 hover:bg-blue-700 transition-colors mb-4 active:scale-[0.98]"
       >
         Log in to reserve
       </button>
@@ -449,14 +438,14 @@ export default function BookingForm({ property }: Props) {
     nights > 0 ? (
       <div className="space-y-3.5 text-[15px] text-[#222222]">
         <div className="flex justify-between">
-          <span className="underline underline-offset-2 cursor-pointer">
+          <span className="underline underline-offset-2 cursor-pointer hover:text-[#717171] transition-colors">
             {formatMoney(pricePerUnit)} × {Number.isInteger(unitCount) ? unitCount : unitCount.toFixed(1)} {unitLabel}{unitCount !== 1 ? 's' : ''}
           </span>
           <span>{formatMoney(subtotalBeforeDiscount)}</span>
         </div>
         {discountAmount > 0 && (
           <div className="flex justify-between text-[#008A05]">
-            <span className="underline underline-offset-2 capitalize cursor-pointer">
+            <span className="underline underline-offset-2 capitalize cursor-pointer hover:opacity-80 transition-opacity">
               {discountLabel}
             </span>
             <span>−{formatMoney(discountAmount)}</span>
@@ -464,17 +453,17 @@ export default function BookingForm({ property }: Props) {
         )}
         {cleaningFee > 0 && (
           <div className="flex justify-between">
-            <span className="underline underline-offset-2 cursor-pointer">Cleaning fee</span>
+            <span className="underline underline-offset-2 cursor-pointer hover:text-[#717171] transition-colors">Cleaning fee</span>
             <span>{formatMoney(cleaningFee)}</span>
           </div>
         )}
         {serviceFee > 0 && (
           <div className="flex justify-between">
-            <span className="underline underline-offset-2 cursor-pointer">Horo House service fee</span>
+            <span className="underline underline-offset-2 cursor-pointer hover:text-[#717171] transition-colors">Horo House service fee</span>
             <span>{formatMoney(serviceFee)}</span>
           </div>
         )}
-        <div className="pt-4 border-t border-[#DDDDDD] flex justify-between font-semibold text-[16px]">
+        <div className="pt-5 border-t border-[#DDDDDD] flex justify-between font-semibold text-[16px] mt-4">
           <span>Total before taxes</span>
           <span>{formatMoney(total)}</span>
         </div>
@@ -482,14 +471,13 @@ export default function BookingForm({ property }: Props) {
     ) : null;
 
   // ─── DESKTOP FORM ─────────────────────────────────────────────────────────
-  // Popovers are safe here — they live outside the Dialog entirely.
 
   const renderDesktopForm = () => (
-    <div>
+    <div className="font-sans antialiased">
       {renderPriceHeader()}
       {renderRoomSelector()}
 
-      <div className="border border-[#222222] rounded-xl overflow-visible mb-4">
+      <div className="border border-[#B0B0B0] rounded-xl overflow-visible mb-4">
         <Popover open={desktopDateOpen} onOpenChange={setDesktopDateOpen}>
           <div className="grid grid-cols-2 border-b border-[#B0B0B0]">
             <PopoverTrigger asChild>
@@ -572,44 +560,27 @@ export default function BookingForm({ property }: Props) {
       {renderValidationError()}
       {renderCTA()}
       {nights > 0 && isAuthenticated && !validationError && (
-        <p className="text-center text-[14px] text-[#222222] mb-5">You won't be charged yet</p>
+        <p className="text-center text-[14px] text-[#222222] mb-5 font-medium">You won't be charged yet</p>
       )}
       {renderBreakdown()}
     </div>
   );
 
   // ─── MOBILE FORM ──────────────────────────────────────────────────────────
-  //
-  // Zero Popovers. Calendar and guest counter expand via CSS grid-rows Accordion.
-  //
-  // Border structure:
-  //   ┌─────────────────────────┐  ← rounded-t-xl border (always)
-  //   │  Check-in  │  Checkout  │
-  //   ├─────────────────────────┤
-  //   │  [calendar accordion]   │  ← left+right border only (no top, no bottom)
-  //   ├─────────────────────────┤  ← border-t when calendar closed
-  //   │  Guests ↕               │
-  //   ├─────────────────────────┤
-  //   │  [guests accordion]     │  ← left+right+bottom border, rounded-b-xl
-  //   └─────────────────────────┘
-  //
-  // NO overflow-hidden on the outer wrapper — that's what was clipping panels.
 
   const renderMobileForm = () => (
-    <div>
+    <div className="font-sans antialiased">
       {renderPriceHeader()}
       {renderRoomSelector()}
 
       <div className="mb-4">
-
-        {/* Date trigger row — always has top border + side borders */}
-        <div className="grid grid-cols-2 border border-[#222222] rounded-t-xl">
+        <div className="grid grid-cols-2 border border-[#B0B0B0] rounded-t-xl">
           <button
             type="button"
             onClick={() => toggleMobilePanel('date')}
             className={cn(
               'flex flex-col px-4 py-3 text-left border-r border-[#B0B0B0] rounded-tl-xl transition-colors',
-              mobilePanel === 'date' ? 'bg-[#F0F0F0]' : 'hover:bg-[#F7F7F7]',
+              mobilePanel === 'date' ? 'bg-[#F7F7F7]' : 'hover:bg-[#F7F7F7]',
             )}
           >
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#222222] mb-0.5">
@@ -624,7 +595,7 @@ export default function BookingForm({ property }: Props) {
             onClick={() => toggleMobilePanel('date')}
             className={cn(
               'flex flex-col px-4 py-3 text-left rounded-tr-xl transition-colors',
-              mobilePanel === 'date' ? 'bg-[#F0F0F0]' : 'hover:bg-[#F7F7F7]',
+              mobilePanel === 'date' ? 'bg-[#F7F7F7]' : 'hover:bg-[#F7F7F7]',
             )}
           >
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#222222] mb-0.5">
@@ -636,9 +607,8 @@ export default function BookingForm({ property }: Props) {
           </button>
         </div>
 
-        {/* Calendar accordion — side borders only, no top/bottom */}
         <Accordion open={mobilePanel === 'date'}>
-          <div className="border-l border-r border-[#222222] bg-white">
+          <div className="border-l border-r border-[#B0B0B0] bg-white">
             <CalendarUI
               mode="range"
               selected={dateRange}
@@ -653,17 +623,15 @@ export default function BookingForm({ property }: Props) {
           </div>
         </Accordion>
 
-        {/* Guests trigger — side borders always; top border when calendar is closed */}
         <button
           type="button"
           onClick={() => toggleMobilePanel('guests')}
           className={cn(
             'w-full flex items-center justify-between px-4 py-3 transition-colors text-left',
-            'border-l border-r border-[#222222]',
+            'border-l border-r border-[#B0B0B0]',
             mobilePanel !== 'date' && 'border-t border-[#B0B0B0]',
-            // Bottom border + rounding only when guest panel is closed
-            mobilePanel !== 'guests' && 'border-b border-[#222222] rounded-b-xl',
-            mobilePanel === 'guests' ? 'bg-[#F0F0F0]' : 'hover:bg-[#F7F7F7]',
+            mobilePanel !== 'guests' && 'border-b border-[#B0B0B0] rounded-b-xl',
+            mobilePanel === 'guests' ? 'bg-[#F7F7F7]' : 'hover:bg-[#F7F7F7]',
           )}
         >
           <div>
@@ -681,19 +649,17 @@ export default function BookingForm({ property }: Props) {
             : <ChevronDown className="w-4 h-4 text-[#222222] shrink-0" />}
         </button>
 
-        {/* Guest accordion — side + bottom borders, rounded-b-xl */}
         <Accordion open={mobilePanel === 'guests'}>
-          <div className="border-l border-r border-b border-[#222222] rounded-b-xl bg-white">
+          <div className="border-l border-r border-b border-[#B0B0B0] rounded-b-xl bg-white">
             {renderGuestContent()}
           </div>
         </Accordion>
-
       </div>
 
       {renderValidationError()}
       {renderCTA()}
       {nights > 0 && isAuthenticated && !validationError && (
-        <p className="text-center text-[14px] text-[#222222] mb-5">You won't be charged yet</p>
+        <p className="text-center text-[14px] text-[#222222] mb-5 font-medium">You won't be charged yet</p>
       )}
       {renderBreakdown()}
     </div>
@@ -703,25 +669,23 @@ export default function BookingForm({ property }: Props) {
 
   return (
     <>
-      {/* Desktop sticky card */}
-      <div className="hidden md:block bg-white border border-[#DDDDDD] rounded-2xl shadow-[0_6px_20px_rgba(0,0,0,0.12)] p-6 sticky top-[88px]">
+      <div className="hidden md:block bg-white border border-[#DDDDDD] rounded-2xl shadow-[0_6px_16px_rgba(0,0,0,0.12)] p-6 sticky top-[88px] font-sans antialiased">
         {renderDesktopForm()}
       </div>
 
-      {/* Mobile bottom bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#DDDDDD] px-5 py-3.5 z-40 shadow-[0_-2px_16px_rgba(0,0,0,0.08)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#DDDDDD] px-5 py-3.5 z-40 shadow-[0_-2px_16px_rgba(0,0,0,0.08)] font-sans antialiased">
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="flex items-baseline gap-1">
               <span className="text-[17px] font-semibold text-[#222222]">
                 {formatMoney(pricePerUnit)}
               </span>
-              <span className="text-[14px] text-[#222222]">{unitLabel}</span>
+              <span className="text-[14px] text-[#222222] font-medium">/{unitLabel}</span>
             </div>
             <button
               type="button"
               onClick={() => setIsMobileModalOpen(true)}
-              className="text-[13px] text-[#222222] underline underline-offset-2 mt-0.5"
+              className="text-[13px] font-medium text-[#222222] underline underline-offset-2 mt-0.5 hover:text-[#717171] transition-colors"
             >
               {dateRange?.from && dateRange?.to
                 ? `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d')}`
@@ -731,26 +695,25 @@ export default function BookingForm({ property }: Props) {
           <button
             type="button"
             onClick={() => setIsMobileModalOpen(true)}
-            className="h-[48px] px-7 rounded-xl bg-blue-600 text-white font-semibold text-[15px] shadow-sm hover:opacity-90 transition-opacity"
+            className="h-[48px] px-7 rounded-xl bg-blue-600 text-white font-semibold text-[15px] hover:bg-blue-700 transition-colors active:scale-95"
           >
             Reserve
           </button>
         </div>
       </div>
 
-      {/* Mobile full-screen sheet — zero Popovers inside, no portal collision */}
       <Dialog open={isMobileModalOpen} onOpenChange={setIsMobileModalOpen}>
         <DialogContent
           aria-describedby={undefined}
-          className="md:hidden w-full h-[100dvh] max-w-none m-0 rounded-none p-0 flex flex-col bg-white border-0 z-[100] data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom duration-300"
+          className="md:hidden w-full h-[100dvh] max-w-none m-0 rounded-none p-0 flex flex-col bg-white border-0 z-[100] data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom duration-300 font-sans antialiased"
         >
           <DialogTitle className="sr-only">Reserve your stay</DialogTitle>
 
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB] shrink-0">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB] shrink-0 bg-white">
             <button
               type="button"
               onClick={() => setIsMobileModalOpen(false)}
-              className="p-2 -ml-2 rounded-full hover:bg-[#F7F7F7] transition-colors"
+              className="p-2 -ml-2 rounded-full hover:bg-[#F7F7F7] transition-colors active:scale-95"
               aria-label="Close"
             >
               <ChevronLeft className="w-5 h-5 text-[#222222]" />
@@ -762,14 +725,13 @@ export default function BookingForm({ property }: Props) {
                 setGuestCount({ adults: 1, children: 0, infants: 0 });
                 setMobilePanel(null);
               }}
-              className="text-[14px] font-semibold text-[#222222] underline underline-offset-2"
+              className="text-[14px] font-semibold text-[#222222] underline underline-offset-2 hover:text-[#717171] transition-colors active:scale-95"
             >
               Clear all
             </button>
           </div>
 
-          {/* Scrollable body — inline accordions, no portals, no clipping */}
-          <div className="flex-1 overflow-y-auto px-5 pt-6 pb-36">
+          <div className="flex-1 overflow-y-auto px-5 pt-6 pb-36 bg-white">
             {renderMobileForm()}
           </div>
         </DialogContent>

@@ -17,6 +17,8 @@ import SimilarProperties from "@/components/property/details/SimilarProperties";
 import StudentFeaturesPanel from "@/components/property/details/StudentFeaturesPanel";
 import apiClient from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ChatProvider } from "@/contexts/ChatContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -186,6 +188,7 @@ const PropertyDetailSkeleton = () => (
 
 export default function PropertyDetailClient({ id }: { id: string }) {
   const router = useRouter();
+   const { user, token } = useAuth();
   const propertyId = id;
   
  
@@ -229,7 +232,7 @@ export default function PropertyDetailClient({ id }: { id: string }) {
             variant="ghost"
             className="rounded-full h-12 w-12 p-0 text-[#222222] hover:bg-[#F7F7F7]"
           >
-            <ChevronLeft className="h-5 w-5 stroke-[2]" />
+            <ChevronLeft className="h-5 w-5 stroke-2" />
           </Button>
           <Alert className="border-[#FFDFDF] bg-[#FFF8F8] rounded-xl p-6">
             <AlertCircle className="h-5 w-5 text-[#E50000]" />
@@ -248,6 +251,11 @@ export default function PropertyDetailClient({ id }: { id: string }) {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
+    <ChatProvider
+      token={token ?? ""}
+      apiUrl={process.env.NEXT_PUBLIC_API_URL!}
+      currentUser={user ?? undefined}
+    >
     <div className="min-h-screen bg-white text-[#222222]">
       <main className="max-w-7xl mx-auto px-6 lg:px-10 py-4">
 
@@ -314,5 +322,6 @@ export default function PropertyDetailClient({ id }: { id: string }) {
         </div>
       </main>
     </div>
+    </ChatProvider>
   );
 }

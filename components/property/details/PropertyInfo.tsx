@@ -342,9 +342,52 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
       {/* ── Host / Contact Actions ── */}
       <div className="space-y-6">
-        <h2 className="text-[22px] font-semibold tracking-tight">Meet your host</h2>
+        <h2 className="text-[22px] font-semibold tracking-tight">
+          Meet your host
+        </h2>
 
-        {contact ? (
+        {!isAuthenticated ? (
+          // ── Unauthenticated: blurred teaser + login prompt ──
+          <div className="relative rounded-2xl overflow-hidden border border-[#DDDDDD]">
+            {/* Blurred ghost content */}
+            <div className="p-16 flex flex-col sm:flex-row gap-4 select-none pointer-events-none blur-sm opacity-60 aria-hidden:true">
+              <div className="flex-1 bg-blue-600 text-white font-semibold text-[16px] py-6 rounded-lg flex items-center justify-center gap-2">
+                <MessageCircle className="w-5 h-5" />
+                Quick message
+              </div>
+              <div className="flex-1 border border-blue-600 font-semibold text-[16px] py-6 rounded-lg flex items-center justify-center gap-2">
+                <Mail className="w-5 h-5" />
+                Write message
+              </div>
+              <div className="border border-blue-600 py-6 w-14 rounded-lg flex items-center justify-center">
+                <Phone className="w-5 h-5" />
+              </div>
+            </div>
+
+            {/* Overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-white/70 backdrop-blur-[2px] px-6 text-center">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[#F7F7F7] border border-[#DDDDDD]">
+                <Shield className="w-5 h-5 text-[#222222]" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-[16px] font-semibold text-[#222222]">
+                  {pd?.loginToSeeContact || "Sign in to contact the host"}
+                </p>
+                <p className="text-[14px] text-[#717171]">
+                  {pd?.loginToSeeContact || "Create a free account or log in to message, call, or schedule a viewing."}
+                </p>
+              </div>
+              <Button
+                onClick={() => router.push(`/auth/login?redirect=/properties/${property._id}`)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] px-8 py-5 rounded-xl transition-colors"
+              >
+                {pd?.loginToSeeContact || "Log in to continue"}
+              </Button>
+            </div>
+          </div>
+
+        ) : contact ? (
+          // ── Authenticated + contact available ──
           <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <Button
               onClick={handleQuickMessage}
@@ -376,7 +419,9 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
               </Button>
             )}
           </div>
+
         ) : (
+          // ── Authenticated but no contact profile set up ──
           <div className="p-4 bg-[#FFF8F8] border border-[#FFDFDF] rounded-xl flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-[#E50000] shrink-0 mt-0.5" aria-hidden />
             <p className="text-[15px] font-medium text-[#E50000] leading-relaxed">
@@ -385,7 +430,6 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
           </div>
         )}
       </div>
-
       {/* ── Custom Message Dialog ── */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[500px] p-8 border-[#DDDDDD] rounded-2xl shadow-2xl">

@@ -6,12 +6,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import apiClient from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
 const REPORT_REASONS = [
   "Incorrect information",
@@ -64,57 +64,65 @@ export const ReportModal = ({ propertyId, open, onClose }: ReportModalProps) => 
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] p-6 sm:p-8 rounded-2xl border-[#DDDDDD] bg-white gap-0">
-        <DialogHeader className="mb-6">
-          <DialogTitle className="text-[22px] font-semibold text-[#222222]">
+      <DialogContent className="sm:max-w-[480px] p-0 rounded-[16px] border-[#DDDDDD] bg-white gap-0 overflow-hidden font-sans antialiased shadow-xl [&>button]:hidden">
+        {/* Airbnb-style Header: Close left, Title center */}
+        <DialogHeader className="relative flex flex-row items-center justify-center p-6 border-b border-[#EBEBEB]">
+          <button 
+            onClick={onClose}
+            className="absolute left-6 p-2 -ml-2 rounded-full hover:bg-[#F7F7F7] transition-colors active:scale-95"
+          >
+            <X className="w-5 h-5 text-[#222222]" strokeWidth={2} />
+            <span className="sr-only">Close</span>
+          </button>
+          <DialogTitle className="text-[16px] font-semibold tracking-tight text-[#222222] m-0">
             Report this listing
           </DialogTitle>
-          <DialogDescription className="text-[15px] text-[#717171] mt-2">
-            Help us keep listings accurate and trustworthy.
-          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 pb-6 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
-          {REPORT_REASONS.map((reason) => (
-            <button
-              key={reason}
-              onClick={() => setSelected(reason)}
-              className={cn(
-                "w-full text-left px-4 py-3.5 rounded-xl border text-[15px] transition-colors focus:outline-none",
-                selected === reason
-                  ? "border-blue-600 ring-1 ring-[#222222] bg-[#F7F7F7] font-semibold text-[#222222]"
-                  : "border-[#DDDDDD] hover:border-blue-600 text-[#222222] font-medium"
-              )}
-            >
-              {reason}
-            </button>
-          ))}
+        <div className="p-6">
+          <p className="text-[22px] font-semibold text-[#222222] mb-6 leading-tight">
+            Why are you reporting this listing?
+          </p>
 
-          {selected === "Other" && (
-            <div className="pt-2 animate-in fade-in slide-in-from-top-2 duration-200">
-              <textarea
-                placeholder="Please provide more details..."
-                value={details}
-                onChange={(e) => setDetails(e.target.value)}
-                className="w-full p-4 text-[15px] text-[#222222] bg-white border border-[#DDDDDD] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#222222] focus:border-blue-600 transition-colors placeholder:text-[#717171] resize-none"
-                rows={4}
-              />
-            </div>
-          )}
+          <div className="space-y-1 max-h-[50vh] overflow-y-auto custom-scrollbar">
+            {REPORT_REASONS.map((reason) => (
+              <button
+                key={reason}
+                onClick={() => setSelected(reason)}
+                className="w-full flex items-center justify-between py-4 border-b border-[#EBEBEB] last:border-0 group focus:outline-none"
+              >
+                <span className="text-[16px] text-[#222222]">{reason}</span>
+                {/* Radio button indicator */}
+                <div className={cn(
+                  "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors",
+                  selected === reason ? "border-[#222222]" : "border-[#DDDDDD] group-hover:border-[#717171]"
+                )}>
+                  {selected === reason && (
+                    <div className="w-3 h-3 bg-[#222222] rounded-full" />
+                  )}
+                </div>
+              </button>
+            ))}
+
+            {selected === "Other" && (
+              <div className="pt-4 pb-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <textarea
+                  placeholder="Please provide more details to help us understand..."
+                  value={details}
+                  onChange={(e) => setDetails(e.target.value)}
+                  className="w-full p-4 text-[16px] text-[#222222] bg-white border border-[#B0B0B0] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#222222] focus:border-transparent transition-shadow placeholder:text-[#717171] resize-none"
+                  rows={4}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
-        <DialogFooter className="border-t border-[#DDDDDD] pt-6 sm:justify-between flex-col-reverse sm:flex-row gap-3 sm:gap-0">
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="px-4 py-3 text-[15px] font-semibold text-[#222222] underline hover:bg-[#F7F7F7] rounded-lg transition-colors disabled:opacity-50"
-          >
-            Cancel
-          </button>
+        <DialogFooter className="p-6 border-t border-[#EBEBEB] bg-white">
           <button
             onClick={handleSubmit}
             disabled={!selected || isSubmitting}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] px-6 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px] flex items-center justify-center"
+            className="w-full bg-[#222222] hover:bg-black text-white font-semibold text-[16px] py-3.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
           >
             {isSubmitting ? "Submitting..." : "Submit report"}
           </button>
@@ -123,7 +131,7 @@ export const ReportModal = ({ propertyId, open, onClose }: ReportModalProps) => 
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
+          width: 8px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
@@ -131,9 +139,10 @@ export const ReportModal = ({ propertyId, open, onClose }: ReportModalProps) => 
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: #DDDDDD;
           border-radius: 10px;
+          border: 2px solid white;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #717171;
+          background: #B0B0B0;
         }
       `}</style>
     </Dialog>

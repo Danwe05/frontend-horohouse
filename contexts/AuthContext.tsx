@@ -7,6 +7,7 @@ import { User } from '@/types/user';
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (tokens: AuthTokens) => void;
@@ -15,6 +16,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -25,6 +27,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const [token, setToken] = useState<string | null>(() =>
+    typeof window !== "undefined" ? authService.getAccessToken() : null
+  );
 
   // Check for stored authentication on mount
   useEffect(() => {
@@ -55,6 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const refreshedTokens = await authService.refreshToken();
             if (refreshedTokens) {
               setUser(refreshedTokens.user as User);
+              setToken(refreshedTokens.accessToken);
             } else {
               await authService.logout();
             }
@@ -62,6 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             // Token is valid locally, set user without API verification
             console.log('✅ Token valid, setting user');
             setUser(storedUser);
+            setToken(authService.getAccessToken());
 
             // Optionally verify in background (non-blocking)
             authService.verifyToken().then(isValid => {
@@ -94,6 +101,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const refreshedTokens = await authService.refreshToken();
         if (refreshedTokens) {
           setUser(refreshedTokens.user as User);
+          setToken(refreshedTokens.accessToken);
         }
       } catch (error) {
         console.error('Token refresh error:', error);
@@ -107,6 +115,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = (tokens: AuthTokens) => {
     console.log('🔐 AuthContext.login called with user:', tokens.user);
     setUser(tokens.user as User);
+    setToken(tokens.accessToken);
   };
 
   const logout = async () => {
@@ -114,6 +123,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await authService.logout();
       setUser(null);
+      setToken(null);
       router.push('/auth/login');
     } catch (error) {
       console.error('Logout error:', error);
@@ -128,6 +138,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const refreshedTokens = await authService.refreshToken();
       if (refreshedTokens) {
         setUser(refreshedTokens.user as User);
+        setToken(refreshedTokens.accessToken);
         return;
       }
 
@@ -148,6 +159,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const value: AuthContextType = {
     user,
+    token,
     isAuthenticated: !!user,
     isLoading,
     login,

@@ -130,7 +130,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
     }
   };
 
-  const canAddProperty = user?.role === 'agent' || user?.role === 'landlord' || user?.role === 'admin';
+  const canAddProperty = user?.role === 'agent' || user?.role === 'host' || user?.role === 'landlord' || user?.role === 'admin';
 
   const handleAddProperty = (e: React.MouseEvent) => {
     e.preventDefault();

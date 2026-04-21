@@ -27,6 +27,7 @@ import {
 import { ReportModal } from "./ReportModal";
 import { buildPropertyPath, formatTimeAgo, isNew } from "@/lib/propertyutils";
 import { cn } from "@/lib/utils";
+import { div } from "framer-motion/client";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -103,7 +104,7 @@ export const PropertyCardSkeleton = () => (
 );
 
 // ---------------------------------------------------------------------------
-// Stop-propagation wrapper (unchanged)
+// Stop-propagation wrapper
 // ---------------------------------------------------------------------------
 
 const StopPropagationWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => {
@@ -156,16 +157,34 @@ const PropertyCard = ({
     return img.src || null;
   };
 
+  const transformCloudinaryUrl = (src: string, width: number): string => {
+    if (!src.includes('res.cloudinary.com')) return src;
+    return src.replace('/upload/', `/upload/w_${width},h_280,c_fill,q_auto,f_auto/`);
+  };
+
   const imageArray = (images && images.length > 0 ? images : [image])
     .map(getImageSrc)
-    .filter((src): src is string => src !== null && src.length > 0);
-
+    .filter((src): src is string => src !== null && src.length > 0)
+    .map((src) => transformCloudinaryUrl(src, 600)); // card thumbnails — 600px wide is plenty
+  
   const hasMultipleImages = imageArray.length > 1;
   const showNewBadge = isNew(timeAgo) && !tag;
   const displayTag = showNewBadge ? t.propertyCardExtras.new : tag;
   const formattedPrice = typeof price === "number" ? formatMoney(price) : price;
   const priceSuffix = getPriceSuffix(listingType, pricingUnit, t);
   const isShortTerm = listingType === "short_term";
+
+  // Calculate visible dots limit to 5 with a sliding window
+  const maxDots = 5;
+  let startDot = 0;
+  if (imageArray.length > maxDots) {
+    if (activeIndex >= 2 && activeIndex < imageArray.length - 2) {
+      startDot = activeIndex - 2;
+    } else if (activeIndex >= imageArray.length - 2) {
+      startDot = imageArray.length - maxDots;
+    }
+  }
+  const visibleDots = imageArray.slice(startDot, startDot + maxDots);
 
   const handleToggleFavorite = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
@@ -227,7 +246,7 @@ const PropertyCard = ({
           </div>
         )}
 
-      <Link href={buildPropertyPath(id, address, title)} className="block">
+        <Link href={buildPropertyPath(id, address, title)} className="block">
 
           {/* ── Image section ── */}
           <StopPropagationWrapper
@@ -250,10 +269,11 @@ const PropertyCard = ({
                   <CarouselItem key={index} className="pl-0">
                     <div className="relative overflow-hidden rounded-2xl">
                       <img
-                        src={imgSrc}
+                        src={index === 0 || imageHovered ? imgSrc : undefined}
+                        data-src={imgSrc}
                         alt={`${address} — photo ${index + 1}`}
-                        loading="lazy"
-                        className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                        loading={index === 0 ? "eager" : "lazy"}
+                        className="w-full h-56 object-cover transition-transform duration-500"
                       />
                     </div>
                   </CarouselItem>
@@ -268,21 +288,24 @@ const PropertyCard = ({
               )}
             </Carousel>
 
-            {/* Dot indicators */}
+            {/* Dot indicators (Limited to 5 max) */}
             {hasMultipleImages && (
               <div
-                className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10 transition-opacity"
                 onClick={(e) => e.preventDefault()}
               >
-                {imageArray.map((_, i) => (
-                  <span
-                    key={i}
-                    className={cn(
-                      "block rounded-full transition-all duration-200",
-                      i === activeIndex ? "w-2 h-2 bg-white" : "w-1.5 h-1.5 bg-white/60"
-                    )}
-                  />
-                ))}
+                {visibleDots.map((_, idx) => {
+                  const actualIndex = startDot + idx;
+                  return (
+                    <span
+                      key={actualIndex}
+                      className={cn(
+                        "block rounded-full transition-all duration-200",
+                        actualIndex === activeIndex ? "w-2 h-2 bg-white" : "w-1.5 h-1.5 bg-white/60"
+                      )}
+                    />
+                  );
+                })}
               </div>
             )}
 
@@ -310,25 +333,17 @@ const PropertyCard = ({
               )}
             </div>
 
-            {/* Heart + Share — top right */}
+            {/* Heart — top right */}
             <div
               className="absolute top-3 right-3 flex items-center gap-1.5 z-10"
               onClick={(e) => e.preventDefault()}
             >
-              {/* <button
-                onClick={handleShare}
-                aria-label={t.propertyCardExtras?.shareThisProperty || "Share"}
-                className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-transform opacity-0 group-hover:opacity-100"
-              >
-                <Share2 className="h-3.5 w-3.5 text-[#222222]" />
-              </button> */}
-
               <button
                 onClick={handleToggleFavorite}
                 disabled={isTogglingFavorite}
                 aria-label={localFavorite ? t.propertyCardExtras.unfavorite : t.propertyCardExtras.favorite}
                 aria-pressed={localFavorite}
-                className="w-8 h-8 flex items-center justify-center transition-transform hover:scale-110 disabled:opacity-50"
+                className="w-8 h-8 flex items-center justify-center transition-transform disabled:opacity-50"
               >
                 <Heart
                   className={cn(
@@ -377,11 +392,11 @@ const PropertyCard = ({
           {/* ── Text content — Airbnb layout ── */}
           <div className="px-0.5">
 
-            {/* Row 1: address + rating */}
+            {/* Row 1: title + rating */}
             <div className="flex items-start justify-between gap-2 mb-0.5">
-              <p className="text-[14px] capitalize font-semibold text-[#222222] truncate leading-snug flex-1">
-                {address}
-              </p>
+              <h3 className="text-[15px] capitalize font-semibold text-[#222222] truncate leading-snug flex-1">
+                {title ||  address}
+              </h3>
               {rating !== undefined ? (
                 <div className="flex items-center gap-0.5 shrink-0">
                   <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
@@ -394,6 +409,13 @@ const PropertyCard = ({
                 <span className="text-[13px] text-[#717171] shrink-0 italic">{t.propertyCardExtras.noReviews}</span>
               )}
             </div>
+
+            {/* Row 1.5: Address (only displays if title was prioritized above) */}
+            {title && (
+              <p className="text-[14px] text-[#717171] truncate mb-0.5">
+                 {address}
+              </p>
+            )}
 
             {/* Row 2: meta info — beds / baths / sqft / guests */}
             <div className="flex items-center gap-2 text-[14px] text-[#717171] mb-0.5">

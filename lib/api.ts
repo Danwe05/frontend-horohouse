@@ -29,38 +29,6 @@ class ApiClient {
       async (config: any) => {
         if (config.skipAuth) return config;
         if (typeof window !== 'undefined') {
-          if (authService.isTokenExpired()) {
-            if (!this.isRefreshing) {
-              this.isRefreshing = true;
-              try {
-                const refreshedTokens = await authService.refreshToken();
-                if (refreshedTokens) {
-                  this.isRefreshing = false;
-                  this.processQueue(null, refreshedTokens.accessToken);
-                  config.headers.Authorization = `Bearer ${refreshedTokens.accessToken}`;
-                  return config;
-                } else {
-                  this.isRefreshing = false;
-                  this.processQueue(new Error('Token refresh failed'), null);
-                  await authService.logout();
-                  if (typeof window !== 'undefined') window.location.href = '/auth/login';
-                  return Promise.reject(new Error('Token refresh failed'));
-                }
-              } catch (error) {
-                this.isRefreshing = false;
-                this.processQueue(error, null);
-                await authService.logout();
-                if (typeof window !== 'undefined') window.location.href = '/auth/login';
-                return Promise.reject(error);
-              }
-            }
-            return new Promise((resolve, reject) => {
-              this.failedQueue.push({
-                resolve: (token: string) => { config.headers.Authorization = `Bearer ${token}`; resolve(config); },
-                reject: (err: any) => reject(err),
-              });
-            });
-          }
           const token = authService.getAccessToken();
           if (token) config.headers.Authorization = `Bearer ${token}`;
         }
@@ -146,8 +114,10 @@ class ApiClient {
   async getFeaturedProperties(limit = 10) { return (await this.client.get(`/properties/featured?limit=${limit}`, { skipAuth: true } as any)).data; }
   async getRecentProperties(limit = 10) { return (await this.client.get(`/properties/recent?limit=${limit}`, { skipAuth: true } as any)).data; }
   async getMostViewedProperties(limit = 10) { return (await this.client.get(`/properties/most-viewed?limit=${limit}`, { skipAuth: true } as any)).data; }
-  async getSimilarProperties(propertyId: string, city?: string, type?: string) { return (await this.client.get(`/properties/${propertyId}/similar`, { params: { limit: 6 }, skipAuth: true } as any)).data; }
-  async getMyFavoriteProperties(params?: any) { return (await this.client.get('/properties/my/favorites', { params })).data; }
+  async getSimilarProperties(propertyId: string) {
+  return (await this.client.get(`/properties/${propertyId}/similar`,
+    { params: { limit: 6 }, skipAuth: true } as any)).data;
+}async getMyFavoriteProperties(params?: any) { return (await this.client.get('/properties/my/favorites', { params })).data; }
   async uploadPropertyImages(propertyId: string, files: File[], onUploadProgress?: (e: any) => void) {
     const formData = new FormData(); files.forEach(f => formData.append('file', f));
     return (await this.client.post(`/properties/${propertyId}/images`, formData, { headers: { 'Content-Type': 'multipart/form-data' }, onUploadProgress })).data;
@@ -803,8 +773,8 @@ class ApiClient {
 
   /** Live dashboard stats for a host synthesized from live bookings and properties data. */
   async getHostStats(_userId?: string) {
-  return (await this.client.get('/bookings/host-stats')).data;
-}
+    return (await this.client.get('/bookings/host-stats')).data;
+  }
 
   /**
    * PATCH host profile fields (HOST or ADMIN only).

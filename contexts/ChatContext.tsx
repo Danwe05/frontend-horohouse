@@ -1,4 +1,3 @@
-// contexts/ChatContext.tsx - FIXED VERSION
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
@@ -202,10 +201,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, token, api
 
     // Load conversations IMMEDIATELY on mount
     useEffect(() => {
-        console.log('🚀 ChatProvider mounted - loading conversations immediately');
+        if (!token) return;
         loadConversations();
-    }, [loadConversations]);
-
+    }, [token, loadConversations]);
     // Initialize socket connection
     useEffect(() => {
         if (!token) {

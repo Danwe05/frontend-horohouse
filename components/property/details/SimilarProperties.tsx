@@ -65,7 +65,7 @@ const SimilarProperties = ({
       setLoading(true);
       setError("");
       try {
-        const response = await apiClient.getSimilarProperties(propertyId, city, type);
+        const response = await apiClient.getSimilarProperties(propertyId);
         if (!cancelled) {
           setProperties(response.data ?? response ?? []);
         }
@@ -136,7 +136,8 @@ const SimilarProperties = ({
 
       <Carousel 
         opts={{ align: "start", loop: false }} 
-        className="w-full group"
+        // 1. CHANGED `group` TO `group/carousel` HERE
+        className="w-full group/carousel"
       >
         <CarouselContent className="-ml-4">
           {properties.map((property, index) => {
@@ -170,12 +171,12 @@ const SimilarProperties = ({
           })}
         </CarouselContent>
 
-        {/* Circular floating arrows */}
+        {/* 2. CHANGED `group-hover:opacity-100` TO `group-hover/carousel:opacity-100` ON BOTH ARROWS */}
         <CarouselPrevious 
-            className="hidden md:flex -left-4 h-8 w-8 bg-white border border-[#DDDDDD] text-[#222222] hover:bg-white hover:scale-105 shadow-md opacity-0 group-hover:opacity-100 transition-all" 
+            className="hidden md:flex -left-4 h-8 w-8 bg-white border border-[#DDDDDD] text-[#222222] hover:bg-white hover:scale-105 shadow-md opacity-0 group-hover/carousel:opacity-100 transition-all" 
         />
         <CarouselNext 
-            className="hidden md:flex -right-4 h-8 w-8 bg-white border border-[#DDDDDD] text-[#222222] hover:bg-white hover:scale-105 shadow-md opacity-0 group-hover:opacity-100 transition-all" 
+            className="hidden md:flex -right-4 h-8 w-8 bg-white border border-[#DDDDDD] text-[#222222] hover:bg-white hover:scale-105 shadow-md opacity-0 group-hover/carousel:opacity-100 transition-all" 
         />
       </Carousel>
     </section>

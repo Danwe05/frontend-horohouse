@@ -22,14 +22,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://horohouse.com";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.horohouse.com";
 
 const TITLE = "HoroHouse — Find Your Perfect Home in Africa";
 const DESCRIPTION =
   "HoroHouse is Africa's leading real estate platform — starting in Cameroon and expanding across the continent. Browse thousands of verified homes, apartments, land, and student housing to buy or rent. Get AI-powered recommendations, connect directly with trusted agents, and find your perfect place from Douala to Lagos, Nairobi to Johannesburg.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(APP_URL),
+  metadataBase: new URL("https://www.horohouse.com"),
 
   title: {
     default: TITLE,
@@ -110,7 +110,7 @@ export const metadata: Metadata = {
   publisher: "HoroHouse",
 
   alternates: {
-    canonical: "/",
+    canonical: "https://www.horohouse.com",
     languages: {
       en: "/en",
       fr: "/fr",
