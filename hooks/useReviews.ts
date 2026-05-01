@@ -143,3 +143,80 @@ export function usePropertyReviews(propertyId: string, page: number = 1, limit: 
     refetch: fetchReviews,
   };
 }
+
+export function useInsightReviews(insightId: string, page: number = 1, limit: number = 10) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchReviews = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await apiClient.getInsightReviews(insightId, { page, limit, sortBy: 'createdAt', sortOrder: 'desc' });
+      setReviews(res.reviews || []);
+      setTotalPages(res.totalPages || 1);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to load comments');
+      console.error('Failed to fetch comments:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (insightId) {
+      fetchReviews();
+    }
+  }, [insightId, page, limit]);
+
+  const createReview = async (data: {
+    rating: number; // pass 5 by default if rating is not collected for articles
+    comment: string;
+  }) => {
+    try {
+      await apiClient.createReview({
+        reviewType: 'insight' as any,
+        insightId,
+        ...data,
+      });
+
+      toast.success('Success', {
+        description: 'Your comment has been submitted!',
+      });
+
+      await fetchReviews();
+      return true;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Failed to submit comment';
+      toast.error('Error', {
+        description: errorMessage,
+      });
+      return false;
+    }
+  };
+
+  const deleteReview = async (reviewId: string) => {
+    try {
+      await apiClient.deleteReview(reviewId);
+      toast.success('Success', { description: 'Comment deleted' });
+      await fetchReviews();
+      return true;
+    } catch (err: any) {
+      toast.error('Error', { description: err.response?.data?.message || 'Failed to delete comment' });
+      return false;
+    }
+  };
+
+  return {
+    reviews,
+    loading,
+    error,
+    totalPages,
+    createReview,
+    deleteReview,
+    refetch: fetchReviews,
+  };
+}

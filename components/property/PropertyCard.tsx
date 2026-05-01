@@ -146,7 +146,6 @@ const PropertyCard = ({
   const { isAuthenticated } = useAuth();
   const [reportOpen, setReportOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [imageHovered, setImageHovered] = useState(false);
 
   useEffect(() => {
     if (isLoaded && initialIsFavorite === undefined) setLocalFavorite(isFavorite(id));
@@ -166,7 +165,7 @@ const PropertyCard = ({
     .map(getImageSrc)
     .filter((src): src is string => src !== null && src.length > 0)
     .map((src) => transformCloudinaryUrl(src, 600)); // card thumbnails — 600px wide is plenty
-  
+
   const hasMultipleImages = imageArray.length > 1;
   const showNewBadge = isNew(timeAgo) && !tag;
   const displayTag = showNewBadge ? t.propertyCardExtras.new : tag;
@@ -251,9 +250,6 @@ const PropertyCard = ({
           {/* ── Image section ── */}
           <StopPropagationWrapper
             className="relative overflow-hidden rounded-2xl mb-3"
-            // @ts-ignore — native event on div
-            onMouseEnter={() => setImageHovered(true)}
-            onMouseLeave={() => setImageHovered(false)}
           >
             <Carousel
               className="w-full"
@@ -269,8 +265,7 @@ const PropertyCard = ({
                   <CarouselItem key={index} className="pl-0">
                     <div className="relative overflow-hidden rounded-2xl">
                       <img
-                        src={index === 0 || imageHovered ? imgSrc : undefined}
-                        data-src={imgSrc}
+                        src={imgSrc}
                         alt={`${address} — photo ${index + 1}`}
                         loading={index === 0 ? "eager" : "lazy"}
                         className="w-full h-56 object-cover transition-transform duration-500"
@@ -315,9 +310,10 @@ const PropertyCard = ({
             >
               {listingType && (
                 <span className={cn(
-                  "inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide text-fwhite",
-                  isShortTerm ? "bg-white" : listingType === "rent" ? "bg-white" : "bg-white"
-                )}>
+                  "inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide text-fwhite",  // ← "text-fwhite" is not a valid Tailwind class!
+                  isShortTerm ? "bg-white" : listingType === "rent" ? "bg-white" : "bg-white"  // ← all bg-white with white text = invisible
+                )}
+                >
                   {getListingLabel(listingType, t)}
                 </span>
               )}
@@ -395,7 +391,7 @@ const PropertyCard = ({
             {/* Row 1: title + rating */}
             <div className="flex items-start justify-between gap-2 mb-0.5">
               <h3 className="text-[15px] capitalize font-semibold text-[#222222] truncate leading-snug flex-1">
-                {title ||  address}
+                {title || address}
               </h3>
               {rating !== undefined ? (
                 <div className="flex items-center gap-0.5 shrink-0">
@@ -413,7 +409,7 @@ const PropertyCard = ({
             {/* Row 1.5: Address (only displays if title was prioritized above) */}
             {title && (
               <p className="text-[14px] text-[#717171] truncate mb-0.5">
-                 {address}
+                {address}
               </p>
             )}
 

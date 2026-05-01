@@ -243,11 +243,11 @@ export default function BookingForm({ property }: Props) {
     (date: Date) =>
       isDateBlocked(
         date,
-        isMultiRoom && selectedRoomId ? roomUnavailableDates : property.unavailableDates,
+        roomUnavailableDates.length > 0 ? roomUnavailableDates : (property.unavailableDates ?? []),
         property.advanceNoticeDays,
         property.bookingWindowDays,
       ),
-    [isMultiRoom, selectedRoomId, roomUnavailableDates, property],
+    [roomUnavailableDates, property],
   );
 
   const handleBook = useCallback(async () => {

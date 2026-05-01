@@ -100,7 +100,7 @@ export default function Footer() {
         { text: _t.footer?.sections?.company?.about || "About", href: "/about" },
         { text: _t.footer?.sections?.company?.properties || "Properties", href: "/properties" },
         { text: _t.footer?.sections?.company?.community || "Community", href: "/community" },
-        { text: _t.footer?.sections?.company?.blog || "Blog", href: "/blog" },
+        { text: _t.footer?.sections?.company?.blog || "Insights", href: "/insights" },
         { text: _t.footer?.sections?.company?.support || "Customer support", href: "/support" },
         { text: _t.footer?.sections?.company?.terms || "Terms and conditions", href: "/terms" },
         { text: _t.footer?.sections?.company?.privacy || "Privacy policy", href: "/privacy" },

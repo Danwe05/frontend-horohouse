@@ -505,6 +505,20 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                   </div>
                 )}
 
+                {/* Add Property CTA — mobile only, for eligible roles */}
+                {canAddProperty && (
+                  <button
+                    onClick={() => { handleAddProperty({ preventDefault: () => {} } as any); setIsMobileMenuOpen(false); }}
+                    className="relative w-full flex items-center justify-center gap-2 py-3.5 mb-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-[16px] transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                    {t.nav.addProperty || 'List your property'}
+                    <span className="absolute top-0 right-3 -translate-y-1/2 bg-[#008A05] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                      {_t.navbar?.free || 'FREE'}
+                    </span>
+                  </button>
+                )}
+
                 {/* Navigation Links */}
                 <div className="flex flex-col gap-1 border-b border-[#DDDDDD] pb-6 mb-6">
                   {navLinks.map((link) => (

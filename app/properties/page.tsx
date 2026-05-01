@@ -749,6 +749,17 @@ const IndexContent = () => {
             </div>
           )}
 
+          {/* Results count */}
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[14px] font-semibold text-[#222222]">
+              {loading
+                ? (t.propertiesPage?.loading || "Loading…")
+                : clusterFilterIds
+                  ? `${displayedProperties.length} ${t.propertiesPage?.listings || "properties"} in this area`
+                  : `${total.toLocaleString()} ${t.propertiesPage?.listings || "properties"} found`}
+            </p>
+          </div>
+
           {/* Property grid */}
           <div className={`grid gap-5 ${gridLayout === "list"
             ? "grid-cols-1"

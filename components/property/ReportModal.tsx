@@ -64,7 +64,7 @@ export const ReportModal = ({ propertyId, open, onClose }: ReportModalProps) => 
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[480px] p-0 rounded-[16px] border-[#DDDDDD] bg-white gap-0 overflow-hidden font-sans antialiased shadow-xl [&>button]:hidden">
+      <DialogContent className="sm:max-w-[480px] p-0 rounded-2xl border-[#DDDDDD] bg-white gap-0 overflow-hidden font-sans antialiased shadow-xl [&>button]:hidden">
         {/* Airbnb-style Header: Close left, Title center */}
         <DialogHeader className="relative flex flex-row items-center justify-center p-6 border-b border-[#EBEBEB]">
           <button 
@@ -95,10 +95,10 @@ export const ReportModal = ({ propertyId, open, onClose }: ReportModalProps) => 
                 {/* Radio button indicator */}
                 <div className={cn(
                   "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors",
-                  selected === reason ? "border-[#222222]" : "border-[#DDDDDD] group-hover:border-[#717171]"
+                  selected === reason ? "border-blue-600" : "border-[#DDDDDD] group-hover:border-[#717171]"
                 )}>
                   {selected === reason && (
-                    <div className="w-3 h-3 bg-[#222222] rounded-full" />
+                    <div className="w-3 h-3 bg-blue-600 rounded-full" />
                   )}
                 </div>
               </button>
@@ -122,7 +122,7 @@ export const ReportModal = ({ propertyId, open, onClose }: ReportModalProps) => 
           <button
             onClick={handleSubmit}
             disabled={!selected || isSubmitting}
-            className="w-full bg-[#222222] hover:bg-black text-white font-semibold text-[16px] py-3.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[16px] py-3.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
           >
             {isSubmitting ? "Submitting..." : "Submit report"}
           </button>

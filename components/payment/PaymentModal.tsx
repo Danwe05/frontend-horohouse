@@ -57,6 +57,10 @@ export function PaymentModal({
   savedPhone,
   savedProvider,
 }: PaymentModalProps) {
+  // Guard against missing/invalid currency codes (Intl throws if currency is empty)
+  const safeCurrency: string = currency && String(currency).trim().length === 3 ? String(currency) : 'XAF';
+  const formatAmount = (value: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: safeCurrency }).format(value);
   const savedPaymentMethod: PaymentMethod | null = savedProvider === 'MTN'
     ? PaymentMethod.MTN_MOMO
     : savedProvider === 'ORANGE'
@@ -183,31 +187,31 @@ export function PaymentModal({
                 <>
                   <div className="flex justify-between text-[16px] text-[#222222]">
                     <span>Subtotal</span>
-                    <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(breakdown.subtotal)}</span>
+                    <span>{formatAmount(breakdown.subtotal)}</span>
                   </div>
                   {breakdown.tax !== undefined && (
                     <div className="flex justify-between text-[16px] text-[#222222]">
                       <span className="underline decoration-1 underline-offset-2 hover:text-[#717171] cursor-pointer transition-colors">Taxes</span>
-                      <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(breakdown.tax)}</span>
+                      <span>{formatAmount(breakdown.tax)}</span>
                     </div>
                   )}
                   {breakdown.fees !== undefined && (
                     <div className="flex justify-between text-[16px] text-[#222222]">
                       <span className="underline decoration-1 underline-offset-2 hover:text-[#717171] cursor-pointer transition-colors">Service fee</span>
-                      <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(breakdown.fees)}</span>
+                      <span>{formatAmount(breakdown.fees)}</span>
                     </div>
                   )}
                 </>
               ) : (
                 <div className="flex justify-between text-[16px] text-[#222222]">
                   <span>Total payment</span>
-                  <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount)}</span>
+                  <span>{formatAmount(amount)}</span>
                 </div>
               )}
             </div>
             <div className="flex justify-between pt-6 text-[16px] font-bold text-[#222222]">
-              <span>Total ({currency})</span>
-              <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount)}</span>
+              <span>Total ({safeCurrency})</span>
+              <span>{formatAmount(amount)}</span>
             </div>
           </section>
 

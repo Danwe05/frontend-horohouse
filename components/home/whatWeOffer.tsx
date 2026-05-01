@@ -168,8 +168,8 @@ export default function WhatWeOffer() {
                       tabIndex={0}
                       // Fixed height: slightly shorter on mobile
                       className={`w-full h-[240px] sm:h-[270px] md:h-[300px] cursor-pointer transition-all duration-500 rounded-[1.5rem] md:rounded-[2.5rem] relative overflow-hidden group ${isActive
-                          ? "shadow-2xl scale-[1.02] md:scale-105"
-                          : "shadow-md hover:shadow-xl"
+                        ? "shadow-2xl scale-[1.02] md:scale-105"
+                        : "shadow-md hover:shadow-xl"
                         }`}
                     >
                       {/* Background image */}
@@ -233,8 +233,8 @@ export default function WhatWeOffer() {
                 aria-selected={i === activeIndex}
                 aria-label={`Go to slide ${i + 1}`}
                 className={`transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${i === activeIndex
-                    ? "w-7 sm:w-8 h-2 bg-blue-600"
-                    : "w-2 h-2 bg-blue-200 hover:bg-blue-400"
+                  ? "w-7 sm:w-8 h-2 bg-blue-600"
+                  : "w-2 h-2 bg-blue-200 hover:bg-blue-400"
                   }`}
               />
             ))}

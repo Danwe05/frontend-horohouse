@@ -293,6 +293,7 @@ class ApiClient {
   // ─── Reviews ──────────────────────────────────────────────────────────────
   async createReview(data: any) { return (await this.client.post('/reviews', data)).data; }
   async getPropertyReviews(propertyId: string, params?: any) { return (await this.client.get(`/reviews/property/${propertyId}`, { params, skipAuth: true } as any)).data; }
+  async getInsightReviews(insightId: string, params?: any) { return (await this.client.get(`/reviews/insight/${insightId}`, { params, skipAuth: true } as any)).data; }
   async getPropertyReviewStats(propertyId: string) { return (await this.client.get(`/reviews/property/${propertyId}/stats`, { skipAuth: true } as any)).data; }
   async getAgentReviewsAPI(agentId: string, params?: any) { return (await this.client.get(`/reviews/agent/${agentId}`, { params, skipAuth: true } as any)).data; }
   async getAgentReviewStatsAPI(agentId: string) { return (await this.client.get(`/reviews/agent/${agentId}/stats`, { skipAuth: true } as any)).data; }

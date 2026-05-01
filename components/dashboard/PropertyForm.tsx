@@ -1391,7 +1391,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
           <div className="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-5">
             <CheckCircle2 className="w-7 h-7 text-white" />
           </div>
-          <DialogTitle className="text-xl font-semibold text-white mb-2">
+          <DialogTitle className="text-xl font-semibold mb-2">
             {isEditMode ? 'Listing updated!' : 'You are live!'}
           </DialogTitle>
           <DialogDescription className="text-sm text-[#717171] mb-6">

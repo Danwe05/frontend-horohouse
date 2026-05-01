@@ -11,6 +11,8 @@ import StudentSection from './StudentSection';
 import LocationBasedProperties from './LocationBasedProperties';
 import RecentlyViewedProperties from './recentlyViewedProperties';
 import PropertyTypeCards from './propertyTypeCards';
+import WhyHoroHouse from './whyHoroHouse';
+import InsightsSection from './insightsSection';
 export default function HomePage() {
   return (
     <>
@@ -19,11 +21,12 @@ export default function HomePage() {
       <RecentlyViewedProperties />
       <TopShortTerm />
       <TopListing />
+      {/* <WhyHoroHouse /> */}
       {/* <LuxuriousHaven /> */}
       <WhatWeOffer />
-      <PropertyTypeCards />
       {/* <StudentSection /> */}
       {/* <AboutUs /> */}
+      <InsightsSection />
       <OurParteners />
       <CustomersSay />
       

@@ -470,12 +470,12 @@ const PropertyPage = () => {
                               </div>
 
                               {/* Beds / Baths */}
-                              <div className="flex flex-col gap-1 text-[13px] text-[#717171] font-medium">
+                              <div className="flex flex-row gap-3 text-[13px] text-[#717171] font-medium">
                                 <span className="flex items-center gap-1.5">
-                                  <Bed className="w-3.5 h-3.5 stroke-[2]" />{transformed.beds}
+                                  <Bed className="w-3.5 h-3.5 stroke-2" />{transformed.beds}
                                 </span>
                                 <span className="flex items-center gap-1.5">
-                                  <Bath className="w-3.5 h-3.5 stroke-[2]" />{transformed.baths}
+                                  <Bath className="w-3.5 h-3.5 stroke-2" />{transformed.baths}
                                 </span>
                               </div>
 

@@ -163,7 +163,7 @@ const buildGroups = (labels: {
       roles: ["host"],
       accentVariant: "emerald",
       items: [
-        { icon: Wallet,         label: it.wallet           || "Wallet",           path: "/dashboard/wallet",        badge: null, activeKey: "wallet" },
+        { icon: BadgeDollarSign, label: it.billing          || "Billing",          path: "/dashboard/billing",       badge: null, activeKey: "billing" },
         { icon: ReceiptText,    label: it.earningsOverview || "Earnings",         path: "/dashboard/earnings",      badge: null, activeKey: "earnings" },
         { icon: Star,           label: it.subscriptions    || "Subscription",     path: "/dashboard/subscriptions", badge: null, activeKey: "subscriptions" },
       ],
@@ -333,6 +333,43 @@ const buildGroups = (labels: {
         { icon: AlertTriangle, label: it.reviewReports     || "Review Reports",      path: "/dashboard/admin/reports",   badge: (b.admin || "Admin") as BadgeVariant, activeKey: "admin-reports" },
       ],
     },
+
+    {
+  label: g.insightsCMS || "Insights CMS",
+  icon: Newspaper,
+  roles: ["admin"],
+  accentVariant: "blue",
+  items: [
+    {
+      icon: BookOpen,
+      label: it.allArticles  || "All Articles",
+      path:  "/dashboard/insights",
+      badge: null,
+      activeKey: "insights",
+    },
+    {
+      icon: FileText,
+      label: it.newArticle   || "New Article",
+      path:  "/dashboard/insights/new",
+      badge: null,
+      activeKey: "insights-new",
+    },
+    {
+      icon: Users2,
+      label: it.insightAuthors || "Authors",
+      path:  "/dashboard/insights/authors",
+      badge: null,
+      activeKey: "insights-authors",
+    },
+    {
+      icon: BarChart3,
+      label: it.insightCategories || "Categories",
+      path:  "/dashboard/insights/categories",
+      badge: null,
+      activeKey: "insights-categories",
+    },
+  ],
+},
 
     {
       label: g.userManagement || "User Management",
@@ -562,6 +599,7 @@ export const AppSidebar = () => {
       { icon: UserCog,       label: qa.manageUsers   || "Manage Users",   action: () => router.push("/dashboard/admin/users") },
       { icon: Activity,      label: qa.systemHealth  || "System Health",  action: () => router.push("/dashboard/admin/health") },
       { icon: AlertTriangle, label: qa.reviewReports || "Review Reports", action: () => router.push("/dashboard/admin/reports") },
+    { icon: Newspaper, label: qa.insights || "Insights CMS", action: () => router.push("/dashboard/insights") },
     ];
     if (isAgent)    return [
       { icon: Plus,          label: qa.addProperty   || "Add Property",   action: () => router.push("/dashboard/propertyForm") },
@@ -573,12 +611,12 @@ export const AppSidebar = () => {
       { icon: Plus,          label: qa.addProperty    || "Add Property",    action: () => router.push("/dashboard/propertyForm") },
       { icon: KeyRound,      label: qa.manageTenants  || "Manage Tenants",  action: () => router.push("/dashboard/tenants") },
       { icon: Calendar,      label: qa.hostBookings   || "Host Bookings",   action: () => router.push("/dashboard/host/bookings") },
-      { icon: Wallet,        label: qa.finances       || "Finances",        action: () => router.push("/dashboard/earnings") },
+      { icon: BadgeDollarSign, label: qa.billing       || "Billing",         action: () => router.push("/dashboard/billing") },
     ];
     if (isHost) return [
       { icon: Plus,          label: qa.addListing     || "Add Listing",     action: () => router.push("/dashboard/propertyForm") },
       { icon: Calendar,      label: qa.hostBookings   || "Host Bookings",   action: () => router.push("/dashboard/host/bookings") },
-      { icon: Wallet,        label: qa.earnings       || "Earnings",        action: () => router.push("/dashboard/earnings") },
+      { icon: BadgeDollarSign, label: qa.billing       || "Billing",         action: () => router.push("/dashboard/billing") },
       { icon: BarChart3,     label: qa.viewAnalytics  || "View Analytics",  action: () => router.push("/dashboard/analytics") },
     ];
     if (isStudent)  return [

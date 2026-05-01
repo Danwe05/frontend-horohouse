@@ -1,7 +1,8 @@
-import { Metadata, ResolvingMetadata } from 'next';
-import PropertyDetailClient from './PropertyDetailClient';
+import { Metadata, ResolvingMetadata } from "next";
+import PropertyDetailClient from "./PropertyDetailClient";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
 type Params = { params: Promise<{ slug: string[] }> };
 
@@ -21,29 +22,43 @@ export async function generateMetadata(
   const id = slug.at(-1)!;
   const property = await fetchProperty(id);
 
-  if (!property?.title) return { title: 'Property Not Found | HoroHouse' };
+  if (!property?.title) return { title: "Property Not Found | HoroHouse" };
 
   const ogImage = property.images?.[0]?.url;
-  const ogImageEntry = ogImage?.startsWith('http')
-    ? [{ url: ogImage, width: 1200, height: 630 }]
-    : [];
+  const ogImageEntry =
+    ogImage?.startsWith("http")
+      ? [{ url: ogImage, width: 1200, height: 630 }]
+      : [];
 
   const description = property.description?.substring(0, 160);
 
+  const city = property.city ? ` à ${property.city}` : "";
+  const price = property.price
+    ? ` — ${property.price.toLocaleString("fr-CM")} XAF`
+    : "";
+  const beds = property.amenities?.bedrooms
+    ? ` — ${property.amenities.bedrooms} ch.`
+    : "";
+
   return {
     title: `${property.title} | HoroHouse`,
-    description,
+    description:
+      description ||
+      `${property.title}${city}${price}${beds}. Annonce vérifiée sur HoroHouse.`,
     openGraph: {
       title: property.title,
       description,
       images: ogImageEntry,
-      type: 'website',
+      type: "website",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: property.title,
       description,
       images: ogImage ? [ogImage] : [],
+    },
+    alternates: {
+      canonical: `https://www.horohouse.com/properties/${id}`,
     },
   };
 }
@@ -51,6 +66,5 @@ export async function generateMetadata(
 export default async function PropertyPage({ params }: Params) {
   const { slug } = await params;
   const id = slug.at(-1)!;
-
   return <PropertyDetailClient id={id} />;
 }
