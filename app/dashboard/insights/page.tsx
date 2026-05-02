@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -47,8 +47,6 @@ import type { InsightPost } from "@/types/insights";
 type PostStatus = "draft" | "review" | "scheduled" | "published" | "archived";
 type PostType   = "article" | "neighborhood_guide" | "market_report" | "fraud_alert" | "ai_insight";
 
-// Narrow InsightPost to the fields this page actually uses so we stay
-// compatible with the shared type without duplicating the full interface.
 type Post = InsightPost;
 
 interface Meta {
@@ -152,15 +150,12 @@ function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () 
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// ─── CMS Content (uses useSearchParams — must be inside Suspense) ─────────────
 
-export default function InsightsCMSPage() {
+function InsightsCMSContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
 
-  // token from context — used only as a dependency trigger so fetches
-  // re-run once auth is ready. Actual header injection happens inside
-  // insightsAdminApi via authService.getAccessToken().
   const { user, token } = useAuth();
   const isAdmin = user?.role === "admin";
 
@@ -181,12 +176,9 @@ export default function InsightsCMSPage() {
 
   // ── Fetch Posts ────────────────────────────────────────────────────────────
   const fetchPosts = useCallback(async (silent = false) => {
-    // Don't attempt if auth isn't ready yet — avoids 401 on first render
     if (!token) return;
-
     if (!silent) setIsLoading(true);
     else         setIsRefreshing(true);
-
     try {
       const result = await insightsAdminApi.getPosts({
         ...(status   !== "all" && { status }),
@@ -218,11 +210,10 @@ export default function InsightsCMSPage() {
     }
   }, [token]);
 
-  // Re-fetch whenever filters, page, or token changes
   useEffect(() => {
     fetchPosts();
     fetchStats();
-  }, [fetchPosts]); // fetchStats shares the same token dep; runs together
+  }, [fetchPosts]);
 
   // ── Actions ────────────────────────────────────────────────────────────────
   const handlePublish = async (id: string) => {
@@ -270,14 +261,8 @@ export default function InsightsCMSPage() {
 
   const hasFilters = search !== "" || status !== "all" || postType !== "all";
 
-  // ─────────────────────────────────────────────────────────────────────────
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <SidebarInset>
-          <NavDash />
-          <div className="flex-1 min-h-screen bg-[#F7F7F7]">
+    <div className="flex-1 min-h-screen bg-[#F7F7F7]">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* ── Page Header ──────────────────────────────────────────────────── */}
@@ -321,7 +306,6 @@ export default function InsightsCMSPage() {
 
         {/* ── Filters Bar ──────────────────────────────────────────────────── */}
         <div className="bg-white border border-[#EBEBEB] rounded-2xl p-4 mb-4 flex flex-col sm:flex-row gap-3">
-          {/* Search */}
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#BBBBBB]" />
             <input
@@ -336,8 +320,6 @@ export default function InsightsCMSPage() {
               </button>
             )}
           </div>
-
-          {/* Status filter */}
           <Select value={status} onValueChange={(v) => { setStatus(v); setPage(1); }}>
             <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-xl border-[#EBEBEB] bg-[#F7F7F7] text-[14px] font-medium text-[#222222] focus:ring-0 focus:border-blue-600">
               <SelectValue placeholder="All statuses" />
@@ -349,8 +331,6 @@ export default function InsightsCMSPage() {
               ))}
             </SelectContent>
           </Select>
-
-          {/* Type filter */}
           <Select value={postType} onValueChange={(v) => { setPostType(v); setPage(1); }}>
             <SelectTrigger className="w-full sm:w-[180px] h-10 rounded-xl border-[#EBEBEB] bg-[#F7F7F7] text-[14px] font-medium text-[#222222] focus:ring-0 focus:border-blue-600">
               <SelectValue placeholder="All types" />
@@ -362,8 +342,6 @@ export default function InsightsCMSPage() {
               ))}
             </SelectContent>
           </Select>
-
-          {/* Sort */}
           <Select value={sortBy} onValueChange={(v) => { setSortBy(v); setPage(1); }}>
             <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-xl border-[#EBEBEB] bg-[#F7F7F7] text-[14px] font-medium text-[#222222] focus:ring-0 focus:border-blue-600">
               <SelectValue />
@@ -375,7 +353,6 @@ export default function InsightsCMSPage() {
               <SelectItem value="updatedAt">Recently updated</SelectItem>
             </SelectContent>
           </Select>
-
           {hasFilters && (
             <button onClick={clearFilters} className="flex items-center gap-1.5 text-[13px] font-semibold text-[#717171] hover:text-[#222222] transition-colors whitespace-nowrap px-2">
               <X className="w-3.5 h-3.5" /> Clear
@@ -412,7 +389,6 @@ export default function InsightsCMSPage() {
             <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
           ) : (
             <>
-              {/* Table header */}
               <div className="hidden lg:grid grid-cols-[1fr_160px_120px_100px_80px_48px] gap-4 px-6 py-3 border-b border-[#F7F7F7] bg-[#FAFAFA]">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#BBBBBB]">Article</span>
                 <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#BBBBBB]">Status</span>
@@ -421,8 +397,6 @@ export default function InsightsCMSPage() {
                 <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#BBBBBB]">Flags</span>
                 <span />
               </div>
-
-              {/* Rows */}
               <div className="divide-y divide-[#F7F7F7]">
                 {posts.map((post) => (
                   <PostRow
@@ -496,7 +470,7 @@ export default function InsightsCMSPage() {
               <span className="font-semibold text-[#222222]">"{deleteTarget?.title}"</span> will be permanently deleted.
               {deleteTarget?.status === "published" && (
                 <span className="block mt-2 text-amber-600 font-medium">
-                  ⚠️ This article is published — deleting it will decrement category and tag counts.
+                  This article is published — deleting it will decrement category and tag counts.
                 </span>
               )}
             </AlertDialogDescription>
@@ -514,7 +488,28 @@ export default function InsightsCMSPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-          </div>
+    </div>
+  );
+}
+
+// ─── Page Shell (Suspense boundary wraps useSearchParams) ─────────────────────
+
+export default function InsightsCMSPage() {
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <SidebarInset>
+          <NavDash />
+          <Suspense
+            fallback={
+              <div className="flex-1 min-h-screen bg-[#F7F7F7] flex items-center justify-center">
+                <RefreshCw className="w-6 h-6 text-[#BBBBBB] animate-spin" />
+              </div>
+            }
+          >
+            <InsightsCMSContent />
+          </Suspense>
         </SidebarInset>
       </div>
     </SidebarProvider>
@@ -552,8 +547,6 @@ function PostRow({
   return (
     <div className="px-4 sm:px-6 py-4 hover:bg-[#FAFAFA] transition-colors group">
       <div className="flex items-center gap-4">
-
-        {/* Cover thumbnail */}
         <div className="w-14 h-14 rounded-xl bg-[#F7F7F7] shrink-0 overflow-hidden border border-[#EBEBEB]">
           {post.coverImage?.url ? (
             <img src={post.coverImage.url} alt="" className="w-full h-full object-cover" />
@@ -563,8 +556,6 @@ function PostRow({
             </div>
           )}
         </div>
-
-        {/* Main content */}
         <div className="flex-1 min-w-0">
           <p className="text-[15px] font-semibold text-[#222222] truncate leading-snug">
             {post.title}
@@ -578,33 +569,24 @@ function PostRow({
             <span className="text-[#DDDDDD]">·</span>
             <span className="text-[12px] text-[#BBBBBB]">{post.readingTimeMinutes} min read</span>
           </div>
-          {/* Mobile-only status + date */}
           <div className="flex items-center gap-2 mt-2 lg:hidden">
             <StatusBadge status={post.status as PostStatus} />
             <span className="text-[12px] text-[#BBBBBB]">{dateLabel} {displayDate}</span>
           </div>
         </div>
-
-        {/* Status — desktop */}
         <div className="hidden lg:block w-[160px] shrink-0">
           <StatusBadge status={post.status as PostStatus} />
         </div>
-
-        {/* Date — desktop */}
         <div className="hidden lg:block w-[120px] shrink-0">
           <p className="text-[13px] text-[#717171]">{displayDate}</p>
           <p className="text-[11px] text-[#BBBBBB] mt-0.5">{dateLabel}</p>
         </div>
-
-        {/* Views — desktop */}
         <div className="hidden lg:block w-[100px] shrink-0">
           <div className="flex items-center gap-1.5">
             <Eye className="w-3.5 h-3.5 text-[#BBBBBB]" />
             <span className="text-[13px] font-medium text-[#717171]">{formatViews(post.viewCount)}</span>
           </div>
         </div>
-
-        {/* Flags — desktop */}
         <div className="hidden lg:flex w-[80px] shrink-0 items-center gap-1.5">
           {post.isFeatured && (
             <span title="Featured" className="w-6 h-6 rounded-lg bg-yellow-50 flex items-center justify-center">
@@ -617,8 +599,6 @@ function PostRow({
             </span>
           )}
         </div>
-
-        {/* Actions menu */}
         <div className="shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -656,7 +636,6 @@ function PostRow({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-
       </div>
     </div>
   );

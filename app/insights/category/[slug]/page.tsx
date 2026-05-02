@@ -15,22 +15,19 @@ import NewsletterCTA from '@/components/insights/NewsletterCTA';
 import InsightsSearchBar from '@/components/insights/InsightsSearchBar';
 import CategoryPagination from '@/components/insights/CategoryPagination';
 
-// ─── Static params (ISR) ──────────────────────────────────────────────────────
-
 export async function generateStaticParams() {
   const categories = await getInsightCategories().catch(() => []);
   return categories.map((c) => ({ slug: c.slug }));
 }
 
-// ─── Metadata ─────────────────────────────────────────────────────────────────
-
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
+  const { slug } = await params;
   const categories = await getInsightCategories().catch(() => []);
-  const cat = categories.find((c) => c.slug === params.slug);
+  const cat = categories.find((c) => c.slug === slug);
   if (!cat) return { title: 'Category | HoroHouse Insights' };
 
   return {
@@ -45,18 +42,18 @@ export async function generateMetadata({
   };
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 interface CategoryPageProps {
-  params: { slug: string };
-  searchParams: { page?: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
 export default async function CategoryPage({
   params,
   searchParams,
 }: CategoryPageProps) {
-  const page = Number(searchParams.page ?? 1);
+  const { slug } = await params;
+  const { page: pageParam } = await searchParams;
+  const page = Number(pageParam ?? 1);
 
   let categories;
   let data;
@@ -65,17 +62,17 @@ export default async function CategoryPage({
   try {
     [categories, data, trending] = await Promise.all([
       getInsightCategories(),
-      getInsightsByCategory(params.slug, { page, limit: 12 }),
+      getInsightsByCategory(slug, { page, limit: 12 }),
       getTrendingInsights(5),
     ]);
   } catch {
     notFound();
   }
 
-  const category = categories.find((c) => c.slug === params.slug);
+  const category = categories.find((c) => c.slug === slug);
   if (!category) notFound();
 
-  const accentColor = getCategoryColor(params.slug);
+  const accentColor = getCategoryColor(slug);
   const heroPost = data.data[0];
   const gridPosts = data.data.slice(1);
 
@@ -84,7 +81,7 @@ export default async function CategoryPage({
 
       {/* ── Category Header ─────────────────────────────────────────────── */}
       <div className="border-b border-[#EBEBEB]">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
 
           {/* Back link */}
           <Link
@@ -127,14 +124,14 @@ export default async function CategoryPage({
           <div className="mt-8">
             <CategoryChips
               categories={categories}
-              activeSlug={params.slug}
+              activeSlug={slug}
               navigateToPage
             />
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Featured post in category ──────────────────────────────────── */}
         {heroPost && page === 1 && (
@@ -189,7 +186,7 @@ export default async function CategoryPage({
                       <CategoryPagination
                         currentPage={data.meta.page}
                         totalPages={data.meta.totalPages}
-                        basePath={`/insights/category/${params.slug}`}
+                        basePath={`/insights/category/${slug}`}
                       />
                     </div>
                   )}
@@ -208,7 +205,7 @@ export default async function CategoryPage({
                 </p>
                 <div className="flex flex-col gap-0">
                   {categories
-                    .filter((c) => c.slug !== params.slug)
+                    .filter((c) => c.slug !== slug)
                     .map((cat) => {
                       const color = getCategoryColor(cat.slug);
                       return (
