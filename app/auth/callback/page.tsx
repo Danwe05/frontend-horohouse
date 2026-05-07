@@ -121,12 +121,14 @@ const AuthCallbackContent = () => {
         setMessage('Authentication successful! Redirecting...');
 
         console.log('🚀 Redirecting to dashboard...');
-        
+
         // Use window.location.href for immediate redirect
         // This bypasses Next.js router and ensures clean navigation
+        const needsPhone = !userFromToken.phoneNumber ||
+          userFromToken.phoneNumber.startsWith('google_');
+
         setTimeout(() => {
-          console.log('➡️ Executing window.location.href = "/dashboard"');
-          window.location.href = '/dashboard';
+          window.location.href = needsPhone ? '/auth/add-phone' : '/dashboard';
         }, 500);
 
       } catch (decodeError) {

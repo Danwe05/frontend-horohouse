@@ -292,10 +292,11 @@ export default function HostRole({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
                 {properties.slice(0, 4).map((property: Property) => {
                   const id = property._id || property.id || "x";
-                  const images = property.images || [];
-                  const img = images.length > 0
-                    ? (typeof images[0] === "string" ? images[0] : (images[0] as any)?.url)
-                    : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500";
+                  const rawImages = property.images || [];
+                  const imageUrls: string[] = rawImages
+                    .map((i: any) => (typeof i === "string" ? i : i?.url || ""))
+                    .filter(Boolean);
+                  const img = imageUrls[0] || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500";
                   const addr = [property.address, property.city].filter(Boolean).join(", ");
                   const beds = property.amenities?.bedrooms ?? property.bedrooms ?? 0;
                   const baths = property.amenities?.bathrooms ?? property.bathrooms ?? 0;
@@ -304,6 +305,7 @@ export default function HostRole({
                       key={id}
                       id={id}
                       image={img}
+                      images={imageUrls}
                       title={property.title || "Untitled"}
                       location={addr || "Location not specified"}
                       price={property.price || 0}
@@ -317,6 +319,7 @@ export default function HostRole({
                       viewCount={property.viewsCount || 0}
                       favoriteCount={property.favoriteCount || 0}
                       isFavorite={property.isFavorite || false}
+                      starRating={property.starRating}
                       onUpdate={handlePropertyUpdate}
                     />
                   );

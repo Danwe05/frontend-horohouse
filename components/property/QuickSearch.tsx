@@ -1,8 +1,9 @@
 import {
   Search, MapPin, Bed, Bath, Loader2, Clock, X, Tag, Bookmark,
-  Home, CalendarRange, Calendar,
+  Home, CalendarRange, Calendar, SlidersHorizontal,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import FilterSidebar, { AdvancedFilters } from "@/components/property/FilterSidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -38,6 +39,8 @@ export interface QuickSearchFilters {
   checkIn?: string;
   checkOut?: string;
   guests?: number;
+  propertyTypes?: string[];
+  amenities?: string[];
 }
 
 interface QuickSearchProps {
@@ -195,6 +198,39 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const isShortTerm = listingType === "short_term";
+
+  const [liveResultCount, setLiveResultCount] = useState<number | undefined>(undefined);
+  const [isLiveLoading, setIsLiveLoading] = useState(false);
+
+  const fetchLiveCount = useCallback(async (filters: AdvancedFilters) => {
+    const params: Record<string, any> = {
+      limit: 1,
+      city: city || undefined,
+      listingType: listingType !== "any" ? listingType : undefined,
+      minPrice: filters.minPrice ?? priceValueToAmount(minBudget, listingType),
+      maxPrice: filters.maxPrice ?? priceValueToAmount(maxBudget, listingType),
+      propertyType: filters.propertyTypes?.[0] || undefined,
+      bedrooms: filters.minBedrooms ?? (bedrooms !== "any" ? parseInt(bedrooms, 10) : undefined),
+      bathrooms: filters.minBathrooms ?? (bathrooms !== "any" ? parseInt(bathrooms, 10) : undefined),
+      minGuests: filters.minGuests ?? (guests !== "any" ? parseInt(guests, 10) : undefined),
+    };
+    if (isShortTerm && checkIn) params.checkIn = format(checkIn, "yyyy-MM-dd");
+    if (isShortTerm && checkOut) params.checkOut = format(checkOut, "yyyy-MM-dd");
+    if (filters.hasPool) params.amenities = ["hasPool"];
+    else if (filters.amenities) params.amenities = filters.amenities;
+
+    try {
+      setIsLiveLoading(true);
+      const data = await apiClient.searchProperties(params);
+      setLiveResultCount(data?.total ?? 0);
+    } catch {
+      // silent fail
+    } finally {
+      setIsLiveLoading(false);
+    }
+  }, [city, listingType, minBudget, maxBudget, bedrooms, bathrooms, guests, isShortTerm, checkIn, checkOut]);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const cityInputRef = useRef<HTMLInputElement>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -204,8 +240,10 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
+  const [stayTypeOpen, setStayTypeOpen] = useState(false);
+  const [showFiltersSidebar, setShowFiltersSidebar] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({});
 
-  const isShortTerm = listingType === "short_term";
 
   // Reset price selections when listing type changes (ranges are incompatible)
   useEffect(() => {
@@ -224,19 +262,21 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
     const f: QuickSearchFilters = {
       city: city || undefined,
       listingType: listingType !== "any" ? listingType : undefined,
-      minPrice: priceValueToAmount(minBudget, listingType),
-      maxPrice: priceValueToAmount(maxBudget, listingType),
+      minPrice: advancedFilters.minPrice ?? priceValueToAmount(minBudget, listingType),
+      maxPrice: advancedFilters.maxPrice ?? priceValueToAmount(maxBudget, listingType),
+      propertyTypes: advancedFilters.propertyTypes,
+      amenities: advancedFilters.amenities,
     };
     if (isShortTerm) {
       if (checkIn) f.checkIn = format(checkIn, "yyyy-MM-dd");
       if (checkOut) f.checkOut = format(checkOut, "yyyy-MM-dd");
-      if (guests !== "any") f.guests = parseInt(guests, 10);
+      f.guests = advancedFilters.minGuests ?? (guests !== "any" ? parseInt(guests, 10) : undefined);
     } else {
-      f.bedrooms = bedrooms !== "any" ? parseInt(bedrooms, 10) : undefined;
-      f.bathrooms = bathrooms !== "any" ? parseInt(bathrooms, 10) : undefined;
+      f.bedrooms = advancedFilters.minBedrooms ?? (bedrooms !== "any" ? parseInt(bedrooms, 10) : undefined);
+      f.bathrooms = advancedFilters.minBathrooms ?? (bathrooms !== "any" ? parseInt(bathrooms, 10) : undefined);
     }
     return f;
-  }, [city, listingType, minBudget, maxBudget, checkIn, checkOut, guests, bedrooms, bathrooms, isShortTerm]);
+  }, [city, listingType, minBudget, maxBudget, checkIn, checkOut, guests, bedrooms, bathrooms, isShortTerm, advancedFilters]);
 
   const getActiveFilters = useCallback(() => {
     const filters: Array<{ key: string; label: string; onRemove: () => void }> = [];
@@ -451,14 +491,39 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
     <div className="w-full">
       {/* ── DESKTOP ── */}
       <div className="hidden lg:block">
-        {/* Row 1: Type tabs */}
-        <div className="flex justify-center items-center mb-6">
-          <ListingTypeTabs value={listingType} onChange={setListingType} t={t} />
-        </div>
+        {/* One-Line Unified Search Pill */}
+        <div className="flex justify-center relative z-20 w-full mt-2">
+          <div className="flex items-center bg-white border border-slate-200 -[0_8px_20px_-8px_rgba(37,99,235,0.1)] hover:-[0_12px_24px_-8px_rgba(37,99,235,0.15)] transition-all duration-300 rounded-full pl-2 pr-2 py-2 w-full max-w-[1100px] mx-auto divide-x divide-slate-200">
 
-        {/* Row 2: Premium Full-Width Search Pill */}
-        <div className="flex justify-center relative z-20 w-full">
-          <div className="flex items-center bg-white border border-slate-200 -[0_8px_20px_-8px_rgba(37,99,235,0.1)] hover:-[0_12px_24px_-8px_rgba(37,99,235,0.15)] transition-all duration-300 rounded-full pl-6 pr-2 py-2 w-full max-w-5xl mx-auto divide-x divide-slate-200">
+            {/* 1. Stay Type */}
+            <Popover open={stayTypeOpen} onOpenChange={setStayTypeOpen}>
+              <PopoverTrigger asChild>
+                <div className="flex flex-col relative flex-[1.2] pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors group">
+                  <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{(t.quickSearchExtras as any).lookingFor || "Looking for"}</label>
+                  <div className="text-[15px] font-medium text-slate-800 flex items-center justify-between">
+                     {listingType === "rent" ? t.quickSearchExtras.rent : listingType === "sale" ? t.quickSearchExtras.buy : t.quickSearchExtras.stay}
+                  </div>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-[280px] p-2 rounded-3xl border-slate-100 -[0_10px_40px_-10px_rgba(0,0,0,0.15)] flex flex-col gap-1 mt-4" align="start">
+                  {TYPE_TABS.map((tab) => {
+                      const isActive = tab.value === listingType;
+                      return (
+                          <button key={tab.value} onClick={() => { setListingType(tab.value); setStayTypeOpen(false); }} className={`flex items-center gap-3 px-3 py-3 rounded-2xl transition-all text-left ${isActive ? "bg-slate-50 border-1 border-slate-900" : "bg-white border-1 border-transparent hover:border-slate-200 hover:bg-slate-50/50"}`}>
+                              <div className={`p-2.5 rounded-full flex shrink-0 ${isActive ? "bg-white -sm" : "bg-slate-100"}`}>
+                                  <tab.icon className={`h-5 w-5 ${isActive ? "text-slate-900 stroke-[2.5px]" : "text-slate-500"}`} />
+                              </div>
+                              <div className="flex flex-col">
+                                  <span className={`text-[15px] font-bold ${isActive ? "text-slate-900" : "text-slate-600"}`}>{tab.value === "rent" ? t.quickSearchExtras.rent : tab.value === "sale" ? t.quickSearchExtras.buy : t.quickSearchExtras.stay}</span>
+                                  <span className="text-[12px] text-slate-500 font-medium leading-tight">
+                                      {tab.value === "rent" ? "Find places to rent" : tab.value === "sale" ? "Purchase a property" : "Book a short stay"}
+                                  </span>
+                              </div>
+                          </button>
+                      )
+                  })}
+              </PopoverContent>
+            </Popover>
 
             {/* Location */}
             <div className="flex flex-col relative flex-[1.5] pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors" ref={suggestionsRef} onClick={() => cityInputRef.current?.focus()}>
@@ -602,6 +667,9 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
 
             {/* Search Button Area */}
             <div className="pl-4 border-l-0 flex items-center gap-2">
+              <Button variant="ghost" className="rounded-full w-12 h-12 p-0 hover:bg-slate-100 text-slate-700 transition-colors shrink-0" onClick={() => setShowFiltersSidebar(true)} aria-label="Filters" title="Filters">
+                <SlidersHorizontal className="h-5 w-5" />
+              </Button>
               {hasActiveFilters && (
                 <Button variant="ghost" className="rounded-full w-10 h-10 p-0 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors shrink-0 tooltip-trigger" onClick={clearAllFilters} aria-label="Clear filters" title="Clear all filters">
                   <X className="h-4 w-4" />
@@ -629,29 +697,41 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
       <div className="lg:hidden">
         {!isMobileExpanded ? (
           // ── Mobile Default Floating Pill ── 
-          <div
-            onClick={() => setIsMobileExpanded(true)}
-            className="flex items-center gap-4 bg-white rounded-full p-3 pl-5 -[0_8px_20px_-8px_rgba(0,0,0,0.12)] border border-slate-200/80 cursor-pointer active:scale-[0.98] transition-all hover:-[0_12px_24px_-8px_rgba(0,0,0,0.15)] max-w-[90%] mx-auto mt-2"
-          >
-            <Search className="h-5 w-5 text-slate-800 shrink-0" strokeWidth={2.5} />
-            <div className="flex flex-col truncate">
-              <span className="text-[14px] font-bold text-slate-800 leading-tight">{t.quickSearchExtras.whereTo}</span>
-              <span className="text-[12px] text-slate-500 font-medium leading-tight mt-0.5 truncate">
-                {city ? city : t.quickSearchExtras.anywhere} • {isShortTerm ? (checkIn ? t.quickSearchExtras.datesSelected : t.quickSearchExtras.anyWeek) : t.quickSearchExtras.anyTime} • {guests !== "any" ? `${guests} ${t.quickSearchExtras.guests}` : t.quickSearchExtras.addGuests}
-              </span>
+          <div className="flex items-center gap-2 max-w-[90%] mx-auto mt-2">
+            <div
+              onClick={() => setIsMobileExpanded(true)}
+              className="flex-1 flex items-center gap-4 bg-white rounded-full p-3 pl-5 -[0_8px_20px_-8px_rgba(0,0,0,0.12)] border border-slate-200/80 cursor-pointer active:scale-[0.98] transition-all hover:-[0_12px_24px_-8px_rgba(0,0,0,0.15)] overflow-hidden"
+            >
+              <Search className="h-5 w-5 text-slate-800 shrink-0" strokeWidth={2.5} />
+              <div className="flex flex-col truncate">
+                <span className="text-[14px] font-bold text-slate-800 leading-tight">{t.quickSearchExtras.whereTo}</span>
+                <span className="text-[12px] text-slate-500 font-medium leading-tight mt-0.5 truncate">
+                  {city ? city : t.quickSearchExtras.anywhere} • {isShortTerm ? (checkIn ? t.quickSearchExtras.datesSelected : t.quickSearchExtras.anyWeek) : t.quickSearchExtras.anyTime} • {guests !== "any" ? `${guests} ${t.quickSearchExtras.guests}` : t.quickSearchExtras.addGuests}
+                </span>
+              </div>
             </div>
+            <Button
+              variant="outline"
+              className="rounded-full h-[52px] w-[52px] border border-slate-200/80 -[0_8px_20px_-8px_rgba(0,0,0,0.12)] shrink-0 bg-white"
+              onClick={() => setShowFiltersSidebar(true)}
+            >
+              <SlidersHorizontal className="h-5 w-5 text-slate-800" />
+            </Button>
           </div>
         ) : (
           // ── Mobile Expanded Full-Screen Drawer ── 
           <div className="fixed inset-0 top-[70px] z-[100] bg-[#f7f7f9] flex flex-col animate-in slide-in-from-bottom-8 duration-300">
             {/* Header */}
             <div className="flex items-center justify-between p-4 bg-white border-b border-slate-100">
-              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 bg-slate-50 hover:bg-slate-100 text-slate-600 focus-visible:ring-0" onClick={() => setIsMobileExpanded(false)}>
+              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 bg-slate-50 hover:bg-slate-100 text-slate-600 focus-visible:ring-0 shrink-0" onClick={() => setIsMobileExpanded(false)}>
                 <X className="h-5 w-5" />
               </Button>
               <div className="flex -mx-2">
                 <ListingTypeTabs value={listingType} onChange={setListingType} t={t} />
               </div>
+              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 bg-slate-50 hover:bg-slate-100 text-slate-600 focus-visible:ring-0 shrink-0" onClick={() => setShowFiltersSidebar(true)}>
+                <SlidersHorizontal className="h-4 w-4" />
+              </Button>
             </div>
 
             {/* Scrollable Body */}
@@ -802,6 +882,35 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
       </div>
 
       <SaveSearchModal isOpen={showSaveModal} onClose={() => setShowSaveModal(false)} onSave={handleSaveSearch} currentFilters={getCurrentFilters()} />
+      <FilterSidebar
+        open={showFiltersSidebar}
+        onOpenChange={setShowFiltersSidebar}
+        listingType={listingType as any}
+        initialFilters={advancedFilters}
+        onFiltersChange={fetchLiveCount}
+        resultCount={liveResultCount}
+        isLoadingResults={isLiveLoading}
+        onApply={(filters) => {
+          setAdvancedFilters(filters);
+          // Auto-trigger search after apply
+          setTimeout(() => {
+            setHasSearched(true);
+            const newFilters = getCurrentFilters();
+            if (onSearch) {
+              onSearch({
+                ...newFilters,
+                minPrice: filters.minPrice ?? newFilters.minPrice,
+                maxPrice: filters.maxPrice ?? newFilters.maxPrice,
+                propertyTypes: filters.propertyTypes,
+                amenities: filters.amenities,
+                bedrooms: filters.minBedrooms ?? newFilters.bedrooms,
+                bathrooms: filters.minBathrooms ?? newFilters.bathrooms,
+                guests: filters.minGuests ?? newFilters.guests,
+              });
+            }
+          }, 0);
+        }}
+      />
     </div>
   );
 };

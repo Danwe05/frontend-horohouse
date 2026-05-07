@@ -12,6 +12,7 @@ import {
   Navigation, Train, Bus, Plane, ChevronDown, Wind,
 } from 'lucide-react';
 import { StudentEnrollmentStep, StudentEnrollmentData } from '@/components/dashboard/StudentEnrollmentStep';
+import { HotelRoomBuilder, PendingRoom } from '@/components/dashboard/HotelRoomBuilder';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -113,6 +114,9 @@ interface PropertyFormData {
   virtualTourUrl: string;
   videoUrl: string;
   tourType: string;
+  // Hotel-specific
+  starRating: number;
+  pendingRooms: PendingRoom[];
 }
 
 interface PropertyFormProps {
@@ -148,7 +152,9 @@ function clearDraft() {
 
 type StepDef = { id: string; label: string };
 
-function getSteps(listingType: string): StepDef[] {
+const HOSPITALITY_TYPES = ['hotel', 'motel', 'vacation_rental', 'guesthouse', 'hostel', 'resort', 'serviced_apartment'];
+
+function getSteps(listingType: string, propertyType: string): StepDef[] {
   const base: StepDef[] = [
     { id: 'basics', label: 'Basics' },
     { id: 'location', label: 'Location' },
@@ -158,7 +164,9 @@ function getSteps(listingType: string): StepDef[] {
     { id: 'photos', label: 'Photos' },
   ];
   if (listingType === 'rent') base.push({ id: 'students', label: 'Students' });
-  if (listingType === 'short_term') base.push({ id: 'booking', label: 'Booking' });
+  // Hotels get a dedicated Rooms step (includes booking policy) instead of the generic booking step
+  if (HOSPITALITY_TYPES.includes(propertyType)) base.push({ id: 'hotel', label: 'Rooms' });
+  else if (listingType === 'short_term') base.push({ id: 'booking', label: 'Booking' });
   base.push({ id: 'review', label: 'Review' });
   return base;
 }
@@ -187,6 +195,9 @@ const DEFAULT_FORM: PropertyFormData = {
   keywords: '', nearbyAmenities: [], transportAccess: [],
   images: [], floorPlan: null, floorPlanPreview: '', documents: [],
   virtualTourUrl: '', videoUrl: '', tourType: 'images',
+  // Hotel-specific
+  starRating: 0,
+  pendingRooms: [],
 };
 
 // ─── Icon stand-ins for lucide versions that may lack newer icons ──────────────
@@ -363,7 +374,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     return draft ? { ...DEFAULT_FORM, ...draft } : DEFAULT_FORM;
   });
 
-  const steps = useMemo(() => getSteps(formData.listingType), [formData.listingType]);
+  const steps = useMemo(() => getSteps(formData.listingType, formData.type), [formData.listingType, formData.type]);
   const totalSteps = steps.length;
   const currentStepId = steps[currentStep - 1]?.id;
   const progressPercent = Math.round((currentStep / totalSteps) * 100);
@@ -381,6 +392,21 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
   const [studentEnrollment, setStudentEnrollment] = useState<StudentEnrollmentData>({ enabled: false });
   const [selectedMapLocation, setSelectedMapLocation] = useState<{ lng: number; lat: number } | null>(null);
   const [cityTouched, setCityTouched] = useState(false);
+
+  // Auto-center map on user location when first arriving at the location step
+  useEffect(() => {
+    if (currentStepId !== 'location') return;
+    if (selectedMapLocation) return; // already has a pin — don't override
+    if (!('geolocation' in navigator)) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setSelectedMapLocation({ lng: pos.coords.longitude, lat: pos.coords.latitude });
+      },
+      () => { /* silently ignore — the map will use its own fallback center */ },
+      { timeout: 10_000, maximumAge: 60_000, enableHighAccuracy: false }
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStepId]);
   const [locationQuery, setLocationQuery] = useState('');
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -460,7 +486,17 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         setFormData(prev => ({ ...prev, [name]: sanitized }));
         return;
       }
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData(prev => {
+        const update: any = { [name]: value };
+        // Auto-select "Short Stay" for hospitality property types
+        if (name === 'type') {
+          const shortTermTypes = ['hotel', 'motel', 'vacation_rental', 'guesthouse', 'hostel', 'resort', 'serviced_apartment'];
+          if (shortTermTypes.includes(value)) {
+            update.listingType = 'short_term';
+          }
+        }
+        return { ...prev, ...update };
+      });
     }
   };
 
@@ -631,6 +667,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         description: formData.description,
         type: formData.type,
         listingType: formData.listingType,
+        ...(HOSPITALITY_TYPES.includes(formData.type) && formData.starRating > 0 ? { starRating: formData.starRating } : {}),
         price: Number(formData.price),
         area: formData.area ? Number(formData.area) : undefined,
         yearBuilt: formData.yearBuilt ? Number(formData.yearBuilt) : undefined,
@@ -714,6 +751,37 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
       }
       const createdId = propertyId || created?.id || created?._id || created?.property?.id;
       if (createdId) setCreatedPropertyId(String(createdId));
+
+      // ── Create pending rooms (hotel type, non-blocking) ────────────────────
+      if (createdId && formData.pendingRooms.length > 0) {
+        for (const pr of formData.pendingRooms) {
+          try {
+            const savedRoom = await apiClient.createRoom({
+              propertyId: String(createdId),
+              name: pr.name,
+              roomNumber: pr.roomNumber || undefined,
+              roomType: pr.roomType,
+              bedType: pr.bedType,
+              bedCount: pr.bedCount,
+              maxGuests: pr.maxGuests,
+              price: pr.price ? Number(pr.price) : undefined,
+              cleaningFee: pr.cleaningFee ? Number(pr.cleaningFee) : undefined,
+              amenities: pr.amenities,
+            } as any);
+
+            // Upload room images if any were attached
+            if (pr.imageFiles.length > 0 && savedRoom?._id) {
+              const roomFormData = new FormData();
+              pr.imageFiles.forEach(img => roomFormData.append('images', img.file));
+              await apiClient.uploadRoomImages(savedRoom._id, roomFormData);
+            }
+          } catch {
+            // Room creation failure is non-blocking — host can add rooms later via dashboard
+            console.warn('[PropertyForm] Failed to create pending room:', pr.name);
+          }
+        }
+      }
+
       clearDraft();
       setSuccessModalOpen(true);
       setTimeout(() => { if (createdId) router.push(`/properties/${createdId}`); }, 1500);
@@ -880,7 +948,12 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                         Rental listings include a student suitability step later.
                       </p>
                     )}
-                    {formData.listingType === 'short_term' && (
+                    {formData.type === 'hotel' && (
+                      <p className="mt-3 text-sm text-[#717171] bg-[#F7F7F7] px-4 py-3 rounded-xl">
+                        🏨 Hotel listings include a Rooms step where you'll define individual rooms, star rating, and booking policy.
+                      </p>
+                    )}
+                    {formData.listingType === 'short_term' && formData.type !== 'hotel' && (
                       <p className="mt-3 text-sm text-[#717171] bg-[#F7F7F7] px-4 py-3 rounded-xl">
                         Short stays include a booking configuration step later.
                       </p>
@@ -1202,11 +1275,11 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 </div>
               )}
 
-              {/* ── booking (short_term only) ── */}
+              {/* ── booking (short_term only, non-hotel) ── */}
               {currentStepId === 'booking' && (
                 <div className="space-y-8">
                   <div>
-                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Step 7 — Booking</p>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Booking</p>
                     <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Set up your booking rules</h1>
                   </div>
 
@@ -1260,6 +1333,96 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 </div>
               )}
 
+              {/* ── hotel (hotel type only) — star rating + booking policy + room builder ── */}
+              {currentStepId === 'hotel' && (
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase tracking-widest mb-2">Rooms & Policy</p>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold">Define your hotel rooms</h1>
+                    <p className="text-sm text-[#717171] mt-2">Add each room guests can book, set your star rating, and configure check-in rules.</p>
+                  </div>
+
+                  {/* Star rating */}
+                  <div>
+                    <InputLabel title="Star rating" subtitle="Official hotel classification (optional)" />
+                    <div className="flex items-center gap-2">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, starRating: prev.starRating === star ? 0 : star }))}
+                          className={`flex items-center justify-center w-12 h-12 rounded-xl border-1 transition-all text-lg
+                            ${formData.starRating >= star
+                              ? 'border-[#222222] bg-[#F7F7F7] text-yellow-400'
+                              : 'border-[#DDDDDD] text-[#DDDDDD] hover:border-[#B0B0B0] hover:text-[#B0B0B0]'}`}
+                        >
+                          ★
+                        </button>
+                      ))}
+                      {formData.starRating > 0 && (
+                        <span className="text-sm text-[#717171] ml-1">{formData.starRating}-star hotel</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Booking policy */}
+                  <div>
+                    <InputLabel title="Booking policy" subtitle="Applied to all rooms unless overridden" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-semibold text-[#222222] mb-1 block">Check-in time</Label>
+                        <input type="time" name="checkInTime" value={formData.checkInTime} onChange={handleChange}
+                          className="w-full p-4 border border-[#DDDDDD] rounded-xl text-[#222222] bg-white outline-none focus:border-[#222222] transition-colors" />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-[#222222] mb-1 block">Check-out time</Label>
+                        <input type="time" name="checkOutTime" value={formData.checkOutTime} onChange={handleChange}
+                          className="w-full p-4 border border-[#DDDDDD] rounded-xl text-[#222222] bg-white outline-none focus:border-[#222222] transition-colors" />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-[#222222] mb-1 block">Cleaning fee (XAF)</Label>
+                        <FormInput name="cleaningFee" value={formData.cleaningFee} onChange={handleChange} placeholder="e.g., 5000" />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-[#222222] mb-1 block">Service fee (XAF)</Label>
+                        <FormInput name="serviceFee" value={formData.serviceFee} onChange={handleChange} placeholder="e.g., 2000" />
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      <Label className="text-sm font-semibold text-[#222222] mb-1 block">Cancellation policy</Label>
+                      <select name="cancellationPolicy" value={formData.cancellationPolicy} onChange={handleChange}
+                        className="w-full p-4 border border-[#DDDDDD] rounded-xl text-[#222222] bg-white outline-none focus:border-[#222222] transition-colors">
+                        <option value="flexible">Flexible — 100% refund up to 24h before</option>
+                        <option value="moderate">Moderate — 100% refund up to 5 days before</option>
+                        <option value="strict">Strict — 50% refund up to 7 days before</option>
+                      </select>
+                    </div>
+
+                    <label className="flex items-start gap-3 cursor-pointer p-4 border border-[#DDDDDD] rounded-xl hover:border-[#222222] transition-colors mt-4">
+                      <input type="checkbox" name="isInstantBookable" checked={formData.isInstantBookable} onChange={handleChange}
+                        className="mt-0.5 w-5 h-5 rounded border-[#DDDDDD] focus:ring-[#222222]" />
+                      <div>
+                        <span className="text-base text-[#222222] font-semibold block">Instant booking</span>
+                        <span className="text-sm text-[#717171]">Guests can book without waiting for your approval</span>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* Room builder */}
+                  <div>
+                    <InputLabel
+                      title="Rooms"
+                      subtitle="Define each bookable room. You can add more and upload room photos after publishing."
+                    />
+                    <HotelRoomBuilder
+                      rooms={formData.pendingRooms}
+                      onChange={rooms => setFormData(prev => ({ ...prev, pendingRooms: rooms }))}
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* ── review ── */}
               {currentStepId === 'review' && (
                 <div className="space-y-8">
@@ -1309,6 +1472,20 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                       { label: 'Location', value: formData.city || 'Not set', ok: !!formData.city },
                       { label: 'Price', value: formData.price ? `${Number(formData.price).toLocaleString()} XAF` : 'Not set', ok: !!formData.price },
                       { label: 'Amenities', value: `${displayedAmenities.filter(a => formData[a.name as keyof PropertyFormData]).length} selected`, ok: true },
+                      ...(formData.type === 'hotel' ? [
+                        {
+                          label: 'Star rating',
+                          value: formData.starRating > 0 ? `${formData.starRating}-star` : 'Not set',
+                          ok: formData.starRating > 0,
+                        },
+                        {
+                          label: 'Rooms',
+                          value: formData.pendingRooms.length > 0
+                            ? `${formData.pendingRooms.length} room${formData.pendingRooms.length !== 1 ? 's' : ''} pending`
+                            : 'None added',
+                          ok: formData.pendingRooms.length > 0,
+                        },
+                      ] : []),
                     ].map(item => (
                       <div key={item.label} className={`p-4 rounded-xl border ${item.ok ? 'border-[#EBEBEB]' : 'border-orange-200 bg-orange-50'}`}>
                         <div className="flex items-center justify-between mb-1">

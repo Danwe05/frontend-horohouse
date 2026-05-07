@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { closePaymentModal } from 'flutterwave-react-v3';
 import apiClient from '@/lib/api';
 import { toast } from 'sonner';
 import {
@@ -49,16 +48,23 @@ const FLW_SCRIPT_URL = 'https://checkout.flutterwave.com/v3.js';
 
 function loadFlutterwaveScript(): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Already loaded
     if (typeof (window as any).FlutterwaveCheckout === 'function') {
       resolve();
       return;
     }
-    // Script tag already in DOM — wait for it
     const existing = document.querySelector<HTMLScriptElement>(`script[src="${FLW_SCRIPT_URL}"]`);
     if (existing) {
-      existing.addEventListener('load', () => resolve());
-      existing.addEventListener('error', () => reject(new Error('Flutterwave script failed to load')));
+      // Script is loading, poll for global variable
+      const interval = setInterval(() => {
+        if (typeof (window as any).FlutterwaveCheckout === 'function') {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 100);
+      setTimeout(() => {
+        clearInterval(interval);
+        reject(new Error('Flutterwave timeout'));
+      }, 10000);
       return;
     }
     // Inject fresh script tag
@@ -172,7 +178,6 @@ export default function BookingPaymentModal({ booking, open, onClose, onSuccess 
         },
         meta: { bookingId: booking._id, transactionId: res.transaction?._id ?? '' },
         callback: (response: any) => {
-          closePaymentModal();
           if (response.status === 'successful' || response.status === 'completed') {
             pollStatus();
           } else {

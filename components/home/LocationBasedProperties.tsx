@@ -198,8 +198,6 @@ export default function LocationBasedProperties() {
         }
       };
 
-      getLocationFromIP().then(resolveLocation).catch(() => {});
-
       if (typeof window !== 'undefined' && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           async (pos) => {
@@ -213,6 +211,8 @@ export default function LocationBasedProperties() {
           handleError,
           { timeout: 8000, maximumAge: 300000, enableHighAccuracy: false }
         );
+      } else {
+        handleError();
       }
     }
 

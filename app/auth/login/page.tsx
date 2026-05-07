@@ -117,6 +117,7 @@ function SigninContent() {
     setError('');
     try {
       if (provider === 'google') await authService.loginWithGoogle();
+      else if (provider === 'apple') await authService.loginWithApple();
       else throw new Error(`${provider} login is not yet implemented`);
     } catch (error: any) {
       setError(error.message || `${provider.charAt(0).toUpperCase() + provider.slice(1)} login failed`);

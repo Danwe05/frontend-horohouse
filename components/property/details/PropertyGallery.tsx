@@ -112,7 +112,7 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
     if (n === 1) return { cols: "grid-cols-1", rows: "grid-rows-1", heroSpan: "" };
     if (n === 2) return { cols: "grid-cols-2", rows: "grid-rows-1", heroSpan: "" };
     if (n === 3) return { cols: "grid-cols-[2fr_1fr]", rows: "grid-rows-2", heroSpan: "row-span-2" };
-    if (n === 4) return { cols: "grid-cols-[2fr_1fr]", rows: "grid-rows-2", heroSpan: "row-span-2" };
+    if (n === 4) return { cols: "grid-cols-[2fr_1fr]", rows: "grid-rows-3", heroSpan: "row-span-3" };
     return { cols: "grid-cols-[2fr_1fr_1fr]", rows: "grid-rows-2", heroSpan: "row-span-2" };
   })();
 

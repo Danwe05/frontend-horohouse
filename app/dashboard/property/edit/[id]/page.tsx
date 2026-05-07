@@ -106,6 +106,9 @@ interface PropertyFormData {
   virtualTourUrl: string;
   videoUrl: string;
   tourType: string;
+  // Hotel-specific
+  starRating: number;
+  pendingRooms: any[];
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -217,6 +220,9 @@ const PropertyEditPage = () => {
           virtualTourUrl: data.virtualTourUrl || '',
           videoUrl: data.videoUrl || '',
           tourType: data.tourType || 'images',
+          // Hotel-specific (edit mode — rooms already exist; pendingRooms stays empty)
+          starRating: data.starRating ?? 0,
+          pendingRooms: [],
         };
 
         setInitialData(propertyData);

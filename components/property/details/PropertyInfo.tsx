@@ -291,10 +291,10 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
               <Eye className="h-4 w-4 stroke-[2]" aria-hidden />
               <span>{property.viewsCount.toLocaleString()} {pd?.views?.toLowerCase() || "views"}</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            {/* <div className="flex items-center gap-1.5">
               <Clock className="h-4 w-4 stroke-[2]" aria-hidden />
               <span>{pd?.daysOnMarket?.replace("{days}", daysOnMarket.toString()) || `${daysOnMarket} days ago`}</span>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

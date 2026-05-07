@@ -1,10 +1,9 @@
 'use client';
 
-import { AppSidebar } from '@/components/dashboard/Sidebar';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { NavDash } from '@/components/dashboard/NavDash';
+import Navbar from '@/components/layout/Navbar';
 import { MessagesList } from '@/components/chat/MessagesList';
 import { ChatThread } from '@/components/chat/ChatThread';
+import { ChatDetailsSidebar } from '@/components/chat/ChatDetailsSidebar';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -89,7 +88,7 @@ export default function MessagesPage() {
         </p>
         <button
           onClick={() => router.push('/auth/login?redirect=/dashboard/message')}
-          className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] transition-colors active:scale-[0.98]"
+          className="h-12 px-8 bg-[#222222] hover:bg-black text-white rounded-lg font-semibold text-[15px] transition-colors active:scale-[0.98]"
         >
           {s.goToLogin || 'Go to login'}
         </button>
@@ -110,7 +109,7 @@ export default function MessagesPage() {
         </p>
         <button
           onClick={() => router.push('/auth/login?redirect=/dashboard/message')}
-          className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] transition-colors active:scale-[0.98]"
+          className="h-12 px-8 bg-[#222222] hover:bg-black text-white rounded-lg font-semibold text-[15px] transition-colors active:scale-[0.98]"
         >
           {s.goToLogin || 'Go to login'}
         </button>
@@ -118,48 +117,41 @@ export default function MessagesPage() {
     );
   }
 
-  // Render with ChatProvider
+  // Render with ChatProvider and Navbar for full-width layout
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-white">
-        {/* Sidebar */}
-        <AppSidebar />
-        
-        <SidebarInset className="flex flex-col flex-1 overflow-hidden w-full h-full border-l border-[#EBEBEB] bg-white">
-          <NavDash />
-
-          {/* Main Content */}
-          <div className="flex-1 flex flex-col overflow-hidden w-full relative">
-            <ChatProvider token={token} apiUrl={apiUrl} currentUser={user}>
-              <div className="flex h-full w-full overflow-hidden">
-                
-                {/* Messages List - Hidden on mobile when thread is shown */}
-                <div 
-                  className={`h-full shrink-0 border-r border-[#EBEBEB] bg-white ${
-                    showMobileThread 
-                      ? 'hidden md:block md:w-[350px] lg:w-[400px]' 
-                      : 'block w-full md:w-[350px] lg:w-[400px]'
-                  }`}
-                >
-                  <MessagesList onConversationSelect={() => setShowMobileThread(true)} />
-                </div>
-
-                {/* Chat Thread - Hidden on mobile when list is shown */}
-                <div 
-                  className={`flex-1 h-full min-w-0 bg-white ${
-                    showMobileThread 
-                      ? 'block' 
-                      : 'hidden md:block'
-                  }`}
-                >
-                  <ChatThread onBack={() => setShowMobileThread(false)} />
-                </div>
-                
-              </div>
-            </ChatProvider>
-          </div>
-        </SidebarInset>
+    <div className="flex flex-col h-screen w-full overflow-hidden bg-white relative">
+      <div className="shrink-0 relative z-50 border-b border-[#EBEBEB]">
+        <Navbar showOnlyWhenAuthenticated={true} />
       </div>
-    </SidebarProvider>
+      
+      {/* Space for fixed Navbar (h-[80px]) */}
+      <div className="flex-1 flex overflow-hidden w-full relative pt-[80px]">
+        <ChatProvider token={token} apiUrl={apiUrl} currentUser={user}>
+          <div className="flex w-full h-full">
+            
+            {/* Mobile View Slider Container */}
+            <div 
+              className={`flex w-[200vw] h-full transition-transform duration-300 ease-out md:w-full md:transition-none ${
+                showMobileThread ? "-translate-x-[100vw] md:translate-x-0" : "translate-x-0"
+              }`}
+            >
+              {/* Left Column: Messages List */}
+              <div className="w-[100vw] md:w-[350px] lg:w-[380px] h-full shrink-0 border-r border-[#EBEBEB] bg-white">
+                <MessagesList onConversationSelect={() => setShowMobileThread(true)} />
+              </div>
+
+              {/* Middle Column: Chat Thread */}
+              <div className="w-[100vw] md:w-auto md:flex-1 h-full shrink-0 min-w-0 bg-white">
+                <ChatThread onBack={() => setShowMobileThread(false)} />
+              </div>
+            </div>
+            
+            {/* Right Column: Details Sidebar */}
+            <ChatDetailsSidebar />
+            
+          </div>
+        </ChatProvider>
+      </div>
+    </div>
   );
 }

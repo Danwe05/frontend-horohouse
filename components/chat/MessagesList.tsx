@@ -113,23 +113,19 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-4 mb-4 px-1">
           <button
             onClick={() => setFilter('general')}
             className={cn(
-              "px-5 py-2.5 rounded-full text-[14px] font-semibold flex items-center gap-2 transition-colors focus:outline-none",
+              "pb-3 text-[15px] font-semibold flex items-center gap-2 transition-colors focus:outline-none border-b-2",
               filter === 'general'
-                ? "bg-blue-600 text-white"
-                : "bg-white text-[#717171] hover:bg-[#F7F7F7] border border-transparent hover:border-[#EBEBEB]"
+                ? "border-[#222222] text-[#222222]"
+                : "border-transparent text-[#717171] hover:text-[#222222] hover:border-[#DDDDDD]"
             )}
           >
-            <Inbox className="w-4 h-4 stroke-[2]" />
-            {s.general || 'General'}
+            {s.general || 'Messages'}
             {unreadCount > 0 && (
-              <span className={cn(
-                "w-5 h-5 rounded-full flex items-center justify-center text-[11px] ml-1",
-                filter === 'general' ? "bg-white text-[#222222]" : "bg-[#FF385C] text-white"
-              )}>
+              <span className="bg-[#FF385C] text-white text-[11px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1.5 ml-0.5">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -138,19 +134,15 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
           <button
             onClick={() => setFilter('archive')}
             className={cn(
-              "px-5 py-2.5 rounded-full text-[14px] font-semibold flex items-center gap-2 transition-colors focus:outline-none",
+              "pb-3 text-[15px] font-semibold flex items-center gap-2 transition-colors focus:outline-none border-b-2",
               filter === 'archive'
-                ? "bg-blue-600 text-white"
-                : "bg-white text-[#717171] hover:bg-[#F7F7F7] border border-transparent hover:border-[#EBEBEB]"
+                ? "border-[#222222] text-[#222222]"
+                : "border-transparent text-[#717171] hover:text-[#222222] hover:border-[#DDDDDD]"
             )}
           >
-            <Archive className="w-4 h-4 stroke-[2]" />
             {s.archive || 'Archive'}
             {archivedCount > 0 && (
-              <span className={cn(
-                "w-5 h-5 rounded-full flex items-center justify-center text-[11px] ml-1",
-                filter === 'archive' ? "bg-white text-[#222222]" : "bg-[#EBEBEB] text-[#222222]"
-              )}>
+              <span className="bg-[#EBEBEB] text-[#222222] text-[11px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1.5 ml-0.5">
                 {archivedCount > 99 ? '99+' : archivedCount}
               </span>
             )}
@@ -206,7 +198,7 @@ export function MessagesList({ onConversationSelect }: MessagesListProps) {
             {!searchQuery && filter === 'general' && (
               <button
                 onClick={() => window.location.href = '/'}
-                className="px-6 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] transition-colors active:scale-[0.98]"
+                className="px-6 h-12 bg-[#222222] hover:bg-black text-white rounded-lg font-semibold text-[15px] transition-colors active:scale-[0.98]"
               >
                 {s.browseProperties || "Explore listings"}
               </button>

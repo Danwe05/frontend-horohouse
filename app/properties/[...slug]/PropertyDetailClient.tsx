@@ -15,6 +15,7 @@ import Reviews from "@/components/property/details/Reviews";
 import PetPolicy, { type PetPolicyInfo } from "@/components/property/details/PetPolicy";
 import SimilarProperties from "@/components/property/details/SimilarProperties";
 import StudentFeaturesPanel from "@/components/property/details/StudentFeaturesPanel";
+import HotelDetailClient from "@/app/properties/[...slug]/HotelDetailClient";
 import apiClient from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChatProvider } from "@/contexts/ChatContext";
@@ -243,6 +244,11 @@ export default function PropertyDetailClient({ id }: { id: string }) {
         </div>
       </div>
     );
+  }
+
+  // ── Hotel type — delegate to dedicated hotel detail page ─────────────────
+  if (property.type === 'hotel') {
+    return <HotelDetailClient id={id} />;
   }
 
   // ── Derived data ─────────────────────────────────────────────────────────

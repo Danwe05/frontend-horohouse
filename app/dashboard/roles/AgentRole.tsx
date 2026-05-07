@@ -98,10 +98,11 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {properties.slice(0, 4).map((property: Property) => {
                   const propertyId = property._id || property.id || 'unknown';
-                  const images = property.images || [];
-                  const firstImage = images.length > 0
-                    ? (typeof images[0] === 'string' ? images[0] : (images[0] as { url: string })?.url)
-                    : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500";
+                  const rawImages = property.images || [];
+                  const imageUrls: string[] = rawImages
+                    .map((i: any) => (typeof i === 'string' ? i : i?.url || ''))
+                    .filter(Boolean);
+                  const firstImage = imageUrls[0] || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500";
 
                   const addressParts = [property.address, property.city, property.country].filter(Boolean);
                   const locationStr = addressParts.length > 0 ? addressParts.join(", ") : (_t.roles?.user?.locationNotSpecified || "Location not specified");
@@ -114,6 +115,7 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
                       key={propertyId}
                       id={propertyId}
                       image={firstImage}
+                      images={imageUrls}
                       title={property.title || _t.roles?.user?.untitledProperty || "Untitled Property"}
                       location={locationStr}
                       price={property.price || 0}
@@ -127,6 +129,7 @@ export default function AgentRole({ properties, loadingProperties, sortBy, setSo
                       viewCount={property.viewsCount || property.viewCount || property.views || 0}
                       favoriteCount={property.favoriteCount || property.favorites || 0}
                       isFavorite={property.isFavorite || false}
+                      starRating={property.starRating}
                       onUpdate={handlePropertyUpdate}
                     />
                   );

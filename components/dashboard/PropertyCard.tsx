@@ -57,6 +57,7 @@ interface PropertyCardProps {
   timeAgo?: string;
   pricingUnit?: string;
   maxGuests?: number;
+  starRating?: number;
 }
 
 export const PropertyCard = ({
@@ -81,6 +82,7 @@ export const PropertyCard = ({
   timeAgo,
   pricingUnit,
   maxGuests,
+  starRating,
 }: PropertyCardProps) => {
   const { user } = useAuth();
   const router = useRouter();
@@ -363,6 +365,22 @@ export const PropertyCard = ({
 
           <span className="text-[#717171] truncate">{title}</span>
           <span className="text-[#717171] truncate">{metaString}</span>
+
+          {/* Hotel star classification */}
+          {starRating && starRating > 0 && (
+            <div className="flex items-center gap-0.5 mt-0.5" aria-label={`${starRating}-star hotel`}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  className={cn(
+                    "w-3 h-3",
+                    i < starRating ? "fill-amber-400 text-amber-400" : "fill-[#DDDDDD] text-[#DDDDDD]"
+                  )}
+                />
+              ))}
+              <span className="text-[11px] text-[#717171] ml-0.5">{starRating}-star</span>
+            </div>
+          )}
 
           <div className="mt-1.5 flex items-baseline gap-1">
             <span className="font-semibold text-[#222222]">{formattedPrice}</span>

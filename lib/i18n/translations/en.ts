@@ -23,7 +23,7 @@ export const en = {
   // Search
   search: {
     placeholder: 'Search properties by location, type, or features...',
-    button: 'Search',
+    button: 'Search Properties',
     suggestions: 'Try searching for: "Apartment in Douala", "3 bedroom house", "Properties with pool"',
   },
   

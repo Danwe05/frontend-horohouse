@@ -1,17 +1,11 @@
 import HeroSection from './heroSection';
-import WhatWeOffer from './whatWeOffer';
-import LuxuriousHaven from './luxuriousHaven';
 import TopListing from './topListing';
 import TopShortTerm from './topShortTerm';
-import AboutUs from './aboutUs';
+import TopHotels from './topHotels';
 import CustomersSay from './customersSay';
-import Footer from '../footer';
 import OurParteners from './ourParteners';
-import StudentSection from './StudentSection';
 import LocationBasedProperties from './LocationBasedProperties';
 import RecentlyViewedProperties from './recentlyViewedProperties';
-import PropertyTypeCards from './propertyTypeCards';
-import WhyHoroHouse from './whyHoroHouse';
 import InsightsSection from './insightsSection';
 export default function HomePage() {
   return (
@@ -20,17 +14,11 @@ export default function HomePage() {
       <LocationBasedProperties />
       <RecentlyViewedProperties />
       <TopShortTerm />
+      <TopHotels />
       <TopListing />
-      {/* <WhyHoroHouse /> */}
-      {/* <LuxuriousHaven /> */}
-      <WhatWeOffer />
-      {/* <StudentSection /> */}
-      {/* <AboutUs /> */}
       <InsightsSection />
       <OurParteners />
       <CustomersSay />
-      
-
     </>
   );
 }

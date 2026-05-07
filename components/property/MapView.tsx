@@ -971,7 +971,7 @@ const MapView = ({
           }
         },
         () => { /* silently fall back — map is already showing */ },
-        { timeout: GEO_TIMEOUT_MS, maximumAge: 30_000, enableHighAccuracy: false }
+        { timeout: GEO_TIMEOUT_MS, maximumAge: 0, enableHighAccuracy: true }
       );
     }
 

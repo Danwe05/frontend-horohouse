@@ -164,6 +164,9 @@ const IndexContent = () => {
     const checkIn = searchParams.get("checkIn");
     const checkOut = searchParams.get("checkOut");
     const guests = searchParams.get("guests");
+    const propertyType = searchParams.get("propertyType");
+    const amenities = searchParams.get("amenities");
+
     if (city) f.city = city;
     if (listingType) f.listingType = listingType;
     if (minPrice) f.minPrice = parseInt(minPrice, 10);
@@ -173,6 +176,9 @@ const IndexContent = () => {
     if (checkIn) f.checkIn = checkIn;
     if (checkOut) f.checkOut = checkOut;
     if (guests) f.guests = parseInt(guests, 10);
+    if (propertyType) f.propertyTypes = [propertyType];
+    if (amenities) f.amenities = amenities.split(",");
+
     return f;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.toString()]);
@@ -241,9 +247,11 @@ const IndexContent = () => {
     if (filters.checkIn) chips.push({ key: "checkIn", label: `From: ${filters.checkIn}` });
     if (filters.checkOut) chips.push({ key: "checkOut", label: `To: ${filters.checkOut}` });
     if (filters.guests) chips.push({ key: "guests", label: `${filters.guests}+ Guests` });
-    if (advancedFilters.propertyTypes?.length) chips.push({ key: "propertyType", label: `Type: ${advancedFilters.propertyTypes[0]}` });
+    if (advancedFilters.propertyTypes?.length || filters.propertyTypes?.length) {
+      chips.push({ key: "propertyType", label: `Type: ${advancedFilters.propertyTypes?.[0] || filters.propertyTypes?.[0]}` });
+    }
     if (advancedFilters.minGuests) chips.push({ key: "minGuests", label: `${advancedFilters.minGuests}+ Guests` });
-    if (advancedFilters.hasPool) chips.push({ key: "hasPool", label: "Has Pool" });
+    if (advancedFilters.hasPool || filters.amenities?.length) chips.push({ key: "hasPool", label: "Amenities active" });
     return chips;
   }, [filters, advancedFilters]);
 
@@ -328,12 +336,14 @@ const IndexContent = () => {
         bedrooms: advancedFilters.minBedrooms || filters.bedrooms || undefined,
         bathrooms: advancedFilters.minBathrooms || filters.bathrooms || undefined,
         minGuests: advancedFilters.minGuests || filters.guests || undefined,
-        propertyType: advancedFilters.propertyTypes?.[0] || undefined,
+        propertyType: advancedFilters.propertyTypes?.[0] || filters.propertyTypes?.[0] || undefined,
         checkIn: filters.checkIn || undefined,
         checkOut: filters.checkOut || undefined,
         sortBy, sortOrder,
       };
-      if (advancedFilters.hasPool !== undefined) {
+      if (advancedFilters.amenities?.length || filters.amenities?.length) {
+        params.amenities = advancedFilters.amenities || filters.amenities;
+      } else if (advancedFilters.hasPool !== undefined) {
         params.amenities = advancedFilters.hasPool ? ["hasPool"] : undefined;
       }
 
@@ -390,6 +400,8 @@ const IndexContent = () => {
       bedrooms: qs.bedrooms?.toString() ?? null, bathrooms: qs.bathrooms?.toString() ?? null,
       checkIn: qs.checkIn ?? null, checkOut: qs.checkOut ?? null,
       guests: qs.guests?.toString() ?? null,
+      propertyType: qs.propertyTypes?.[0] ?? null,
+      amenities: qs.amenities?.join(",") ?? null,
     });
     scrollToTop();
   }, [updateURLParams]);
@@ -445,6 +457,8 @@ const IndexContent = () => {
       isBlockchainVerified: p.isBlockchainVerified ?? false,
       rating: typeof p.averageRating === "number" && p.averageRating > 0 ? p.averageRating : undefined,
       reviewCount: typeof p.reviewCount === "number" ? p.reviewCount : undefined,
+      propertyType: p.type,
+      starRating: p.starRating,
     })),
     [properties]
   );

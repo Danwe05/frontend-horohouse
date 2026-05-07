@@ -25,14 +25,43 @@ class AuthService {
 
   async sendPhoneCode(phoneNumber: string): Promise<{ message: string }> {
     const response = await fetch(`${this.baseUrl}/auth/send-phone-code`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phoneNumber }),
     });
-
     if (!response.ok) {
       const error: ApiError = await response.json();
-      throw new Error(error.message || "Failed to send verification code");
+      throw new Error(error.message || 'Failed to send code');
+    }
+    return response.json();
+  }
+
+  async verifyPhoneCode(phoneNumber: string, verificationCode: string): Promise<{ message: string }> {
+    const response = await fetch(`${this.baseUrl}/auth/verify-phone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phoneNumber, verificationCode }),
+    });
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.message || 'Invalid code');
+    }
+    return response.json();
+  }
+
+  async updateMyProfile(data: Partial<{ phoneNumber: string }>): Promise<any> {
+    const token = this.getAccessToken();
+    const response = await fetch(`${this.baseUrl}/users/me`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.message || 'Failed to update profile');
     }
     return response.json();
   }
@@ -126,6 +155,10 @@ class AuthService {
 
   async loginWithGoogle(): Promise<void> {
     window.location.href = `${this.baseUrl}/auth/google`;
+  }
+
+  async loginWithApple(): Promise<void> {
+    window.location.href = `${this.baseUrl}/auth/apple`;
   }
 
   /**
@@ -295,6 +328,8 @@ class AuthService {
       return null;
     }
   }
+
+
 
   isValidPhoneNumber(phoneNumber: string): boolean {
     return /^\+[1-9]\d{1,14}$/.test(phoneNumber);

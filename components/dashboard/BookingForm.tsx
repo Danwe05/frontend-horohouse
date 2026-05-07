@@ -55,6 +55,7 @@ interface Property {
 
 interface Props {
   property: Property;
+  initialRoomId?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -75,7 +76,8 @@ function isDateBlocked(
   return unavailableDates.some(({ from, to }) => {
     const f = startOfDay(new Date(from));
     const t = startOfDay(new Date(to));
-    return !isBefore(date, f) && !isAfter(date, t);
+    // A guest can check in on the checkout day of another guest!
+    return !isBefore(date, f) && isBefore(date, t);
   });
 }
 
@@ -100,7 +102,7 @@ function Accordion({ open, children }: { open: boolean; children: React.ReactNod
 
 type MobilePanel = 'date' | 'guests' | null;
 
-export default function BookingForm({ property }: Props) {
+export default function BookingForm({ property, initialRoomId }: Props) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { formatMoney } = useCurrency();
@@ -133,7 +135,7 @@ export default function BookingForm({ property }: Props) {
     property.propertyType?.toLowerCase() || '',
   );
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [selectedRoomId, setSelectedRoomId] = useState<string | undefined>();
+  const [selectedRoomId, setSelectedRoomId] = useState<string | undefined>(initialRoomId);
   const [roomUnavailableDates, setRoomUnavailableDates] = useState<
     Array<{ from: string; to: string }>
   >([]);
@@ -146,22 +148,28 @@ export default function BookingForm({ property }: Props) {
           const roomsData = Array.isArray(res) ? res : res.rooms || [];
           if (roomsData.length > 0) {
             setRooms(roomsData);
-            setSelectedRoomId(roomsData[0]._id);
+            // Honour initialRoomId if it exists in the returned list, otherwise default to first
+            const preferred = initialRoomId && roomsData.find((r: Room) => r._id === initialRoomId);
+            setSelectedRoomId(preferred ? initialRoomId : roomsData[0]._id);
           }
         })
         .catch((err) => console.error('Failed to load rooms', err));
     }
-  }, [isMultiRoom, property._id]);
+  }, [isMultiRoom, property._id, initialRoomId]);
 
   const selectedRoom = useMemo(
     () => rooms.find((r) => r._id === selectedRoomId),
     [rooms, selectedRoomId],
   );
 
+  const [hasLoadedAvailability, setHasLoadedAvailability] = useState(false);
+
   useEffect(() => {
     if (!property._id) return;
     const from = format(new Date(), 'yyyy-MM-dd');
     const to = format(addDays(new Date(), property.bookingWindowDays ?? 365), 'yyyy-MM-dd');
+    
+    setHasLoadedAvailability(false);
     apiClient
       .getPropertyAvailability(property._id, from, to, selectedRoomId ?? undefined)
       .then((res) => {
@@ -171,7 +179,8 @@ export default function BookingForm({ property }: Props) {
           dates.push(...res.bookedRanges.map((r: any) => ({ from: r.checkIn, to: r.checkOut })));
         setRoomUnavailableDates(dates);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setHasLoadedAvailability(true));
   }, [property._id, selectedRoomId, property.bookingWindowDays]);
 
   const [paymentOpen, setPaymentOpen] = useState(false);
@@ -243,11 +252,11 @@ export default function BookingForm({ property }: Props) {
     (date: Date) =>
       isDateBlocked(
         date,
-        roomUnavailableDates.length > 0 ? roomUnavailableDates : (property.unavailableDates ?? []),
+        hasLoadedAvailability ? roomUnavailableDates : (property.unavailableDates ?? []),
         property.advanceNoticeDays,
         property.bookingWindowDays,
       ),
-    [roomUnavailableDates, property],
+    [roomUnavailableDates, hasLoadedAvailability, property],
   );
 
   const handleBook = useCallback(async () => {

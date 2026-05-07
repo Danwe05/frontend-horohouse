@@ -49,7 +49,7 @@ export default function Reviews({ propertyId }: ReviewsProps) {
   } = usePropertyReviews(propertyId, page, 6); // Set to 6 to fit a nice 2-column grid
 
   const userHasReviewed = reviews.some(
-    (review) => review.userId._id === user?.id
+    (review) => (typeof review.userId === 'object' ? review.userId?._id : review.userId) === user?.id
   );
 
   const handleCreateReview = async (data: { rating: number; comment: string }) => {
@@ -188,7 +188,7 @@ export default function Reviews({ propertyId }: ReviewsProps) {
                     <div className="flex items-center gap-4">
                       <Avatar className="h-12 w-12 bg-[#EBEBEB]">
                         <AvatarImage
-                          src={review.userId?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(review.userName || 'User')}&backgroundColor=dddddd`}
+                          src={typeof review.userId === 'object' ? review.userId?.profilePicture : undefined}
                           alt={review.userName}
                         />
                         <AvatarFallback className="text-[#222222] font-semibold text-[16px]">

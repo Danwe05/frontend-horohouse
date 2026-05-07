@@ -1,17 +1,18 @@
-import { MoreVertical, Paperclip, Send, ArrowLeft, Smile, MessageCircle, Mic, Video, MapPin, Check, CheckCheck } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVideoCall } from "@/hooks/useVideoCall";
 import { VideoCallOverlay } from './VideoCallOverlay';
 import { IncomingCallDialog } from './IncomingCallDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+
+// Import newly refactored sub-components
+import { ChatThreadHeader } from "./ChatThreadHeader";
+import { ChatMessageList } from "./ChatMessageList";
+import { ChatInputArea } from "./ChatInputArea";
 
 interface ChatThreadProps {
   onBack?: () => void;
@@ -43,20 +44,31 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [incomingCallData, setIncomingCallData] = useState<any>(null);
   const [showVideoCall, setShowVideoCall] = useState(false);
+  const [showQuickMessages, setShowQuickMessages] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const quickMessagesList = [
+    "Here are the check-in instructions. Please let me know if you have any questions.",
+    "The WiFi network is 'HoroHouse_Guest' and the password is 'Welcome2026!'.",
+    "What time are you expecting to arrive?",
+    "Thank you! We hope you have a great stay.",
+    "Yes, late checkout is available upon request."
+  ];
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  
+  const { apiClient } = require('@/lib/api'); // Wait, imported? No let's import at top. Actually `import { apiClient } from '@/lib/api';` at top is cleaner.
 
-  // FIX: Normalize current user ID to string once
   const currentUserId = (user?.id || user?._id || '').toString();
 
-  // Get other user from conversation
   const otherUser = activeConversation?.otherUser ||
     activeConversation?.participants.find(
-      p => p.userId._id.toString() !== currentUserId
+      (p: any) => p.userId._id.toString() !== currentUserId
     )?.userId;
 
   const {
@@ -76,13 +88,12 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     socket,
     userId: currentUserId,
     otherUser,
-    onIncomingCall: (data) => {
+    onIncomingCall: (data: any) => {
       console.log('📞 Incoming call data in ChatThread:', data);
       setIncomingCallData(data);
     },
   });
 
-  // Control video overlay visibility
   useEffect(() => {
     if (callStatus === 'calling' || callStatus === 'connecting' || callStatus === 'connected') {
       setShowVideoCall(true);
@@ -95,24 +106,20 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     }
   }, [callStatus]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Mark messages as read when viewing
   useEffect(() => {
     if (activeConversation && messages.length > 0 && currentUserId) {
       const unreadMessages = messages
         .filter(msg => {
-          // FIX: Normalize senderId safely whether it's a string or object
           const senderId = typeof msg.senderId === 'object'
             ? msg.senderId._id?.toString()
             : (msg.senderId as any)?.toString();
           return senderId !== currentUserId && msg.status !== 'read';
         })
         .map(msg => msg._id)
-        // Exclude optimistic temp messages (they don't exist on server yet)
         .filter(id => id && !id.startsWith('temp_'));
 
       if (unreadMessages.length > 0) {
@@ -121,7 +128,6 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     }
   }, [messages, activeConversation, currentUserId, markAsRead]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
@@ -148,11 +154,37 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
     }, 1000);
   };
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim() || !activeConversation) return;
+  const handleSendMessage = async () => {
+    if ((!inputValue.trim() && selectedFiles.length === 0) || !activeConversation || isUploading) return;
 
-    sendMessage(activeConversation._id, inputValue.trim());
-    setInputValue("");
+    if (selectedFiles.length > 0) {
+      try {
+        setIsUploading(true);
+        // Use API client for attachment posts
+        const { apiClient } = require('@/lib/api');
+        await apiClient.sendMessageWithAttachments(
+          {
+            conversationId: activeConversation._id,
+            content: inputValue.trim() || undefined,
+            propertyId: activeConversation.propertyId?._id
+          },
+          selectedFiles
+        );
+        // Let the realtime socket pick up the returned message, or manually trigger refresh
+      } catch (e) {
+        console.error("Error uploading attachments", e);
+        alert("Failed to send files.");
+      } finally {
+        setIsUploading(false);
+        setSelectedFiles([]);
+        setInputValue("");
+        setShowQuickMessages(false);
+      }
+    } else {
+      sendMessage(activeConversation._id, inputValue.trim());
+      setInputValue("");
+      setShowQuickMessages(false);
+    }
 
     if (isTyping) {
       setIsTyping(false);
@@ -255,7 +287,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
           </p>
           <Button 
             onClick={() => router.push('/')} 
-            className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] transition-colors"
+            className="h-12 px-8 bg-[#222222] hover:bg-black text-white rounded-lg font-semibold text-[15px] transition-colors"
           >
             {s.browseProperties || 'Browse listings'}
           </Button>
@@ -281,7 +313,7 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white min-h-0 relative border-l border-[#EBEBEB]">
-      {/* Video Call Overlay */}
+      {/* Video Call Componentry */}
       {showVideoCall && (
         <VideoCallOverlay
           onClose={() => setShowVideoCall(false)}
@@ -296,7 +328,6 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
         />
       )}
 
-      {/* Incoming Call Dialog */}
       {incomingCallData && callStatus === 'ringing' && (
         <IncomingCallDialog
           caller={{
@@ -309,59 +340,15 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
         />
       )}
 
-      {/* Chat Header */}
-      <div className="px-6 py-4 bg-white border-b border-[#EBEBEB] flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-4">
-          {onBack && (
-            <button className="md:hidden p-2 -ml-2 rounded-full hover:bg-[#F7F7F7] text-[#222222] transition-colors focus:outline-none" onClick={onBack}>
-              <ArrowLeft className="w-5 h-5 stroke-[2]" />
-            </button>
-          )}
-          <div className="relative shrink-0">
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-[#F7F7F7] border border-[#DDDDDD] flex items-center justify-center text-[#222222]">
-              {otherUser?.profilePicture ? (
-                <img src={otherUser.profilePicture} alt={otherUser.name} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-[16px] font-bold">{otherUser?.name?.[0]?.toUpperCase() || "U"}</span>
-              )}
-            </div>
-            {isOtherUserOnline && (
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#008A05] border-2 border-white rounded-full" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <h2 className="text-[16px] font-semibold text-[#222222] truncate">{otherUser?.name || (s.unknownUser || "Unknown User")}</h2>
-            </div>
-            {activeConversation.propertyId?._id ? (
-              <button
-                onClick={() => router.push(`/properties/${activeConversation.propertyId?._id}`)}
-                className="flex items-center gap-1.5 text-[13px] text-[#717171] hover:text-[#222222] transition-colors text-left truncate max-w-full focus:outline-none"
-              >
-                <MapPin className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{activeConversation.propertyId?.title}</span>
-              </button>
-            ) : (
-              <p className="text-[13px] text-[#717171] truncate">
-                {isOtherUserOnline ? 'Active now' : 'Offline'}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            className="w-10 h-10 rounded-full flex items-center justify-center text-[#222222] hover:bg-[#F7F7F7] transition-colors disabled:opacity-50 focus:outline-none"
-            onClick={handleStartVideoCall}
-            disabled={!isOtherUserOnline || callStatus !== 'idle'}
-            title={isOtherUserOnline ? "Start video call" : "User is offline"}
-          >
-            <Video className="w-5 h-5 stroke-[2]" />
-          </button>
-          <button className="w-10 h-10 rounded-full flex items-center justify-center text-[#222222] hover:bg-[#F7F7F7] transition-colors focus:outline-none">
-            <MoreVertical className="w-5 h-5 stroke-[2]" />
-          </button>
-        </div>
-      </div>
+      {/* Header */}
+      <ChatThreadHeader 
+        otherUser={otherUser}
+        activeConversation={activeConversation}
+        isOtherUserOnline={isOtherUserOnline}
+        callStatus={callStatus}
+        onBack={onBack}
+        onStartVideoCall={handleStartVideoCall}
+      />
 
       {/* Connection Warning */}
       {!isConnected && (
@@ -371,165 +358,36 @@ export function ChatThread({ onBack, conversationId }: ChatThreadProps) {
         </div>
       )}
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-white">
-        {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center max-w-md">
-              <div className="w-16 h-16 bg-[#F7F7F7] rounded-full flex items-center justify-center mx-auto mb-4 border border-[#EBEBEB]">
-                <MessageCircle className="w-8 h-8 text-[#DDDDDD] stroke-[1.5]" />
-              </div>
-              <h3 className="text-[18px] font-semibold text-[#222222] mb-2">{s.noMessagesYetStr || 'No messages yet'}</h3>
-              <p className="text-[15px] text-[#717171]">
-                {s.startConversationWith?.replace('{name}', otherUser?.name) ||
-                  `Send a message to ${otherUser?.name} to start the conversation.`}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <>
-            {messages.map((message, index) => {
-              const senderId = typeof message.senderId === 'object'
-                ? message.senderId._id?.toString()
-                : (message.senderId as any)?.toString();
-
-              const isOwn = !!senderId && !!currentUserId && senderId === currentUserId;
-
-              const isVoiceMessage = message.type === 'audio' ||
-                (message.content && message.content.startsWith('VOICE_MESSAGE:'));
-
-              const isOptimistic = !!message._id && message._id.startsWith('temp_');
-
-              return (
-                <div
-                  key={`${message._id}-${index}`}
-                  className={cn("flex items-end gap-2", isOwn ? "justify-end" : "justify-start")}
-                >
-                  {!isOwn && (
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] shrink-0 flex items-center justify-center text-[#222222] mb-5">
-                      {typeof message.senderId === 'object' && message.senderId.profilePicture ? (
-                        <img src={message.senderId.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-[11px] font-bold">
-                          {typeof message.senderId === 'object' ? message.senderId.name?.[0]?.toUpperCase() : 'U'}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  <div className={cn("flex flex-col", isOwn ? "items-end" : "items-start", "max-w-[75%]")}>
-                    <div
-                      className={cn(
-                        "px-4 py-3 text-[15px] leading-relaxed shadow-sm",
-                        isOwn 
-                          ? "bg-blue-600 text-white rounded-2xl rounded-br-sm" 
-                          : "bg-[#F7F7F7] text-[#222222] border border-[#EBEBEB] rounded-2xl rounded-bl-sm",
-                        isVoiceMessage ? 'min-w-[200px]' : '',
-                        isOptimistic ? 'opacity-70' : 'opacity-100'
-                      )}
-                    >
-                      {!isVoiceMessage && message.type !== 'image' && (
-                        <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                      )}
-                    </div>
-
-                    <div className={cn("flex items-center gap-1.5 mt-1.5", isOwn ? "pr-1" : "pl-1")}>
-                      <span className="text-[11px] font-medium text-[#717171]">
-                        {new Date(message.createdAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                      {isOwn && (
-                        <span className="flex items-center">
-                          {isOptimistic ? (
-                            <Check className="w-3.5 h-3.5 text-[#DDDDDD]" />
-                          ) : message.status === 'read' ? (
-                            <CheckCheck className="w-3.5 h-3.5 text-[#222222]" />
-                          ) : message.status === 'delivered' ? (
-                            <CheckCheck className="w-3.5 h-3.5 text-[#717171]" />
-                          ) : (
-                            <Check className="w-3.5 h-3.5 text-[#717171]" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            {isOtherUserTyping && (
-              <div className="flex items-end gap-2 justify-start">
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-[#F7F7F7] border border-[#EBEBEB] shrink-0 flex items-center justify-center text-[#222222] mb-1">
-                  {otherUser?.profilePicture ? (
-                    <img src={otherUser.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-[11px] font-bold">{otherUser?.name?.[0]?.toUpperCase() || "U"}</span>
-                  )}
-                </div>
-                <div className="bg-[#F7F7F7] border border-[#EBEBEB] px-4 py-4 rounded-2xl rounded-bl-sm shadow-sm flex items-center justify-center h-[46px] mb-1">
-                  <div className="flex gap-1.5">
-                    <span className="w-1.5 h-1.5 bg-[#717171] rounded-full animate-bounce" />
-                    <span className="w-1.5 h-1.5 bg-[#717171] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
-                    <span className="w-1.5 h-1.5 bg-[#717171] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
+      {/* Message List */}
+      <ChatMessageList 
+        messages={messages}
+        currentUserId={currentUserId}
+        otherUser={otherUser}
+        isOtherUserTyping={isOtherUserTyping}
+        messagesEndRef={messagesEndRef}
+      />
 
       {/* Input Area */}
-      <div className="px-6 py-4 bg-white border-t border-[#EBEBEB] shrink-0">
-        <div className="flex items-center gap-3">
-          <button className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-[#717171] hover:text-[#222222] hover:bg-[#F7F7F7] transition-colors focus:outline-none">
-            <Paperclip className="w-5 h-5 stroke-[2]" />
-          </button>
-
-          <button
-            className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors focus:outline-none",
-              isRecording ? "text-[#C2293F] bg-[#FFF8F6]" : "text-[#717171] hover:text-[#222222] hover:bg-[#F7F7F7]"
-            )}
-            onMouseDown={startRecording}
-            onMouseUp={stopRecording}
-            title="Hold to record voice message"
-          >
-            <Mic className="w-5 h-5 stroke-[2]" />
-          </button>
-
-          <div className="flex-1 relative">
-            <Input
-              value={inputValue}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-              placeholder={s.typeYourMessage || 'Type a message...'}
-              className="w-full h-12 bg-[#F7F7F7] border-transparent rounded-full px-5 text-[15px] focus-visible:ring-1 focus-visible:ring-[#222222] placeholder:text-[#717171] pr-12"
-              disabled={!isConnected}
-            />
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-[#717171] hover:text-[#222222] transition-colors focus:outline-none">
-              <Smile className="w-5 h-5 stroke-[2]" />
-            </button>
-          </div>
-
-          <button
-            className={cn(
-              "w-12 h-12 rounded-full shrink-0 flex items-center justify-center transition-transform focus:outline-none",
-              inputValue.trim() && isConnected 
-                ? "bg-blue-600 hover:bg-blue-700 text-white" 
-                : "bg-[#F7F7F7] text-[#DDDDDD] cursor-not-allowed"
-            )}
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim() || !isConnected}
-          >
-            <Send className="w-5 h-5 stroke-[2] -ml-0.5 mt-0.5" />
-          </button>
-        </div>
-      </div>
+      <ChatInputArea 
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        isRecording={isRecording}
+        isConnected={isConnected}
+        showQuickMessages={showQuickMessages}
+        setShowQuickMessages={setShowQuickMessages}
+        handleInputChange={handleInputChange}
+        handleKeyPress={handleKeyPress}
+        handleSendMessage={handleSendMessage}
+        startRecording={startRecording}
+        stopRecording={stopRecording}
+        sendVoiceMessage={sendVoiceMessage}
+        audioBlob={audioBlob}
+        recordingTime={recordingTime}
+        quickMessagesList={quickMessagesList}
+        selectedFiles={selectedFiles}
+        setSelectedFiles={setSelectedFiles}
+        isUploading={isUploading}
+      />
     </div>
   );
 }

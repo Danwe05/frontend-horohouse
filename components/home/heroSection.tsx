@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, JSX } from 'react';
-import { Search, MapPin, Home, DollarSign, Loader2 } from 'lucide-react';
+import { Search, MapPin, Home, DollarSign, Loader2, Clock, ShoppingBag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -477,18 +477,19 @@ export default function HeroSection() {
           {/* Mobile Tabs */}
           <div className="flex lg:hidden justify-center space-x-1 bg-white p-1 rounded-xl -mt-16 sm:-mt-20 relative z-20 max-w-sm mx-auto">
             {[
-              { value: 'rent', label: t.hero?.tabs?.rent || 'Rent' },
-              { value: 'sale', label: t.hero?.tabs?.sale || 'Buy' },
-              { value: 'short_term', label: t.hero?.tabs?.shortStays || 'Stays' }
+              { value: 'rent', label: t.hero?.tabs?.rent || 'Rent', icon: <Home size={14} /> },
+              { value: 'sale', label: t.hero?.tabs?.sale || 'Buy', icon: <ShoppingBag size={14} /> },
+              { value: 'short_term', label: t.hero?.tabs?.shortStays || 'Stays', icon: <Clock size={14} /> }
             ].map((tab) => (
               <button
                 key={tab.value}
-                className={`flex-1 py-2.5 sm:py-3 rounded-lg font-semibold capitalize transition-all duration-300 text-sm ${selectedTab === tab.value
+                className={`flex-1 py-2.5 sm:py-3 flex justify-center items-center gap-3 rounded-lg font-semibold capitalize transition-all duration-300 text-sm ${selectedTab === tab.value
                   ? 'bg-blue-600 text-white -sm'
                   : 'text-gray-600'
                   }`}
                 onClick={() => handleTabChange(tab.value)}
               >
+                {tab.icon}
                 {tab.label}
               </button>
             ))}
@@ -592,7 +593,7 @@ export default function HeroSection() {
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-600 text-white py-3 sm:py-3.5 rounded-xl font-semibold flex items-center justify-center space-x-2 hover:from-blue-700 hover:to-blue-700 transition-all duration-300 active:scale-95"
               >
                 <Search size={16} className="sm:w-[18px] sm:h-[18px]" />
-                <span>{t.hero?.search?.button || 'Search'}</span>
+                <span>{t.hero?.search?.button || 'Search Properties'}</span>
               </button>
             </div>
           </div>

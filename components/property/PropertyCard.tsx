@@ -27,7 +27,7 @@ import {
 import { ReportModal } from "./ReportModal";
 import { buildPropertyPath, formatTimeAgo, isNew } from "@/lib/propertyutils";
 import { cn } from "@/lib/utils";
-import { div } from "framer-motion/client";
+
 
 // ---------------------------------------------------------------------------
 // Types
@@ -58,6 +58,8 @@ interface PropertyCardProps {
   minNights?: number;
   rating?: number;
   reviewCount?: number;
+  starRating?: number;
+  propertyType?: string;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }
@@ -125,9 +127,28 @@ const StopPropagationWrapper = ({ children, className }: { children: React.React
   return <div ref={ref} className={className}>{children}</div>;
 };
 
+function StarRatingBadge({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-1">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className={cn(
+            'w-4 h-4 transition-colors',
+            i < rating ? 'fill-yellow-400 text-yellow-400' : 'fill-none text-[#DDDDDD]',
+          )}
+        />
+      ))}
+      <span className="text-[13px] font-semibold text-[#717171] ml-1">{rating}-star hotel</span>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
+
+const HOTEL_TYPES = new Set(["hotel", "motel", "resort", "guesthouse", "hostel", "serviced_apartment", "vacation_rental"]);
 
 const PropertyCard = ({
   id, image, images, price, title, timeAgo, address, beds, baths, sqft, tag,
@@ -135,6 +156,7 @@ const PropertyCard = ({
   onCompareChange, showCompare = false, isVerified = false,
   isBlockchainVerified = false, pricingUnit, maxGuests,
   availableFrom, minNights, rating, reviewCount,
+  starRating, propertyType,
   onMouseEnter, onMouseLeave,
 }: PropertyCardProps) => {
   const { isFavorite, addFavorite, removeFavorite, isLoaded } = useFavorites();
@@ -151,7 +173,8 @@ const PropertyCard = ({
     if (isLoaded && initialIsFavorite === undefined) setLocalFavorite(isFavorite(id));
   }, [isLoaded, id, isFavorite, initialIsFavorite]);
 
-  const getImageSrc = (img: string | StaticImageData): string | null => {
+  const getImageSrc = (img: any): string | null => {
+    if (!img) return null;
     if (typeof img === "string") return img.trim() || null;
     return img.src || null;
   };
@@ -310,20 +333,20 @@ const PropertyCard = ({
             >
               {listingType && (
                 <span className={cn(
-                  "inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide text-fwhite",  // ← "text-fwhite" is not a valid Tailwind class!
-                  isShortTerm ? "bg-white" : listingType === "rent" ? "bg-white" : "bg-white"  // ← all bg-white with white text = invisible
+                  "inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide text-white",
+                  isShortTerm ? "bg-blue-600" : listingType === "rent" ? "bg-blue-600" : "bg-blue-600"
                 )}
                 >
                   {getListingLabel(listingType, t)}
                 </span>
               )}
               {showNewBadge && (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide text-white bg-[#059669] ml-1">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide text-white bg-[#059ddf] ml-1">
                   {t.propertyCardExtras.new}
                 </span>
               )}
               {displayTag && !showNewBadge && tag && (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide text-white bg-[#1A56DB] ml-1">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide text-[#1A56DB] capitalize bg-white ml-1">
                   {displayTag}
                 </span>
               )}
@@ -385,16 +408,30 @@ const PropertyCard = ({
             )}
           </StopPropagationWrapper>
 
-          {/* ── Text content — Airbnb layout ── */}
+          {/* ── Text content ── */}
           <div className="px-0.5">
 
-            {/* Row 1: title + rating */}
             <div className="flex items-start justify-between gap-2 mb-0.5">
-              <h3 className="text-[15px] capitalize font-semibold text-[#222222] truncate leading-snug flex-1">
-                {title || address}
-              </h3>
+              <div className="flex flex-col flex-1 truncate">
+                <h3 className="text-[15px] capitalize font-semibold text-[#222222] truncate leading-snug">
+                  {title || address}
+                </h3>
+                {starRating !== undefined && starRating > 0 && (
+                  <div className="flex items-center gap-0.5 mt-1" aria-label={`${starRating}-star hotel`}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={cn(
+                          "h-3 w-3", 
+                          i < starRating ? "fill-yellow-500 text-yellow-500" : "fill-[#DDDDDD] text-[#DDDDDD]"
+                        )} 
+                      />
+                    ))}<span className="text-[13px] font-semibold text-[#717171] ml-1">{starRating}-star hotel</span>
+                  </div>
+                )}
+              </div>
               {rating !== undefined ? (
-                <div className="flex items-center gap-0.5 shrink-0">
+                <div className="flex items-center gap-0.5 shrink-0 pt-0.5">
                   <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
                   <span className="text-[14px] font-semibold text-[#222222]">{rating.toFixed(1)}</span>
                   {reviewCount !== undefined && reviewCount > 0 && (
@@ -402,7 +439,7 @@ const PropertyCard = ({
                   )}
                 </div>
               ) : (
-                <span className="text-[13px] text-[#717171] shrink-0 italic">{t.propertyCardExtras.noReviews}</span>
+                <span className="text-[13px] text-[#717171] shrink-0 italic pt-0.5">{t.propertyCardExtras.noReviews}</span>
               )}
             </div>
 
@@ -412,6 +449,7 @@ const PropertyCard = ({
                 {address}
               </p>
             )}
+            
 
             {/* Row 2: meta info — beds / baths / sqft / guests */}
             <div className="flex items-center gap-2 text-[14px] text-[#717171] mb-0.5">
@@ -452,22 +490,23 @@ const PropertyCard = ({
             )}
 
             {/* Row 4: price — Airbnb bolds the price, unit is regular weight */}
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-[15px] font-bold text-[#222222]">{formattedPrice}</span>
-              {priceSuffix && (
-                <span className="text-[14px] font-normal text-[#222222]">{priceSuffix}</span>
-              )}
-            </div>
+            <div className="flex justify-between items-baseline gap-1 mt-1">
+              <div>
+                <span className="text-[15px] font-bold text-[#222222]">{formattedPrice}</span>
+                {priceSuffix && (
+                  <span className="text-[14px] font-normal text-[#222222]">{priceSuffix}</span>
+                )}
+              </div>
 
-            {/* Row 5: report link — very subtle, far right */}
-            <div className="flex justify-end mt-1.5">
-              <button
-                onClick={handleReport}
-                aria-label={t.propertyCardExtras?.reportThisListing || "Report"}
-                className="text-[12px] text-[#717171] hover:text-[#222222] underline underline-offset-2 transition-colors opacity-0 group-hover:opacity-100"
-              >
-                {t.propertyCardExtras?.report}
-              </button>
+              <div>
+                <button
+                  onClick={handleReport}
+                  aria-label={t.propertyCardExtras?.reportThisListing || "Report"}
+                  className="text-[12px] text-[#717171] hover:text-[#222222] underline underline-offset-2 transition-colors opacity-0 group-hover:opacity-100"
+                >
+                  {t.propertyCardExtras?.report}
+                </button>
+              </div>
             </div>
           </div>
         </Link>

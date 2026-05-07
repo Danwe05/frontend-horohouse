@@ -158,8 +158,8 @@ export default function InsightsSection() {
   if (!loading && posts.length === 0) return null;
 
   return (
-    <section className="py-16 md:py-24 bg-white">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="bg-white py-16 px-6 lg:px-10">
+      <div className="max-w-[1600px] mx-auto relative">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
