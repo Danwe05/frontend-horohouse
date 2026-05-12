@@ -8,10 +8,10 @@ export default function PopularDestinations() {
   const isRtl = language === 'ar';
 
   const cities = [
-    { name: 'Yaoundé', sub: "Capital City", img: 'https://images.unsplash.com/photo-1542361623-2895692015fa?q=80&w=2072&auto=format&fit=crop', colSpan: "md:col-span-2 md:row-span-2" },
-    { name: 'Douala', sub: "Economic Core", img: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?q=80&w=2070&auto=format&fit=crop', colSpan: "md:col-span-1 md:row-span-1" },
-    { name: 'Kribi', sub: "Coastal Escapes", img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop', colSpan: "md:col-span-1 md:row-span-1" },
-    { name: 'Buea', sub: "Mountain Views", img: 'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?q=80&w=2071&auto=format&fit=crop', colSpan: "md:col-span-2 md:row-span-1" },
+    { name: 'Yaoundé', sub: "Capital City", img: 'https://carcameroun.s3.amazonaws.com/uploads/post/featured_image/234/78.jpg', colSpan: "md:col-span-2 md:row-span-2" },
+    { name: 'Douala', sub: "Economic Core", img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTffgalHBN8p1x-JvDzRyeUdU5-X_ddSF2fw&s', colSpan: "md:col-span-1 md:row-span-1" },
+    { name: 'Kribi', sub: "Coastal Escapes", img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx-OvaMz6sivb1MFavCFVwV9wSrO-WZKHR7w&s', colSpan: "md:col-span-1 md:row-span-1" },
+    { name: 'Buea', sub: "Mountain Views", img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAje2q2t8XQOIEdFVjhXcdvJ-aoyWBoX7gvw&s', colSpan: "md:col-span-2 md:row-span-1" },
   ];
 
   return (
