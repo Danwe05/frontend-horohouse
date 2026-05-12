@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -15,7 +15,6 @@ import apiClient from '@/lib/api';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-// ─── Constants ──────────────────────────────────────────────────────────────
 const CARDS_BY_WIDTH: [number, number][] = [
   [1280, 5],
   [1024, 4],
@@ -31,22 +30,27 @@ function getCardsPerView(): number {
   return 1;
 }
 
-// ─── Airbnb-Style Skeleton ───────────────────────────────────────────────────
+function timeAgoFromIso(iso?: string): string {
+  if (!iso) return "Just now";
+  const diff = Date.now() - new Date(iso).getTime();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 const PropertyCardSkeleton = () => (
   <div className="flex flex-col gap-3 w-full">
     <div className="aspect-[20/19] bg-[#EBEBEB] rounded-xl animate-pulse" />
     <div className="space-y-2">
       <div className="h-4 bg-[#EBEBEB] rounded w-3/4 animate-pulse" />
       <div className="h-4 bg-[#EBEBEB] rounded w-1/2 animate-pulse" />
-      <div className="h-4 bg-[#EBEBEB] rounded w-1/3 animate-pulse mt-2" />
     </div>
   </div>
 );
 
-// ─── Main Component ──────────────────────────────────────────────────────────
-export default function TopHotels() {
-  const { t, language } = useLanguage();
-  const _t = t as any;
+export default function RecentlyAddedProperties() {
+  const { language } = useLanguage();
   const { formatMoney } = useCurrency();
   const isRtl = language === 'ar';
 
@@ -56,7 +60,6 @@ export default function TopHotels() {
   const [cardsPerView, setCardsPerView] = useState(4);
   const [api, setApi] = useState<CarouselApi>();
 
-  // ── Carousel Sync
   useEffect(() => {
     if (!api) return;
     api.on("select", () => {
@@ -64,7 +67,6 @@ export default function TopHotels() {
     });
   }, [api]);
 
-  // ── Responsive cards per view
   useEffect(() => {
     let raf: number;
     const updateCardsPerView = () => {
@@ -77,21 +79,16 @@ export default function TopHotels() {
     return () => { window.removeEventListener('resize', updateCardsPerView); cancelAnimationFrame(raf); };
   }, []);
 
-  // ── Fetch top hotel properties
   useEffect(() => {
     let cancelled = false;
-    const fetchHotelProperties = async () => {
+    const fetchRecentProperties = async () => {
       try {
         setLoading(true);
-        const params = {
-          propertyType: 'hotel',
-          listingType: 'short_term',
+        const data = await apiClient.searchProperties({
           sortBy: 'createdAt',
-          sortOrder: 'desc' as const,
+          sortOrder: 'desc',
           limit: 15,
-        };
-
-        const data = await apiClient.searchProperties(params);
+        });
         if (!cancelled) setProperties(Array.isArray(data?.properties) ? data.properties : []);
       } catch (error: any) {
         if (!cancelled) setProperties([]);
@@ -100,35 +97,23 @@ export default function TopHotels() {
       }
     };
 
-    fetchHotelProperties();
+    fetchRecentProperties();
     return () => { cancelled = true; };
   }, []);
-
-  // ── Format properties
-  const formatPrice = (value?: number) => {
-    if (typeof value !== "number") return "";
-    return formatMoney(value);
-  };
 
   const formattedProperties = properties.map((p) => ({
     id: p._id || p.id,
     image: p.images?.[0]?.url || "",
     images: p.images?.map((img: any) => img.url) || [],
-    price: formatPrice(p.price),
-    timeAgo: "",
+    price: typeof p.price === "number" ? formatMoney(p.price) : "",
+    timeAgo: timeAgoFromIso(p.createdAt), 
     address: [p.address, p.city, p.country].filter(Boolean).join(", "),
     beds: p.amenities?.bedrooms ?? 0,
     baths: p.amenities?.bathrooms ?? 0,
-    sqft: p.area ? `${p.area} ft²` : "",
-    tag: p.type ? String(p.type).toUpperCase() : undefined,
-    initialIsFavorite: p.isFavorite || false,
-    listingType: p.listingType || 'hotel',
-    rating: typeof p.averageRating === "number" && p.averageRating > 0 ? p.averageRating : undefined,
-    reviewCount: typeof p.reviewCount === "number" ? p.reviewCount : undefined,
-    starRating: p.starRating,
+    tag: "NEW", // Urgent tag
+    listingType: p.listingType || 'sale',
   }));
 
-  // ── Slider navigation
   const maxIndex = Math.max(0, formattedProperties.length - cardsPerView);
   const showPeek = formattedProperties.length > cardsPerView;
 
@@ -143,7 +128,7 @@ export default function TopHotels() {
   }
 
   return (
-    <section className="w-full bg-[#F7F7F7] py-12 px-6 lg:px-10 font-sans border-y border-[#EBEBEB]" dir={isRtl ? 'rtl' : 'ltr'}>
+    <section className="w-full bg-white py-16 px-6 lg:px-10 font-sans border-t border-[#EBEBEB]" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -151,19 +136,18 @@ export default function TopHotels() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          {/* Header row */}
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 gap-4">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-6 gap-4">
             <div>
-              <h2 className="text-2xl md:text-2xl font-bold text-gray-900 tracking-tight">
-                {_t.topHotels?.title || 'Luxury Hotels & Stays'}
+              <h2 className="text-[26px] md:text-[32px] font-bold text-[#222222] tracking-tight">
+                New this week
               </h2>
               
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 mt-1">
                 {loading ? (
                   <Skeleton className="h-4 w-40 bg-[#EBEBEB]" />
                 ) : (
-                  <span className="text-[#717171] text-[15px]">
-                    {_t.topHotels?.description || 'Discover handpicked luxury hotels for your perfect trip.'}
+                  <span className="text-[#717171] text-[16px]">
+                    Properties listed in the last 48 hours.
                   </span>
                 )}
               </div>
@@ -172,14 +156,13 @@ export default function TopHotels() {
             <div className="flex items-center gap-4">
               {!loading && formattedProperties.length > 0 && (
                 <a
-                  href="/properties?propertyType=hotel&listingType=short_term"
+                  href="/properties?sortBy=createdAt&sortOrder=desc"
                   className="text-[15px] font-semibold underline text-[#222222] hover:text-[#717171] transition-colors"
                 >
-                  {_t.topHotels?.seeAll || 'Show all hotels'}
+                  View all new arrivals
                 </a>
               )}
 
-              {/* Desktop Navigation Arrows */}
               {!loading && showPeek && (
                 <div className="hidden md:flex items-center gap-2 pl-4 border-l border-[#EBEBEB]">
                   <button
@@ -202,7 +185,6 @@ export default function TopHotels() {
           </div>
         </motion.div>
 
-        {/* Carousel Area */}
         <div className="relative">
           {loading ? (
             <div className="flex flex-nowrap overflow-hidden -mx-3 px-3 gap-6">
@@ -238,23 +220,6 @@ export default function TopHotels() {
             </div>
           )}
         </div>
-
-        {/* Mobile Pagination Dots */}
-        {!loading && showPeek && (
-          <div className="md:hidden flex justify-center gap-1.5 mt-8">
-            {Array.from({ length: maxIndex + 1 }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => api?.scrollTo(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentIndex ? 'w-4 bg-[#222222]' : 'w-1.5 bg-[#DDDDDD] hover:bg-[#B0B0B0]'
-                }`}
-                aria-label={`Go to slide ${i + 1}`}
-              />
-            ))}
-          </div>
-        )}
-
       </div>
     </section>
   );

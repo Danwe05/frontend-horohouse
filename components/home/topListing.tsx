@@ -191,6 +191,11 @@ export default function TopListing() {
   }, [formattedProperties.length, _t]);
 
   // ─────────────────────────────────────────────────────────────────────────
+
+  if (!loading && formattedProperties.length === 0 && activeCity === 'All') {
+    return null;
+  }
+
   return (
     <section className="bg-white py-16 px-6 lg:px-10 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">

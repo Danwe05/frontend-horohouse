@@ -45,11 +45,11 @@ function FeaturedCard({ post }: { post: InsightPost }) {
           priority
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-50" />
+        <div className="absolute inset-0 bg-linear-to-br from-blue-100 to-blue-50" />
       )}
 
       {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/20 to-transparent" />
 
       {/* Content pinned to bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
@@ -97,7 +97,7 @@ function SmallCard({ post }: { post: InsightPost }) {
             sizes="88px"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-50" />
+          <div className="absolute inset-0 bg-linear-to-br from-blue-100 to-blue-50" />
         )}
       </div>
 
@@ -164,7 +164,7 @@ export default function InsightsSection() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <div>
-            <p className="text-[12px] font-semibold tracking-[0.1em] uppercase text-blue-600 mb-2">Market intelligence</p>
+            <p className="text-[12px] font-semibold tracking-widest uppercase text-blue-600 mb-2">Market intelligence</p>
             <h2 className="text-[28px] md:text-[34px] font-bold text-[#222222] tracking-tight leading-tight">
               Insights &amp; Guides
             </h2>
@@ -192,17 +192,6 @@ export default function InsightsSection() {
             {loading
               ? Array.from({ length: 3 }).map((_, i) => <SmallSkeleton key={i} />)
               : posts.slice(1, 4).map((post) => <SmallCard key={post._id} post={post} />)}
-
-            {/* "See more" row */}
-            {!loading && posts.length > 0 && (
-              <Link
-                href="/insights"
-                className="group flex items-center justify-between p-4 -mx-4 mt-2 rounded-xl hover:bg-[#F7F7F7] transition-colors"
-              >
-                <span className="text-[14px] font-semibold text-[#222222] group-hover:text-blue-600 transition-colors">See all insights</span>
-                <ChevronRight className="w-4 h-4 text-[#717171] group-hover:text-blue-600 transition-colors group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            )}
           </div>
         </div>
 

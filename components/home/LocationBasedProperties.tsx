@@ -252,6 +252,10 @@ export default function LocationBasedProperties() {
     </div>
   );
 
+  if (!loading && formattedProperties.length === 0) {
+    return null;
+  }
+
   return (
     <section className="w-full bg-white py-12 px-6 lg:px-10 font-sans" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">
@@ -318,17 +322,6 @@ export default function LocationBasedProperties() {
                   <PropertyCardSkeleton />
                 </div>
               ))}
-            </div>
-          ) : formattedProperties.length === 0 ? (
-            <div className="w-full py-16 text-center border border-dashed border-[#DDDDDD] rounded-2xl bg-[#F7F7F7]/50">
-              <h4 className="text-[22px] font-semibold text-[#222222] mb-2 tracking-tight">
-                {_t.locationProperties?.noProperties || 'No properties found'}
-              </h4>
-              <p className="text-[#717171] text-[15px] mb-6">
-                {userLocation
-                  ? (_t.locationProperties?.noPropertiesNear?.replace('{{city}}', userLocation.city) || `We couldn't find any properties near ${userLocation.city}.`)
-                  : (_t.locationProperties?.noPropertiesAvailable || 'No properties available at the moment.')}
-              </p>
             </div>
           ) : (
             <div className="w-full">

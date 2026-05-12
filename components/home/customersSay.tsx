@@ -236,8 +236,8 @@ export default function CustomersSay() {
                 scrollToIndex(idx + (currentSet * customers.length));
               }}
               className={`transition-all duration-300 rounded-full ${(centerIndex % customers.length) === idx
-                  ? 'w-8 h-2 bg-blue-600'
-                  : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
+                ? 'w-8 h-2 bg-blue-600'
+                : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
                 }`}
             />
           ))}

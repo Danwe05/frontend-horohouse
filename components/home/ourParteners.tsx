@@ -5,8 +5,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function OurPartners() {
   const { t } = useLanguage();
-  
-  const SCROLL_SPEED = 40; 
+
+  const SCROLL_SPEED = 40;
 
   const partners = [
     { name: 'Visa', logo: 'https://cdn.worldvectorlogo.com/logos/visa-10.svg' },
@@ -23,7 +23,8 @@ export default function OurPartners() {
 
   return (
     <section className="py-16 md:py-24 bg-white border-b border-[#EBEBEB] overflow-hidden relative">
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes scroll-left {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }

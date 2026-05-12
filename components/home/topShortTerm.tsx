@@ -136,6 +136,10 @@ export default function TopShortTerm() {
   const leftDisabled  = isRtl ? currentIndex === maxIndex : currentIndex === 0;
   const rightDisabled = isRtl ? currentIndex === 0        : currentIndex === maxIndex;
 
+  if (!loading && formattedProperties.length === 0) {
+    return null;
+  }
+
   return (
     <section className="w-full bg-[#F7F7F7] py-12 px-6 lg:px-10 font-sans border-y border-[#EBEBEB]" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">
@@ -209,16 +213,6 @@ export default function TopShortTerm() {
                   <PropertyCardSkeleton />
                 </div>
               ))}
-            </div>
-          ) : formattedProperties.length === 0 ? (
-            <div className="w-full py-16 text-center border border-dashed border-[#DDDDDD] rounded-2xl bg-white/50">
-              <Home className="w-10 h-10 mx-auto mb-3 text-[#B0B0B0]" strokeWidth={1.5} />
-              <h4 className="text-[18px] font-semibold text-[#222222] mb-1 tracking-tight">
-                {_t.topShortTerm?.noStays || 'No short stays found'}
-              </h4>
-              <p className="text-[#717171] text-[15px]">
-                {_t.topShortTerm?.noStaysDesc || "We couldn't find any short-term listings at the moment."}
-              </p>
             </div>
           ) : (
             <div className="w-full pt-2">

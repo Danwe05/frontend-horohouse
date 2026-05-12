@@ -419,12 +419,12 @@ const PropertyCard = ({
                 {starRating !== undefined && starRating > 0 && (
                   <div className="flex items-center gap-0.5 mt-1" aria-label={`${starRating}-star hotel`}>
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star 
-                        key={i} 
+                      <Star
+                        key={i}
                         className={cn(
-                          "h-3 w-3", 
+                          "h-3 w-3",
                           i < starRating ? "fill-yellow-500 text-yellow-500" : "fill-[#DDDDDD] text-[#DDDDDD]"
-                        )} 
+                        )}
                       />
                     ))}<span className="text-[13px] font-semibold text-[#717171] ml-1">{starRating}-star hotel</span>
                   </div>
@@ -449,7 +449,7 @@ const PropertyCard = ({
                 {address}
               </p>
             )}
-            
+
 
             {/* Row 2: meta info — beds / baths / sqft / guests */}
             <div className="flex items-center gap-2 text-[14px] text-[#717171] mb-0.5">
