@@ -31,8 +31,8 @@ export default function PopularDestinations() {
               Explore the most sought-after cities. Uncover the perfect backdrop for your next stay.
             </p>
           </div>
-          <Link href="/properties" className="hidden md:block text-[15px] font-semibold text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-widest">
-            Explore All →
+          <Link href="/properties" className="text-[15px] font-semibold underline text-[#222222] hover:text-[#717171] transition-colors">
+            Explore All
           </Link>
         </div>
 

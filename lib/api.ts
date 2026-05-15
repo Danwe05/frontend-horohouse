@@ -849,6 +849,89 @@ class ApiClient {
   }) {
     return (await this.client.post(`/users/hosts/${id}/payouts`, record)).data;
   }
+
+  // ─── Community ────────────────────────────────────────────────────────────
+
+  /** List posts (paginated). All filters are optional. */
+  async getCommunityPosts(params?: {
+    page?: number; limit?: number;
+    category?: string; tag?: string; pinned?: boolean;
+    authorId?: string; search?: string;
+    sortBy?: string; sortOrder?: 'asc' | 'desc';
+  }) {
+    return (await this.client.get('/community/posts', { params, skipAuth: true } as any)).data;
+  }
+
+  async getCommunityPostBySlug(slug: string) {
+    return (await this.client.get(`/community/posts/by-slug/${slug}`, { skipAuth: true } as any)).data;
+  }
+
+  async getCommunityPostById(id: string) {
+    return (await this.client.get(`/community/posts/${id}`, { skipAuth: true } as any)).data;
+  }
+
+  async createCommunityPost(data: {
+    category: string; title: string;
+    excerpt?: string; body?: string;
+    tags?: string[]; replyToId?: string; rootPostId?: string;
+  }) {
+    return (await this.client.post('/community/posts', data)).data;
+  }
+
+  async updateCommunityPost(id: string, data: {
+    category?: string; title?: string;
+    excerpt?: string; body?: string; tags?: string[];
+  }) {
+    return (await this.client.patch(`/community/posts/${id}`, data)).data;
+  }
+
+  async deleteCommunityPost(id: string) {
+    return (await this.client.delete(`/community/posts/${id}`)).data;
+  }
+
+  async pinCommunityPost(id: string, pinned: boolean) {
+    return (await this.client.patch(`/community/posts/${id}/pin`, null, { params: { pinned } })).data;
+  }
+
+  async toggleCommunityPostLike(id: string) {
+    return (await this.client.post(`/community/posts/${id}/like`)).data;
+  }
+
+  async incrementCommunityPostView(id: string) {
+    try {
+      await this.client.post(`/community/posts/${id}/view`, {}, { skipAuth: true } as any);
+    } catch { /* silent */ }
+  }
+
+  async getCommunityPostReplies(id: string, params?: { page?: number; limit?: number }) {
+    return (await this.client.get(`/community/posts/${id}/replies`, { params, skipAuth: true } as any)).data;
+  }
+
+  async getCommunityAuthorProfile(userId: string) {
+    return (await this.client.get(`/community/authors/${userId}`, { skipAuth: true } as any)).data;
+  }
+
+  async getCommunityAuthorPosts(userId: string, params?: {
+    page?: number; limit?: number; sortOrder?: 'asc' | 'desc';
+  }) {
+    return (await this.client.get(`/community/authors/${userId}/posts`, { params, skipAuth: true } as any)).data;
+  }
+
+  async getCommunityStats() {
+    return (await this.client.get('/community/stats', { skipAuth: true } as any)).data;
+  }
+
+  async flagCommunityPost(id: string) {
+    return (await this.client.post(`/community/posts/${id}/flag`)).data;
+  }
+
+  async getFlaggedCommunityPosts(params?: { page?: number; limit?: number }) {
+    return (await this.client.get('/community/admin/flagged-posts', { params })).data;
+  }
+
+  async unflagCommunityPost(id: string) {
+    return (await this.client.patch(`/community/posts/${id}/unflag`)).data;
+  }
 }
 
 export const apiClient = new ApiClient();

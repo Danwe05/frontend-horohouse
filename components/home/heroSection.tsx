@@ -253,8 +253,8 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-screen bg-linear-to-br from-slate-50 to-blue-50 overflow-hidden mt-18">
-      <div className="relative flex flex-col lg:flex-row items-center justify-between min-h-screen">
+    <section className="relative bg-linear-to-br from-slate-50 to-blue-50 overflow-hidden mt-18">
+      <div className="relative flex flex-col lg:flex-row items-center justify-between">
 
         {/* Left Side: Enhanced Text & Filters */}
         <div className="w-full lg:w-2/5 space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-12 lg:py-8 z-20 order-2 lg:order-1">
