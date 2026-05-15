@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ChevronLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertCircle, Share2, Heart, MapPin } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import PropertyGallery from "@/components/property/details/PropertyGallery";
@@ -12,6 +11,7 @@ import BookingPanel from "@/components/property/details/BookingPanel";
 import PropertyDetails from "@/components/property/details/PropertyDetails";
 import Neighborhood from "@/components/property/details/Neighborhood";
 import Reviews from "@/components/property/details/Reviews";
+import HostCard from "@/components/property/details/HostCard";
 import PetPolicy, { type PetPolicyInfo } from "@/components/property/details/PetPolicy";
 import SimilarProperties from "@/components/property/details/SimilarProperties";
 import StudentFeaturesPanel from "@/components/property/details/StudentFeaturesPanel";
@@ -20,6 +20,9 @@ import apiClient from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -148,15 +151,21 @@ function buildPetPolicy(property: Property): PetPolicyInfo {
 const PropertyDetailSkeleton = () => (
   <div className="min-h-screen bg-white">
     <main className="max-w-7xl mx-auto px-6 lg:px-10 py-4">
-      <Skeleton className="h-10 w-10 mb-8 rounded-full bg-[#F7F7F7]" />
+      {/* Title skeleton */}
+      <div className="mb-4 mt-20 flex items-center justify-between">
+        <Skeleton className="h-8 w-2/3 bg-[#F7F7F7]" />
+        <div className="flex gap-3">
+          <Skeleton className="h-8 w-20 bg-[#F7F7F7] rounded-full" />
+          <Skeleton className="h-8 w-16 bg-[#F7F7F7] rounded-full" />
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-6">
+      {/* Gallery skeleton */}
+      <Skeleton className="h-[440px] w-full rounded-2xl bg-[#F7F7F7] mb-8" />
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Left column */}
         <div className="lg:col-span-8 space-y-10">
-          {/* Gallery */}
-          <Skeleton className="h-[450px] w-full rounded-2xl bg-[#F7F7F7]" />
-
-          {/* Title & Info */}
           <div className="space-y-4">
             <Skeleton className="h-8 w-3/4 bg-[#F7F7F7]" />
             <div className="flex gap-2">
@@ -189,16 +198,16 @@ const PropertyDetailSkeleton = () => (
 
 export default function PropertyDetailClient({ id }: { id: string }) {
   const router = useRouter();
-   const { user, token } = useAuth();
+  const { user, token } = useAuth();
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const propertyId = id;
-  
- 
 
   const { t } = useLanguage();
 
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
   const fallbackErrorMsg = t.propertyDetails?.failedToLoad ?? "Failed to load property details";
 
@@ -220,6 +229,45 @@ export default function PropertyDetailClient({ id }: { id: string }) {
     fetchProperty();
   }, [fetchProperty]);
 
+  const saved = property ? isFavorite(property._id) : false;
+
+  const handleShare = useCallback(async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: property?.title ?? "Property", url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard");
+      }
+    } catch { /* user cancelled */ }
+  }, [property?.title]);
+
+  const handleToggleFavorite = useCallback(async () => {
+    if (!property) return;
+    if (!user) {
+      router.push(`/auth/login?redirect=/properties/${property._id}`);
+      return;
+    }
+    if (isTogglingFavorite) return;
+    setIsTogglingFavorite(true);
+    try {
+      if (saved) {
+        await apiClient.removeFromFavorites(property._id);
+        removeFavorite(property._id);
+        toast.success("Removed from saved");
+      } else {
+        await apiClient.addToFavorites(property._id);
+        addFavorite(property._id);
+        toast.success("Saved to wishlist");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setIsTogglingFavorite(false);
+    }
+  }, [property, user, isTogglingFavorite, saved, router, addFavorite, removeFavorite]);
+
   // ── Loading ──────────────────────────────────────────────────────────────
   if (loading) return <PropertyDetailSkeleton />;
 
@@ -227,14 +275,7 @@ export default function PropertyDetailClient({ id }: { id: string }) {
   if (error || !property) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-12 space-y-6">
-          <Button
-            onClick={() => router.back()}
-            variant="ghost"
-            className="rounded-full h-12 w-12 p-0 text-[#222222] hover:bg-[#F7F7F7]"
-          >
-            <ChevronLeft className="h-5 w-5 stroke-2" />
-          </Button>
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-12 space-y-6 mt-16">
           <Alert className="border-[#FFDFDF] bg-[#FFF8F8] rounded-xl p-6">
             <AlertCircle className="h-5 w-5 text-[#E50000]" />
             <AlertDescription className="text-[#E50000] font-medium text-[15px] ml-2">
@@ -262,72 +303,116 @@ export default function PropertyDetailClient({ id }: { id: string }) {
       apiUrl={process.env.NEXT_PUBLIC_API_URL!}
       currentUser={user ?? undefined}
     >
-    <div className="min-h-screen bg-white text-[#222222]">
-      <main className="max-w-7xl mx-auto px-6 lg:px-10 py-4">
+      <div className="min-h-screen bg-white text-[#222222]">
+        <main className="max-w-7xl mx-auto px-6 lg:px-10 py-4">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-22">
-          {/* ── Main content ── */}
-          <div className="lg:col-span-8 space-y-10">
-            
-            {/* Gallery spans its container seamlessly */}
-            <PropertyGallery property={property} />
+          {/* ── Airbnb-style title row + share/save ── */}
+          <div className="mt-20 mb-4 flex items-start justify-between gap-4">
+            <h1 className="text-[26px] font-semibold tracking-tight leading-10 text-[#222222] flex-1 capitalize">
+              {property.title} <br />
+              <span className="text-[16px] font-normal flex items-center gap-2"><MapPin className="w-4 h-4 stroke-[2]" /> {property.address}</span>
+            </h1>
 
-            {/* Information sections, cleanly divided by  borders */}
-            <div className="border-[#DDDDDD]">
-              <PropertyInfo property={property} />
+            {/* Share & Save — desktop only (mobile is handled inside the gallery) */}
+            <div className="hidden md:flex items-center gap-1 shrink-0">
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[14px] font-semibold text-[#222222] underline underline-offset-2 hover:bg-[#F7F7F7] transition-colors"
+              >
+                <Share2 className="w-4 h-4 stroke-[2]" />
+                Share
+              </button>
+              <button
+                onClick={handleToggleFavorite}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[14px] font-semibold text-[#222222] underline underline-offset-2 hover:bg-[#F7F7F7] transition-colors"
+              >
+                <Heart
+                  className={cn(
+                    "w-4 h-4 stroke-[2] transition-colors",
+                    saved ? "fill-[#FF385C] stroke-[#FF385C]" : ""
+                  )}
+                />
+                {saved ? "Saved" : "Save"}
+              </button>
             </div>
+          </div>
 
-            <div className="py-4 border-b border-[#DDDDDD]">
-              <StudentFeaturesPanel property={property} />
-            </div>
+          {/* ── Gallery — full-width, no side margins ── */}
+          <PropertyGallery property={property} onShare={handleShare} onSave={handleToggleFavorite} saved={saved} />
 
-            <div className="py-4 border-b border-[#DDDDDD]">
-              <PropertyDetails property={property} />
-            </div>
+          {/* ── Two-column layout ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-8">
 
-            <div className="py-4 border-b border-[#DDDDDD]">
-              <Neighborhood
-                property={{
-                  city: property.city,
-                  neighborhood: property.neighborhood,
-                  nearbyAmenities: property.nearbyAmenities,
-                  transportAccess: property.transportAccess,
-                  latitude: latitude,
-                  longitude: longitude,
-                }}
-              />
-            </div>
+            {/* ── Main content ── */}
+            <div className="lg:col-span-8 space-y-0">
 
-            {/* Only render PetPolicy when pets are relevant to this listing type */}
-            {(property.listingType === "rent" || property.listingType === "short_term") && (
-              <div className="py-4 border-b border-[#DDDDDD]">
-                <PetPolicy policy={petPolicy} currency="XAF" />
+              {/* PropertyInfo: subtitle row + description + amenities + host */}
+              <div className="border-b border-[#DDDDDD]">
+                <PropertyInfo property={property} />
               </div>
-            )}
 
-            <div className="py-4 border-b border-[#DDDDDD]">
-              <Reviews propertyId={property._id} />
+              <div className="py-8 border-b border-[#DDDDDD]">
+                <StudentFeaturesPanel property={property} />
+              </div>
+
+              <div className="py-8 border-b border-[#DDDDDD]">
+                <PropertyDetails property={property} />
+              </div>
+
+              <div className="py-8 border-b border-[#DDDDDD]">
+                <Neighborhood
+                  property={{
+                    city: property.city,
+                    neighborhood: property.neighborhood,
+                    nearbyAmenities: property.nearbyAmenities,
+                    transportAccess: property.transportAccess,
+                    latitude: latitude,
+                    longitude: longitude,
+                  }}
+                />
+              </div>
+
+              {/* Only render PetPolicy when pets are relevant to this listing type */}
+              {(property.listingType === "rent" || property.listingType === "short_term") && (
+                <div className="py-8 border-b border-[#DDDDDD]">
+                  <PetPolicy policy={petPolicy} currency="XAF" />
+                </div>
+              )}
+
+              <div className="py-8 border-b border-[#DDDDDD]">
+                <Reviews propertyId={property._id} />
+              </div>
+            </div>
+
+            {/* ── Booking sidebar ── */}
+            <div className="hidden lg:block lg:col-span-4 sticky top-24 mt-0">
+              <BookingPanel property={property} />
             </div>
           </div>
 
-          {/* ── Booking sidebar ── */}
-          <div className="lg:col-span-4 sticky top-28 mt-8 lg:mt-0">
-            {/* BookingPanel generally handles its own internal styling, but sits cleanly here */}
-            <BookingPanel property={property} />
+          {/* ── Similar properties (full width) ── */}
+          <div className="mt-16 border-t border-[#DDDDDD]">
+            <HostCard property={property} />
           </div>
-        </div>
 
-        {/* ── Similar properties (full width) ── */}
-        <div className="mt-16 pt-12 border-t border-[#DDDDDD]">
-          <SimilarProperties
-            propertyId={property._id}
-            city={property.city}
-            type={property.type}
-            listingType={property.listingType as "rent" | "sale"}
-          />
+          <div className="mt-0 pt-8 border-t border-[#DDDDDD]">
+            <SimilarProperties
+              propertyId={property._id}
+              city={property.city}
+              type={property.type}
+              listingType={property.listingType as "rent" | "sale"}
+            />
+          </div>
+
+          {/* ── Mobile bottom padding (for sticky booking bar) ── */}
+          <div className="h-24 lg:hidden" />
+        </main>
+
+        {/* ── Mobile sticky booking bar ── */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
+          <BookingPanel property={property} mobileOnly />
         </div>
-      </main>
-    </div>
+      </div>
     </ChatProvider>
   );
 }

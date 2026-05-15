@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Share2, Heart, Loader2, Star, ChevronRight,
-  Check, Shield, Zap,
+  Check, Shield, Zap, Flag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -91,6 +91,8 @@ interface BookingPanelProps {
       profilePicture?: string;
     };
   };
+  /** When true, only the mobile sticky bottom bar is rendered (no desktop card) */
+  mobileOnly?: boolean;
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -122,7 +124,7 @@ export const BookingPanelSkeleton = () => (
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-const BookingPanel = ({ property }: BookingPanelProps) => {
+const BookingPanel = ({ property, mobileOnly = false }: BookingPanelProps) => {
   const router = useRouter();
   const { t } = useLanguage();
   const pd = t.propertyDetails;
@@ -152,6 +154,9 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
   const [agentListings, setAgentListings] = useState<AgentListing[]>([]);
   const [loadingListings, setLoadingListings] = useState(false);
   const [inquiryForm, setInquiryForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportSubmitted, setReportSubmitted] = useState(false);
 
   const saved = isFavorite(property._id);
 
@@ -279,10 +284,10 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <>
-      <div className="space-y-5">
+      <div className={cn("space-y-5", mobileOnly ? "" : "")}>
 
         {/* ── Desktop Booking Card ── */}
-        <div className="hidden lg:block bg-white rounded-2xl p-6 border border-[#DDDDDD] shadow-[0_6px_20px_rgba(0,0,0,0.12)]">
+        <div className={cn("bg-white rounded-2xl p-6 border border-[#DDDDDD] shadow-[0_6px_20px_rgba(0,0,0,0.12)]", mobileOnly ? "hidden" : "hidden lg:block")}>
 
           {/* Price + actions */}
           <div className="flex items-start justify-between mb-5">
@@ -472,7 +477,7 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
         </div>
 
         {/* ── Agent Card ── */}
-        {agent && (
+        {agent && !mobileOnly && (
           <div className="hidden lg:block bg-white rounded-2xl p-6 border border-[#DDDDDD] shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
             <div className="flex items-center gap-4 mb-5">
               <Avatar className="h-14 w-14 shrink-0">
@@ -588,10 +593,23 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
             )}
           </div>
         )}
+
+        {/* ── Report this listing ── */}
+        {!mobileOnly && (
+          <div className="hidden lg:flex justify-center pt-2">
+            <button
+              onClick={() => setIsReportOpen(true)}
+              className="flex items-center gap-1.5 text-[13px] text-[#717171] underline underline-offset-2 hover:text-[#222222] transition-colors"
+            >
+              <Flag className="w-3.5 h-3.5 shrink-0" />
+              Report this listing
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Mobile sticky bottom bar ── */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#DDDDDD] px-5 py-3.5 z-50 shadow-[0_-2px_16px_rgba(0,0,0,0.08)]">
+      <div className={cn("bg-white border-t border-[#DDDDDD] px-5 py-3.5 shadow-[0_-2px_16px_rgba(0,0,0,0.08)]", mobileOnly ? "block" : "hidden")}>
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="flex items-baseline gap-1">
@@ -625,6 +643,90 @@ const BookingPanel = ({ property }: BookingPanelProps) => {
         agentId={agent?._id}
         onScheduled={() => {}}
       />
+
+      {/* ── Report Listing Dialog ── */}
+      <Dialog open={isReportOpen} onOpenChange={(v) => { setIsReportOpen(v); if (!v) { setReportReason(""); setReportSubmitted(false); } }}>
+        <DialogContent className="sm:max-w-[440px] p-0 rounded-2xl border-[#DDDDDD] overflow-hidden">
+          <div className="px-8 pt-8 pb-6">
+            {reportSubmitted ? (
+              <div className="flex flex-col items-center gap-4 py-4 text-center">
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                  <Flag className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-[18px] font-semibold text-[#222222]">Report submitted</p>
+                  <p className="text-[14px] text-[#717171] mt-1">Thank you for helping keep Horohouse safe. We'll review your report shortly.</p>
+                </div>
+                <button
+                  onClick={() => { setIsReportOpen(false); setReportReason(""); setReportSubmitted(false); }}
+                  className="mt-2 h-11 px-8 rounded-xl font-semibold text-[15px] text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <DialogHeader className="text-left space-y-1.5 mb-6">
+                  <DialogTitle className="text-[20px] font-semibold text-[#222222] flex items-center gap-2">
+                    <Flag className="w-5 h-5 text-[#717171]" />
+                    Report this listing
+                  </DialogTitle>
+                  <DialogDescription className="text-[14px] text-[#717171] leading-relaxed">
+                    Tell us what's wrong with this listing and we'll look into it.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-2 mb-5">
+                  {[
+                    "Inaccurate listing information",
+                    "Suspicious or fraudulent",
+                    "Offensive or inappropriate content",
+                    "Duplicate listing",
+                    "Property doesn't exist",
+                    "Other",
+                  ].map((reason) => (
+                    <label
+                      key={reason}
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl cursor-pointer border transition-colors",
+                        reportReason === reason
+                          ? "border-blue-600 bg-blue-50"
+                          : "border-[#EBEBEB] hover:border-[#DDDDDD] hover:bg-[#F7F7F7]"
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="report-reason"
+                        value={reason}
+                        checked={reportReason === reason}
+                        onChange={() => setReportReason(reason)}
+                        className="accent-blue-600"
+                      />
+                      <span className="text-[14px] font-medium text-[#222222]">{reason}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setIsReportOpen(false)}
+                    className="flex-1 h-11 rounded-xl font-semibold text-[14px] text-[#222222] border border-[#DDDDDD] hover:bg-[#F7F7F7] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    disabled={!reportReason}
+                    onClick={() => setReportSubmitted(true)}
+                    className="flex-1 h-11 rounded-xl font-semibold text-[14px] text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Submit report
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isInquiryOpen} onOpenChange={setIsInquiryOpen}>
         <DialogContent className="sm:max-w-[480px] p-0 rounded-2xl border-[#DDDDDD] overflow-hidden">

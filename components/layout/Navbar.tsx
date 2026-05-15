@@ -281,10 +281,23 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
 
             {mounted && isAuthenticated ? (
               <div className="flex items-center gap-1 ml-1">
-                {/* Notifications */}
-                <div className="relative z-[9999]">
+                {/* Notifications — desktop only */}
+                <div className="relative z-[9999] hidden md:block">
                   <NotificationDropdown />
                 </div>
+
+                {/* Language & Currency — mobile only, replaces notifications */}
+                <button
+                  onClick={() => setIsLangCurrencyModalOpen(true)}
+                  className="md:hidden w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors"
+                  aria-label="Language and Currency"
+                >
+                  <img
+                    src={languages[language]?.flag || languages['en'].flag}
+                    alt={languages[language]?.name || 'Language'}
+                    className="w-5 h-5 rounded-full object-cover"
+                  />
+                </button>
 
                 {/* Favorites */}
                 {favoritesCount > 0 && (

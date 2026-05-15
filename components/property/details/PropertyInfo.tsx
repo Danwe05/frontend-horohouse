@@ -4,17 +4,19 @@ import { useMemo, useState, useCallback } from "react";
 import {
   Wifi, BedDouble, Bath, Utensils, Maximize2, MapPin, Eye, Home,
   Car, Snowflake, Dumbbell, Waves, Shield, Coffee, TreePine,
-  MessageCircle, Mail, Phone, Clock, AlertCircle, ShieldCheck
+  MessageCircle, Mail, Phone, AlertCircle, ShieldCheck, Star,
+  Award, Clock, Check, X
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -87,6 +89,9 @@ function getContactInfo(property: PropertyInfoProps["property"], pd: any = null)
         email: a.email,
         phoneNumber: a.phoneNumber,
         profilePicture: a.profilePicture,
+        createdAt: a.createdAt,
+        rating: a.rating,
+        totalReviews: a.totalReviews,
         role: "agent" as const,
       };
     }
@@ -100,6 +105,9 @@ function getContactInfo(property: PropertyInfoProps["property"], pd: any = null)
         email: o.email,
         phoneNumber: o.phoneNumber,
         profilePicture: o.profilePicture,
+        createdAt: o.createdAt,
+        rating: o.rating,
+        totalReviews: o.totalReviews,
         role: "owner" as const,
       };
     }
@@ -112,6 +120,57 @@ const MESSAGE_TEMPLATES = (title: string, pd: any) => [
   { label: pd?.scheduleViewing || "Schedule viewing", text: pd?.scheduleViewingText?.replace("{title}", title) || `Hi! I'd like to schedule a viewing for ${title}.` },
   { label: pd?.requestDetails || "Request details", text: pd?.requestDetailsText?.replace("{title}", title) || `Hi! Can you provide more details about ${title}?` },
 ];
+
+function getYearsHosting(createdAt?: string): string {
+  if (!createdAt) return "New host";
+  const years = Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24 * 365));
+  if (years < 1) return "New host";
+  return `${years} year${years !== 1 ? "s" : ""} hosting`;
+}
+
+// ─── Show All Amenities Modal ─────────────────────────────────────────────────
+
+interface AmenityItem { icon: any; label: string; }
+interface AmenityGroup { title: string; items: AmenityItem[]; }
+
+const ShowAllAmenitiesModal = ({
+  open,
+  onClose,
+  groups,
+}: {
+  open: boolean;
+  onClose: () => void;
+  groups: AmenityGroup[];
+}) => (
+  <Dialog open={open} onOpenChange={onClose}>
+    <DialogContent className="sm:max-w-[600px] p-0 rounded-2xl border-[#DDDDDD] overflow-hidden max-h-[90vh]">
+      <div className="flex items-center justify-between px-8 py-5 border-b border-[#EBEBEB]">
+        <h2 className="text-[18px] font-semibold text-[#222222]">What this place offers</h2>
+        <button
+          onClick={onClose}
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors"
+        >
+          <X className="w-4 h-4 stroke-[2.5] text-[#222222]" />
+        </button>
+      </div>
+      <div className="overflow-y-auto max-h-[70vh] px-8 py-6 space-y-8">
+        {groups.map((group, i) => (
+          <div key={i} className="space-y-5">
+            <h3 className="text-[16px] font-semibold text-[#222222]">{group.title}</h3>
+            <div className="space-y-4">
+              {group.items.map((item, j) => (
+                <div key={j} className="flex items-center gap-4 py-1 border-b border-[#F7F7F7]">
+                  <item.icon className="h-6 w-6 text-[#222222] stroke-[1.5] shrink-0" aria-hidden />
+                  <span className="text-[16px] text-[#222222]">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </DialogContent>
+  </Dialog>
+);
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -129,65 +188,72 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showAllAmenities, setShowAllAmenities] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   const contact = useMemo(() => getContactInfo(property, pd), [property, pd]);
   const contactName = contact?.name ?? (pd?.propertyContact || "Property Contact");
   const contactRole = contact?.role === "agent" ? (pd?.propertyAgent || "Property Agent") : (pd?.propertyOwner || "Property Owner");
-
-  const fullAddress = `${property.address}${property.neighborhood ? `, ${property.neighborhood}` : ""}, ${property.city}${property.country ? `, ${property.country}` : ""}`;
+  const contactInitials = contactName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+  const yearsHosting = getYearsHosting(contact?.createdAt);
 
   const daysOnMarket = useMemo(() => {
     const diffMs = Date.now() - new Date(property.createdAt).getTime();
     return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
   }, [property.createdAt]);
 
-  const listedDate = useMemo(() =>
-    new Date(property.createdAt).toLocaleDateString("en-US", {
-      year: "numeric", month: "long", day: "numeric",
-    }),
-    [property.createdAt]
-  );
-
-  // Amenity groups
-  const amenityGroups = useMemo(() => [
+  // ── Amenity groups ───────────────────────────────────────────────────────
+  const amenityGroups: AmenityGroup[] = useMemo(() => [
     {
       title: pd?.essentials || "Essentials",
       items: [
-        { icon: BedDouble, label: pd?.bedrooms?.replace("{count}", (amenities.bedrooms ?? 0).toString()) || `${amenities.bedrooms ?? 0} bedrooms`, value: amenities.bedrooms },
-        { icon: Bath, label: pd?.bathrooms?.replace("{count}", (amenities.bathrooms ?? 0).toString()) || `${amenities.bathrooms ?? 0} bathrooms`, value: amenities.bathrooms },
-        { icon: Maximize2, label: pd?.sqm?.replace("{area}", (property.area ?? 0).toString()) || `${property.area ?? 0} sqm`, value: property.area },
-        { icon: Utensils, label: pd?.furnished || "Furnished", value: amenities.furnished },
-      ].filter((i) => i.value),
+        { icon: BedDouble, label: `${amenities.bedrooms ?? 0} bedrooms` },
+        { icon: Bath, label: `${amenities.bathrooms ?? 0} bathrooms` },
+        ...(property.area ? [{ icon: Maximize2, label: `${property.area} sqm` }] : []),
+        ...(amenities.furnished ? [{ icon: Utensils, label: pd?.furnished || "Furnished" }] : []),
+      ].filter(i => i.label),
     },
     ...(property.listingType === "short_term"
       ? [{
         title: pd?.hospitalityRules || "Hospitality & Rules",
         items: [
-          { icon: Home, label: pd?.maxGuests?.replace("{count}", (stAmenities.maxGuests ?? 0).toString()) || `${stAmenities.maxGuests ?? 0} guests maximum`, value: stAmenities.maxGuests },
-          { icon: Clock, label: pd?.checkIn?.replace("{time}", stAmenities.checkInTime ?? "14:00") || `Check-in: ${stAmenities.checkInTime ?? "14:00"}`, value: true },
-          { icon: Clock, label: pd?.checkOut?.replace("{time}", stAmenities.checkOutTime ?? "11:00") || `Checkout: ${stAmenities.checkOutTime ?? "11:00"}`, value: true },
-          { icon: Coffee, label: pd?.breakfastIncluded || "Breakfast included", value: stAmenities.hasBreakfast },
-          { icon: Snowflake, label: pd?.heating || "Heating", value: stAmenities.hasHeating },
-          { icon: ShieldCheck, label: pd?.concierge || "Concierge", value: stAmenities.conciergeService },
-          { icon: Car, label: pd?.airportTransfer || "Airport transfer", value: stAmenities.airportTransfer },
-          { icon: AlertCircle, label: pd?.petsAllowed || "Pets allowed", value: stAmenities.petsAllowed },
-        ].filter((i) => i.value),
+          ...(stAmenities.maxGuests ? [{ icon: Home, label: `${stAmenities.maxGuests} guests maximum` }] : []),
+          { icon: Clock, label: `Check-in: ${stAmenities.checkInTime ?? "14:00"}` },
+          { icon: Clock, label: `Checkout: ${stAmenities.checkOutTime ?? "11:00"}` },
+          ...(stAmenities.hasBreakfast ? [{ icon: Coffee, label: pd?.breakfastIncluded || "Breakfast included" }] : []),
+          ...(stAmenities.hasHeating ? [{ icon: Snowflake, label: pd?.heating || "Heating" }] : []),
+          ...(stAmenities.conciergeService ? [{ icon: ShieldCheck, label: pd?.concierge || "Concierge" }] : []),
+          ...(stAmenities.airportTransfer ? [{ icon: Car, label: pd?.airportTransfer || "Airport transfer" }] : []),
+          ...(stAmenities.petsAllowed ? [{ icon: AlertCircle, label: pd?.petsAllowed || "Pets allowed" }] : []),
+        ],
       }]
       : []),
     {
       title: pd?.comfortFacilities || "Comfort & Facilities",
       items: [
-        { icon: Wifi, label: pd?.wifi || "Wifi", value: amenities.hasInternet || stAmenities.hasWifi },
-        { icon: Snowflake, label: pd?.airConditioning || "Air conditioning", value: amenities.airConditioning },
-        { icon: Coffee, label: pd?.balcony || "Balcony", value: amenities.balcony },
-        { icon: TreePine, label: pd?.garden || "Garden", value: amenities.garden },
-        { icon: Car, label: pd?.parking || "Parking", value: amenities.parking },
-        { icon: Dumbbell, label: pd?.gym || "Gym", value: amenities.gym },
-        { icon: Waves, label: pd?.swimmingPool || "Pool", value: amenities.pool },
-        { icon: Shield, label: pd?.security || "Security", value: amenities.security },
-      ].filter((i) => i.value),
+        ...(amenities.hasInternet || stAmenities.hasWifi ? [{ icon: Wifi, label: pd?.wifi || "Wifi" }] : []),
+        ...(amenities.airConditioning ? [{ icon: Snowflake, label: pd?.airConditioning || "Air conditioning" }] : []),
+        ...(amenities.balcony ? [{ icon: Coffee, label: pd?.balcony || "Balcony" }] : []),
+        ...(amenities.garden ? [{ icon: TreePine, label: pd?.garden || "Garden" }] : []),
+        ...(amenities.parking ? [{ icon: Car, label: pd?.parking || "Parking" }] : []),
+        ...(amenities.gym ? [{ icon: Dumbbell, label: pd?.gym || "Gym" }] : []),
+        ...(amenities.pool ? [{ icon: Waves, label: pd?.swimmingPool || "Pool" }] : []),
+        ...(amenities.security ? [{ icon: Shield, label: pd?.security || "Security" }] : []),
+      ],
     },
   ].filter((group) => group.items.length > 0), [amenities, stAmenities, property.area, property.listingType, pd]);
+
+  // Flat list visible in the page (first 10, rest in modal)
+  const allAmenityItems = amenityGroups.flatMap(g => g.items);
+  const visibleAmenities = allAmenityItems.slice(0, 10);
+  const hasMoreAmenities = allAmenityItems.length > 10;
+
+  // Description truncation
+  const descMaxLen = 320;
+  const isLongDesc = property.description.length > descMaxLen;
+  const displayDesc = descExpanded || !isLongDesc
+    ? property.description
+    : `${property.description.slice(0, descMaxLen)}…`;
 
   // ── Auth guard helper ────────────────────────────────────────────────────
   const requireAuth = useCallback(() => {
@@ -268,168 +334,149 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-10 text-[#222222]">
+    <div className="space-y-0 text-[#222222]">
 
-      {/* ── Header Info ── */}
-      <div className="space-y-4">
-        <h1 className="text-[26px] md:text-[32px] font-semibold tracking-tight leading-tight">
-          {property.title}
-        </h1>
+      {/* ── Subtitle row: type stats ── */}
+      <div className="py-6 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[15px]">
+        <span className="font-medium capitalize">{property.type}</span>
+        <span className="text-[#DDDDDD]">·</span>
+        <span className="capitalize">{property.listingType.replace("_", " ")}</span>
+        {property.amenities.bedrooms && (
+          <>
+            <span className="text-[#DDDDDD]">·</span>
+            <span>{property.amenities.bedrooms} beds</span>
+          </>
+        )}
+        {property.amenities.bathrooms && (
+          <>
+            <span className="text-[#DDDDDD]">·</span>
+            <span>{property.amenities.bathrooms} baths</span>
+          </>
+        )}
+        {property.viewsCount > 0 && (
+          <span className="ml-auto flex items-center gap-1 text-[14px] text-[#717171]">
+            <Eye className="h-4 w-4 stroke-[2]" aria-hidden />
+            {property.viewsCount.toLocaleString()} views
+          </span>
+        )}
+      </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-1.5 text-[15px] font-medium text-[#222222]">
-            <MapPin className="h-4 w-4 mr-1 stroke-[2]" aria-hidden />
-            <span className="underline">{fullAddress}</span>
-            <span className="mx-1 text-[#DDDDDD]">•</span>
-            <span className="capitalize">{property.type}</span>
-            <span className="mx-1 text-[#DDDDDD]">•</span>
-            <span className="capitalize">{property.listingType.replace('_', ' ')}</span>
+      <div className="h-px bg-[#DDDDDD]" />
+
+      {/* ── Host card (Airbnb style) ── */}
+      <div className="py-6 flex items-center gap-4">
+        <div className="relative shrink-0">
+          <Avatar className="h-14 w-14">
+            {contact?.profilePicture && (
+              <AvatarImage src={contact.profilePicture} alt={contactName} />
+            )}
+            <AvatarFallback className="bg-blue-600 text-white text-[16px] font-semibold">
+              {contactInitials}
+            </AvatarFallback>
+          </Avatar>
+          {/* Superhost badge */}
+          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center border-2 border-white">
+            <Star className="w-2.5 h-2.5 fill-white stroke-0" />
           </div>
+        </div>
+        <div>
+          <p className="text-[16px] font-semibold text-[#222222]">
+            {(pd as any)?.hostedBy || "Hosted by"} {contactName}
+          </p>
+          <p className="text-[14px] text-[#717171] mt-0.5">{yearsHosting}</p>
+        </div>
+      </div>
 
-          <div className="flex items-center gap-4 text-[14px] text-[#717171]">
-            <div className="flex items-center gap-1.5">
-              <Eye className="h-4 w-4 stroke-[2]" aria-hidden />
-              <span>{property.viewsCount.toLocaleString()} {pd?.views?.toLowerCase() || "views"}</span>
-            </div>
-            {/* <div className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 stroke-[2]" aria-hidden />
-              <span>{pd?.daysOnMarket?.replace("{days}", daysOnMarket.toString()) || `${daysOnMarket} days ago`}</span>
-            </div> */}
+      <div className="h-px bg-[#DDDDDD]" />
+
+      {/* ── Host highlights ── */}
+      <div className="py-6 space-y-5">
+        {/* Instant book / verified / response */}
+        <div className="flex items-start gap-4">
+          <Award className="h-6 w-6 text-[#222222] stroke-[1.5] shrink-0 mt-0.5" aria-hidden />
+          <div>
+            <p className="text-[16px] font-medium text-[#222222]">
+              {contactRole}
+            </p>
+            <p className="text-[14px] text-[#717171]">
+              {contact?.rating
+                ? `★ ${contact.rating.toFixed(1)} · ${contact.totalReviews ?? 0} reviews`
+                : "New on Horohouse"}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-4">
+          <ShieldCheck className="h-6 w-6 text-[#222222] stroke-[1.5] shrink-0 mt-0.5" aria-hidden />
+          <div>
+            <p className="text-[16px] font-medium text-[#222222]">Identity verified</p>
+            <p className="text-[14px] text-[#717171]">Confirmed email and phone number</p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-4">
+          <Clock className="h-6 w-6 text-[#222222] stroke-[1.5] shrink-0 mt-0.5" aria-hidden />
+          <div>
+            <p className="text-[16px] font-medium text-[#222222]">Listed {daysOnMarket} day{daysOnMarket !== 1 ? "s" : ""} ago</p>
+            <p className="text-[14px] text-[#717171]">Usually responds within a few hours</p>
           </div>
         </div>
       </div>
 
-      <div className="h-px bg-[#DDDDDD] w-full" />
+      <div className="h-px bg-[#DDDDDD]" />
 
       {/* ── Description ── */}
-      <div className="space-y-4">
-        <h2 className="text-[22px] font-semibold tracking-tight">{pd?.aboutProperty || "About this space"}</h2>
+      <div className="py-6 space-y-4">
         <p className="text-[16px] text-[#222222] leading-relaxed whitespace-pre-line">
-          {property.description}
+          {displayDesc}
         </p>
+        {isLongDesc && (
+          <button
+            onClick={() => setDescExpanded(v => !v)}
+            className="flex items-center gap-1 text-[16px] font-semibold text-[#222222] underline underline-offset-2 hover:text-black transition-colors"
+          >
+            {descExpanded ? "Show less" : "Show more →"}
+          </button>
+        )}
       </div>
 
-      <div className="h-px bg-[#DDDDDD] w-full" />
+      <div className="h-px bg-[#DDDDDD]" />
 
-      {/* ── Features / Amenities ── */}
+      {/* ── Amenities ── */}
       {amenityGroups.length > 0 && (
-        <div className="space-y-8">
+        <div className="py-6 space-y-6">
           <h2 className="text-[22px] font-semibold tracking-tight">{pd?.propertyFeatures || "What this place offers"}</h2>
 
-          <div className="grid gap-10">
-            {amenityGroups.map((group, index) => (
-              <div key={index} className="space-y-6">
-                <h3 className="text-[16px] font-semibold text-[#222222]">
-                  {group.title}
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6">
-                  {group.items.map((item, itemIndex) => (
-                    <div key={itemIndex} className="flex items-center gap-4">
-                      <item.icon className="h-6 w-6 text-[#222222] stroke-[1.5]" aria-hidden />
-                      <span className="text-[16px] text-[#222222]">
-                        {item.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+            {visibleAmenities.map((item, itemIndex) => (
+              <div key={itemIndex} className="flex items-center gap-4">
+                <item.icon className="h-6 w-6 text-[#222222] stroke-[1.5] shrink-0" aria-hidden />
+                <span className="text-[16px] text-[#222222]">
+                  {item.label}
+                </span>
               </div>
             ))}
           </div>
+
+          {hasMoreAmenities && (
+            <button
+              onClick={() => setShowAllAmenities(true)}
+              className="mt-2 h-11 px-6 rounded-xl font-semibold text-[15px] text-[#222222] border border-[#222222] hover:bg-[#F7F7F7] transition-colors"
+            >
+              Show all {allAmenityItems.length} amenities
+            </button>
+          )}
         </div>
       )}
 
-      <div className="h-px bg-[#DDDDDD] w-full" />
 
-      {/* ── Host / Contact Actions ── */}
-      <div className="space-y-6">
-        <h2 className="text-[22px] font-semibold tracking-tight">
-          Meet your host
-        </h2>
+      {/* ── Show All Amenities Modal ── */}
+      <ShowAllAmenitiesModal
+        open={showAllAmenities}
+        onClose={() => setShowAllAmenities(false)}
+        groups={amenityGroups}
+      />
 
-        {!isAuthenticated ? (
-          // ── Unauthenticated: blurred teaser + login prompt ──
-          <div className="relative rounded-2xl overflow-hidden border border-[#DDDDDD]">
-            {/* Blurred ghost content */}
-            <div className="p-16 flex flex-col sm:flex-row gap-4 select-none pointer-events-none blur-sm opacity-60 aria-hidden:true">
-              <div className="flex-1 bg-blue-600 text-white font-semibold text-[16px] py-6 rounded-lg flex items-center justify-center gap-2">
-                <MessageCircle className="w-5 h-5" />
-                Quick message
-              </div>
-              <div className="flex-1 border border-blue-600 font-semibold text-[16px] py-6 rounded-lg flex items-center justify-center gap-2">
-                <Mail className="w-5 h-5" />
-                Write message
-              </div>
-              <div className="border border-blue-600 py-6 w-14 rounded-lg flex items-center justify-center">
-                <Phone className="w-5 h-5" />
-              </div>
-            </div>
-
-            {/* Overlay */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-white/70 backdrop-blur-[2px] px-6 text-center">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[#F7F7F7] border border-[#DDDDDD]">
-                <Shield className="w-5 h-5 text-[#222222]" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-[16px] font-semibold text-[#222222]">
-                  {pd?.loginToSeeContact || "Sign in to contact the host"}
-                </p>
-                <p className="text-[14px] text-[#717171]">
-                  {pd?.loginToSeeContact || "Create a free account or log in to message, call, or schedule a viewing."}
-                </p>
-              </div>
-              <Button
-                onClick={() => router.push(`/auth/login?redirect=/properties/${property._id}`)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] px-8 py-5 rounded-xl transition-colors"
-              >
-                {pd?.loginToSeeContact || "Log in to continue"}
-              </Button>
-            </div>
-          </div>
-
-        ) : contact ? (
-          // ── Authenticated + contact available ──
-          <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <Button
-              onClick={handleQuickMessage}
-              disabled={isLoading}
-              aria-busy={isLoading}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[16px] py-6 rounded-lg transition-colors"
-            >
-              <MessageCircle className="w-5 h-5 mr-2 stroke-[2]" />
-              {isLoading ? (pd?.sending || "Sending…") : (pd?.quickMessage || "Quick message")}
-            </Button>
-
-            <Button
-              onClick={handleChatClick}
-              variant="outline"
-              className="flex-1 border-blue-600 text-[#222222] font-semibold text-[16px] py-6 rounded-lg hover:bg-[#F7F7F7] transition-colors"
-            >
-              <Mail className="w-5 h-5 mr-2 stroke-[2]" />
-              {pd?.writeMessage || "Write message"}
-            </Button>
-
-            {contact.phoneNumber && (
-              <Button
-                variant="outline"
-                className="border-blue-600 text-[#222222] py-6 w-14 rounded-lg hover:bg-[#F7F7F7] transition-colors shrink-0 p-0"
-                onClick={() => { window.location.href = `tel:${contact.phoneNumber}`; }}
-                aria-label={`Call ${contactName}`}
-              >
-                <Phone className="w-5 h-5 stroke-[2]" />
-              </Button>
-            )}
-          </div>
-
-        ) : (
-          // ── Authenticated but no contact profile set up ──
-          <div className="p-4 bg-[#FFF8F8] border border-[#FFDFDF] rounded-xl flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[#E50000] shrink-0 mt-0.5" aria-hidden />
-            <p className="text-[15px] font-medium text-[#E50000] leading-relaxed">
-              {pd?.contactUnavailable || "Contact information is not available for this property. The owner may need to complete their profile setup."}
-            </p>
-          </div>
-        )}
-      </div>
       {/* ── Custom Message Dialog ── */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[500px] p-8 border-[#DDDDDD] rounded-2xl shadow-2xl">
@@ -453,7 +500,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={`Hi! I'm interested in ${property.title}…`}
                 rows={5}
-                className="resize-none text-[15px] p-4 bg-white border-[#DDDDDD] placeholder:text-[#717171] focus-visible:ring-1 focus-visible:ring-[#222222] focus-visible:border-blue-600 rounded-xl"
+                className="resize-none text-[15px] p-4 bg-white border-[#DDDDDD] placeholder:text-[#717171] focus-visible:ring-1 focus-visible:ring-blue-600 focus-visible:border-blue-600 rounded-xl"
               />
             </div>
 
@@ -478,7 +525,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
             <Button
               variant="outline"
               onClick={() => setIsOpen(false)}
-              className="w-full sm:w-1/2 h-12 rounded-lg font-semibold text-[15px] border-blue-600 text-[#222222] hover:bg-[#F7F7F7] transition-colors"
+              className="w-full sm:w-1/2 h-12 rounded-xl font-semibold text-[15px] border-[#222222] text-[#222222] hover:bg-[#F7F7F7] transition-colors"
             >
               {pd?.cancel || "Cancel"}
             </Button>
@@ -486,7 +533,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
               onClick={handleSendMessage}
               disabled={!message.trim() || isLoading}
               aria-busy={isLoading}
-              className="w-full sm:w-1/2 h-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] transition-colors"
+              className="w-full sm:w-1/2 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[15px] transition-colors"
             >
               {isLoading ? (pd?.sending || "Sending…") : (pd?.sendMessage || "Send message")}
             </Button>

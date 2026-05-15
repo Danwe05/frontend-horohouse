@@ -21,14 +21,19 @@ interface PropertyGalleryProps {
     videoUrl?: string;
     tourThumbnail?: string;
   };
+  /** Called when the user clicks Share (from parent – desktop handled by parent, mobile handled here) */
+  onShare?: () => void;
+  /** Called when the user clicks Save */
+  onSave?: () => void;
+  /** Current saved state */
+  saved?: boolean;
 }
 
-const PropertyGallery = ({ property }: PropertyGalleryProps) => {
+const PropertyGallery = ({ property, onShare, onSave, saved = false }: PropertyGalleryProps) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const thumbsRef = useRef<HTMLDivElement>(null);
@@ -151,10 +156,8 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
                   alt={images[globalIdx]?.caption || `${property.title} — photo ${globalIdx + 1}`}
                   className="w-full h-full object-cover transition-[transform,filter] duration-300 ease-out group-hover:brightness-90"
                 />
-                {isLast && (
-                  <div className="absolute inset-0 bg-black/20 flex items-end justify-end p-3">
-                    {/* handled by the button below */}
-                  </div>
+                {isLast && remainingCount > 0 && (
+                  <div className="absolute inset-0 bg-black/20 flex items-end justify-end p-3" />
                 )}
               </div>
             );
@@ -255,14 +258,14 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
           {/* Mobile share/save */}
           <div className="absolute top-3 right-3 flex gap-1.5 z-10">
             <button
-              onClick={(e) => { e.stopPropagation(); }}
+              onClick={(e) => { e.stopPropagation(); onShare?.(); }}
               className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm"
               aria-label="Share"
             >
               <Share2 className="w-3.5 h-3.5 stroke-[2.2] text-[#222222]" />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); setSaved(s => !s); }}
+              onClick={(e) => { e.stopPropagation(); onSave?.(); }}
               className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm"
               aria-label="Save"
             >
@@ -323,6 +326,7 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
             {/* Actions */}
             <div className="flex items-center gap-0.5">
               <button
+                onClick={onShare}
                 aria-label="Share"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-semibold text-[#222222] underline hover:bg-[#F7F7F7] active:bg-[#EBEBEB] transition-colors focus:outline-none"
               >
@@ -330,7 +334,7 @@ const PropertyGallery = ({ property }: PropertyGalleryProps) => {
                 <span className="hidden sm:inline">Share</span>
               </button>
               <button
-                onClick={() => setSaved(s => !s)}
+                onClick={onSave}
                 aria-label="Save"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-semibold text-[#222222] underline hover:bg-[#F7F7F7] active:bg-[#EBEBEB] transition-colors focus:outline-none"
               >

@@ -134,15 +134,15 @@ export default function Reviews({ propertyId }: ReviewsProps) {
       {stats && stats.totalReviews > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-3 mb-10">
           {[5, 4, 3, 2, 1].map((starRating) => (
-            <div key={starRating} className="flex items-center justify-between text-[14px]">
-              <span className="text-[#222222] w-6">{starRating}</span>
-              <div className="flex-1 mx-4 h-1 bg-[#DDDDDD] rounded-full overflow-hidden">
+            <div key={starRating} className="flex items-center gap-3 text-[14px]">
+              <span className="text-[#222222] shrink-0 w-4 text-right">{starRating}</span>
+              <div className="flex-1 h-1 bg-[#DDDDDD] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-600 rounded-full"
+                  className="h-full bg-blue-600 rounded-full transition-all duration-500"
                   style={{ width: `${getRatingPercentage(starRating)}%` }}
                 />
               </div>
-              <span className="text-[#222222] w-8 text-right font-medium">
+              <span className="text-[#717171] shrink-0 w-6 text-right">
                 {stats.ratingDistribution[starRating as keyof typeof stats.ratingDistribution]}
               </span>
             </div>

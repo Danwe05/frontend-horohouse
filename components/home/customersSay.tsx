@@ -147,7 +147,7 @@ export default function CustomersSay() {
   }, [isPaused, centerIndex, scrollToIndex]);
 
   return (
-    <div className="bg-white py-24 relative overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="bg-white py-12 relative overflow-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <style jsx global>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -162,8 +162,11 @@ export default function CustomersSay() {
               <span className="text-blue-600 font-bold text-xs uppercase tracking-[0.3em] px-2">{t.customersSay?.testimonials || 'Testimonials'}</span>
               <span className="h-px w-12 bg-blue-600 hidden md:block" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-6 mt-2">
-              {t.customersSay?.title || 'What Our Customers Say'}
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-6 mt-2 relative inline-block">
+              <span className="relative z-10">
+                {t.customersSay?.title || 'What Our Customers Say'}
+                <span className="absolute bottom-2 left-0 w-full h-3 md:h-4 bg-blue-200/80 -z-10 rounded-sm transform -rotate-1"></span>
+              </span>
             </h2>
           </div>
         </div>

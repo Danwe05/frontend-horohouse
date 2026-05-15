@@ -2,14 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { AppSidebar } from '@/components/dashboard/Sidebar';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { NavDash } from '@/components/dashboard/NavDash';
 import PropertyForm from '@/components/dashboard/PropertyForm';
 import RoomManager from '@/components/dashboard/RoomManager';
-import { Loader2, AlertCircle, Building2, BedDouble } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Loader2, AlertCircle, Building2, BedDouble, ArrowLeft } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 
 // ── Must stay in sync with PropertyForm's PropertyFormData ────────────────────
@@ -106,10 +101,13 @@ interface PropertyFormData {
   virtualTourUrl: string;
   videoUrl: string;
   tourType: string;
+
   // Hotel-specific
   starRating: number;
   pendingRooms: any[];
 }
+
+const HOTEL_TYPES = ['hotel', 'motel', 'hostel', 'guesthouse'];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -121,6 +119,7 @@ const PropertyEditPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialData, setInitialData] = useState<PropertyFormData | null>(null);
+  const [activeTab, setActiveTab] = useState<'details' | 'rooms'>('details');
 
   useEffect(() => {
     if (!propertyId) return;
@@ -220,7 +219,8 @@ const PropertyEditPage = () => {
           virtualTourUrl: data.virtualTourUrl || '',
           videoUrl: data.videoUrl || '',
           tourType: data.tourType || 'images',
-          // Hotel-specific (edit mode — rooms already exist; pendingRooms stays empty)
+
+          // Hotel-specific
           starRating: data.starRating ?? 0,
           pendingRooms: [],
         };
@@ -238,115 +238,203 @@ const PropertyEditPage = () => {
   }, [propertyId]);
 
   const handleUpdateProperty = async (formData: PropertyFormData) => {
-    console.log('Property updated:', formData);
+    try {
+      await apiClient.updateProperty(propertyId, {
+        title: formData.title,
+        description: formData.description,
+        type: formData.type,
+        listingType: formData.listingType,
+        price: Number(formData.price),
+        area: formData.area ? Number(formData.area) : undefined,
+        yearBuilt: formData.yearBuilt ? Number(formData.yearBuilt) : undefined,
+        floorNumber: formData.floorNumber ? Number(formData.floorNumber) : undefined,
+        totalFloors: formData.totalFloors ? Number(formData.totalFloors) : undefined,
+        pricePerSqm: formData.pricePerSqm ? Number(formData.pricePerSqm) : undefined,
+        depositAmount: formData.depositAmount ? Number(formData.depositAmount) : undefined,
+        maintenanceFee: formData.maintenanceFee ? Number(formData.maintenanceFee) : undefined,
+        address: formData.address,
+        city: formData.city,
+        neighborhood: formData.neighborhood || undefined,
+        country: formData.country || undefined,
+        latitude: formData.latitude ? Number(formData.latitude) : undefined,
+        longitude: formData.longitude ? Number(formData.longitude) : undefined,
+        keywords: formData.keywords ? formData.keywords.split(',').map((k: string) => k.trim()).filter(Boolean) : [],
+        nearbyAmenities: formData.nearbyAmenities,
+        transportAccess: formData.transportAccess,
+        virtualTourUrl: formData.virtualTourUrl || undefined,
+        videoUrl: formData.videoUrl || undefined,
+        tourType: formData.tourType || undefined,
+        pricingUnit: formData.pricingUnit || undefined,
+        minNights: Number(formData.minNights) || 1,
+        maxNights: Number(formData.maxNights) || 365,
+        cleaningFee: Number(formData.cleaningFee) || 0,
+        serviceFee: Number(formData.serviceFee) || 0,
+        isInstantBookable: formData.isInstantBookable,
+        cancellationPolicy: formData.cancellationPolicy || undefined,
+        advanceNoticeDays: Number(formData.advanceNoticeDays) || 0,
+        bookingWindowDays: Number(formData.bookingWindowDays) || 365,
+        weeklyDiscountPercent: Number(formData.weeklyDiscountPercent) || 0,
+        monthlyDiscountPercent: Number(formData.monthlyDiscountPercent) || 0,
+        starRating: formData.starRating ?? undefined,
+        amenities: {
+          bedrooms: formData.bedrooms,
+          bathrooms: formData.bathrooms,
+          parkingSpaces: formData.parkingSpaces,
+          hasGarden: formData.hasGarden,
+          hasPool: formData.hasPool,
+          hasGym: formData.hasGym,
+          hasSecurity: formData.hasSecurity,
+          hasElevator: formData.hasElevator,
+          hasBalcony: formData.hasBalcony,
+          hasAirConditioning: formData.hasAirConditioning,
+          hasInternet: formData.hasInternet,
+          hasGenerator: formData.hasGenerator,
+          furnished: formData.furnished,
+        },
+        shortTermAmenities: formData.listingType === 'short_term' ? {
+          hasWifi: formData.hasWifi,
+          hasBreakfast: formData.hasBreakfast,
+          hasTv: formData.hasTv,
+          hasKitchen: formData.hasKitchen,
+          hasWasher: formData.hasWasher,
+          hasHeating: formData.hasHeating,
+          hasAirConditioning: formData.hasAirConditioning,
+          petsAllowed: formData.petsAllowed,
+          smokingAllowed: formData.smokingAllowed,
+          partiesAllowed: formData.partiesAllowed,
+          wheelchairAccessible: formData.wheelchairAccessible,
+          airportTransfer: formData.airportTransfer,
+          conciergeService: formData.conciergeService,
+          dailyHousekeeping: formData.dailyHousekeeping,
+          maxGuests: Number(formData.maxGuests) || 2,
+          checkInTime: formData.checkInTime || undefined,
+          checkOutTime: formData.checkOutTime || undefined,
+        } : undefined,
+      });
+
+      const newImageFiles = formData.images.filter(img => img.file).map(img => img.file);
+      if (newImageFiles.length > 0) {
+        await apiClient.uploadPropertyImages(propertyId, newImageFiles);
+      }
+
+      router.push('/dashboard/property');
+    } catch (err: any) {
+      console.error('Error updating property:', err);
+    }
   };
 
-  // ── Loading ───────────────────────────────────────────────────────────────
+  // ── Loading ────────────────────────────────────────────────────────────────
 
   if (loading) return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <SidebarInset>
-          <NavDash />
-          <div className="flex-1 flex items-center justify-center min-h-screen">
-            <div className="text-center">
-              <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-              <p className="text-gray-600">Loading property data...</p>
-            </div>
-          </div>
-        </SidebarInset>
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-[#222222]" />
+        <p className="text-[#717171] text-sm font-medium">Loading your listing…</p>
       </div>
-    </SidebarProvider>
+    </div>
   );
 
-  // ── Error ─────────────────────────────────────────────────────────────────
+  // ── Error ──────────────────────────────────────────────────────────────────
 
   if (error || !initialData) return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <SidebarInset>
-          <NavDash />
-          <div className="flex-1 flex items-center justify-center min-h-screen">
-            <div className="text-center max-w-md">
-              <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Property</h2>
-              <p className="text-gray-600 mb-6">{error || 'Property not found'}</p>
-              <Button
-                onClick={() => router.push('/dashboard/properties')}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Back to Properties
-              </Button>
-            </div>
-          </div>
-        </SidebarInset>
+    <div className="min-h-screen flex items-center justify-center bg-white px-6">
+      <div className="text-center max-w-sm">
+        <AlertCircle className="w-14 h-14 text-rose-500 mx-auto mb-4" />
+        <h2 className="text-xl font-semibold text-[#222222] mb-2">Couldn't load listing</h2>
+        <p className="text-[#717171] text-sm mb-6">{error || 'Listing not found'}</p>
+        <button
+          onClick={() => router.push('/dashboard/property')}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm font-semibold hover:bg-[#F7F7F7] transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to listings
+        </button>
       </div>
-    </SidebarProvider>
+    </div>
   );
 
-  // ── Main ──────────────────────────────────────────────────────────────────
+  const isHotelType = HOTEL_TYPES.includes(initialData.type?.toLowerCase());
 
-  return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <SidebarInset>
-          <NavDash />
-          <div className="flex-1 flex flex-col min-h-screen pt-14 lg:pt-0">
-            <div className="flex-1 p-2 lg:p-6 bg-[#f8fafc] w-full max-w-7xl mx-auto">
+  // ── Hotel: fullscreen layout with tab bar above the form ──────────────────
 
-              <div className="mb-6 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-slate-900">Manage Property</h1>
-                  <p className="text-sm text-slate-500">{initialData.title}</p>
-                </div>
+  if (isHotelType) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col">
+        {/* Minimal top nav for hotel — sits above PropertyForm's own header */}
+        {activeTab === 'rooms' && (
+          <header className="fixed top-0 left-0 right-0 z-50 h-[72px] px-6 flex items-center justify-between bg-white border-b border-[#EBEBEB]">
+            <button
+              onClick={() => setActiveTab('details')}
+              className="flex items-center gap-2 text-sm font-semibold text-[#222222] hover:text-[#717171] transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" /> Property details
+            </button>
+            <div className="flex items-center gap-1 bg-[#F7F7F7] rounded-full p-1">
+              <button
+                onClick={() => setActiveTab('details')}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all text-[#717171] hover:text-[#222222]"
+              >
+                <Building2 className="w-3.5 h-3.5" /> Details
+              </button>
+              <button
+                onClick={() => setActiveTab('rooms')}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all bg-white text-[#222222] shadow-sm"
+              >
+                <BedDouble className="w-3.5 h-3.5" /> Manage rooms
+              </button>
+            </div>
+            <button
+              onClick={() => router.push('/dashboard/property')}
+              className="text-sm font-semibold text-[#222222] underline hover:text-[#717171] transition-colors"
+            >
+              Exit
+            </button>
+          </header>
+        )}
+
+        {activeTab === 'details' ? (
+          /* PropertyForm renders its own full-page header + steps */
+          <PropertyForm
+            key={propertyId}
+            onAdd={handleUpdateProperty}
+            initialData={initialData}
+            propertyId={propertyId}
+            isEditMode={true}
+          />
+        ) : (
+          <div className="flex-1 pt-[72px]">
+            <div className="max-w-3xl mx-auto px-6 py-10">
+              <div className="mb-8">
+                <h1 className="text-2xl font-semibold text-[#222222]">Manage rooms</h1>
+                <p className="text-[#717171] text-sm mt-1">{initialData.title}</p>
               </div>
-
-              <div className="bg-white rounded-xl -sm border border-slate-100 overflow-hidden">
-                <Tabs defaultValue="details" className="w-full">
-
-                  {['hotel', 'motel', 'hostel', 'guesthouse'].includes(initialData.type?.toLowerCase()) ? (
-                    <div className="px-6 border-b border-slate-100 bg-slate-50/50">
-                      <TabsList className="bg-transparent h-12 gap-6 p-0">
-                        <TabsTrigger
-                          value="details"
-                          className="data-[state=active]:bg-transparent data-[state=active]:-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-12 px-2 gap-2 text-slate-600 data-[state=active]:text-blue-700 font-semibold"
-                        >
-                          <Building2 className="w-4 h-4" /> Property Details
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="rooms"
-                          className="data-[state=active]:bg-transparent data-[state=active]:-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none h-12 px-2 gap-2 text-slate-600 data-[state=active]:text-blue-700 font-semibold"
-                        >
-                          <BedDouble className="w-4 h-4" /> Manage Rooms
-                        </TabsTrigger>
-                      </TabsList>
-                    </div>
-                  ) : null}
-
-                  <TabsContent value="details" className="m-0 p-0 lg:p-4 outline-none">
-                    <PropertyForm
-                      onAdd={handleUpdateProperty}
-                      initialData={initialData}
-                      propertyId={propertyId}
-                      isEditMode={true}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="rooms" className="m-0 p-6 outline-none">
-                    <RoomManager propertyId={propertyId} />
-                  </TabsContent>
-
-                </Tabs>
-              </div>
-
+              <RoomManager propertyId={propertyId} />
             </div>
           </div>
-        </SidebarInset>
+        )}
+
+        {/* Switch to Rooms tab — floating pill shown on details tab */}
+        {activeTab === 'details' && (
+          <button
+            onClick={() => setActiveTab('rooms')}
+            className="fixed bottom-24 right-6 z-50 flex items-center gap-2 px-5 py-3 bg-[#222222] text-white rounded-full text-sm font-semibold shadow-lg hover:bg-[#111] transition-colors"
+          >
+            <BedDouble className="w-4 h-4" /> Manage rooms
+          </button>
+        )}
       </div>
-    </SidebarProvider>
+    );
+  }
+
+  // ── Standard property: just render PropertyForm fullscreen ─────────────────
+
+  return (
+    <PropertyForm
+      key={propertyId}
+      onAdd={handleUpdateProperty}
+      initialData={initialData}
+      propertyId={propertyId}
+      isEditMode={true}
+    />
   );
 };
 

@@ -407,7 +407,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStepId]);
-  const [locationQuery, setLocationQuery] = useState('');
+  const [locationQuery, setLocationQuery] = useState(initialData?.address || '');
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
@@ -462,6 +462,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
   useEffect(() => {
     if (initialData && isEditMode) {
       setFormData(initialData);
+      // Keep the address autocomplete field in sync
+      if (initialData.address) setLocationQuery(initialData.address);
       if (initialData.latitude && initialData.longitude) {
         setSelectedMapLocation({
           lng: parseFloat(initialData.longitude),
@@ -648,8 +650,12 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
   };
 
   const handleSaveAndExit = () => {
-    saveDraft(formData);
-    router.push('/dashboard');
+    if (isEditMode) {
+      router.push('/dashboard/property');
+    } else {
+      saveDraft(formData);
+      router.push('/dashboard');
+    }
   };
 
   // ─── Submit ───────────────────────────────────────────────────────────────

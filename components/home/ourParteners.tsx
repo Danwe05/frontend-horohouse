@@ -45,8 +45,11 @@ export default function OurPartners() {
         <p className="text-[12px] font-semibold tracking-[0.1em] uppercase text-blue-600 mb-2">
           {t.ourPartners?.trustedBy || 'Trusted By Industry Leaders'}
         </p>
-        <h2 className="text-[28px] md:text-[34px] font-bold text-[#222222] tracking-tight leading-tight max-w-2xl">
-          {t.ourPartners?.title || 'Our Global Partners'}
+        <h2 className="text-[28px] md:text-[34px] font-bold text-[#222222] tracking-tight leading-tight max-w-2xl relative inline-block">
+          <span className="relative z-10">
+            {t.ourPartners?.title || 'Our Global Partners'}
+            <span className="absolute bottom-1 md:bottom-2 left-0 w-full h-2 md:h-3 bg-blue-200/80 -z-10 rounded-sm transform -rotate-1"></span>
+          </span>
         </h2>
         <p className="text-[#717171] mt-3 text-[15px] max-w-2xl">
           {t.ourPartners?.description || "Seamlessly integrated with world-class financial institutions and platforms to ensure a secure experience."}

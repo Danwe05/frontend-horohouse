@@ -489,13 +489,13 @@ const PropertyPage = () => {
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-48 rounded-xl border-[#DDDDDD] shadow-[0_2px_16px_rgba(0,0,0,0.12)] p-2">
                                     <DropdownMenuItem
-                                      onClick={() => router.push(`/dashboard/property/${property._id || property.id}`)}
+                                      onClick={() => router.push(`/properties/${property._id || property.id}`)}
                                       className="cursor-pointer text-[14px] font-medium p-2.5 rounded-lg hover:bg-[#F7F7F7] focus:bg-[#F7F7F7] gap-3 text-[#222222] transition-colors"
                                     >
                                       <Eye className="h-4 w-4 stroke-[2]" /> View listing
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                      onClick={() => router.push(`/dashboard/propertyForm?id=${property._id || property.id}`)}
+                                      onClick={() => router.push(`/dashboard/property/edit/${property._id || property.id}`)}
                                       className="cursor-pointer text-[14px] font-medium p-2.5 rounded-lg hover:bg-[#F7F7F7] focus:bg-[#F7F7F7] gap-3 text-[#222222] transition-colors"
                                     >
                                       <Edit className="h-4 w-4 stroke-[2]" /> Edit listing

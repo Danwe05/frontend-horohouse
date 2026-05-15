@@ -15,15 +15,19 @@ export default function PopularDestinations() {
   ];
 
   return (
-    <section className="py-24 px-6 lg:px-10 bg-white" dir={isRtl ? 'rtl' : 'ltr'}>
+    <section className="py-12 px-6 lg:px-10 bg-white" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-[1280px] mx-auto">
-        
+
         <div className="flex flex-col md:flex-row items-end justify-between mb-12">
           <div className="max-w-xl">
-            <h2 className="text-[36px] md:text-[44px] font-bold text-gray-900 tracking-tight mb-4">
-              Trending destinations
+            <h2 className="text-[36px] md:text-[44px] font-bold text-gray-900 tracking-tight mb-4 relative inline-block">
+              Trending{' '}
+              <span className="relative z-10 whitespace-nowrap">
+                destinations
+                <span className="absolute bottom-3 left-0 w-full h-4 bg-blue-200/80 -z-10 rounded-sm transform -rotate-1"></span>
+              </span>
             </h2>
-            <p className="text-[18px] text-gray-500 font-light">
+            <p className="text-[18px] text-gray-500 font-light mt-2">
               Explore the most sought-after cities. Uncover the perfect backdrop for your next stay.
             </p>
           </div>
@@ -37,9 +41,9 @@ export default function PopularDestinations() {
           {cities.map((city, i) => (
             <Link href={`/properties?city=${encodeURIComponent(city.name)}`} key={i} className={`group block relative rounded-2xl overflow-hidden ${city.colSpan}`}>
               <div className="absolute inset-0 bg-gray-900/20 group-hover:bg-gray-900/40 transition-colors duration-500 z-10" />
-              <img 
-                src={city.img} 
-                alt={city.name} 
+              <img
+                src={city.img}
+                alt={city.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
               <div className="absolute bottom-0 left-0 p-8 z-20">

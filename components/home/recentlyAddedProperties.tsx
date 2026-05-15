@@ -128,7 +128,7 @@ export default function RecentlyAddedProperties() {
   }
 
   return (
-    <section className="w-full bg-white py-16 px-6 lg:px-10 font-sans border-t border-[#EBEBEB]" dir={isRtl ? 'rtl' : 'ltr'}>
+    <section className="w-full bg-white py-12 px-6 lg:px-10 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">
         <motion.div
           initial={{ opacity: 0, y: 10 }}

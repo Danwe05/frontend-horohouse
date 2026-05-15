@@ -165,10 +165,14 @@ export default function InsightsSection() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <div>
             <p className="text-[12px] font-semibold tracking-widest uppercase text-blue-600 mb-2">Market intelligence</p>
-            <h2 className="text-[28px] md:text-[34px] font-bold text-[#222222] tracking-tight leading-tight">
-              Insights &amp; Guides
+            <h2 className="text-[28px] md:text-[34px] font-bold text-[#222222] tracking-tight leading-tight relative inline-block mt-1">
+              Insights &amp;{' '}
+              <span className="relative z-10 whitespace-nowrap">
+                Guides
+                <span className="absolute bottom-1 md:bottom-2 left-0 w-full h-3 bg-blue-200/80 -z-10 rounded-sm transform -rotate-1"></span>
+              </span>
             </h2>
-            <p className="text-[#717171] mt-1.5 text-[15px]">Expert analysis and property trends curated for you.</p>
+            <p className="text-[#717171] mt-2 text-[15px]">Expert analysis and property trends curated for you.</p>
           </div>
           <Link
             href="/insights"
