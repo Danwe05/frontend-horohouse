@@ -11,7 +11,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { getAuthorByUsername } from "../../data";
-import { POSTS } from "../../page";
+import { POSTS } from "../../data";
 
 // ─── Tabs ────────────────────────────────────────────────────────────────────
 
@@ -31,7 +31,7 @@ function MiniPostRow({ post }: { post: typeof POSTS[number] }) {
           {/* Tags */}
           {post.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-2">
-              {post.tags.map(tag => (
+              {post.tags.map((tag: string) => (
                 <span key={tag} className="px-2 py-0.5 rounded-full bg-[#F7F7F7] border border-[#EBEBEB] text-[11px] font-medium text-[#717171]">
                   {tag}
                 </span>
@@ -63,7 +63,7 @@ export default function AuthorProfilePage() {
 
   const author = useMemo(() => getAuthorByUsername(username), [username]);
   const authorPosts = useMemo(
-    () => POSTS.filter(p => p.author.name === author?.name),
+    () => POSTS.filter((p: any) => p.author.name === author?.name),
     [author]
   );
 
@@ -198,7 +198,7 @@ export default function AuthorProfilePage() {
               </div>
             ) : (
               <div>
-                {authorPosts.map(p => <MiniPostRow key={p.id} post={p} />)}
+                {authorPosts.map((p: any) => <MiniPostRow key={p.id} post={p} />)}
               </div>
             )}
           </div>

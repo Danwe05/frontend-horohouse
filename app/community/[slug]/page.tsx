@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { POSTS } from "../page";
+import { POSTS } from "../data";
 import { getAuthorByName } from "../data";
 
 // ─── Static reply data (would come from API in production) ─────────────────

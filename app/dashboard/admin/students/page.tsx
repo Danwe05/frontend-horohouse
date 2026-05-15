@@ -64,7 +64,7 @@ const STATUS_CFG: Record<VerificationStatus, {
   label: string; icon: LucideIcon;
   badge: string; row: string;
 }> = {
-  unverified: { label: 'Unverified', icon: XCircle, badge: 'bg-slate-100 text-slate-500', row: '' },
+  unverified: { label: 'Unverified', icon: XCircle, badge: 'bg-[#EBEBEB] text-[#717171]', row: '' },
   pending: { label: 'Pending', icon: Clock, badge: 'bg-amber-100 text-amber-700', row: 'bg-amber-50/30' },
   verified: { label: 'Verified', icon: CheckCircle2, badge: 'bg-emerald-100 text-emerald-700', row: '' },
   rejected: { label: 'Rejected', icon: XCircle, badge: 'bg-red-100 text-red-600', row: 'bg-red-50/20' },
@@ -87,12 +87,12 @@ function StatCard({ label, value, icon: Icon, color }: {
   return (
     <Card className="border-none -sm ring-1 ring-slate-200/60 hover:-md transition-all duration-300 group">
       <CardContent className="p-5 flex items-center gap-4">
-        <div className={cn('p-3 rounded-xl transition-transform group-hover:scale-110 duration-300', color)}>
+        <div className={cn('p-3 rounded-2xl transition-transform group-hover:scale-110 duration-300', color)}>
           <Icon className="w-5 h-5" />
         </div>
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
-          <p className="text-2xl font-bold text-slate-900 mt-0.5">{value}</p>
+          <p className="text-[14px] font-semibold text-[#222222]">{label}</p>
+          <p className="text-2xl font-bold text-[#222222] mt-0.5">{value}</p>
         </div>
       </CardContent>
     </Card>
@@ -106,17 +106,17 @@ function IdImageModal({ url, name, onClose }: { url: string; name: string; onClo
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-blue-700/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl -2xl overflow-hidden max-w-lg w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#EBEBEB]">
           <div>
-            <h2 className="text-base font-bold text-slate-900">Student ID</h2>
-            <p className="text-xs text-slate-500 mt-0.5">{name}</p>
+            <h2 className="text-base font-bold text-[#222222]">Student ID</h2>
+            <p className="text-xs text-[#717171] mt-0.5">{name}</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors cursor-pointer">
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#EBEBEB] text-[#B0B0B0] transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-4 bg-slate-50">
-          <img src={url} alt="Student ID" className="w-full rounded-xl object-contain max-h-[60vh]" />
+        <div className="p-4 bg-[#F7F7F7]">
+          <img src={url} alt="Student ID" className="w-full rounded-2xl object-contain max-h-[60vh]" />
         </div>
       </div>
     </div>
@@ -171,12 +171,12 @@ function ReviewModal({
 
         <div className="relative bg-white rounded-2xl -2xl w-full max-w-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEBEB] bg-gradient-to-r from-slate-50 to-white">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Review Student ID</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Approve or reject the submitted university ID</p>
+              <h2 className="text-lg font-bold text-[#222222]">Review Student ID</h2>
+              <p className="text-xs text-[#717171] mt-0.5">Approve or reject the submitted university ID</p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors cursor-pointer">
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#EBEBEB] text-[#B0B0B0] transition-colors cursor-pointer">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -189,19 +189,19 @@ function ReviewModal({
             )}
 
             {/* Student info */}
-            <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <div className="flex items-center gap-3 p-4 bg-[#F7F7F7] rounded-2xl border border-[#EBEBEB]">
               <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-white -sm flex-shrink-0 bg-slate-200">
                 {user?.profilePicture ? (
                   <img src={user.profilePicture} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold text-sm">
+                  <div className="w-full h-full flex items-center justify-center text-[#717171] font-bold text-sm">
                     {user?.name?.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-900 truncate">{user?.name}</p>
-                <p className="text-xs text-slate-500 truncate">{user?.email || user?.phoneNumber}</p>
+                <p className="font-semibold text-[#222222] truncate">{user?.name}</p>
+                <p className="text-xs text-[#717171] truncate">{user?.email || user?.phoneNumber}</p>
               </div>
               <StatusBadge status={profile.verificationStatus} />
             </div>
@@ -214,19 +214,19 @@ function ReviewModal({
                 { icon: BookOpen, label: 'Faculty', value: profile.faculty || '—' },
                 { icon: Award, label: 'Level', value: profile.studyLevel || '—' },
               ].map(({ icon: Icon, label, value }) => (
-                <div key={label} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                <div key={label} className="bg-[#F7F7F7] rounded-2xl p-3 border border-[#EBEBEB]">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Icon className="w-3 h-3 text-slate-400" />
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+                    <Icon className="w-3 h-3 text-[#B0B0B0]" />
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#B0B0B0]">{label}</p>
                   </div>
-                  <p className="text-sm font-medium text-slate-800 truncate">{value}</p>
+                  <p className="text-sm font-medium text-[#222222] truncate">{value}</p>
                 </div>
               ))}
             </div>
 
             {/* Submitted at */}
             {profile.verificationSubmittedAt && (
-              <p className="text-xs text-slate-400 flex items-center gap-1.5">
+              <p className="text-xs text-[#B0B0B0] flex items-center gap-1.5">
                 <Calendar className="w-3 h-3" />
                 Submitted {new Date(profile.verificationSubmittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -236,13 +236,13 @@ function ReviewModal({
             {profile.studentIdUrl ? (
               <button
                 onClick={() => setShowId(true)}
-                className="w-full flex items-center justify-center gap-2 p-3.5 border-1 border-dashed border-slate-300 rounded-xl text-sm font-semibold text-slate-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50/30 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 p-3.5 border-1 border-dashed border-slate-300 rounded-2xl text-sm font-semibold text-[#717171] hover:border-blue-400 hover:text-[#222222] hover:bg-[#F7F7F7]/30 transition-all cursor-pointer"
               >
                 <ImageIcon className="w-4 h-4" />
                 View Student ID Photo
               </button>
             ) : (
-              <div className="w-full flex items-center justify-center gap-2 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-400">
+              <div className="w-full flex items-center justify-center gap-2 p-3.5 bg-[#F7F7F7] border border-[#DDDDDD] rounded-2xl text-sm text-[#B0B0B0]">
                 <ImageIcon className="w-4 h-4" />
                 No ID photo uploaded
               </div>
@@ -253,13 +253,13 @@ function ReviewModal({
               <button
                 onClick={() => setDecision('verified')}
                 className={cn(
-                  'flex flex-col items-center gap-2 p-4 rounded-xl border-1 transition-all duration-200 cursor-pointer',
+                  'flex flex-col items-center gap-2 p-4 rounded-2xl border-1 transition-all duration-200 cursor-pointer',
                   decision === 'verified'
                     ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
-                    : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-emerald-300 hover:bg-emerald-50/40'
+                    : 'border-[#DDDDDD] bg-[#F7F7F7] text-[#717171] hover:border-emerald-300 hover:bg-emerald-50/40'
                 )}
               >
-                <CheckCircle2 className={cn('w-6 h-6', decision === 'verified' ? 'text-emerald-600' : 'text-slate-400')} />
+                <CheckCircle2 className={cn('w-6 h-6', decision === 'verified' ? 'text-emerald-600' : 'text-[#B0B0B0]')} />
                 <span className="text-sm font-bold">Approve</span>
                 <span className="text-[10px] text-center leading-tight opacity-70">
                   Student gets full access
@@ -268,13 +268,13 @@ function ReviewModal({
               <button
                 onClick={() => setDecision('rejected')}
                 className={cn(
-                  'flex flex-col items-center gap-2 p-4 rounded-xl border-1 transition-all duration-200 cursor-pointer',
+                  'flex flex-col items-center gap-2 p-4 rounded-2xl border-1 transition-all duration-200 cursor-pointer',
                   decision === 'rejected'
                     ? 'border-red-400 bg-red-50 text-red-700'
-                    : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-red-300 hover:bg-red-50/40'
+                    : 'border-[#DDDDDD] bg-[#F7F7F7] text-[#717171] hover:border-red-300 hover:bg-red-50/40'
                 )}
               >
-                <XCircle className={cn('w-6 h-6', decision === 'rejected' ? 'text-red-500' : 'text-slate-400')} />
+                <XCircle className={cn('w-6 h-6', decision === 'rejected' ? 'text-red-500' : 'text-[#B0B0B0]')} />
                 <span className="text-sm font-bold">Reject</span>
                 <span className="text-[10px] text-center leading-tight opacity-70">
                   Ask them to resubmit
@@ -285,7 +285,7 @@ function ReviewModal({
             {/* Rejection reason */}
             {decision === 'rejected' && (
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <label className="text-[14px] font-semibold text-[#222222]">
                   Rejection Reason <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -293,15 +293,15 @@ function ReviewModal({
                   onChange={e => setRejectionReason(e.target.value)}
                   placeholder="e.g. ID photo is blurry or expired. Please upload a clear, valid student card."
                   rows={3}
-                  className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400 resize-none bg-slate-50"
+                  className="w-full px-3 py-2.5 text-sm border border-[#DDDDDD] rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400 resize-none bg-[#F7F7F7]"
                 />
-                <p className="text-[10px] text-slate-400">This message will be shown to the student. Min 5 characters.</p>
+                <p className="text-[10px] text-[#B0B0B0]">This message will be shown to the student. Min 5 characters.</p>
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="flex gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+          <div className="flex gap-3 px-6 py-4 border-t border-[#EBEBEB] bg-[#F7F7F7]">
             <Button variant="outline" onClick={onClose} className="flex-1" disabled={saving}>
               Cancel
             </Button>
@@ -359,23 +359,23 @@ function ActionMenu({ profile, onReview, onViewId }: {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(v => !v)}
-        className="p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+        className="p-1.5 rounded-md hover:bg-[#EBEBEB] text-[#B0B0B0] hover:text-[#717171] transition-colors cursor-pointer"
       >
         <MoreVertical className="w-4 h-4" />
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl -xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute right-0 mt-1 w-44 bg-white rounded-2xl -xl border border-[#EBEBEB] py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
           {profile.studentIdUrl && (
             <button
               onClick={() => { setOpen(false); onViewId(); }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#222222] hover:bg-[#F7F7F7] transition-colors cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5" /> View ID Photo
             </button>
           )}
           {profile.verificationStatus === 'pending' && (
             <>
-              <div className="h-px bg-slate-100 my-1" />
+              <div className="h-px bg-[#EBEBEB] my-1" />
               <button
                 onClick={() => { setOpen(false); onReview(); }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-amber-700 hover:bg-amber-50 transition-colors cursor-pointer"
@@ -460,7 +460,7 @@ export default function AdminStudentsPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#f8fafc]">
+      <div className="flex min-h-screen w-full bg-white font-sans text-[#222222]">
         <AppSidebar />
         <SidebarInset className="bg-transparent">
           <NavDash />
@@ -470,17 +470,17 @@ export default function AdminStudentsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2.5 mb-1">
-                  <div className="p-2 bg-purple-50 rounded-lg">
-                    <GraduationCap className="w-5 h-5 text-purple-600" />
+                  <div className="p-2 bg-[#F7F7F7] rounded-lg">
+                    <GraduationCap className="w-5 h-5 text-[#222222]" />
                   </div>
-                  <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Student Verification</h1>
+                  <h1 className="text-[32px] font-bold tracking-tight mb-2 text-[#222222]">Student Verification</h1>
                   {pendingCount > 0 && (
                     <Badge className="bg-amber-100 text-amber-700 border-none text-xs">
                       {pendingCount} pending
                     </Badge>
                   )}
                 </div>
-                <p className="text-slate-500 text-sm">Review and approve student ID submissions.</p>
+                <p className="text-[#717171] text-sm">Review and approve student ID submissions.</p>
               </div>
               <Button
                 variant="outline"
@@ -495,37 +495,37 @@ export default function AdminStudentsPage() {
             {/* ── Stats ── */}
             {loadingStats ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
-                {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-slate-200 rounded-xl" />)}
+                {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-slate-200 rounded-2xl" />)}
               </div>
             ) : stats ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard label="Total Students" value={stats.total} icon={Users} color="bg-purple-50 text-purple-600" />
+                <StatCard label="Total Students" value={stats.total} icon={Users} color="bg-[#F7F7F7] text-[#222222]" />
                 <StatCard label="Pending Review" value={stats.byVerificationStatus?.['pending'] ?? 0} icon={Clock} color="bg-amber-50 text-amber-600" />
                 <StatCard label="Verified" value={stats.byVerificationStatus?.['verified'] ?? 0} icon={CheckCircle2} color="bg-emerald-50 text-emerald-600" />
-                <StatCard label="Ambassadors" value={stats.ambassadors} icon={Award} color="bg-blue-50 text-blue-600" />
+                <StatCard label="Ambassadors" value={stats.ambassadors} icon={Award} color="bg-[#F7F7F7] text-[#222222]" />
               </div>
             ) : null}
 
             {/* ── Filters ── */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#B0B0B0] pointer-events-none" />
                 <Input
                   placeholder="Search by campus city…"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="pl-9 bg-white border-slate-200 -sm"
+                  className="pl-9 bg-white border-[#DDDDDD] -sm"
                 />
                 {search && (
-                  <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
+                  <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#B0B0B0] hover:text-[#717171] cursor-pointer">
                     <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
 
               <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1); }}>
-                <SelectTrigger className="w-full sm:w-[180px] bg-white border-slate-200 -sm">
-                  <Filter className="w-4 h-4 mr-2 text-slate-400" />
+                <SelectTrigger className="w-full sm:w-[180px] bg-white border-[#DDDDDD] -sm">
+                  <Filter className="w-4 h-4 mr-2 text-[#B0B0B0]" />
                   <SelectValue placeholder="Filter status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -539,17 +539,17 @@ export default function AdminStudentsPage() {
             </div>
 
             {/* ── Table ── */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 -sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-[#DDDDDD] -sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50/70">
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Student</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">University</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Submitted</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">ID Photo</th>
+                    <tr className="border-b border-[#EBEBEB] bg-[#F7F7F7]">
+                      <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">Student</th>
+                      <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">University</th>
+                      <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">Contact</th>
+                      <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">Status</th>
+                      <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">Submitted</th>
+                      <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">ID Photo</th>
                       <th className="px-4 py-3 w-10" />
                     </tr>
                   </thead>
@@ -559,9 +559,9 @@ export default function AdminStudentsPage() {
                     ) : profiles.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="py-16 text-center">
-                          <GraduationCap className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-                          <p className="text-slate-500 font-semibold">No student profiles found</p>
-                          <p className="text-slate-400 text-xs mt-1">Try changing the status filter.</p>
+                          <GraduationCap className="w-12 h-12 mx-auto text-[#B0B0B0] mb-3" />
+                          <p className="text-[#717171] font-semibold">No student profiles found</p>
+                          <p className="text-[#B0B0B0] text-xs mt-1">Try changing the status filter.</p>
                         </td>
                       </tr>
                     ) : profiles.map(p => {
@@ -571,7 +571,7 @@ export default function AdminStudentsPage() {
                         `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user?.name ?? 'user')}&backgroundColor=ffdfbf`;
 
                       return (
-                        <tr key={p._id} className={cn('hover:bg-slate-50/70 transition-colors duration-150', cfg.row)}>
+                        <tr key={p._id} className={cn('hover:bg-[#F7F7F7] transition-colors duration-150', cfg.row)}>
 
                           {/* Student */}
                           <td className="px-4 py-3.5">
@@ -580,9 +580,9 @@ export default function AdminStudentsPage() {
                                 <img src={avatarSrc} alt={user?.name} className="w-full h-full object-cover" />
                               </div>
                               <div className="min-w-0">
-                                <p className="font-semibold text-slate-900 truncate max-w-[140px]">{user?.name ?? '—'}</p>
+                                <p className="font-semibold text-[#222222] truncate max-w-[140px]">{user?.name ?? '—'}</p>
                                 {p.isAmbassador && (
-                                  <span className="inline-flex items-center gap-1 text-[10px] bg-blue-50 text-blue-600 font-semibold px-1.5 py-0.5 rounded-full">
+                                  <span className="inline-flex items-center gap-1 text-[10px] bg-[#F7F7F7] text-[#222222] font-semibold px-1.5 py-0.5 rounded-full">
                                     <Award className="w-2.5 h-2.5" /> Ambassador
                                   </span>
                                 )}
@@ -592,8 +592,8 @@ export default function AdminStudentsPage() {
 
                           {/* University */}
                           <td className="px-4 py-3.5">
-                            <p className="font-medium text-slate-800 text-xs truncate max-w-[160px]">{p.universityName}</p>
-                            <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                            <p className="font-medium text-[#222222] text-xs truncate max-w-[160px]">{p.universityName}</p>
+                            <p className="text-[11px] text-[#B0B0B0] flex items-center gap-1 mt-0.5">
                               <MapPin className="w-2.5 h-2.5" />{p.campusCity}
                               {p.studyLevel && ` · ${p.studyLevel}`}
                             </p>
@@ -603,14 +603,14 @@ export default function AdminStudentsPage() {
                           <td className="px-4 py-3.5">
                             <div className="space-y-0.5">
                               {user?.email && (
-                                <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-                                  <Mail className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                <div className="flex items-center gap-1.5 text-[#717171] text-xs">
+                                  <Mail className="w-3 h-3 text-[#B0B0B0] flex-shrink-0" />
                                   <span className="truncate max-w-[160px]">{user.email}</span>
                                 </div>
                               )}
                               {user?.phoneNumber && (
-                                <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-                                  <Phone className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                <div className="flex items-center gap-1.5 text-[#717171] text-xs">
+                                  <Phone className="w-3 h-3 text-[#B0B0B0] flex-shrink-0" />
                                   {user.phoneNumber}
                                 </div>
                               )}
@@ -630,12 +630,12 @@ export default function AdminStudentsPage() {
                           {/* Submitted */}
                           <td className="px-4 py-3.5">
                             {p.verificationSubmittedAt ? (
-                              <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-                                <Calendar className="w-3 h-3 text-slate-400" />
+                              <div className="flex items-center gap-1.5 text-[#717171] text-xs">
+                                <Calendar className="w-3 h-3 text-[#B0B0B0]" />
                                 {new Date(p.verificationSubmittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                               </div>
                             ) : (
-                              <span className="text-xs text-slate-300">—</span>
+                              <span className="text-xs text-[#B0B0B0]">—</span>
                             )}
                           </td>
 
@@ -644,12 +644,12 @@ export default function AdminStudentsPage() {
                             {p.studentIdUrl ? (
                               <button
                                 onClick={() => setViewIdProfile(p)}
-                                className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-semibold hover:underline cursor-pointer transition-colors"
+                                className="flex items-center gap-1.5 text-xs text-[#222222] hover:text-[#222222] font-semibold hover:underline cursor-pointer transition-colors"
                               >
                                 <ImageIcon className="w-3.5 h-3.5" /> View
                               </button>
                             ) : (
-                              <span className="text-xs text-slate-300">No photo</span>
+                              <span className="text-xs text-[#B0B0B0]">No photo</span>
                             )}
                           </td>
 
@@ -681,9 +681,9 @@ export default function AdminStudentsPage() {
 
               {/* Pagination */}
               {!loadingProfiles && profiles.length > 0 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-                  <p className="text-xs text-slate-500">
-                    Showing <span className="font-semibold text-slate-700">{(page - 1) * limit + 1}–{Math.min(page * limit, total)}</span> of <span className="font-semibold text-slate-700">{total}</span> profiles
+                <div className="flex items-center justify-between px-4 py-3 border-t border-[#EBEBEB] bg-[#F7F7F7]">
+                  <p className="text-xs text-[#717171]">
+                    Showing <span className="font-semibold text-[#222222]">{(page - 1) * limit + 1}–{Math.min(page * limit, total)}</span> of <span className="font-semibold text-[#222222]">{total}</span> profiles
                   </p>
                   <div className="flex items-center gap-1.5">
                     <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))} className="h-8 w-8 p-0">
@@ -701,7 +701,7 @@ export default function AdminStudentsPage() {
                           onClick={() => setPage(pg)}
                           className={cn(
                             'h-8 w-8 rounded-md text-xs font-semibold transition-colors cursor-pointer',
-                            pg === page ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-200'
+                            pg === page ? 'bg-[#222222] text-white' : 'text-[#717171] hover:bg-slate-200'
                           )}
                         >{pg}</button>
                       );

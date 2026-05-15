@@ -68,8 +68,8 @@ interface PaginatedUsers {
 
 const ROLE_CONFIG: Record<UserRole, { label: string; color: string; bg: string; icon: React.ComponentType<{ className?: string }> }> = {
     admin: { label: 'Admin', color: 'text-red-700', bg: 'bg-red-50', icon: Shield },
-    agent: { label: 'Agent', color: 'text-blue-700', bg: 'bg-blue-50', icon: BadgeCheck },
-    registered_user: { label: 'User', color: 'text-slate-700', bg: 'bg-slate-100', icon: UserCheck },
+    agent: { label: 'Agent', color: 'text-[#222222]', bg: 'bg-[#F7F7F7]', icon: BadgeCheck },
+    registered_user: { label: 'User', color: 'text-[#222222]', bg: 'bg-[#EBEBEB]', icon: UserCheck },
     guest: { label: 'Guest', color: 'text-gray-600', bg: 'bg-gray-100', icon: Circle },
 };
 
@@ -98,12 +98,12 @@ function StatCard({ label, value, icon: Icon, color }: { label: string; value: n
     return (
         <Card className="border-none -sm ring-1 ring-slate-200/60 hover:-md transition-all duration-300 group">
             <CardContent className="p-5 flex items-center gap-4">
-                <div className={cn('p-3 rounded-xl transition-transform group-hover:scale-110 duration-300', color)}>
+                <div className={cn('p-3 rounded-2xl transition-transform group-hover:scale-110 duration-300', color)}>
                     <Icon className="w-5 h-5" />
                 </div>
                 <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
-                    <p className="text-2xl font-bold text-slate-900 mt-0.5">{value}</p>
+                    <p className="text-[14px] font-semibold text-[#222222]">{label}</p>
+                    <p className="text-2xl font-bold text-[#222222] mt-0.5">{value}</p>
                 </div>
             </CardContent>
         </Card>
@@ -160,12 +160,12 @@ function EditModal({ user, onClose, onSaved }: EditModalProps) {
             {/* Panel */}
             <div className="relative bg-white rounded-2xl -2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEBEB] bg-gradient-to-r from-slate-50 to-white">
                     <div>
-                        <h2 className="text-lg font-bold text-slate-900">Edit User</h2>
-                        <p className="text-xs text-slate-500 mt-0.5 truncate max-w-[280px]">{user.email || user.phoneNumber}</p>
+                        <h2 className="text-lg font-bold text-[#222222]">Edit User</h2>
+                        <p className="text-xs text-[#717171] mt-0.5 truncate max-w-[280px]">{user.email || user.phoneNumber}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#EBEBEB] text-[#B0B0B0] hover:text-[#717171] transition-colors cursor-pointer">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -179,31 +179,31 @@ function EditModal({ user, onClose, onSaved }: EditModalProps) {
                         </div>
                     )}
 
-                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="flex items-center gap-3 p-3 bg-[#F7F7F7] rounded-2xl border border-[#EBEBEB]">
                         <Avatar user={user} />
                         <div className="min-w-0">
-                            <p className="font-semibold text-slate-900 truncate">{user.name}</p>
-                            <p className="text-xs text-slate-500">ID: {user.id}</p>
+                            <p className="font-semibold text-[#222222] truncate">{user.name}</p>
+                            <p className="text-xs text-[#717171]">ID: {user.id}</p>
                         </div>
                     </div>
 
                     {/* Name */}
                     <div>
-                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5 block">Full Name</label>
-                        <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="bg-slate-50 border-slate-200" />
+                        <label className="text-[14px] font-semibold text-[#222222] mb-1.5 block">Full Name</label>
+                        <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="bg-[#F7F7F7] border-[#DDDDDD]" />
                     </div>
 
                     {/* Email */}
                     <div>
-                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5 block">Email</label>
-                        <Input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="No email set" className="bg-slate-50 border-slate-200" />
+                        <label className="text-[14px] font-semibold text-[#222222] mb-1.5 block">Email</label>
+                        <Input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="No email set" className="bg-[#F7F7F7] border-[#DDDDDD]" />
                     </div>
 
                     {/* Role */}
                     <div>
-                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5 block">Role</label>
+                        <label className="text-[14px] font-semibold text-[#222222] mb-1.5 block">Role</label>
                         <Select value={form.role} onValueChange={v => setForm(p => ({ ...p, role: v as UserRole }))}>
-                            <SelectTrigger className="bg-slate-50 border-slate-200">
+                            <SelectTrigger className="bg-[#F7F7F7] border-[#DDDDDD]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -227,10 +227,10 @@ function EditModal({ user, onClose, onSaved }: EditModalProps) {
                                 type="button"
                                 onClick={() => setForm(p => ({ ...p, [key]: !p[key] }))}
                                 className={cn(
-                                    'flex flex-col items-center gap-1.5 p-3 rounded-xl border-1 transition-all duration-200 text-xs font-semibold cursor-pointer',
+                                    'flex flex-col items-center gap-1.5 p-3 rounded-2xl border-1 transition-all duration-200 text-xs font-semibold cursor-pointer',
                                     form[key]
                                         ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                                        : 'border-slate-200 bg-slate-50 text-slate-400'
+                                        : 'border-[#DDDDDD] bg-[#F7F7F7] text-[#B0B0B0]'
                                 )}
                             >
                                 {form[key] ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
@@ -241,11 +241,11 @@ function EditModal({ user, onClose, onSaved }: EditModalProps) {
                 </div>
 
                 {/* Footer */}
-                <div className="flex gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+                <div className="flex gap-3 px-6 py-4 border-t border-[#EBEBEB] bg-[#F7F7F7]">
                     <Button variant="outline" onClick={onClose} className="flex-1" disabled={saving}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSave} className="flex-1 bg-blue-600 hover:bg-blue-700" disabled={saving}>
+                    <Button onClick={handleSave} className="flex-1 bg-[#222222] hover:bg-black" disabled={saving}>
                         {saving ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Saving…</> : <><Check className="w-4 h-4 mr-2" />Save Changes</>}
                     </Button>
                 </div>
@@ -280,9 +280,9 @@ function DeleteModal({ user, onClose, onDeleted }: { user: User; onClose: () => 
                     <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
                         <AlertTriangle className="w-7 h-7 text-red-600" />
                     </div>
-                    <h2 className="text-lg font-bold text-slate-900 mb-1">Deactivate User?</h2>
-                    <p className="text-sm text-slate-500 mb-2">
-                        <span className="font-semibold text-slate-700">{user.name}</span>'s account will be deactivated and they will lose access to the platform.
+                    <h2 className="text-lg font-bold text-[#222222] mb-1">Deactivate User?</h2>
+                    <p className="text-sm text-[#717171] mb-2">
+                        <span className="font-semibold text-[#222222]">{user.name}</span>'s account will be deactivated and they will lose access to the platform.
                     </p>
                     {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
                 </div>
@@ -314,25 +314,25 @@ function ActionMenu({ user, onViewDetails, onEdit, onDelete }: { user: User; onV
         <div className="relative" ref={ref}>
             <button
                 onClick={() => setOpen(v => !v)}
-                className="p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                className="p-1.5 rounded-md hover:bg-[#EBEBEB] text-[#B0B0B0] hover:text-[#717171] transition-colors cursor-pointer"
             >
                 <MoreVertical className="w-4 h-4" />
             </button>
             {open && (
-                <div className="absolute right-0 mt-1 w-40 bg-white rounded-xl -xl border border-slate-100 py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-1 w-40 bg-white rounded-2xl -xl border border-[#EBEBEB] py-1 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
                     <button
                         onClick={() => { setOpen(false); onViewDetails(); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#222222] hover:bg-[#F7F7F7] transition-colors cursor-pointer"
                     >
                         <Eye className="w-3.5 h-3.5" /> View Details
                     </button>
                     <button
                         onClick={() => { setOpen(false); onEdit(); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#222222] hover:bg-[#F7F7F7] hover:text-[#222222] transition-colors cursor-pointer"
                     >
                         <Pencil className="w-3.5 h-3.5" /> Edit User
                     </button>
-                    <div className="h-px bg-slate-100 my-1" />
+                    <div className="h-px bg-[#EBEBEB] my-1" />
                     <button
                         onClick={() => { setOpen(false); onDelete(); }}
                         className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
@@ -421,7 +421,7 @@ export default function AdminUsersPage() {
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-[#f8fafc]">
+            <div className="flex min-h-screen w-full bg-white font-sans text-[#222222]">
                 <AppSidebar />
                 <SidebarInset className="bg-transparent">
                     <NavDash />
@@ -434,23 +434,23 @@ export default function AdminUsersPage() {
                                     <div className="p-2 bg-red-50 rounded-lg">
                                         <UserCog className="w-5 h-5 text-red-600" />
                                     </div>
-                                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">User Control</h1>
+                                    <h1 className="text-[32px] font-bold tracking-tight mb-2 text-[#222222]">User Control</h1>
                                     <Badge className="bg-red-100 text-red-700 border-none hover:bg-red-100 text-xs">Admin</Badge>
                                 </div>
-                                <p className="text-slate-500 text-sm">Manage all registered users, roles, and access.</p>
+                                <p className="text-[#717171] text-sm">Manage all registered users, roles, and access.</p>
                             </div>
                         </div>
 
                         {/* ── Stats ── */}
                         {loadingStats ? (
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
-                                {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-slate-200 rounded-xl" />)}
+                                {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-slate-200 rounded-2xl" />)}
                             </div>
                         ) : stats ? (
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <StatCard label="Total Users" value={stats.total} icon={Users} color="bg-blue-50 text-blue-600" />
+                                <StatCard label="Total Users" value={stats.total} icon={Users} color="bg-[#F7F7F7] text-[#222222]" />
                                 <StatCard label="Active" value={stats.active} icon={CheckCircle2} color="bg-emerald-50 text-emerald-600" />
-                                <StatCard label="Agents" value={stats.agents} icon={BadgeCheck} color="bg-purple-50 text-purple-600" />
+                                <StatCard label="Agents" value={stats.agents} icon={BadgeCheck} color="bg-[#F7F7F7] text-[#222222]" />
                                 <StatCard label="Admins" value={stats.byRole?.admin ?? 0} icon={Shield} color="bg-red-50 text-red-600" />
                             </div>
                         ) : null}
@@ -458,23 +458,23 @@ export default function AdminUsersPage() {
                         {/* ── Filters ── */}
                         <div className="flex flex-col sm:flex-row gap-3">
                             <div className="relative flex-1 max-w-sm">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#B0B0B0] pointer-events-none" />
                                 <Input
                                     placeholder="Search name, email, phone…"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
-                                    className="pl-9 bg-white border-slate-200 -sm"
+                                    className="pl-9 bg-white border-[#DDDDDD] -sm"
                                 />
                                 {search && (
-                                    <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
+                                    <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#B0B0B0] hover:text-[#717171] cursor-pointer">
                                         <X className="w-4 h-4" />
                                     </button>
                                 )}
                             </div>
 
                             <Select value={roleFilter} onValueChange={v => { setRoleFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 -sm">
-                                    <Filter className="w-4 h-4 mr-2 text-slate-400" />
+                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-[#DDDDDD] -sm">
+                                    <Filter className="w-4 h-4 mr-2 text-[#B0B0B0]" />
                                     <SelectValue placeholder="All Roles" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -487,7 +487,7 @@ export default function AdminUsersPage() {
                             </Select>
 
                             <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 -sm">
+                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-[#DDDDDD] -sm">
                                     <SelectValue placeholder="All Status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -498,7 +498,7 @@ export default function AdminUsersPage() {
                             </Select>
 
                             <Select value={String(limit)} onValueChange={v => { setLimit(Number(v)); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[120px] bg-white border-slate-200 -sm">
+                                <SelectTrigger className="w-full sm:w-[120px] bg-white border-[#DDDDDD] -sm">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -510,18 +510,18 @@ export default function AdminUsersPage() {
                         </div>
 
                         {/* ── Table ── */}
-                        <div className="bg-white rounded-2xl border border-slate-200/80 -sm overflow-hidden">
+                        <div className="bg-white rounded-2xl border border-[#DDDDDD] -sm overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>
-                                        <tr className="border-b border-slate-100 bg-slate-50/70">
-                                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
-                                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact</th>
-                                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
-                                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Verified</th>
-                                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Joined</th>
-                                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider w-10"></th>
+                                        <tr className="border-b border-[#EBEBEB] bg-[#F7F7F7]">
+                                            <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">User</th>
+                                            <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">Contact</th>
+                                            <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">Role</th>
+                                            <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">Status</th>
+                                            <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">Verified</th>
+                                            <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222]">Joined</th>
+                                            <th className="text-left px-4 py-3 text-[14px] font-semibold text-[#222222] w-10"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
@@ -530,16 +530,16 @@ export default function AdminUsersPage() {
                                         ) : users.length === 0 ? (
                                             <tr>
                                                 <td colSpan={7} className="py-16 text-center">
-                                                    <UserX className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-                                                    <p className="text-slate-500 font-semibold">No users found</p>
-                                                    <p className="text-slate-400 text-xs mt-1">Try adjusting your filters or search term.</p>
+                                                    <UserX className="w-12 h-12 mx-auto text-[#B0B0B0] mb-3" />
+                                                    <p className="text-[#717171] font-semibold">No users found</p>
+                                                    <p className="text-[#B0B0B0] text-xs mt-1">Try adjusting your filters or search term.</p>
                                                 </td>
                                             </tr>
                                         ) : users.map(u => (
                                             <tr
                                                 key={u.id}
                                                 className={cn(
-                                                    'hover:bg-slate-50/70 transition-colors duration-150',
+                                                    'hover:bg-[#F7F7F7] transition-colors duration-150',
                                                     !u.isActive && 'opacity-60'
                                                 )}
                                             >
@@ -548,9 +548,9 @@ export default function AdminUsersPage() {
                                                     <div className="flex items-center gap-3">
                                                         <Avatar user={u} />
                                                         <div className="min-w-0">
-                                                            <p className="font-semibold text-slate-900 truncate max-w-[150px]">{u.name}</p>
+                                                            <p className="font-semibold text-[#222222] truncate max-w-[150px]">{u.name}</p>
                                                             {(u.city || u.country) && (
-                                                                <p className="text-xs text-slate-400 truncate">{[u.city, u.country].filter(Boolean).join(', ')}</p>
+                                                                <p className="text-xs text-[#B0B0B0] truncate">{[u.city, u.country].filter(Boolean).join(', ')}</p>
                                                             )}
                                                         </div>
                                                     </div>
@@ -560,13 +560,13 @@ export default function AdminUsersPage() {
                                                 <td className="px-4 py-3.5">
                                                     <div className="space-y-0.5 min-w-0">
                                                         {u.email && (
-                                                            <div className="flex items-center gap-1.5 text-slate-600 text-xs">
-                                                                <Mail className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                                            <div className="flex items-center gap-1.5 text-[#717171] text-xs">
+                                                                <Mail className="w-3 h-3 text-[#B0B0B0] flex-shrink-0" />
                                                                 <span className="truncate max-w-[180px]">{u.email}</span>
                                                             </div>
                                                         )}
-                                                        <div className="flex items-center gap-1.5 text-slate-600 text-xs">
-                                                            <Phone className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                                        <div className="flex items-center gap-1.5 text-[#717171] text-xs">
+                                                            <Phone className="w-3 h-3 text-[#B0B0B0] flex-shrink-0" />
                                                             <span>{u.phoneNumber}</span>
                                                         </div>
                                                     </div>
@@ -576,7 +576,7 @@ export default function AdminUsersPage() {
                                                 <td className="px-4 py-3.5">
                                                     <RoleBadge role={u.role} />
                                                     {u.role === 'agent' && u.agency && (
-                                                        <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                                        <p className="text-xs text-[#B0B0B0] mt-1 flex items-center gap-1">
                                                             <Building2 className="w-3 h-3" />{u.agency}
                                                         </p>
                                                     )}
@@ -586,7 +586,7 @@ export default function AdminUsersPage() {
                                                 <td className="px-4 py-3.5">
                                                     <span className={cn(
                                                         'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold',
-                                                        u.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                                                        u.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-[#EBEBEB] text-[#717171]'
                                                     )}>
                                                         <span className={cn('w-1.5 h-1.5 rounded-full', u.isActive ? 'bg-emerald-500' : 'bg-slate-400')} />
                                                         {u.isActive ? 'Active' : 'Inactive'}
@@ -596,10 +596,10 @@ export default function AdminUsersPage() {
                                                 {/* Verified */}
                                                 <td className="px-4 py-3.5">
                                                     <div className="flex gap-1.5 flex-wrap">
-                                                        <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-semibold', u.emailVerified ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400')}>
+                                                        <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-semibold', u.emailVerified ? 'bg-[#F7F7F7] text-[#222222]' : 'bg-[#EBEBEB] text-[#B0B0B0]')}>
                                                             {u.emailVerified ? '✓' : '✗'} Email
                                                         </span>
-                                                        <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-semibold', u.phoneVerified ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400')}>
+                                                        <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-semibold', u.phoneVerified ? 'bg-[#F7F7F7] text-[#222222]' : 'bg-[#EBEBEB] text-[#B0B0B0]')}>
                                                             {u.phoneVerified ? '✓' : '✗'} Phone
                                                         </span>
                                                     </div>
@@ -607,8 +607,8 @@ export default function AdminUsersPage() {
 
                                                 {/* Joined */}
                                                 <td className="px-4 py-3.5">
-                                                    <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-                                                        <Calendar className="w-3 h-3 text-slate-400" />
+                                                    <div className="flex items-center gap-1.5 text-[#717171] text-xs">
+                                                        <Calendar className="w-3 h-3 text-[#B0B0B0]" />
                                                         {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </div>
                                                 </td>
@@ -630,9 +630,9 @@ export default function AdminUsersPage() {
 
                             {/* ── Pagination ── */}
                             {!loadingUsers && users.length > 0 && (
-                                <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-                                    <p className="text-xs text-slate-500">
-                                        Showing <span className="font-semibold text-slate-700">{(page - 1) * limit + 1}–{Math.min(page * limit, total)}</span> of <span className="font-semibold text-slate-700">{total}</span> users
+                                <div className="flex items-center justify-between px-4 py-3 border-t border-[#EBEBEB] bg-[#F7F7F7]">
+                                    <p className="text-xs text-[#717171]">
+                                        Showing <span className="font-semibold text-[#222222]">{(page - 1) * limit + 1}–{Math.min(page * limit, total)}</span> of <span className="font-semibold text-[#222222]">{total}</span> users
                                     </p>
                                     <div className="flex items-center gap-1.5">
                                         <Button
@@ -658,7 +658,7 @@ export default function AdminUsersPage() {
                                                     onClick={() => setPage(p)}
                                                     className={cn(
                                                         'h-8 w-8 rounded-md text-xs font-semibold transition-colors cursor-pointer',
-                                                        p === page ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-200'
+                                                        p === page ? 'bg-[#222222] text-white' : 'text-[#717171] hover:bg-slate-200'
                                                     )}
                                                 >
                                                     {p}

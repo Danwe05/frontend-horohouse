@@ -155,7 +155,7 @@ const StatCard = memo(function StatCard({
         <Card
             onClick={onClick}
             className={cn(
-                'border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 group',
+                'border border-[#DDDDDD] shadow-sm hover:shadow-md transition-all duration-200 group',
                 highlight && 'border-amber-300 bg-gradient-to-br from-amber-50 to-white',
                 onClick && 'cursor-pointer',
             )}
@@ -168,15 +168,15 @@ const StatCard = memo(function StatCard({
                     <Icon className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-500 tracking-wide">{label}</p>
+                    <p className="text-xs font-medium text-[#717171] tracking-wide">{label}</p>
                     <p className={cn(
                         'text-2xl font-bold leading-tight mt-0.5',
-                        highlight ? 'text-amber-700' : 'text-slate-900',
+                        highlight ? 'text-amber-700' : 'text-[#222222]',
                     )}>
                         {value}
                     </p>
                     {subLabel && (
-                        <p className="text-[10px] text-slate-400 mt-0.5">{subLabel}</p>
+                        <p className="text-[10px] text-[#B0B0B0] mt-0.5">{subLabel}</p>
                     )}
                 </div>
             </CardContent>
@@ -187,7 +187,7 @@ const StatCard = memo(function StatCard({
 const PropertyThumbnail = memo(function PropertyThumbnail({ property }: { property: Property }) {
     const mainImg = property.images?.find(i => i.isMain) ?? property.images?.[0];
     return mainImg?.url ? (
-        <div className="w-14 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100 ring-1 ring-slate-200/60">
+        <div className="w-14 h-10 rounded-2xl overflow-hidden flex-shrink-0 bg-[#EBEBEB] ring-1 ring-slate-200/60">
             <img
                 src={mainImg.url}
                 alt={property.title}
@@ -196,8 +196,8 @@ const PropertyThumbnail = memo(function PropertyThumbnail({ property }: { proper
             />
         </div>
     ) : (
-        <div className="w-14 h-10 rounded-xl flex-shrink-0 bg-slate-100 ring-1 ring-slate-200/60 flex items-center justify-center">
-            <Building2 className="w-5 h-5 text-slate-400" />
+        <div className="w-14 h-10 rounded-2xl flex-shrink-0 bg-[#EBEBEB] ring-1 ring-slate-200/60 flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-[#B0B0B0]" />
         </div>
     );
 });
@@ -225,7 +225,7 @@ const BulkActionBar = memo(function BulkActionBar({
         )}>
             {/* Selection pill */}
             <div className="flex items-center gap-2 pr-3 border-r border-slate-700">
-                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold">
+                <div className="w-6 h-6 rounded-full bg-[#F7F7F7]0 flex items-center justify-center text-xs font-bold">
                     {count}
                 </div>
                 <span className="text-sm font-medium whitespace-nowrap">
@@ -238,7 +238,7 @@ const BulkActionBar = memo(function BulkActionBar({
                 onClick={onApprove}
                 disabled={processing}
                 className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-semibold',
                     'bg-emerald-500 hover:bg-emerald-400 text-white transition-colors',
                     'disabled:opacity-50 disabled:cursor-not-allowed',
                 )}
@@ -251,7 +251,7 @@ const BulkActionBar = memo(function BulkActionBar({
                 onClick={onReject}
                 disabled={processing}
                 className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-semibold',
                     'bg-amber-500 hover:bg-amber-400 text-white transition-colors',
                     'disabled:opacity-50 disabled:cursor-not-allowed',
                 )}
@@ -264,7 +264,7 @@ const BulkActionBar = memo(function BulkActionBar({
                 onClick={onDelete}
                 disabled={processing}
                 className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-semibold',
                     'bg-red-600 hover:bg-red-500 text-white transition-colors',
                     'disabled:opacity-50 disabled:cursor-not-allowed',
                 )}
@@ -275,7 +275,7 @@ const BulkActionBar = memo(function BulkActionBar({
 
             <button
                 onClick={onClear}
-                className="ml-1 p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                className="ml-1 p-1.5 rounded-lg hover:bg-slate-700 text-[#B0B0B0] hover:text-white transition-colors"
                 title="Clear selection"
             >
                 <X className="w-4 h-4" />
@@ -332,52 +332,52 @@ function RejectModal({ ids, title, onClose, onRejected }: RejectModalProps) {
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 -m-1 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                            className="p-2 -m-1 rounded-2xl hover:bg-[#EBEBEB] text-[#B0B0B0] hover:text-[#717171] transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900 mt-3">
+                    <h2 className="text-xl font-bold text-[#222222] mt-3">
                         {isBulk ? `Reject ${ids.length} listings` : 'Reject listing'}
                     </h2>
-                    <p className="text-sm text-slate-500 mt-1 truncate">
+                    <p className="text-sm text-[#717171] mt-1 truncate">
                         {isBulk ? `${ids.length} selected properties will be rejected.` : title}
                     </p>
                 </div>
 
                 <div className="px-6 pb-4 space-y-3">
                     {error && (
-                        <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm">
+                        <div className="flex items-center gap-2 p-3 rounded-2xl bg-red-50 border border-red-100 text-red-700 text-sm">
                             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                             {error}
                         </div>
                     )}
                     <div>
-                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5 block">
-                            Reason <span className="text-slate-400 font-normal normal-case">(optional)</span>
+                        <label className="text-[14px] font-semibold text-[#222222] mb-1.5 block">
+                            Reason <span className="text-[#B0B0B0] font-normal normal-case">(optional)</span>
                         </label>
                         <Textarea
                             value={reason}
                             onChange={e => setReason(e.target.value)}
                             placeholder="Explain why this listing was rejected…"
-                            className="bg-slate-50 border-slate-200 resize-none rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="bg-[#F7F7F7] border-[#DDDDDD] resize-none rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             rows={3}
                         />
                     </div>
                 </div>
 
-                <div className="flex gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
+                <div className="flex gap-3 px-6 py-4 bg-[#F7F7F7] border-t border-[#EBEBEB]">
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="flex-1 rounded-xl h-11"
+                        className="flex-1 rounded-2xl h-11"
                         disabled={rejecting}
                     >
                         Cancel
                     </Button>
                     <Button
                         onClick={handleReject}
-                        className="flex-1 rounded-xl h-11 bg-red-600 hover:bg-red-700 text-white"
+                        className="flex-1 rounded-2xl h-11 bg-red-600 hover:bg-red-700 text-white"
                         disabled={rejecting}
                     >
                         {rejecting
@@ -425,32 +425,32 @@ function DeleteModal({
                     <div className="w-16 h-16 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto mb-4">
                         <AlertTriangle className="w-8 h-8 text-red-600" />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900 mb-1">
+                    <h2 className="text-xl font-bold text-[#222222] mb-1">
                         {isBulk ? `Delete ${ids.length} properties?` : 'Delete property?'}
                     </h2>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-[#717171]">
                         {isBulk
                             ? `${ids.length} properties will be permanently removed.`
-                            : <><span className="font-semibold text-slate-700">{title}</span> will be permanently removed.</>
+                            : <><span className="font-semibold text-[#222222]">{title}</span> will be permanently removed.</>
                         }
                         {' '}This cannot be undone.
                     </p>
                     {error && (
-                        <p className="text-sm text-red-600 mt-3 p-2 bg-red-50 rounded-xl">{error}</p>
+                        <p className="text-sm text-red-600 mt-3 p-2 bg-red-50 rounded-2xl">{error}</p>
                     )}
                 </div>
                 <div className="flex gap-3 px-6 pb-6">
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="flex-1 rounded-xl h-11"
+                        className="flex-1 rounded-2xl h-11"
                         disabled={deleting}
                     >
                         Cancel
                     </Button>
                     <Button
                         onClick={handleDelete}
-                        className="flex-1 rounded-xl h-11 bg-red-600 hover:bg-red-700 text-white"
+                        className="flex-1 rounded-2xl h-11 bg-red-600 hover:bg-red-700 text-white"
                         disabled={deleting}
                     >
                         {deleting
@@ -499,7 +499,7 @@ const ActionMenu = memo(function ActionMenu({
                         disabled={approving}
                         title="Approve"
                         className={cn(
-                            'p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100',
+                            'p-1.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100',
                             'text-emerald-600 hover:text-emerald-700 transition-colors',
                             'border border-emerald-200 disabled:opacity-50 cursor-pointer',
                         )}
@@ -513,7 +513,7 @@ const ActionMenu = memo(function ActionMenu({
                         onClick={() => { setOpen(false); onReject(); }}
                         title="Reject"
                         className={cn(
-                            'p-1.5 rounded-xl bg-red-50 hover:bg-red-100',
+                            'p-1.5 rounded-2xl bg-red-50 hover:bg-red-100',
                             'text-red-500 hover:text-red-700 transition-colors',
                             'border border-red-200 cursor-pointer',
                         )}
@@ -526,8 +526,8 @@ const ActionMenu = memo(function ActionMenu({
             <button
                 onClick={() => setOpen(v => !v)}
                 className={cn(
-                    'p-1.5 rounded-xl border border-slate-200',
-                    'hover:bg-slate-100 text-slate-400 hover:text-slate-600',
+                    'p-1.5 rounded-2xl border border-[#DDDDDD]',
+                    'hover:bg-[#EBEBEB] text-[#B0B0B0] hover:text-[#717171]',
                     'transition-colors cursor-pointer',
                 )}
             >
@@ -537,14 +537,14 @@ const ActionMenu = memo(function ActionMenu({
             {open && (
                 <div className={cn(
                     'absolute right-0 top-full mt-1.5 w-44 bg-white',
-                    'rounded-2xl shadow-xl border border-slate-100 py-1.5 z-30',
+                    'rounded-2xl shadow-xl border border-[#EBEBEB] py-1.5 z-30',
                     'animate-in fade-in slide-in-from-top-2 duration-150',
                 )}>
                     {property.approvalStatus !== 'approved' && (
                         <button
                             onClick={() => { setOpen(false); onApprove(); }}
                             disabled={approving}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer disabled:opacity-50 rounded-xl mx-auto"
+                            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer disabled:opacity-50 rounded-2xl mx-auto"
                         >
                             <Check className="w-3.5 h-3.5" /> Approve
                         </button>
@@ -552,15 +552,15 @@ const ActionMenu = memo(function ActionMenu({
                     {property.approvalStatus !== 'rejected' && (
                         <button
                             onClick={() => { setOpen(false); onReject(); }}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-amber-700 hover:bg-amber-50 transition-colors cursor-pointer rounded-xl"
+                            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-amber-700 hover:bg-amber-50 transition-colors cursor-pointer rounded-2xl"
                         >
                             <XCircle className="w-3.5 h-3.5" /> Reject
                         </button>
                     )}
-                    <div className="h-px bg-slate-100 my-1 mx-3" />
+                    <div className="h-px bg-[#EBEBEB] my-1 mx-3" />
                     <button
                         onClick={() => { setOpen(false); onDelete(); }}
-                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer rounded-xl"
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer rounded-2xl"
                     >
                         <Trash2 className="w-3.5 h-3.5" /> Delete
                     </button>
@@ -778,7 +778,7 @@ export default function AdminPropertiesPage() {
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-[#F7F7F7] overflow-x-hidden">
+            <div className="flex min-h-screen w-full bg-white font-sans text-[#222222] overflow-x-hidden">
                 <AppSidebar />
                 <SidebarInset className="bg-transparent flex flex-col min-w-0 overflow-x-hidden">
                     <NavDash />
@@ -789,17 +789,17 @@ export default function AdminPropertiesPage() {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
                                 <div className="flex items-center gap-2.5 mb-1">
-                                    <div className="p-2 rounded-xl bg-blue-600">
+                                    <div className="p-2 rounded-2xl bg-[#222222]">
                                         <Building2 className="w-5 h-5 text-white" />
                                     </div>
-                                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                                    <h1 className="text-[32px] font-bold tracking-tight mb-2 text-[#222222]">
                                         Property Approvals
                                     </h1>
-                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white">
+                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#222222] text-white">
                                         Admin
                                     </span>
                                 </div>
-                                <p className="text-slate-500 text-sm">
+                                <p className="text-[#717171] text-sm">
                                     Review, approve, reject, and manage all listings on HoroHouse.
                                 </p>
                             </div>
@@ -808,7 +808,7 @@ export default function AdminPropertiesPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => { fetchProperties(page); fetchStats(); }}
-                                className="gap-2 self-start sm:self-auto rounded-xl border-slate-200"
+                                className="gap-2 self-start sm:self-auto rounded-2xl border-[#DDDDDD]"
                             >
                                 <RefreshCw className="w-4 h-4" />
                                 Refresh
@@ -821,7 +821,7 @@ export default function AdminPropertiesPage() {
                                 label="Total Listings"
                                 value={stats.total}
                                 icon={Building2}
-                                colorClass="bg-blue-600/10 text-blue-600"
+                                colorClass="bg-[#222222]/10 text-[#222222]"
                                 onClick={() => setStatusFilter('all')}
                             />
                             <StatCard
@@ -853,17 +853,17 @@ export default function AdminPropertiesPage() {
                         <div className="flex flex-col sm:flex-row gap-2.5 flex-wrap">
                             {/* Search */}
                             <div className="relative flex-1 min-w-[200px]">
-                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#B0B0B0] pointer-events-none" />
                                 <Input
                                     placeholder="Search title, city, address…"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
-                                    className="pl-10 bg-white border-slate-200 rounded-xl h-10 focus-visible:ring-blue-500"
+                                    className="pl-10 bg-white border-[#DDDDDD] rounded-2xl h-10 focus-visible:ring-blue-500"
                                 />
                                 {search && (
                                     <button
                                         onClick={() => setSearch('')}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#B0B0B0] hover:text-[#717171] cursor-pointer"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -871,11 +871,11 @@ export default function AdminPropertiesPage() {
                             </div>
 
                             <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 rounded-xl h-10">
-                                    <Filter className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+                                <SelectTrigger className="w-full sm:w-[160px] bg-white border-[#DDDDDD] rounded-2xl h-10">
+                                    <Filter className="w-3.5 h-3.5 mr-1.5 text-[#B0B0B0]" />
                                     <SelectValue placeholder="All Status" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl">
+                                <SelectContent className="rounded-2xl">
                                     <SelectItem value="all">All Status</SelectItem>
                                     <SelectItem value="pending">Pending</SelectItem>
                                     <SelectItem value="approved">Approved</SelectItem>
@@ -884,10 +884,10 @@ export default function AdminPropertiesPage() {
                             </Select>
 
                             <Select value={typeFilter} onValueChange={v => { setTypeFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[150px] bg-white border-slate-200 rounded-xl h-10">
+                                <SelectTrigger className="w-full sm:w-[150px] bg-white border-[#DDDDDD] rounded-2xl h-10">
                                     <SelectValue placeholder="All Types" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl">
+                                <SelectContent className="rounded-2xl">
                                     <SelectItem value="all">All Types</SelectItem>
                                     {['apartment', 'house', 'villa', 'studio', 'duplex', 'bungalow', 'penthouse', 'land', 'commercial', 'office', 'shop'].map(t => (
                                         <SelectItem key={t} value={t} className="capitalize">{t.charAt(0).toUpperCase() + t.slice(1)}</SelectItem>
@@ -896,10 +896,10 @@ export default function AdminPropertiesPage() {
                             </Select>
 
                             <Select value={listingFilter} onValueChange={v => { setListingFilter(v); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[135px] bg-white border-slate-200 rounded-xl h-10">
+                                <SelectTrigger className="w-full sm:w-[135px] bg-white border-[#DDDDDD] rounded-2xl h-10">
                                     <SelectValue placeholder="Sale / Rent" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl">
+                                <SelectContent className="rounded-2xl">
                                     <SelectItem value="all">Sale &amp; Rent</SelectItem>
                                     <SelectItem value="sale">For Sale</SelectItem>
                                     <SelectItem value="rent">For Rent</SelectItem>
@@ -907,10 +907,10 @@ export default function AdminPropertiesPage() {
                             </Select>
 
                             <Select value={String(limit)} onValueChange={v => { setLimit(Number(v)); setPage(1); }}>
-                                <SelectTrigger className="w-full sm:w-[115px] bg-white border-slate-200 rounded-xl h-10">
+                                <SelectTrigger className="w-full sm:w-[115px] bg-white border-[#DDDDDD] rounded-2xl h-10">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl">
+                                <SelectContent className="rounded-2xl">
                                     <SelectItem value="15">15 / page</SelectItem>
                                     <SelectItem value="25">25 / page</SelectItem>
                                     <SelectItem value="50">50 / page</SelectItem>
@@ -920,7 +920,7 @@ export default function AdminPropertiesPage() {
 
                         {/* ── Inline bulk hint ── */}
                         {selectedIds.size > 0 && (
-                            <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-xl">
+                            <div className="flex items-center gap-2 text-sm text-[#222222] bg-[#F7F7F7] border border-blue-200 px-4 py-2.5 rounded-2xl">
                                 <Zap className="w-4 h-4 flex-shrink-0" />
                                 <span>
                                     <strong>{selectedIds.size}</strong> {selectedIds.size === 1 ? 'property' : 'properties'} selected
@@ -928,7 +928,7 @@ export default function AdminPropertiesPage() {
                                 </span>
                                 <button
                                     onClick={clearSelection}
-                                    className="ml-auto text-blue-500 hover:text-blue-700 font-semibold text-xs"
+                                    className="ml-auto text-blue-500 hover:text-[#222222] font-semibold text-xs"
                                 >
                                     Clear
                                 </button>
@@ -936,28 +936,28 @@ export default function AdminPropertiesPage() {
                         )}
 
                         {/* ── Table ── */}
-                        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div className="bg-white rounded-3xl border border-[#DDDDDD] shadow-sm overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>
-                                        <tr className="border-b border-slate-100 bg-slate-50/80">
+                                        <tr className="border-b border-[#EBEBEB] bg-[#F7F7F7]/80">
                                             {/* Checkbox */}
                                             <th className="px-4 py-3.5 w-10">
                                                 <button
                                                     onClick={toggleSelectAll}
-                                                    className="text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+                                                    className="text-[#B0B0B0] hover:text-[#222222] transition-colors cursor-pointer"
                                                     title={allPageSelected ? 'Deselect all' : 'Select all on this page'}
                                                 >
                                                     {somePageSelected
                                                         ? <MinusSquare className="w-4 h-4" />
                                                         : allPageSelected
-                                                            ? <CheckSquare className="w-4 h-4 text-blue-600" />
+                                                            ? <CheckSquare className="w-4 h-4 text-[#222222]" />
                                                             : <Square className="w-4 h-4" />
                                                     }
                                                 </button>
                                             </th>
                                             {['Property', 'Location', 'Type', 'Price', 'Agent / Owner', 'Status', 'Listed', ''].map(h => (
-                                                <th key={h} className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
+                                                <th key={h} className="text-left px-4 py-3.5 text-xs font-semibold text-[#717171] uppercase tracking-wide whitespace-nowrap">
                                                     {h}
                                                 </th>
                                             ))}
@@ -970,11 +970,11 @@ export default function AdminPropertiesPage() {
                                         ) : properties.length === 0 ? (
                                             <tr>
                                                 <td colSpan={9} className="py-20 text-center">
-                                                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                                                        <Building2 className="w-8 h-8 text-slate-400" />
+                                                    <div className="w-16 h-16 rounded-2xl bg-[#EBEBEB] flex items-center justify-center mx-auto mb-4">
+                                                        <Building2 className="w-8 h-8 text-[#B0B0B0]" />
                                                     </div>
-                                                    <p className="text-slate-600 font-semibold">No properties found</p>
-                                                    <p className="text-slate-400 text-xs mt-1">Try adjusting your filters or search.</p>
+                                                    <p className="text-[#717171] font-semibold">No properties found</p>
+                                                    <p className="text-[#B0B0B0] text-xs mt-1">Try adjusting your filters or search.</p>
                                                 </td>
                                             </tr>
                                         ) : properties.map(prop => {
@@ -988,10 +988,10 @@ export default function AdminPropertiesPage() {
                                                     className={cn(
                                                         'transition-colors duration-100',
                                                         isSelected
-                                                            ? 'bg-blue-50/70 hover:bg-blue-50'
+                                                            ? 'bg-[#F7F7F7]/70 hover:bg-[#F7F7F7]'
                                                             : prop.approvalStatus === 'pending'
                                                                 ? 'bg-amber-50/20 hover:bg-amber-50/40'
-                                                                : 'hover:bg-slate-50/80',
+                                                                : 'hover:bg-[#F7F7F7]/80',
                                                     )}
                                                 >
                                                     {/* Checkbox */}
@@ -1000,7 +1000,7 @@ export default function AdminPropertiesPage() {
                                                             onClick={() => toggleSelect(prop._id)}
                                                             className={cn(
                                                                 'transition-colors cursor-pointer',
-                                                                isSelected ? 'text-blue-600' : 'text-slate-300 hover:text-blue-500',
+                                                                isSelected ? 'text-[#222222]' : 'text-[#B0B0B0] hover:text-blue-500',
                                                             )}
                                                         >
                                                             {isSelected
@@ -1015,12 +1015,12 @@ export default function AdminPropertiesPage() {
                                                         <div className="flex items-center gap-3">
                                                             <PropertyThumbnail property={prop} />
                                                             <div className="min-w-0">
-                                                                <p className="font-semibold text-slate-900 truncate max-w-[180px] text-[13px]">
+                                                                <p className="font-semibold text-[#222222] truncate max-w-[180px] text-[13px]">
                                                                     {prop.title}
                                                                 </p>
                                                                 <div className="flex items-center gap-2 mt-0.5">
                                                                     {prop.isVerified && (
-                                                                        <span className="inline-flex items-center gap-0.5 text-[10px] text-blue-600 font-bold">
+                                                                        <span className="inline-flex items-center gap-0.5 text-[10px] text-[#222222] font-bold">
                                                                             <BadgeCheck className="w-3 h-3" /> Verified
                                                                         </span>
                                                                     )}
@@ -1034,32 +1034,32 @@ export default function AdminPropertiesPage() {
 
                                                     {/* Location */}
                                                     <td className="px-4 py-3.5">
-                                                        <div className="flex items-center gap-1 text-slate-600 text-xs">
-                                                            <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                                        <div className="flex items-center gap-1 text-[#717171] text-xs">
+                                                            <MapPin className="w-3 h-3 text-[#B0B0B0] flex-shrink-0" />
                                                             <span className="truncate max-w-[110px]">{prop.city}</span>
                                                         </div>
                                                         {prop.country && (
-                                                            <p className="text-[10px] text-slate-400 mt-0.5 pl-4">{prop.country}</p>
+                                                            <p className="text-[10px] text-[#B0B0B0] mt-0.5 pl-4">{prop.country}</p>
                                                         )}
                                                     </td>
 
                                                     {/* Type */}
                                                     <td className="px-4 py-3.5">
                                                         <div className="flex items-center gap-1.5 flex-wrap">
-                                                            <span className="capitalize text-slate-700 font-medium text-xs">
+                                                            <span className="capitalize text-[#222222] font-medium text-xs">
                                                                 {prop.type}
                                                             </span>
                                                             <span className={cn(
                                                                 'px-1.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide',
                                                                 prop.listingType === 'sale'
-                                                                    ? 'bg-blue-100 text-blue-700'
+                                                                    ? 'bg-blue-100 text-[#222222]'
                                                                     : 'bg-violet-100 text-violet-700',
                                                             )}>
                                                                 {prop.listingType}
                                                             </span>
                                                         </div>
                                                         {prop.amenities?.bedrooms !== undefined && (
-                                                            <p className="text-[10px] text-slate-400 mt-0.5">
+                                                            <p className="text-[10px] text-[#B0B0B0] mt-0.5">
                                                                 {prop.amenities.bedrooms}bd · {prop.amenities.bathrooms ?? 0}ba
                                                             </p>
                                                         )}
@@ -1067,13 +1067,13 @@ export default function AdminPropertiesPage() {
 
                                                     {/* Price */}
                                                     <td className="px-4 py-3.5">
-                                                        <div className="flex items-center gap-0.5 text-slate-900 font-bold text-sm">
-                                                            <DollarSign className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                                        <div className="flex items-center gap-0.5 text-[#222222] font-bold text-sm">
+                                                            <DollarSign className="w-3.5 h-3.5 text-[#B0B0B0] flex-shrink-0" />
                                                             {formatPrice(prop.price)}
-                                                            <span className="text-[10px] text-slate-400 font-normal ml-0.5">FCFA</span>
+                                                            <span className="text-[10px] text-[#B0B0B0] font-normal ml-0.5">FCFA</span>
                                                         </div>
                                                         {prop.area && (
-                                                            <p className="text-[10px] text-slate-400 mt-0.5">{prop.area} m²</p>
+                                                            <p className="text-[10px] text-[#B0B0B0] mt-0.5">{prop.area} m²</p>
                                                         )}
                                                     </td>
 
@@ -1081,7 +1081,7 @@ export default function AdminPropertiesPage() {
                                                     <td className="px-4 py-3.5">
                                                         {owner ? (
                                                             <div className="flex items-center gap-2">
-                                                                <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0">
+                                                                <div className="w-7 h-7 rounded-full bg-[#EBEBEB] border border-[#DDDDDD] overflow-hidden flex-shrink-0">
                                                                     {owner.profilePicture ? (
                                                                         <img
                                                                             src={owner.profilePicture}
@@ -1090,22 +1090,22 @@ export default function AdminPropertiesPage() {
                                                                             loading="lazy"
                                                                         />
                                                                     ) : (
-                                                                        <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-slate-500 bg-gradient-to-br from-slate-100 to-slate-200">
+                                                                        <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-[#717171] bg-gradient-to-br from-slate-100 to-slate-200">
                                                                             {owner.name?.charAt(0).toUpperCase()}
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="min-w-0">
-                                                                    <p className="text-xs font-semibold text-slate-800 truncate max-w-[90px]">
+                                                                    <p className="text-xs font-semibold text-[#222222] truncate max-w-[90px]">
                                                                         {owner.name}
                                                                     </p>
                                                                     {owner.agency && (
-                                                                        <p className="text-[10px] text-slate-400 truncate">{owner.agency}</p>
+                                                                        <p className="text-[10px] text-[#B0B0B0] truncate">{owner.agency}</p>
                                                                     )}
                                                                 </div>
                                                             </div>
                                                         ) : (
-                                                            <span className="text-slate-400 text-xs">—</span>
+                                                            <span className="text-[#B0B0B0] text-xs">—</span>
                                                         )}
                                                     </td>
 
@@ -1114,7 +1114,7 @@ export default function AdminPropertiesPage() {
                                                         <ApprovalBadge status={prop.approvalStatus} />
                                                         {prop.approvalStatus === 'rejected' && prop.rejectionReason && (
                                                             <p
-                                                                className="text-[10px] text-slate-400 mt-1 max-w-[120px] truncate"
+                                                                className="text-[10px] text-[#B0B0B0] mt-1 max-w-[120px] truncate"
                                                                 title={prop.rejectionReason}
                                                             >
                                                                 {prop.rejectionReason}
@@ -1124,10 +1124,10 @@ export default function AdminPropertiesPage() {
 
                                                     {/* Date */}
                                                     <td className="px-4 py-3.5">
-                                                        <p className="text-xs font-medium text-slate-600">
+                                                        <p className="text-xs font-medium text-[#717171]">
                                                             {timeAgo(prop.createdAt)}
                                                         </p>
-                                                        <p className="text-[10px] text-slate-400 mt-0.5">
+                                                        <p className="text-[10px] text-[#B0B0B0] mt-0.5">
                                                             {prop.viewsCount} view{prop.viewsCount !== 1 ? 's' : ''}
                                                         </p>
                                                     </td>
@@ -1157,13 +1157,13 @@ export default function AdminPropertiesPage() {
 
                             {/* ── Pagination ── */}
                             {!loadingProperties && properties.length > 0 && (
-                                <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 bg-slate-50/60">
-                                    <p className="text-xs text-slate-500">
-                                        <span className="font-semibold text-slate-700">
+                                <div className="flex items-center justify-between px-5 py-3.5 border-t border-[#EBEBEB] bg-[#F7F7F7]/60">
+                                    <p className="text-xs text-[#717171]">
+                                        <span className="font-semibold text-[#222222]">
                                             {(page - 1) * limit + 1}–{Math.min(page * limit, total)}
                                         </span>
                                         {' '}of{' '}
-                                        <span className="font-semibold text-slate-700">{total}</span> listings
+                                        <span className="font-semibold text-[#222222]">{total}</span> listings
                                     </p>
 
                                     <div className="flex items-center gap-1">
@@ -1172,7 +1172,7 @@ export default function AdminPropertiesPage() {
                                             size="sm"
                                             disabled={page === 1}
                                             onClick={() => setPage(p => Math.max(1, p - 1))}
-                                            className="h-8 w-8 p-0 rounded-xl border-slate-200"
+                                            className="h-8 w-8 p-0 rounded-2xl border-[#DDDDDD]"
                                         >
                                             <ChevronLeft className="w-4 h-4" />
                                         </Button>
@@ -1182,10 +1182,10 @@ export default function AdminPropertiesPage() {
                                                 key={p}
                                                 onClick={() => setPage(p)}
                                                 className={cn(
-                                                    'h-8 w-8 rounded-xl text-xs font-semibold transition-all cursor-pointer',
+                                                    'h-8 w-8 rounded-2xl text-xs font-semibold transition-all cursor-pointer',
                                                     p === page
-                                                        ? 'bg-blue-600 text-white shadow-sm'
-                                                        : 'text-slate-600 hover:bg-slate-200',
+                                                        ? 'bg-[#222222] text-white shadow-sm'
+                                                        : 'text-[#717171] hover:bg-slate-200',
                                                 )}
                                             >
                                                 {p}
@@ -1197,7 +1197,7 @@ export default function AdminPropertiesPage() {
                                             size="sm"
                                             disabled={page === totalPages}
                                             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                            className="h-8 w-8 p-0 rounded-xl border-slate-200"
+                                            className="h-8 w-8 p-0 rounded-2xl border-[#DDDDDD]"
                                         >
                                             <ChevronRight className="w-4 h-4" />
                                         </Button>
