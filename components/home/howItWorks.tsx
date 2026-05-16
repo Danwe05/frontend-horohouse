@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const STEPS = [
@@ -33,51 +34,71 @@ export default function HowItWorks() {
 
         {/* Heading */}
         <div className="text-center mb-16 md:mb-20">
-          <h2 className="text-[36px] md:text-[44px] font-bold text-[#222222] tracking-tight inline-block relative">
+          <h2 className="text-[32px] md:text-[44px] font-bold text-[#222222] tracking-tight inline-block relative">
             How it{' '}
             <span className="relative z-10 whitespace-nowrap">
               works
-              <span className="absolute bottom-2 md:bottom-3 left-0 w-full h-3 md:h-4 bg-blue-200/80 -z-10 rounded-sm transform -rotate-1" />
+              <span className="absolute bottom-2 md:bottom-2.5 left-0 w-full h-3 md:h-4 bg-blue-100/80 -z-10 rounded-sm transform -rotate-1" />
             </span>
           </h2>
-          <p className="text-[16px] md:text-[18px] text-[#717171] font-light mt-4 max-w-xl mx-auto leading-relaxed">
+          <p className="text-[16px] md:text-[18px] text-[#717171] mt-4 max-w-xl mx-auto leading-relaxed">
             A simple three-step process to find and book your perfect stay.
           </p>
         </div>
 
-        {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+        {/* Steps Grid (Airbnb Minimalist Style) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
           {STEPS.map((step, i) => (
-            <div key={i} className="flex flex-col items-center text-center group">
-
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="flex flex-col group cursor-pointer"
+            >
               {/* Image Container */}
-              <div className="w-full max-w-[340px] aspect-[4/3] rounded-[24px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative z-0">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-6">
                 <img 
                   src={step.image} 
                   alt={step.title} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
-                {/* Subtle dark overlay that fades on hover */}
-                <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500" />
-              </div>
-
-              {/* Number Badge (overlapping the image bottom edge) */}
-              <div className="relative z-10 mb-6 -mt-[30px]">
-                <div className="w-[60px] h-[60px] rounded-full bg-blue-600 group-hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center shadow-lg ring-[6px] ring-white">
-                  <span className="text-[20px] font-bold text-white leading-none">{i + 1}</span>
+                {/* Number Badge (Clean Overlay) */}
+                <div className="absolute top-4 left-4 w-10 h-10 rounded-xl bg-white/90 backdrop-blur-sm shadow-sm flex items-center justify-center font-bold text-[18px] text-[#222222]">
+                  {i + 1}
                 </div>
               </div>
 
-              {/* Text */}
-              <h3 className="text-[22px] font-bold text-[#222222] mb-3 tracking-tight">{step.title}</h3>
-              <p className="text-[15px] text-[#717171] leading-relaxed max-w-[260px]">
-                {step.desc}
-              </p>
-            </div>
+              {/* Text Area */}
+              <div className="space-y-2">
+                <h3 className="text-[20px] font-bold text-[#222222] tracking-tight">{step.title}</h3>
+                <p className="text-[15px] text-[#717171] leading-relaxed">
+                  {step.desc}
+                </p>
+              </div>
+            </motion.div>
           ))}
         </div>
-        
+
+        {/* Minimalist CTA */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="mt-16 text-center border-t border-[#F0F0F0] pt-12"
+        >
+          <a 
+            href="/properties" 
+            className="text-[16px] font-bold text-[#222222] underline underline-offset-4 hover:text-[#717171] transition-colors"
+          >
+            Explore all properties
+          </a>
+        </motion.div>
+
       </div>
     </section>
   );
 }
+
+const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
