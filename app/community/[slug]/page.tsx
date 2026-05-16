@@ -87,31 +87,40 @@ function RenderBody({ text }: { text: string }) {
   );
 }
 
-// ─── Build reply tree client-side ────────────────────────────────────────────
+// ─── Build one-level tree ────────────────────────────────────────────────────
+// All descendants of a top-level reply are flattened into its children[].
+// Result: top-level replies + exactly one nested indent level.
 
-function buildReplyTree(flat: Reply[], rootPostId: string): Reply[] {
-  const map = new Map<string, Reply>();
-  const roots: Reply[] = [];
-
-  // Normalize: ensure every reply has a string `id` (lean() returns _id, not id virtual)
+function buildOneLevel(flat: Reply[], rootPostId: string): Reply[] {
   const normalized = flat.map(r => ({
     ...r,
     id: String(r.id ?? r._id ?? ""),
     replyToId: r.replyToId ? String(r.replyToId) : null,
-    rootPostId: r.rootPostId ? String(r.rootPostId) : null,
     children: [] as Reply[],
   }));
 
+  const map = new Map<string, Reply>();
   normalized.forEach(r => map.set(r.id, r));
 
+  const roots: Reply[] = [];
+
+  // Trace any reply up to its root-level ancestor
+  const getRootAncestor = (id: string): Reply | null => {
+    const r = map.get(id);
+    if (!r) return null;
+    const pid = r.replyToId;
+    if (!pid || pid === rootPostId) return r;
+    return getRootAncestor(pid) ?? r;
+  };
+
   normalized.forEach(r => {
-    const parentId = r.replyToId ?? null;
-    if (!parentId || parentId === rootPostId) {
+    const pid = r.replyToId;
+    if (!pid || pid === rootPostId) {
       roots.push(r);
     } else {
-      const parent = map.get(parentId);
-      if (parent) parent.children!.push(r);
-      else roots.push(r); // fallback: orphan shown at top level
+      const ancestor = getRootAncestor(pid);
+      if (ancestor) ancestor.children!.push(r);
+      else roots.push(r);
     }
   });
 
@@ -129,22 +138,31 @@ function relativeTime(iso: string): string {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-interface ReplyCardProps {
+// Valid backend PostCategory enum values
+const VALID_CATEGORIES = ['homes', 'cafe', 'explore', 'resources', 'updates'] as const;
+type ValidCategory = typeof VALID_CATEGORIES[number];
+
+function safeCategory(raw: string | undefined): ValidCategory {
+  const lower = (raw ?? '').toLowerCase() as ValidCategory;
+  return VALID_CATEGORIES.includes(lower) ? lower : 'homes';
+}
+
+function ReplyCard({ reply, rootPostId, postCategory, onAddReply, parentAuthorName, isNested }: {
   reply: Reply;
-  depth?: number;
   rootPostId: string;
   postCategory: string;
   onAddReply: (newReply: Reply) => void;
-}
-
-function ReplyCard({ reply, depth = 0, rootPostId, postCategory, onAddReply }: ReplyCardProps) {
+  parentAuthorName?: string;
+  isNested?: boolean;
+}) {
   const { user } = useAuth();
-  const [liked, setLiked] = useState(false);
-  const [count, setCount] = useState(reply.likes);
-  const [busy, setBusy] = useState(false);
-  const [replying, setReplying] = useState(false);
+  const [liked, setLiked]         = useState(false);
+  const [count, setCount]         = useState(reply.likes);
+  const [busy,  setBusy]          = useState(false);
+  const [replying, setReplying]   = useState(false);
   const [replyText, setReplyText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showMenu, setShowMenu]   = useState(false);
 
   const toggle = async () => {
     if (!user || busy) return;
@@ -163,7 +181,7 @@ function ReplyCard({ reply, depth = 0, rootPostId, postCategory, onAddReply }: R
     setSubmitting(true);
     try {
       const newPost = await apiClient.createCommunityPost({
-        category: postCategory,
+        category: safeCategory(postCategory) as any,
         title: replyText.trim().slice(0, 80),
         body: replyText.trim(),
         replyToId: reply.id,
@@ -184,134 +202,168 @@ function ReplyCard({ reply, depth = 0, rootPostId, postCategory, onAddReply }: R
     }
   };
 
-  const maxDepth = 4;
-  const isDeep = depth >= maxDepth;
-
   return (
-    <div className={cn("relative", depth > 0 && "pl-4 ml-1 border-l-2 border-[#EBEBEB]", depth === 1 && "border-l-blue-100")}>
-      <div className="py-5">
-        <div className="flex gap-3">
-          {/* Avatar */}
-          <Avatar className={cn("shrink-0", depth === 0 ? "h-10 w-10" : "h-8 w-8")}>
+    <div className="py-6 border-b border-[#EBEBEB] last:border-0">
+      <div className="flex gap-4">
+
+        {/* Avatar + level badge */}
+        <div className="relative shrink-0">
+          <Avatar className="h-12 w-12">
             {reply.authorSnapshot.avatar && (
               <AvatarImage src={reply.authorSnapshot.avatar} alt={reply.authorSnapshot.name} />
             )}
-            <AvatarFallback className={cn(
-              "text-white font-semibold",
-              depth === 0 ? "bg-[#222222] text-[13px]" : "bg-[#717171] text-[11px]"
-            )}>
+            <AvatarFallback className="bg-[#484848] text-white text-[14px] font-semibold">
               {reply.authorSnapshot.initials}
             </AvatarFallback>
           </Avatar>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+
+          {/* Header */}
+          <div className="flex items-start justify-between gap-2 mb-0.5">
+            <div>
+              <span className="text-[15px] font-bold text-[#222222] leading-tight">
+                {reply.authorSnapshot.name}
+              </span>
+              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                <span className="text-[12px] font-semibold text-[#767676] bg-[#F7F7F7] px-2 py-0.5 rounded-full border border-[#EBEBEB]">
+                  {reply.authorSnapshot.role}
+                </span>
+                {parentAuthorName && (
+                  <span className="text-[12px] text-[#767676]">
+                    In response to <span className="font-semibold text-[#484848]">{parentAuthorName}</span>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* ··· menu */}
+            <div className="relative shrink-0">
+              <button
+                onClick={() => setShowMenu(m => !m)}
+                className="p-1.5 rounded-full text-[#B0B0B0] hover:text-[#222222] hover:bg-[#F7F7F7] transition-colors"
+              >
+                <MoreHorizontal className="w-5 h-5" />
+              </button>
+              {showMenu && (
+                <div
+                  onMouseLeave={() => setShowMenu(false)}
+                  className="absolute right-0 top-8 z-20 bg-white border border-[#EBEBEB] rounded-2xl shadow-xl py-1.5 min-w-[140px] overflow-hidden"
+                >
+                  <button className="w-full text-left px-4 py-2.5 text-[14px] text-[#484848] hover:bg-[#F7F7F7] transition-colors">Share</button>
+                  {user?.id === reply.authorId && (
+                    <button className="w-full text-left px-4 py-2.5 text-[14px] text-[#FF385C] hover:bg-[#FFF0F3] transition-colors">Delete</button>
+                  )}
+                  <button className="w-full text-left px-4 py-2.5 text-[14px] text-[#484848] hover:bg-[#F7F7F7] transition-colors">Report</button>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Body */}
-          <div className="flex-1 min-w-0">
-            {/* Header */}
-            <div className="flex items-center gap-2 flex-wrap mb-1.5">
-              <span className="text-[14px] font-semibold text-[#222222]">{reply.authorSnapshot.name}</span>
-              <span className="text-[12px] text-[#B0B0B0]">{reply.authorSnapshot.role}</span>
-              <span className="text-[12px] text-[#B0B0B0] ml-auto">{relativeTime(reply.createdAt)}</span>
-            </div>
+          <p className="text-[15px] text-[#484848] leading-relaxed mt-3 mb-4">
+            {reply.body || reply.excerpt || reply.title}
+          </p>
 
-            {/* Content */}
-            <p className="text-[15px] text-[#222222] leading-relaxed mb-3">
-              {reply.body || reply.excerpt || reply.title}
-            </p>
+          {/* Actions — right-aligned Airbnb style */}
+          <div className="flex items-center gap-3">
+            <span className="text-[13px] text-[#767676] mr-auto">
+              {relativeTime(reply.createdAt)}
+            </span>
 
-            {/* Action strip */}
-            <div className="flex items-center gap-4">
+            {/* Like — outlined pill */}
+            <button
+              onClick={toggle}
+              disabled={!user || busy}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-full border text-[14px] font-semibold transition-all disabled:opacity-40",
+                liked
+                  ? "border-[#FF385C] text-[#FF385C] bg-[#FFF0F3]"
+                  : "border-[#DDDDDD] text-[#222222] hover:border-[#222222]"
+              )}
+            >
+              <ThumbsUp className={cn("w-4 h-4 stroke-[2]", liked && "fill-[#FF385C]")} />
+              {count > 0 ? count : ""}
+            </button>
+
+            {/* Reply — black pill */}
+            {user && (
               <button
-                onClick={toggle}
-                disabled={!user || busy}
+                onClick={() => setReplying(r => !r)}
                 className={cn(
-                  "flex items-center gap-1.5 text-[13px] font-medium transition-colors disabled:opacity-40",
-                  liked ? "text-[#FF385C]" : "text-[#717171] hover:text-[#222222]"
+                  "px-5 py-2 rounded-full text-[14px] font-semibold transition-all",
+                  replying ? "bg-[#484848] text-white" : "bg-[#222222] hover:bg-black text-white"
                 )}
               >
-                <ThumbsUp className={cn("w-4 h-4 stroke-[2]", liked && "fill-[#FF385C]")} />
-                {count > 0 && count}
+                Reply
               </button>
-
-              {user && !isDeep && (
-                <button
-                  onClick={() => setReplying(r => !r)}
-                  className={cn(
-                    "flex items-center gap-1 text-[13px] font-medium transition-colors",
-                    replying ? "text-blue-600" : "text-[#717171] hover:text-[#222222]"
-                  )}
-                >
-                  <MessageCircle className="w-4 h-4 stroke-[2]" />
-                  Reply
-                </button>
-              )}
-
-              {reply.children && reply.children.length > 0 && (
-                <span className="text-[12px] text-[#B0B0B0]">
-                  {reply.children.length} {reply.children.length === 1 ? "reply" : "replies"}
-                </span>
-              )}
-            </div>
-
-            {/* Inline composer */}
-            {replying && (
-              <div className="mt-4 flex gap-3 items-start">
-                <Avatar className="h-7 w-7 shrink-0 mt-1">
-                  <AvatarFallback className="bg-[#222222] text-white text-[10px] font-bold">
-                    {user?.name?.[0]?.toUpperCase() ?? "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <textarea
-                    autoFocus
-                    value={replyText}
-                    onChange={e => setReplyText(e.target.value)}
-                    placeholder={`Reply to ${reply.authorSnapshot.name}…`}
-                    rows={2}
-                    className="w-full resize-none text-[14px] text-[#222222] placeholder:text-[#B0B0B0] focus:outline-none leading-relaxed px-3 py-2.5 border border-[#DDDDDD] rounded-xl focus:border-[#222222] focus:ring-1 focus:ring-[#222222] bg-white"
-                  />
-                  <div className="flex justify-end gap-2 mt-2">
-                    <button
-                      onClick={() => { setReplying(false); setReplyText(""); }}
-                      className="px-4 py-1.5 text-[13px] font-semibold text-[#717171] hover:text-[#222222] hover:bg-[#F7F7F7] rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={submitReply}
-                      disabled={submitting || !replyText.trim()}
-                      className="px-4 py-1.5 bg-[#222222] hover:bg-black text-white text-[13px] font-semibold rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
-                    >
-                      {submitting && <Loader2 className="w-3 h-3 animate-spin" />}
-                      Post
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Recursive children */}
-            {reply.children && reply.children.length > 0 && (
-              <div className="mt-4">
-                {reply.children.map(child => (
-                  <ReplyCard
-                    key={child.id ?? child._id}
-                    reply={child}
-                    depth={depth + 1}
-                    rootPostId={rootPostId}
-                    postCategory={postCategory}
-                    onAddReply={onAddReply}
-                  />
-                ))}
-              </div>
             )}
           </div>
+
+          {/* Inline composer */}
+          {replying && (
+            <div className="mt-4 flex gap-3 items-start">
+              <Avatar className="h-8 w-8 shrink-0 mt-0.5">
+                <AvatarFallback className="bg-[#222222] text-white text-[11px] font-bold">
+                  {user?.name?.[0]?.toUpperCase() ?? "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <textarea
+                  autoFocus
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  placeholder={`Reply to ${reply.authorSnapshot.name}…`}
+                  rows={2}
+                  className="w-full resize-none text-[14px] text-[#222222] placeholder:text-[#B0B0B0] focus:outline-none leading-relaxed px-4 py-3 border border-[#DDDDDD] rounded-2xl focus:border-[#222222] focus:ring-1 focus:ring-[#222222] bg-white"
+                />
+                <div className="flex justify-end gap-2 mt-2">
+                  <button
+                    onClick={() => { setReplying(false); setReplyText(""); }}
+                    className="px-4 py-2 text-[13px] font-semibold text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] rounded-full transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={submitReply}
+                    disabled={submitting || !replyText.trim()}
+                    className="px-5 py-2 bg-[#222222] hover:bg-black text-white text-[13px] font-semibold rounded-full transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    {submitting && <Loader2 className="w-3 h-3 animate-spin" />}
+                    Post
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* One-level children — only render on top-level cards */}
+          {!isNested && reply.children && reply.children.length > 0 && (
+            <div className="mt-6 sm:border-l-2 sm:border-[#EBEBEB] sm:pl-4 sm:ml-14 space-y-0">
+              {reply.children.map((child, ci) => (
+                <ReplyCard
+                  key={child.id ?? child._id ?? ci}
+                  reply={child}
+                  rootPostId={rootPostId}
+                  postCategory={postCategory}
+                  onAddReply={onAddReply}
+                  parentAuthorName={reply.authorSnapshot.name}
+                  isNested={true}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
+
 // ─── Related post mini card ──────────────────────────────────────────────────
+
 
 function RelatedPostCard({ post }: { post: Post }) {
   const relativeTime = (iso: string) => {
@@ -396,7 +448,7 @@ export default function CommunityPostDetailPage() {
           apiClient.getCommunityPostReplies(p.id, { limit: 20 }),
           apiClient.getCommunityPosts({ category: p.category, limit: 4 }),
         ]);
-        setReplies(buildReplyTree(repliesRes.data ?? [], p.id));
+        setReplies(buildOneLevel(repliesRes.data ?? [], p.id));
         setRelated((relatedRes.data ?? []).filter((r: Post) => r.id !== p.id).slice(0, 3));
       })
       .catch(() => setNotFound(true))
@@ -420,7 +472,7 @@ export default function CommunityPostDetailPage() {
     setSubmitting(true);
     try {
       const newPost = await apiClient.createCommunityPost({
-        category: post.category as any,
+        category: safeCategory(post.category) as any,
         title: replyText.trim().slice(0, 80),
         body: replyText.trim(),
         replyToId: post.id,
@@ -428,12 +480,10 @@ export default function CommunityPostDetailPage() {
       });
       const newReply: Reply = {
         ...newPost,
-        id: newPost._id ?? newPost.id,
+        id: String(newPost._id ?? newPost.id ?? ""),
         replyToId: post.id,
         rootPostId: post.id,
-        children: [],
       };
-      // Append at root level of tree
       setReplies(prev => [...prev, newReply]);
       setReplyText("");
       setPost(prev => prev ? { ...prev, replyCount: prev.replyCount + 1 } : prev);
@@ -442,19 +492,13 @@ export default function CommunityPostDetailPage() {
     }
   };
 
-  /**
-   * Called by any ReplyCard's inline composer when a sub-reply is successfully submitted.
-   * Inserts the new reply into the correct node in the tree.
-   */
+  // Flat append — no tree insertion needed
   const handleAddReply = (newReply: Reply) => {
-    const insertInTree = (nodes: Reply[]): Reply[] =>
-      nodes.map(n => {
-        if (n.id === newReply.replyToId || n._id === newReply.replyToId) {
-          return { ...n, children: [...(n.children ?? []), newReply] };
-        }
-        return { ...n, children: insertInTree(n.children ?? []) };
-      });
-    setReplies(prev => insertInTree(prev));
+    const flat: Reply = {
+      ...newReply,
+      id: String(newReply._id ?? newReply.id ?? ""),
+    };
+    setReplies(prev => [...prev, flat]);
     setPost(prev => prev ? { ...prev, replyCount: prev.replyCount + 1 } : prev);
   };
 
@@ -802,20 +846,15 @@ export default function CommunityPostDetailPage() {
               </h2>
 
               {replies.length > 0 && (
-                <div className="mb-8 border border-[#EBEBEB] rounded-2xl overflow-hidden">
+                <div className="mb-8">
                   {replies.map((r, i) => (
-                    <div
+                    <ReplyCard
                       key={r.id || r._id || i}
-                      className={cn("px-5", i < replies.length - 1 && "border-b border-[#EBEBEB]")}
-                    >
-                      <ReplyCard
-                        reply={r}
-                        depth={0}
-                        rootPostId={post.id}
-                        postCategory={post.category}
-                        onAddReply={handleAddReply}
-                      />
-                    </div>
+                      reply={r}
+                      rootPostId={post.id}
+                      postCategory={post.category}
+                      onAddReply={handleAddReply}
+                    />
                   ))}
                 </div>
               )}
