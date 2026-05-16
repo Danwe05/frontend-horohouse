@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect, useRef, Suspense, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -60,7 +60,7 @@ function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, login } = useAuth();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const firstNameInputRef = useRef<HTMLInputElement>(null);
 
   const [showLangModal, setShowLangModal] = useState(false);
@@ -83,38 +83,38 @@ function RegisterContent() {
   const currentLang = languages[language] ?? languages['en'];
 
   const validateField = useCallback((id: string, value: string) => {
-    let error = '';
+    let errorMsg = '';
     switch (id) {
       case 'firstName':
-        if (!value.trim()) error = 'First name is required';
-        else if (value.trim().length < 2) error = 'First name must be at least 2 characters';
+        if (!value.trim()) errorMsg = t('auth.register.requiredFirst');
+        else if (value.trim().length < 2) errorMsg = t('auth.register.shortFirst');
         break;
       case 'lastName':
-        if (!value.trim()) error = 'Last name is required';
-        else if (value.trim().length < 2) error = 'Last name must be at least 2 characters';
+        if (!value.trim()) errorMsg = t('auth.register.requiredLast');
+        else if (value.trim().length < 2) errorMsg = t('auth.register.shortLast');
         break;
       case 'email':
-        if (!value.trim()) error = 'Email is required';
-        else if (!EMAIL_REGEX.test(value)) error = 'Please enter a valid email address';
+        if (!value.trim()) errorMsg = t('auth.login.requiredEmail');
+        else if (!EMAIL_REGEX.test(value)) errorMsg = t('auth.login.invalidEmail');
         break;
       case 'phone': {
         const cleanPhone = value.replace(/\D/g, '');
-        if (!cleanPhone || cleanPhone.length < 3) error = 'Phone number is required';
-        else if (cleanPhone.length < 10) error = 'Please enter a valid phone number';
-        else if (cleanPhone.length > 15) error = 'Phone number is too long';
+        if (!cleanPhone || cleanPhone.length < 3) errorMsg = t('auth.register.requiredPhone');
+        else if (cleanPhone.length < 10) errorMsg = t('auth.register.invalidPhone');
+        else if (cleanPhone.length > 15) errorMsg = t('auth.register.longPhone');
         break;
       }
       case 'password':
-        if (!value.trim()) error = 'Password is required';
-        else if (value.length < 8) error = 'Password must be at least 8 characters';
+        if (!value.trim()) errorMsg = t('auth.login.requiredPassword');
+        else if (value.length < 8) errorMsg = t('auth.login.shortPassword');
         break;
       case 'role':
-        if (!value) error = 'Please select an account type';
+        if (!value) errorMsg = t('auth.register.requiredRole');
         break;
     }
-    setErrors(prev => ({ ...prev, [id]: error }));
-    return error === '';
-  }, []);
+    setErrors(prev => ({ ...prev, [id]: errorMsg }));
+    return errorMsg === '';
+  }, [t]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -145,7 +145,7 @@ function RegisterContent() {
       validateField('phone', form.phone) &&
       validateField('password', form.password) &&
       validateField('role', form.role);
-    if (!isValid) { setError('Please fill in all required fields correctly'); return; }
+    if (!isValid) { setError(t('auth.login.fillRequired')); return; }
     setIsLoading(true);
     setError('');
     try {
@@ -158,14 +158,14 @@ function RegisterContent() {
         role: form.role,
       });
       login(tokens);
-      setSuccess('Registration successful! Redirecting...');
-      setTimeout(() => router.push('/onboarding'), 800);
+      setSuccess(t('auth.register.registerSuccess'));
+      setTimeout(() => router.push(`/${language}/onboarding`), 800);
     } catch (error: any) {
-      setError(error.message || 'Registration failed. Please try again.');
+      setError(error.message || t('auth.register.registerFailed'));
     } finally {
       setIsLoading(false);
     }
-  }, [form, validateField, login, router]);
+  }, [form, validateField, login, router, language, t]);
 
   const handleSocialRegister = useCallback(async (provider: 'google' | 'facebook' | 'apple') => {
     setSocialLoading(prev => ({ ...prev, [provider]: true }));
@@ -180,9 +180,9 @@ function RegisterContent() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) { router.push(searchParams.get('redirect') || '/'); return; }
+    if (isAuthenticated) { router.push(searchParams?.get('redirect') || `/${language}`); return; }
     firstNameInputRef.current?.focus();
-  }, [isAuthenticated, router, searchParams]);
+  }, [isAuthenticated, router, searchParams, language]);
 
   const passwordStrength = useMemo(() => calculatePasswordStrength(form.password), [form.password]);
   const isAnyLoading = useMemo(() =>
@@ -199,8 +199,6 @@ function RegisterContent() {
 
   return (
     <div className="min-h-screen flex pt-11 relative">
-
-      {/* Mobile: floating top-right */}
       <div className="fixed top-4 right-4 z-50 md:hidden">
         <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
       </div>
@@ -208,16 +206,14 @@ function RegisterContent() {
       <div className="w-full md:w-1/2 md:mr-[50%] flex flex-col justify-center items-center px-6 md:px-16 mb-10">
         <div className="w-full max-w-md">
 
-          {/* Desktop: top-right of form panel */}
           <div className="hidden md:flex justify-end mb-4">
             <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
           </div>
 
-          {/* Header */}
           <div className="mb-8 flex justify-center flex-col items-center">
-            <a href="/"><img src="/horohouse.png" alt="HoroHouse" className="h-[130px] w-[130px] mb-2" loading="eager" /></a>
-            <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">Welcome to HoroHouse!</h1>
-            <p className="text-gray-600 text-center text-sm">Create your account and start your journey</p>
+            <a href={`/${language}`}><img src="/horohouse.png" alt="HoroHouse" className="h-[130px] w-[130px] mb-2" loading="eager" /></a>
+            <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">{t('auth.register.welcomeTo')}</h1>
+            <p className="text-gray-600 text-center text-sm">{t('auth.register.createAccountAndStart')}</p>
           </div>
 
           {error && (
@@ -230,11 +226,9 @@ function RegisterContent() {
           )}
 
           <form className="space-y-5" onSubmit={handleEmailRegister} noValidate>
-
-            {/* Name */}
             <div className="grid lg:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
+                <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.register.firstName')}</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   <input ref={firstNameInputRef} id="firstName" type="text" autoComplete="given-name"
@@ -244,7 +238,7 @@ function RegisterContent() {
                 {touched.firstName && errors.firstName && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.firstName}</p>}
               </div>
               <div>
-                <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
+                <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.register.lastName')}</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   <input id="lastName" type="text" autoComplete="family-name"
@@ -255,9 +249,8 @@ function RegisterContent() {
               </div>
             </div>
 
-            {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.register.email')}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input id="email" type="email" autoComplete="email"
@@ -267,9 +260,8 @@ function RegisterContent() {
               {touched.email && errors.email && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.email}</p>}
             </div>
 
-            {/* Phone */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.register.phoneNumber')}</label>
               <PhoneInput
                 country="cm" value={phone} onChange={handlePhoneChange}
                 onBlur={() => handleBlur('phone')} disabled={isAnyLoading}
@@ -284,18 +276,17 @@ function RegisterContent() {
               {touched.phone && errors.phone && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.phone}</p>}
             </div>
 
-            {/* Account Type */}
             <div>
-              <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2">Account Type</label>
+              <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.register.accountType')}</label>
               <div className="relative">
                 <select id="role" value={form.role} onChange={handleChange} onBlur={() => handleBlur('role')}
                   disabled={isAnyLoading}
                   className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm appearance-none bg-white cursor-pointer transition-all duration-200 hover:border-gray-300 disabled:opacity-50 ${touched.role && errors.role ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'}`}>
-                  <option value="registered_user">Regular User</option>
-                  <option value="agent">Agent</option>
-                  <option value="host">Host</option>
-                  <option value="landlord">Landlord</option>
-                  <option value="student">Student</option>
+                  <option value="registered_user">{t('auth.register.roleUser')}</option>
+                  <option value="agent">{t('auth.register.roleAgent')}</option>
+                  <option value="host">{t('auth.register.roleHost')}</option>
+                  <option value="landlord">{t('auth.register.roleLandlord')}</option>
+                  <option value="student">{t('auth.register.roleStudent')}</option>
                 </select>
                 <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -304,9 +295,8 @@ function RegisterContent() {
               {touched.role && errors.role && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.role}</p>}
             </div>
 
-            {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.register.password')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input id="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password"
@@ -320,7 +310,6 @@ function RegisterContent() {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {/* Password strength */}
               {form.password && (
                 <div className="mt-2 space-y-1">
                   <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
@@ -337,20 +326,20 @@ function RegisterContent() {
             <button type="submit" disabled={isAnyLoading}
               className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6 ${!isAnyLoading ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 active:scale-[0.98]' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}>
               {isLoading ? (
-                <span className="flex items-center justify-center gap-2"><Loader2 className="h-5 w-5 animate-spin" />Creating your account...</span>
-              ) : 'Create Account'}
+                <span className="flex items-center justify-center gap-2"><Loader2 className="h-5 w-5 animate-spin" />{t('auth.register.creatingAccount')}</span>
+              ) : t('auth.register.createAccount')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <a href="/auth/login" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">Sign in</a>
+            {t('auth.register.alreadyHaveAccount')}{' '}
+            <a href={`/${language}/auth/login`} className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">{t('auth.register.signIn')}</a>
           </p>
 
           <div className="mt-8">
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
-              <div className="relative bg-white px-4"><p className="text-sm text-gray-500 font-medium">Or continue with</p></div>
+              <div className="relative bg-white px-4"><p className="text-sm text-gray-500 font-medium">{t('auth.register.orContinueWith')}</p></div>
             </div>
             <div className="grid lg:grid-cols-3 gap-3">
               {(['google', 'facebook', 'apple'] as const).map(p => (
@@ -374,7 +363,7 @@ function RegisterContent() {
   );
 }
 
-export default function RegisterPage() {
+export default function RegisterClient() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-white">

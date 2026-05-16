@@ -4,11 +4,11 @@ import apiClient from "@/lib/api";
 import CommunityPostClient from "./CommunityPostClient";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
   try {
     const post = await apiClient.getCommunityPostBySlug(slug);
     
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CommunityPostPage({ params }: Props) {
-  const { slug } = params;
+  const { slug } = await params;
   
   let post;
   try {

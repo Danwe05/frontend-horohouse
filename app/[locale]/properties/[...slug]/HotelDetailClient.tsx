@@ -157,19 +157,25 @@ const HotelDetailSkeleton = () => (
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 
-export default function HotelDetailClient({ id }: { id: string }) {
+export default function HotelDetailClient({
+  id,
+  initialData,
+}: {
+  id: string;
+  initialData?: Property;
+}) {
   const router = useRouter();
   const { formatMoney } = useCurrency();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const { isAuthenticated, user, token } = useAuth();
 
-  const [property, setProperty]       = useState<Property | null>(null);
-  const [rooms, setRooms]             = useState<Room[]>([]);
+  const [property, setProperty] = useState<Property | null>(initialData || null);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState('');
-  const [roomFilter, setRoomFilter]   = useState<string>('all');
-  const [savingFav, setSavingFav]     = useState(false);
+  const [loading, setLoading] = useState(!initialData);
+  const [error, setError] = useState("");
+  const [roomFilter, setRoomFilter] = useState<string>("all");
+  const [savingFav, setSavingFav] = useState(false);
 
   const roomsSectionRef = useRef<HTMLDivElement>(null);
 
@@ -177,23 +183,33 @@ export default function HotelDetailClient({ id }: { id: string }) {
   const fetchData = useCallback(async () => {
     if (!id) return;
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      const [propData, roomsData] = await Promise.all([
-        apiClient.getProperty(id),
-        apiClient.getRoomsByProperty(id).catch(() => []),
-      ]);
-      setProperty(propData);
-      const roomArr = Array.isArray(roomsData) ? roomsData : roomsData?.rooms ?? [];
-      setRooms(roomArr);
+      if (initialData) {
+        // Fetch only rooms if property data is already provided
+        const roomsData = await apiClient.getRoomsByProperty(id).catch(() => []);
+        const roomArr = Array.isArray(roomsData) ? roomsData : roomsData?.rooms ?? [];
+        setRooms(roomArr);
+      } else {
+        // Fetch both property and rooms
+        const [propData, roomsData] = await Promise.all([
+          apiClient.getProperty(id),
+          apiClient.getRoomsByProperty(id).catch(() => []),
+        ]);
+        setProperty(propData);
+        const roomArr = Array.isArray(roomsData) ? roomsData : roomsData?.rooms ?? [];
+        setRooms(roomArr);
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message ?? 'Failed to load hotel details');
+      setError(err.response?.data?.message ?? "Failed to load hotel details");
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, initialData]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // ── Derived ─────────────────────────────────────────────────────────────────
   const saved = property ? isFavorite(property._id) : false;

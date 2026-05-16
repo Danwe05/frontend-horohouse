@@ -29,7 +29,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { languages, Language } from '@/lib/i18n';
+import { languages, Language, getLocalizedHref } from '@/lib/i18n';
 import LanguageCurrencyModal from '@/components/layout/LanguageCurrencyModal';
 import { useRouter } from 'next/navigation';
 import { useStudentMode } from '@/contexts/StudentModeContext';
@@ -115,7 +115,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
   const handleLogout = async () => {
     try {
       await logout();
-      router.push('/auth/login');
+      router.push(getLocalizedHref('/auth/login', language));
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -124,7 +124,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/properties?city=${encodeURIComponent(searchQuery)}`);
+      router.push(getLocalizedHref(`/properties?city=${encodeURIComponent(searchQuery)}`, language));
       setIsSearchOpen(false);
       setSearchQuery('');
     }
@@ -139,10 +139,10 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
         description: 'You need an account to list a property.',
         duration: 4000,
       });
-      router.push('/auth/login');
+      router.push(getLocalizedHref('/auth/login', language));
       return;
     }
-    router.push('/dashboard/propertyForm');
+    router.push(getLocalizedHref('/dashboard/propertyForm', language));
   };
 
   type NavLink = { href: string; label: string; icon: React.ComponentType<any>; };
@@ -208,7 +208,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             >
               {isMobileMenuOpen ? <X size={20} className="text-[#222222]" /> : <Menu size={20} className="text-[#222222]" />}
             </button>
-            <Link href="/" onClick={() => setActiveLink('/')} className="flex items-center">
+            <Link href={getLocalizedHref("/", language)} onClick={() => setActiveLink('/')} className="flex items-center">
               <img src="/logoHoroHouseBleueOrdinateur.png" alt="HoroHouse" className="h-10 md:h-12 object-contain" />
             </Link>
           </div>
@@ -218,7 +218,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             {navLinks.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={getLocalizedHref(link.href, language)}
                 onClick={() => setActiveLink(link.href)}
                 className={cn(
                   "transition-colors duration-200",
@@ -227,6 +227,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                     : "text-[#717171] hover:text-[#222222] font-medium"
                 )}
               >
+
                 {link.label}
               </Link>
             ))}
@@ -337,16 +338,16 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
 
                     <DropdownMenuSeparator className="bg-[#DDDDDD] mx-2" />
 
-                    <DropdownMenuItem onClick={() => router.push('/dashboard')} className="cursor-pointer py-3 px-4 text-[14px] text-[#222222] font-medium focus:bg-[#F7F7F7] rounded-xl transition-colors">
+                    <DropdownMenuItem onClick={() => router.push(getLocalizedHref('/dashboard', language))} className="cursor-pointer py-3 px-4 text-[14px] text-[#222222] font-medium focus:bg-[#F7F7F7] rounded-xl transition-colors">
                       Dashboard
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push('/dashboard/bookings')} className="cursor-pointer py-3 px-4 text-[14px] text-[#222222] font-medium focus:bg-[#F7F7F7] rounded-xl transition-colors">
+                    <DropdownMenuItem onClick={() => router.push(getLocalizedHref('/dashboard/bookings', language))} className="cursor-pointer py-3 px-4 text-[14px] text-[#222222] font-medium focus:bg-[#F7F7F7] rounded-xl transition-colors">
                       My Bookings
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push('/dashboard/favorite')} className="cursor-pointer py-3 px-4 text-[14px] text-[#222222] font-medium focus:bg-[#F7F7F7] rounded-xl transition-colors">
+                    <DropdownMenuItem onClick={() => router.push(getLocalizedHref('/dashboard/favorite', language))} className="cursor-pointer py-3 px-4 text-[14px] text-[#222222] font-medium focus:bg-[#F7F7F7] rounded-xl transition-colors">
                       My Favorites
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push('/dashboard/settings?tab=profile')} className="cursor-pointer py-3 px-4 text-[14px] text-[#222222] font-medium focus:bg-[#F7F7F7] rounded-xl transition-colors">
+                    <DropdownMenuItem onClick={() => router.push(getLocalizedHref('/dashboard/settings?tab=profile', language))} className="cursor-pointer py-3 px-4 text-[14px] text-[#222222] font-medium focus:bg-[#F7F7F7] rounded-xl transition-colors">
                       Account
                     </DropdownMenuItem>
 
@@ -361,7 +362,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
             ) : (
               !isMobileMenuOpen && (
                 <div className="flex items-center ml-2">
-                  <Link href="/auth/login">
+                  <Link href={getLocalizedHref("/auth/login", language)}>
                     <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-[14px] font-semibold transition-colors">
                       {t.nav.signIn}
                     </button>
@@ -432,7 +433,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                         key={s}
                         onClick={() => {
                           setSearchQuery(s);
-                          router.push(`/properties?search=${encodeURIComponent(s)}`);
+                          router.push(getLocalizedHref(`/properties?search=${encodeURIComponent(s)}`, language));
                           setIsSearchOpen(false);
                           setSearchQuery('');
                         }}
@@ -537,7 +538,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                   {navLinks.map((link) => (
                     <Link
                       key={link.href}
-                      href={link.href}
+                      href={getLocalizedHref(link.href, language)}
                       onClick={() => { setActiveLink(link.href); setIsMobileMenuOpen(false); }}
                       className={cn(
                         "py-3 text-[16px] transition-colors",
@@ -561,7 +562,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
 
                   {isAuthenticated ? (
                     <>
-                      <button onClick={() => { router.push('/dashboard/settings?tab=profile'); setIsMobileMenuOpen(false); }} className="text-left py-3 text-[16px] text-[#717171] font-medium hover:text-[#222222]">
+                      <button onClick={() => { router.push(getLocalizedHref('/dashboard/settings?tab=profile', language)); setIsMobileMenuOpen(false); }} className="text-left py-3 text-[16px] text-[#717171] font-medium hover:text-[#222222]">
                         {t.nav.settings}
                       </button>
                       <button onClick={handleLogout} className="text-left py-3 text-[16px] text-[#717171] font-medium hover:text-[#222222]">
@@ -569,7 +570,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                       </button>
                     </>
                   ) : (
-                    <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
+                    <Link href={getLocalizedHref("/auth/login", language)} onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
                       <button className="w-full py-3.5 bg-blue-600 text-white rounded-lg font-semibold text-[16px]">
                         {t.nav.signIn}
                       </button>

@@ -4,7 +4,7 @@ import {
   Grid, List, SlidersHorizontal, Eye, EyeOff,
   Map, Loader2, X, GitCompare, Check, Share2,
 } from "lucide-react";
-import { useEffect, useMemo, useState, useRef, useCallback, Suspense } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import MapView from "@/components/property/MapView";
 import PropertyCard from "@/components/property/PropertyCard";
@@ -97,7 +97,19 @@ function CompareBar({ items, onRemove, onClear, onCompare }: CompareBarProps) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-const IndexContent = () => {
+interface PropertiesClientProps {
+  initialProperties: any[];
+  initialTotal: number;
+  initialFilters: QuickSearchFilters;
+  initialAdvancedFilters: AdvancedFilters;
+}
+
+const PropertiesClient = ({ 
+  initialProperties, 
+  initialTotal, 
+  initialFilters,
+  initialAdvancedFilters
+}: PropertiesClientProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -108,20 +120,19 @@ const IndexContent = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showMap, setShowMap] = useState(true);
   const [gridLayout, setGridLayout] = useState<GridLayout>("grid");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Default to false because we have server data
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [properties, setProperties] = useState<any[]>([]);
-  const [hasMore, setHasMore] = useState(true);
+  const [properties, setProperties] = useState<any[]>(initialProperties);
+  const [hasMore, setHasMore] = useState(initialProperties.length === 12);
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState(initialTotal);
 
   // ── Comparison state ──────────────────────────────────────────────────────
   const [showCompare, setShowCompare] = useState(false);
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
 
   // ── Mobile / hover / cluster state ───────────────────────────────────────
-  // Use false as default (SSR-safe). The effect corrects it on mount.
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [mobileMapFullScreen, setMobileMapFullScreen] = useState(false);
@@ -153,54 +164,8 @@ const IndexContent = () => {
     [searchParams, pathname, router]
   );
 
-  const filtersFromURL = useMemo((): QuickSearchFilters => {
-    const f: QuickSearchFilters = {};
-    const city = searchParams.get("city");
-    const listingType = searchParams.get("listingType");
-    const minPrice = searchParams.get("minPrice");
-    const maxPrice = searchParams.get("maxPrice");
-    const bedrooms = searchParams.get("bedrooms");
-    const bathrooms = searchParams.get("bathrooms");
-    const checkIn = searchParams.get("checkIn");
-    const checkOut = searchParams.get("checkOut");
-    const guests = searchParams.get("guests");
-    const propertyType = searchParams.get("propertyType");
-    const amenities = searchParams.get("amenities");
-
-    if (city) f.city = city;
-    if (listingType) f.listingType = listingType;
-    if (minPrice) f.minPrice = parseInt(minPrice, 10);
-    if (maxPrice) f.maxPrice = parseInt(maxPrice, 10);
-    if (bedrooms) f.bedrooms = parseInt(bedrooms, 10);
-    if (bathrooms) f.bathrooms = parseInt(bathrooms, 10);
-    if (checkIn) f.checkIn = checkIn;
-    if (checkOut) f.checkOut = checkOut;
-    if (guests) f.guests = parseInt(guests, 10);
-    if (propertyType) f.propertyTypes = [propertyType];
-    if (amenities) f.amenities = amenities.split(",");
-
-    return f;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.toString()]);
-
-  const advancedFiltersFromURL = useMemo((): AdvancedFilters => {
-    const f: AdvancedFilters = {};
-    const propertyType = searchParams.get("propertyType");
-    const minBedrooms = searchParams.get("minBedrooms");
-    const minBathrooms = searchParams.get("minBathrooms");
-    const minGuests = searchParams.get("minGuests");
-    const hasPool = searchParams.get("hasPool");
-    if (propertyType) f.propertyTypes = [propertyType];
-    if (minBedrooms) f.minBedrooms = parseInt(minBedrooms, 10);
-    if (minBathrooms) f.minBathrooms = parseInt(minBathrooms, 10);
-    if (minGuests) f.minGuests = parseInt(minGuests, 10);
-    if (hasPool) f.hasPool = hasPool === "true";
-    return f;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.toString()]);
-
-  const [filters, setFilters] = useState<QuickSearchFilters>(filtersFromURL);
-  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>(advancedFiltersFromURL);
+  const [filters, setFilters] = useState<QuickSearchFilters>(initialFilters);
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>(initialAdvancedFilters);
   const [sortBy, setSortBy] = useState<string>(searchParams.get("sortBy") || "createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">(
     (searchParams.get("sortOrder") as "asc" | "desc") || "desc"
@@ -349,8 +314,12 @@ const IndexContent = () => {
 
       const data = await apiClient.searchProperties(params);
       const newProps = Array.isArray(data?.properties) ? data.properties : [];
-      setProperties((prev) => append ? [...prev, ...newProps] : newProps);
-      setTotal(data?.total ?? 0);
+      if (append) {
+        setProperties((prev) => [...prev, ...newProps]);
+      } else {
+        setProperties(newProps);
+        setTotal(data?.total ?? 0);
+      }
       setHasMore(newProps.length === 12 && (data?.totalPages ?? 0) > pageNum);
     } catch (e: any) {
       setError(e?.response?.data?.message ?? e?.message ?? "Failed to load properties");
@@ -361,7 +330,13 @@ const IndexContent = () => {
     }
   }, [filters, advancedFilters, sortBy, sortOrder]);
 
+  // Only trigger on subsequent changes, not on mount if we already have initial values
+  const hasLoadedInitial = useRef(false);
   useEffect(() => {
+    if (!hasLoadedInitial.current) {
+      hasLoadedInitial.current = true;
+      return;
+    }
     setPage(1);
     setHasMore(true);
     fetchProperties(1, false);
@@ -485,7 +460,23 @@ const IndexContent = () => {
 
   const currentListingType = (filters.listingType as "sale" | "rent" | "short_term" | undefined) ?? "any";
 
-  if (!isMounted) return null;
+  if (!isMounted) {
+    // During SSR, we render a static version of the list with the initial properties
+    return (
+      <div className="min-h-screen flex flex-col bg-white mt-[70px]">
+        <div className="w-full px-6 py-4 border-b border-[#EBEBEB] bg-white">
+          <QuickSearch onSearch={() => {}} initialFilters={initialFilters} />
+        </div>
+        <main className="flex-1 flex px-6 py-5">
+           <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full">
+            {uiProperties.map((property) => (
+              <PropertyCard key={property.id} {...property} />
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   // ─────────────────────────────── MOBILE ──────────────────────────────────
   if (isMobile) {
@@ -514,7 +505,7 @@ const IndexContent = () => {
           <>
             {/* Search bar */}
             <div className="sticky top-[65px] z-30 w-full px-4 py-3 bg-white border-b border-[#EBEBEB]">
-              <QuickSearch onSearch={handleQuickSearch} initialFilters={filtersFromURL} />
+              <QuickSearch onSearch={handleQuickSearch} initialFilters={initialFilters} />
             </div>
 
             <div className="flex-1 overflow-y-auto bg-white pb-24">
@@ -690,7 +681,7 @@ const IndexContent = () => {
 
       {/* Search bar */}
       <div className="w-full px-6 py-4 border-b border-[#EBEBEB] bg-white">
-        <QuickSearch onSearch={handleQuickSearch} initialFilters={filtersFromURL} />
+        <QuickSearch onSearch={handleQuickSearch} initialFilters={initialFilters} />
       </div>
 
       {/* Filter chips */}
@@ -852,15 +843,4 @@ const IndexContent = () => {
   );
 };
 
-export default function Index() {
-  return (
-    <Suspense fallback={
-      <div className="flex flex-col items-center justify-center h-96 gap-3">
-        <Loader2 className="h-10 w-10 animate-spin text-[#1A56DB]" />
-        <p className="text-[14px] text-[#717171]">Loading properties…</p>
-      </div>
-    }>
-      <IndexContent />
-    </Suspense>
-  );
-}
+export default PropertiesClient;

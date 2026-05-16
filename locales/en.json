@@ -2425,5 +2425,116 @@
     "failedSendMessage": "Failed to send message",
     "pleaseTryAgain": "Please try again.",
     "propertyContact": "Property Contact"
+  },
+  "auth": {
+    "login": {
+      "welcomeBack": "Welcome Back!",
+      "signInToContinue": "Sign in to continue to your account",
+      "email": "Email",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "signIn": "Sign In",
+      "signingIn": "Signing in...",
+      "dontHaveAccount": "Don't have an account?",
+      "signUp": "Sign Up",
+      "orContinueWith": "Or continue with",
+      "loginSuccess": "Login successful! Redirecting...",
+      "loginFailed": "Login failed. Please check your credentials.",
+      "googleFailed": "Google authentication failed. Please try again.",
+      "requiredEmail": "Email is required",
+      "invalidEmail": "Please enter a valid email address",
+      "requiredPassword": "Password is required",
+      "shortPassword": "Password must be at least 8 characters",
+      "fillRequired": "Please fill in all required fields correctly"
+    },
+    "register": {
+      "welcomeTo": "Welcome to HoroHouse!",
+      "createAccountAndStart": "Create your account and start your journey",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "accountType": "Account Type",
+      "password": "Password",
+      "createAccount": "Create Account",
+      "creatingAccount": "Creating your account...",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "orContinueWith": "Or continue with",
+      "registerSuccess": "Registration successful! Redirecting...",
+      "registerFailed": "Registration failed. Please try again.",
+      "requiredFirst": "First name is required",
+      "shortFirst": "First name must be at least 2 characters",
+      "requiredLast": "Last name is required",
+      "shortLast": "Last name must be at least 2 characters",
+      "requiredPhone": "Phone number is required",
+      "invalidPhone": "Please enter a valid phone number",
+      "longPhone": "Phone number is too long",
+      "requiredRole": "Please select an account type",
+      "roleUser": "Regular User",
+      "roleAgent": "Agent",
+      "roleHost": "Host",
+      "roleLandlord": "Landlord",
+      "roleStudent": "Student"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "desc": "Enter your email address and we'll send you a link to reset your password.",
+      "sendResetLink": "Send Reset Link",
+      "sending": "Sending...",
+      "backToLogin": "Back to Login",
+      "emailSent": "Password reset email sent. Please check your inbox.",
+      "requestFailed": "Password reset request failed. Please try again."
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "desc": "Enter your new password below.",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "resetPasswordBtn": "Reset Password",
+      "resetting": "Resetting...",
+      "pwdMismatch": "Passwords do not match",
+      "resetSuccess": "Password reset successful! Redirecting to login...",
+      "resetFailed": "Password reset failed. Please try again or request a new link.",
+      "invalidLink": "Invalid or expired reset link. Please request a new one."
+    },
+    "addPhone": {
+      "title": "Add New Phone",
+      "desc": "Please verify your new phone number to complete registration.",
+      "verifyBtn": "Verify",
+      "verifying": "Verifying..."
+    },
+    "promo": {
+      "login": {
+        "title": "Welcome Back to HoroHouse",
+        "desc": "Sign in to access your personalized dashboard, manage your listings, and continue your journey to finding the perfect African property.",
+        "feature1": "Instant access to your saved properties",
+        "feature2": "Manage your listings and inquiries",
+        "feature3": "Secure and encrypted login",
+        "usersCount": "10k+ Active Users",
+        "security": "Bank-Level Security"
+      },
+      "forgotPassword": {
+        "title": "Secure Password Reset",
+        "desc": "Don't worry! It happens to the best of us. We'll send you a secure link to reset your password and get you back into your HoroHouse account.",
+        "feature1": "Reset link sent to your email instantly",
+        "feature2": "Encrypted and secure process",
+        "feature3": "Quick and easy password update",
+        "security": "Bank-Level Security",
+        "expiry": "Link Expires in 1 Hour",
+        "needHelp": "Need more help?",
+        "supportDesc": "If you continue to have issues accessing your account, our support team is ready to assist you 24/7."
+      },
+      "register": {
+        "title": "Join the Premier Real Estate Community",
+        "desc": "Sign up today to explore exclusive listings, connect with top agents, and find your perfect African home. Become part of HoroHouse and unlock a world of property opportunities!",
+        "feature1": "Access exclusive property listings",
+        "feature2": "Connect with verified agents",
+        "feature3": "Secure and trusted platform",
+        "usersCount": "10k+ Users",
+        "verifiedListings": "Verified Listings"
+      }
+    }
   }
-}
+}

@@ -3,6 +3,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useRef, useState, useEffect } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { getLocalizedHref } from '@/lib/i18n';
 import Link from 'next/link';
 
 export default function CuratedCollections() {
@@ -73,7 +74,7 @@ export default function CuratedCollections() {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {collections.map((item, index) => (
-            <Link href={`/properties${item.query}`} key={index}>
+            <Link href={getLocalizedHref(`/properties${item.query}`, language)} key={index}>
               <div className="flex flex-col items-center justify-center min-w-[70px] cursor-pointer group/item opacity-70 hover:opacity-100 transition-opacity">
                 <img 
                   src={item.icon} 

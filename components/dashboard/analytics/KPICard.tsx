@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, TrendingUp, TrendingDown } from 'lucide-react';
-import { KPICardProps } from '@/app/dashboard/analytics/types';
+import { KPICardProps } from '@/app/[locale]/dashboard/analytics/types';
 
 export const KPICard = ({ title, value, change, trend, icon: Icon, loading }: KPICardProps) => (
     <Card className="hover:-lg transition-">

@@ -2,12 +2,12 @@
 
 import { useStudentMode } from '@/contexts/StudentModeContext';
 import HomePage from './homePage';
-import StudentsPage from '@/app/students/page';
+import StudentsPage from '@/app/[locale]/students/page';
 
 export default function HomeWrapper() {
   const { isStudentMode, isStudent } = useStudentMode();
 
-  if (isStudentMode && isStudent) { 
+  if (isStudentMode && isStudent) {   
     return <StudentsPage />;
   }
 

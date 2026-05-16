@@ -15,7 +15,7 @@ import HostCard from "@/components/property/details/HostCard";
 import PetPolicy, { type PetPolicyInfo } from "@/components/property/details/PetPolicy";
 import SimilarProperties from "@/components/property/details/SimilarProperties";
 import StudentFeaturesPanel from "@/components/property/details/StudentFeaturesPanel";
-import HotelDetailClient from "@/app/properties/[...slug]/HotelDetailClient";
+import HotelDetailClient from "./HotelDetailClient";
 import apiClient from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChatProvider } from "@/contexts/ChatContext";
@@ -196,7 +196,13 @@ const PropertyDetailSkeleton = () => (
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function PropertyDetailClient({ id }: { id: string }) {
+export default function PropertyDetailClient({
+  id,
+  initialData,
+}: {
+  id: string;
+  initialData?: Property;
+}) {
   const router = useRouter();
   const { user, token } = useAuth();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
@@ -204,15 +210,16 @@ export default function PropertyDetailClient({ id }: { id: string }) {
 
   const { t } = useLanguage();
 
-  const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [property, setProperty] = useState<Property | null>(initialData || null);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState("");
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
-  const fallbackErrorMsg = t.propertyDetails?.failedToLoad ?? "Failed to load property details";
+  const fallbackErrorMsg =
+    t.propertyDetails?.failedToLoad ?? "Failed to load property details";
 
   const fetchProperty = useCallback(async () => {
-    if (!propertyId) return;
+    if (!propertyId || initialData) return;
     setLoading(true);
     setError("");
     try {
@@ -223,11 +230,13 @@ export default function PropertyDetailClient({ id }: { id: string }) {
     } finally {
       setLoading(false);
     }
-  }, [propertyId]);
+  }, [propertyId, initialData, fallbackErrorMsg]);
 
   useEffect(() => {
-    fetchProperty();
-  }, [fetchProperty]);
+    if (!initialData) {
+      fetchProperty();
+    }
+  }, [fetchProperty, initialData]);
 
   const saved = property ? isFavorite(property._id) : false;
 

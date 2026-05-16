@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { ShieldCheck, Mail, Lock, RefreshCw } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ForgotPasswordPromoSection() {
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -16,7 +18,7 @@ export default function ForgotPasswordPromoSection() {
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       role="complementary"
-      aria-label="Password reset information"
+      aria-label={t('auth.promo.forgotPassword.title')}
     >
       
       {/* Top decorative image */}
@@ -44,21 +46,20 @@ export default function ForgotPasswordPromoSection() {
 
         {/* Heading */}
         <h2 className="text-4xl font-bold leading-tight tracking-tight">
-          Secure Password Reset
+          {t('auth.promo.forgotPassword.title')}
         </h2>
         
         {/* Description */}
         <p className="text-lg leading-relaxed text-blue-50 font-light">
-          Don't worry! It happens to the best of us. We'll send you a secure link 
-          to reset your password and get you back into your HoroHouse account.
+          {t('auth.promo.forgotPassword.desc')}
         </p>
 
         {/* Feature list */}
         <ul className="space-y-4 pt-4" role="list">
           {[
-            { Icon: Mail, text: 'Reset link sent to your email instantly' },
-            { Icon: Lock, text: 'Encrypted and secure process' },
-            { Icon: RefreshCw, text: 'Quick and easy password update' },
+            { Icon: Mail, text: t('auth.promo.forgotPassword.feature1') },
+            { Icon: Lock, text: t('auth.promo.forgotPassword.feature2') },
+            { Icon: RefreshCw, text: t('auth.promo.forgotPassword.feature3') },
           ].map((feature, index) => (
             <li 
               key={index}
@@ -83,23 +84,22 @@ export default function ForgotPasswordPromoSection() {
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span className="text-sm font-semibold">Bank-Level Security</span>
+            <span className="text-sm font-semibold">{t('auth.promo.forgotPassword.security')}</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
             </svg>
-            <span className="text-sm font-semibold">Link Expires in 1 Hour</span>
+            <span className="text-sm font-semibold">{t('auth.promo.forgotPassword.expiry')}</span>
           </div>
         </div>
 
         {/* Additional help text */}
         <div className="pt-6 border-t border-blue-400/30">
           <p className="text-sm text-blue-100 leading-relaxed">
-            <strong className="font-semibold">Need more help?</strong>
+            <strong className="font-semibold">{t('auth.promo.forgotPassword.needHelp')}</strong>
             <br />
-            If you continue to have issues accessing your account, 
-            our support team is ready to assist you 24/7.
+            {t('auth.promo.forgotPassword.supportDesc')}
           </p>
         </div>
       </div>

@@ -4,11 +4,11 @@ import apiClient from "@/lib/api";
 import CommunityAuthorClient from "./CommunityAuthorClient";
 
 interface Props {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { userId } = params;
+  const { userId } = await params;
   try {
     const profile = await apiClient.getCommunityAuthorProfile(userId);
     const { user } = profile;
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CommunityAuthorPage({ params }: Props) {
-  const { userId } = params;
+  const { userId } = await params;
   
   let profile;
   let postsRes;

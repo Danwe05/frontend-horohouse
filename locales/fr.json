@@ -2425,5 +2425,116 @@
     "failedSendMessage": "Échec de l'envoi du message",
     "pleaseTryAgain": "Veuillez réessayer.",
     "propertyContact": "Contact de la propriété"
+  },
+  "auth": {
+    "login": {
+      "welcomeBack": "Bon retour !",
+      "signInToContinue": "Connectez-vous pour accéder à votre compte",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "signIn": "Se connecter",
+      "signingIn": "Connexion...",
+      "dontHaveAccount": "Vous n'avez pas de compte ?",
+      "signUp": "S'inscrire",
+      "orContinueWith": "Ou continuer avec",
+      "loginSuccess": "Connexion réussie ! Redirection...",
+      "loginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants.",
+      "googleFailed": "L'authentification Google a échoué. Veuillez réessayer.",
+      "requiredEmail": "L'e-mail est requis",
+      "invalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "requiredPassword": "Le mot de passe est requis",
+      "shortPassword": "Le mot de passe doit contenir au moins 8 caractères",
+      "fillRequired": "Veuillez remplir correctement tous les champs obligatoires"
+    },
+    "register": {
+      "welcomeTo": "Bienvenue sur HoroHouse !",
+      "createAccountAndStart": "Créez votre compte et commencez votre voyage",
+      "firstName": "Prénom",
+      "lastName": "Nom de famille",
+      "email": "E-mail",
+      "phoneNumber": "Numéro de téléphone",
+      "accountType": "Type de compte",
+      "password": "Mot de passe",
+      "createAccount": "Créer un compte",
+      "creatingAccount": "Création de votre compte...",
+      "alreadyHaveAccount": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter",
+      "orContinueWith": "Ou continuer avec",
+      "registerSuccess": "Inscription réussie ! Redirection...",
+      "registerFailed": "L'inscription a échoué. Veuillez réessayer.",
+      "requiredFirst": "Le prénom est requis",
+      "shortFirst": "Le prénom doit contenir au moins 2 caractères",
+      "requiredLast": "Le nom est requis",
+      "shortLast": "Le nom doit contenir au moins 2 caractères",
+      "requiredPhone": "Le numéro de téléphone est requis",
+      "invalidPhone": "Veuillez entrer un numéro de téléphone valide",
+      "longPhone": "Le numéro de téléphone est trop long",
+      "requiredRole": "Veuillez sélectionner un type de compte",
+      "roleUser": "Utilisateur régulier",
+      "roleAgent": "Agent",
+      "roleHost": "Hôte",
+      "roleLandlord": "Propriétaire",
+      "roleStudent": "Étudiant"
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "desc": "Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+      "sendResetLink": "Envoyer le lien de réinitialisation",
+      "sending": "Envoi...",
+      "backToLogin": "Retour à la connexion",
+      "emailSent": "E-mail de réinitialisation envoyé. Veuillez vérifier votre boîte de réception.",
+      "requestFailed": "La demande de réinitialisation a échoué. Veuillez réessayer."
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "desc": "Entrez votre nouveau mot de passe ci-dessous.",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "resetPasswordBtn": "Réinitialiser le mot de passe",
+      "resetting": "Réinitialisation...",
+      "pwdMismatch": "Les mots de passe ne correspondent pas",
+      "resetSuccess": "Réinitialisation réussie ! Redirection vers la connexion...",
+      "resetFailed": "La réinitialisation a échoué. Veuillez réessayer ou demander un nouveau lien.",
+      "invalidLink": "Lien de réinitialisation invalide ou expiré. Veuillez en demander un nouveau."
+    },
+    "addPhone": {
+      "title": "Ajouter un téléphone",
+      "desc": "Veuillez vérifier votre nouveau numéro de téléphone pour terminer l'inscription.",
+      "verifyBtn": "Vérifier",
+      "verifying": "Vérification..."
+    },
+    "promo": {
+      "login": {
+        "title": "Bon retour sur HoroHouse",
+        "desc": "Connectez-vous pour accéder à votre tableau de bord personnalisé, gérer vos annonces et poursuivre votre recherche de la propriété africaine idéale.",
+        "feature1": "Accès instantané à vos propriétés sauvegardées",
+        "feature2": "Gérez vos annonces et vos demandes",
+        "feature3": "Connexion sécurisée et cryptée",
+        "usersCount": "Plus de 10 000 utilisateurs actifs",
+        "security": "Sécurité de niveau bancaire"
+      },
+      "forgotPassword": {
+        "title": "Réinitialisation sécurisée du mot de passe",
+        "desc": "Ne vous inquiétez pas ! Cela arrive même aux meilleurs. Nous vous enverrons un lien sécurisé pour réinitialiser votre mot de passe.",
+        "feature1": "Lien de réinitialisation envoyé instantanément par e-mail",
+        "feature2": "Processus crypté et sécurisé",
+        "feature3": "Mise à jour rapide et facile du mot de passe",
+        "security": "Sécurité de niveau bancaire",
+        "expiry": "Le lien expire dans 1 heure",
+        "needHelp": "Besoin d'aide supplémentaire ?",
+        "supportDesc": "Si vous continuez à avoir des problèmes pour accéder à votre compte, notre équipe d'assistance est prête à vous aider 24h/24 et 7j/7."
+      },
+      "register": {
+        "title": "Rejoignez la première communauté immobilière",
+        "desc": "Inscrivez-vous dès aujourd'hui pour explorer des annonces exclusives, entrer en contact avec les meilleurs agents et trouver votre maison africaine idéale. Faites partie de HoroHouse et débloquez un monde d'opportunités immobilières !",
+        "feature1": "Accès à des annonces immobilières exclusives",
+        "feature2": "Contactez des agents vérifiés",
+        "feature3": "Plateforme sécurisée et fiable",
+        "usersCount": "Plus de 10 000 utilisateurs",
+        "verifiedListings": "Annonces vérifiées"
+      }
+    }
   }
-}
+}

@@ -15,7 +15,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { KPICard } from './KPICard';
 import { LoadingSkeleton } from './LoadingSkeleton';
-import { DashboardProps, KPICardProps } from '@/app/dashboard/analytics/types';
+import { DashboardProps, KPICardProps } from '@/app/[locale]/dashboard/analytics/types';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 

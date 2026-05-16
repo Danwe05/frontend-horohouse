@@ -4,7 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import PropertyCard from '../property/PropertyCard';
-import { Sparkles, TrendingUp, Users, Star, Brain, ChevronDown } from 'lucide-react';
+import { Sparkles, TrendingUp, Users, Star, Brain, LayoutGrid, Info, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type AlgorithmType = 'flask-ml' | 'hybrid' | 'content-based' | 'collaborative' | 'popularity';
 
@@ -31,38 +35,43 @@ export default function RecommendationsPage() {
   const algorithms = [
     {
       id: 'flask-ml' as AlgorithmType,
-      name: 'AI Powered',
+      name: 'AI Neural',
       icon: Brain,
-      description: 'Advanced machine learning recommendations',
-      color: 'purple'
+      description: 'Our most advanced engine using deep learning patterns.',
+      color: 'blue',
+      gradient: 'from-blue-600 to-indigo-600'
     },
     {
       id: 'hybrid' as AlgorithmType,
       name: 'Smart Mix',
       icon: Sparkles,
-      description: 'Combined recommendation algorithms',
-      color: 'blue'
+      description: 'A balanced blend of all our best matching logic.',
+      color: 'purple',
+      gradient: 'from-purple-600 to-pink-600'
     },
     {
       id: 'content-based' as AlgorithmType,
-      name: 'Based on Your Taste',
+      name: 'Personalized',
       icon: Star,
-      description: 'Properties matching your preferences',
-      color: 'yellow'
+      description: 'Tuned specifically to your historical taste and interactions.',
+      color: 'amber',
+      gradient: 'from-amber-500 to-orange-600'
     },
     {
       id: 'collaborative' as AlgorithmType,
-      name: 'Similar Users',
+      name: 'Community',
       icon: Users,
-      description: 'What similar users liked',
-      color: 'green'
+      description: 'Discover what people with similar tastes are loving.',
+      color: 'emerald',
+      gradient: 'from-emerald-500 to-teal-600'
     },
     {
       id: 'popularity' as AlgorithmType,
       name: 'Trending',
       icon: TrendingUp,
-      description: 'Most popular properties',
-      color: 'red'
+      description: 'The most popular properties across HoroHouse right now.',
+      color: 'rose',
+      gradient: 'from-rose-500 to-red-600'
     }
   ];
 
@@ -77,20 +86,17 @@ export default function RecommendationsPage() {
   const fetchRecommendations = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const response = await apiClient.getRecommendations({
         algorithm: selectedAlgorithm,
         limit: 20,
       });
-
       if (response.success) {
         setRecommendations(response.data.recommendations);
       } else {
         setError('Failed to load recommendations');
       }
     } catch (err: any) {
-      console.error('Error fetching recommendations:', err);
       setError(err.message || 'Failed to load recommendations');
     } finally {
       setLoading(false);
@@ -100,259 +106,287 @@ export default function RecommendationsPage() {
   const fetchStats = async () => {
     try {
       const response = await apiClient.getRecommendationStats();
-      if (response.success) {
-        setStats(response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching stats:', err);
-    }
+      if (response.success) setStats(response.data);
+    } catch (err) { console.error('Error fetching stats:', err); }
   };
 
   const fetchMLStatus = async () => {
     try {
       const response = await apiClient.getMLStatus();
-      if (response.success) {
-        setMlStatus(response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching ML status:', err);
-    }
+      if (response.success) setMlStatus(response.data);
+    } catch (err) { console.error('Error fetching ML status:', err); }
   };
 
   const handleFeedback = async (propertyId: string, rating: number, action?: string) => {
     try {
       await apiClient.submitRecommendationFeedback({
-        propertyId,
-        rating,
-        clicked: action === 'clicked',
-        favorited: action === 'favorited',
-        inquired: action === 'inquired',
+        propertyId, rating, clicked: action === 'clicked', favorited: action === 'favorited', inquired: action === 'inquired',
       });
-    } catch (err) {
-      console.error('Error submitting feedback:', err);
-    }
+    } catch (err) { console.error('Error submitting feedback:', err); }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Login Required</h2>
-          <p className="text-gray-600 mb-4">Please login to see personalized recommendations</p>
-          <a href="/auth/login" className="bg-blue-600 text-white px-6 py-2 rounded-lg">
-            Login
-          </a>
+  if (!isAuthenticated) return (
+    <div className="min-h-screen flex items-center justify-center bg-white p-6">
+      <div className="max-w-md w-full text-center space-y-8">
+        <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
+          <Sparkles className="w-10 h-10 text-blue-600" />
         </div>
+        <div>
+          <h2 className="text-[28px] font-semibold text-[#222222] tracking-tight">Your AI Home Matchmaker</h2>
+          <p className="text-[#717171] mt-3 text-[16px] leading-relaxed">Login to unlock highly personalized property recommendations based on your unique tastes.</p>
+        </div>
+        <Button asChild className="w-full h-14 rounded-xl bg-[#222222] hover:bg-black text-white font-bold text-[16px]">
+          <a href="/auth/login">Continue to Login</a>
+        </Button>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 mt-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Recommendations for You
-          </h1>
-          <p className="text-gray-600">
-            Personalized property suggestions based on your preferences
-          </p>
+    <div className="min-h-screen bg-white text-[#222222] selection:bg-blue-600 selection:text-white pt-24 pb-20">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        
+        {/* --- Hero Section --- */}
+        <header className="mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <span className="px-3 py-1 bg-blue-50 text-blue-700 text-[12px] font-bold uppercase tracking-wider rounded-full flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                AI Matched for you
+              </span>
+              {mlStatus?.flaskService?.healthy && (
+                <span className="flex items-center gap-1.5 text-[12px] font-medium text-emerald-600">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  ML Active
+                </span>
+              )}
+            </div>
+            <h1 className="text-[36px] sm:text-[44px] font-semibold tracking-tight text-[#222222] leading-[1.1] mb-4">
+              The properties you'll love most.
+            </h1>
+            <p className="text-[18px] text-[#717171] max-w-2xl leading-relaxed">
+              We analyze thousands of data points — from your neighborhood searches to property views — to find your perfect home.
+            </p>
+          </motion.div>
+        </header>
+
+        {/* --- Stats Row --- */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="p-6 rounded-2xl bg-[#F7F7F7] border border-[#EBEBEB] group hover:bg-white hover:shadow-xl hover:border-transparent transition-all duration-300"
+          >
+            <p className="text-[13px] font-bold text-[#717171] uppercase tracking-wider mb-2">Profile Precision</p>
+            <div className="flex items-end justify-between gap-4">
+              <span className="text-[32px] font-semibold tabular-nums">{Math.round((stats?.profileStrength || 0) * 100)}%</span>
+              <div className="flex-1 max-w-[120px] h-2 bg-[#EBEBEB] rounded-full overflow-hidden mb-3">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(stats?.profileStrength || 0) * 100}%` }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                  className="h-full bg-blue-600 rounded-full"
+                />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="p-6 rounded-2xl bg-[#F7F7F7] border border-[#EBEBEB] hover:bg-white hover:shadow-xl hover:border-transparent transition-all duration-300"
+          >
+            <p className="text-[13px] font-bold text-[#717171] uppercase tracking-wider mb-2">Taste Profile</p>
+            <div className="flex items-center gap-3">
+              <span className="text-[32px] font-semibold">{stats?.similarUsersCount || 0}</span>
+              <span className="text-[14px] text-[#717171] font-medium leading-tight">Similar users <br/>matched</span>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="p-6 rounded-2xl bg-[#F7F7F7] border border-[#EBEBEB] hover:bg-white hover:shadow-xl hover:border-transparent transition-all duration-300"
+          >
+            <p className="text-[13px] font-bold text-[#717171] uppercase tracking-wider mb-2">Analysis Scope</p>
+            <div className="flex items-center gap-3">
+              <span className="text-[32px] font-semibold">{stats?.recommendationCandidates || 0}</span>
+              <span className="text-[14px] text-[#717171] font-medium leading-tight">Verified listings <br/>analyzed</span>
+            </div>
+          </motion.div>
         </div>
 
-        {/* ML Status Banner */}
-        {mlStatus && (
-          <div className={`mb-6 p-4 rounded-lg ${mlStatus.flaskService.healthy
-            ? 'bg-green-50 border border-green-200'
-            : 'bg-yellow-50 border border-yellow-200'
-            }`}>
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${mlStatus.flaskService.healthy ? 'bg-green-500' : 'bg-yellow-500'
-                }`} />
-              <span className="text-sm font-medium">
-                {mlStatus.flaskService.healthy
-                  ? '🤖 AI Recommendations Active'
-                  : '⚠️ AI Service Unavailable - Using Internal Algorithms'}
-              </span>
+        {/* --- Algorithm Selector --- */}
+        <div className="mb-10 pb-4 border-b border-[#EBEBEB]">
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <h2 className="text-[18px] font-semibold text-[#222222]">Select Intelligence Engine</h2>
+            <div className="flex items-center gap-1.5 text-[14px] text-[#717171]">
+              <Info className="w-4 h-4" />
+              How we match
             </div>
           </div>
-        )}
-
-        {/* Algorithm Selector */}
-        <div className="mb-8 grid grid-cols-2 md:grid-cols-5 gap-4">
-          {algorithms.map((algo) => {
-            const Icon = algo.icon;
-            const isSelected = selectedAlgorithm === algo.id;
-
-            return (
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
+            {algorithms.map((algo) => (
               <button
                 key={algo.id}
                 onClick={() => setSelectedAlgorithm(algo.id)}
-                className={`p-4 rounded-lg border-1 transition-all ${isSelected
-                  ? `border-${algo.color}-500 bg-${algo.color}-50`
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
+                className={cn(
+                  "flex flex-col items-start p-4 min-w-[240px] rounded-2xl border transition-all duration-300 relative overflow-hidden group",
+                  selectedAlgorithm === algo.id 
+                    ? "bg-white border-[#222222] shadow-[0_8px_24px_rgba(34,34,34,0.08)]"
+                    : "bg-[#F7F7F7] border-transparent hover:border-[#DDDDDD] hover:bg-white"
+                )}
               >
-                <Icon className={`w-6 h-6 mb-2 ${isSelected ? `text-${algo.color}-600` : 'text-gray-600'
-                  }`} />
-                <div className="text-left">
-                  <h3 className="font-semibold text-sm">{algo.name}</h3>
-                  <p className="text-xs text-gray-500 mt-1">{algo.description}</p>
+                <div className={cn(
+                  "p-2 rounded-xl mb-4 transition-colors",
+                  selectedAlgorithm === algo.id 
+                    ? "bg-[#222222] text-white" 
+                    : "bg-white text-[#717171] group-hover:bg-[#F7F7F7]"
+                )}>
+                  <algo.icon className="w-5 h-5" />
                 </div>
+                <h3 className="font-bold text-[15px] mb-1">{algo.name}</h3>
+                <p className="text-[13px] text-[#717171] leading-snug">{algo.description}</p>
+                {selectedAlgorithm === algo.id && (
+                  <motion.div layoutId="active-indicator" className="absolute top-4 right-4 text-blue-600">
+                    <Sparkles className="w-4 h-4 fill-current" />
+                  </motion.div>
+                )}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        {/* Stats Cards */}
-        {stats && (
-          <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-4 rounded-lg -sm border">
-              <h3 className="text-sm text-gray-600 mb-1">Profile Strength</h3>
-              <div className="flex items-end gap-2">
-                <span className="text-2xl font-bold">
-                  {Math.round(stats.profileStrength * 100)}%
-                </span>
-                <div className="flex-1 bg-gray-200 rounded-full h-2 mb-1">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full"
-                    style={{ width: `${stats.profileStrength * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-lg -sm border">
-              <h3 className="text-sm text-gray-600 mb-1">Similar Users</h3>
-              <span className="text-2xl font-bold">{stats.similarUsersCount}</span>
-            </div>
-
-            <div className="bg-white p-4 rounded-lg -sm border">
-              <h3 className="text-sm text-gray-600 mb-1">Available Properties</h3>
-              <span className="text-2xl font-bold">{stats.recommendationCandidates}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-800">{error}</p>
-            <button
-              onClick={fetchRecommendations}
-              className="mt-2 text-red-600 hover:text-red-800 font-medium"
+        {/* --- Results --- */}
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12"
             >
-              Try Again
-            </button>
-          </div>
-        )}
-
-        {/* Recommendations Grid */}
-        {!loading && recommendations.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">
-                {recommendations.length} Properties Found
-              </h2>
-              <span className="text-sm text-gray-500">
-                Algorithm: {algorithms.find(a => a.id === selectedAlgorithm)?.name}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-[280px] w-full rounded-2xl bg-[#F7F7F7]" />
+                  <Skeleton className="h-4 w-2/3 bg-[#F7F7F7]" />
+                  <Skeleton className="h-4 w-1/3 bg-[#F7F7F7]" />
+                </div>
+              ))}
+            </motion.div>
+          ) : recommendations.length > 0 ? (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12"
+            >
               {recommendations.map((rec, index) => {
                 const prop = rec.property;
-
-                // Normalize images: backend may return objects like { url } or strings
                 const imageArray: string[] = (prop?.images && Array.isArray(prop.images) && prop.images.length > 0)
                   ? prop.images.map((img: any) => (typeof img === 'string' ? img : img?.url || img?.src || '')).filter(Boolean)
                   : (prop?.image ? [(typeof prop.image === 'string' ? prop.image : prop.image?.url || prop.image?.src || '')] : []);
 
-                const firstImage = imageArray.length > 0 ? imageArray[0] : '/placeholder.jpg';
-
-                // Coerce numeric fields to numbers when possible
-                const bedsRaw = prop?.beds ?? prop?.bedrooms ?? prop?.bed_count ?? prop?.bedrooms_count;
-                const bathsRaw = prop?.baths ?? prop?.bathrooms ?? prop?.bath_count ?? prop?.bathrooms_count;
-                const bedsNum = bedsRaw !== undefined && bedsRaw !== null ? Number(bedsRaw) : undefined;
-                const bathsNum = bathsRaw !== undefined && bathsRaw !== null ? Number(bathsRaw) : undefined;
-
-                // sqft may be numeric or string; coerce to string for display
-                const sqftRaw = prop?.sqft ?? prop?.area ?? prop?.size ?? prop?.squareFeet;
-                const sqftStr = sqftRaw !== undefined && sqftRaw !== null ? String(sqftRaw) : undefined;
-
                 return (
-                  <div key={rec.propertyId || index} className="relative">
-                    {/* Recommendation Badge */}
-                    <div className="absolute top-2 left-2 z-10 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium -lg">
+                  <motion.div
+                    key={rec.propertyId || index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="relative group"
+                  >
+                    {/* Match Score Badge */}
+                    <div className="absolute top-4 left-4 z-10 bg-[#222222]/90 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-[12px] font-bold flex items-center gap-1.5 shadow-lg border border-white/10 transition-transform group-hover:scale-105">
+                      <Sparkles className="w-3 h-3 text-blue-400 fill-blue-400" />
                       {Math.round(rec.finalScore * 100)}% Match
                     </div>
 
-                    {/* Property Card */}
-                    <div onClick={() => handleFeedback(rec.propertyId, 5, 'clicked')}>
+                    <div onClick={() => handleFeedback(rec.propertyId, 5, 'clicked')} className="cursor-pointer">
                       <PropertyCard
                         id={prop._id || prop.id}
-                        image={firstImage}
-                        images={imageArray.length > 0 ? imageArray : undefined}
+                        image={imageArray[0] || '/placeholder.jpg'}
+                        images={imageArray}
                         price={prop.price?.toString() || '0'}
                         timeAgo={prop.createdAt || prop.postedAt || ''}
                         address={prop.address || prop.location || 'Address not available'}
-                        beds={!isNaN(bedsNum as number) ? (bedsNum as number) : undefined}
-                        baths={!isNaN(bathsNum as number) ? (bathsNum as number) : undefined}
-                        sqft={sqftStr}
+                        beds={Number(prop?.beds ?? prop?.bedrooms ?? 0)}
+                        baths={Number(prop?.baths ?? prop?.bathrooms ?? 0)}
+                        sqft={String(prop?.sqft ?? prop?.area ?? '')}
                         tag={prop.tag || prop.status}
                         initialIsFavorite={prop.isFavorite}
                         listingType={prop.listingType || prop.type}
                       />
                     </div>
 
-                    {/* Recommendation Reasons */}
+                    {/* AI Wisdom Box */}
                     {rec.reasons && rec.reasons.length > 0 && (
-                      <div className="mt-2 p-3 bg-gray-50 rounded-lg border">
-                        <p className="text-xs text-gray-600 font-medium mb-1">
-                          Why recommended:
-                        </p>
-                        <ul className="text-xs text-gray-500 space-y-1">
-                          {rec.reasons.slice(0, 2).map((reason, i) => (
-                            <li key={i} className="flex items-start gap-1">
-                              <span className="text-purple-500">•</span>
-                              <span>{reason}</span>
-                            </li>
-                          ))}
-                        </ul>
+                      <div className="mt-4 p-4 rounded-xl bg-blue-50/50 border border-blue-100 flex gap-3 group-hover:bg-blue-50 transition-colors">
+                        <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                        <div className="space-y-1.5">
+                          <p className="text-[12px] font-bold text-blue-900 uppercase tracking-wide">Why we picked this</p>
+                          <ul className="space-y-1">
+                            {rec.reasons.slice(0, 2).map((reason, i) => (
+                              <li key={i} className="text-[13px] text-blue-800/80 leading-snug flex items-start gap-2">
+                                <span className="opacity-50">•</span>
+                                {reason}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 );
               })}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-32 bg-[#F7F7F7] rounded-[32px] border border-dashed border-[#DDDDDD]"
+            >
+              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-sm">
+                <Sparkles className="w-10 h-10 text-[#DDDDDD]" />
+              </div>
+              <h3 className="text-[24px] font-semibold text-[#222222] mb-3">Refining your profile...</h3>
+              <p className="text-[#717171] text-[16px] max-w-md mx-auto mb-8">
+                The more you browse and interact, the more accurate our AI becomes. Start discovering properties to unlock your personal feed.
+              </p>
+              <Button asChild className="h-12 px-8 rounded-xl bg-[#222222] text-white font-bold hover:scale-105 transition-transform">
+                <a href="/properties">Browse Properties</a>
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Global CTA */}
+        <footer className="mt-32 pt-20 border-t border-[#EBEBEB]">
+          <div className="bg-[#222222] rounded-[32px] p-8 md:p-16 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-12 overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 blur-[120px] -mr-48 -mt-48" />
+            <div className="relative z-10 max-w-xl">
+              <h2 className="text-[32px] md:text-[44px] font-semibold text-white leading-[1.1] mb-6 tracking-tight">Need something very specific?</h2>
+              <p className="text-[18px] text-white/70 mb-10 leading-relaxed font-normal">Talk to our AI search agent for a bespoke property hunt experience tailored to your exact needs.</p>
+              <Button asChild className="h-14 px-10 rounded-xl bg-white text-[#222222] hover:bg-[#F7F7F7] font-bold text-[16px] transition-all hover:translate-x-2">
+                <a href="/searchAI" className="flex items-center gap-2">
+                  Launch AI Search
+                  <ChevronRight className="w-5 h-5" />
+                </a>
+              </Button>
+            </div>
+            <div className="relative z-10 w-full md:w-auto h-48 md:h-64 aspect-square bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/10 flex items-center justify-center">
+              <Brain className="w-24 h-24 text-white opacity-20" />
             </div>
           </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && recommendations.length === 0 && !error && (
-          <div className="text-center py-12">
-            <Sparkles className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No Recommendations Yet
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Start browsing properties to get personalized recommendations
-            </p>
-            <a
-              href="/properties"
-              className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-            >
-              Browse Properties
-            </a>
-          </div>
-        )}
+        </footer>
       </div>
     </div>
   );

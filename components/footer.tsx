@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getLocalizedHref } from '@/lib/i18n';
 import apiClient from '@/lib/api';
 
 const socialLinks = [
@@ -151,7 +152,7 @@ export default function Footer() {
                   {section.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
                       <a
-                        href={link.href}
+                        href={getLocalizedHref(link.href, language)}
                         className="text-sm text-[#222222] hover:underline transition-all"
                       >
                         {link.text}
@@ -224,19 +225,19 @@ export default function Footer() {
             <div className="flex flex-wrap justify-center lg:justify-start items-center gap-x-2 gap-y-1 text-sm text-[#222222]">
               <span>© {new Date().getFullYear()} HoroHouse, Inc.</span>
               <span className="hidden sm:inline">·</span>
-              <a href="/terms" className="hover:underline">
+              <a href={getLocalizedHref("/terms", language)} className="hover:underline">
                 {_t.footer?.termsOfService || "Terms"}
               </a>
               <span className="hidden sm:inline">·</span>
-              <a href="/sitemap" className="hover:underline">
+              <a href={getLocalizedHref("/sitemap", language)} className="hover:underline">
                 Sitemap
               </a>
               <span className="hidden sm:inline">·</span>
-              <a href="/privacy" className="hover:underline">
+              <a href={getLocalizedHref("/privacy", language)} className="hover:underline">
                 {_t.footer?.privacyPolicy || "Privacy"}
               </a>
               <span className="hidden sm:inline">·</span>
-              <a href="/cookies" className="hover:underline">
+              <a href={getLocalizedHref("/cookies", language)} className="hover:underline">
                 {_t.footer?.cookiePolicy || "Your Privacy Choices"}
               </a>
             </div>

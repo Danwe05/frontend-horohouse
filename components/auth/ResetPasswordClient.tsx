@@ -27,7 +27,7 @@ function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const passwordInputRef = useRef<HTMLInputElement>(null);
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [showLangModal, setShowLangModal] = useState(false);
   const [token, setToken] = useState('');
@@ -50,13 +50,13 @@ function ResetPasswordContent() {
   useEffect(() => {
     const tokenParam = searchParams?.get('token');
     if (!tokenParam) {
-      setTokenError('Invalid reset link. Please request a new password reset.');
+      setTokenError(t('auth.resetPassword.invalidLink'));
       setIsValidatingToken(false);
       return;
     }
     setToken(tokenParam);
     validateToken(tokenParam);
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   useEffect(() => {
     if (isTokenValid) passwordInputRef.current?.focus();
@@ -69,10 +69,10 @@ function ResetPasswordContent() {
         setIsTokenValid(true);
         if (result.email) setEmail(result.email);
       } else {
-        setTokenError('This password reset link is invalid or has expired. Please request a new one.');
+        setTokenError(t('auth.resetPassword.invalidLink'));
       }
     } catch (err: any) {
-      setTokenError(err.message || 'Failed to validate reset link. Please try again.');
+      setTokenError(err.message || t('auth.resetPassword.invalidLink'));
     } finally {
       setIsValidatingToken(false);
     }
@@ -80,16 +80,16 @@ function ResetPasswordContent() {
 
   const validatePassword = (value: string) => {
     let errorMsg = '';
-    if (!value.trim()) errorMsg = 'Password is required';
-    else if (value.length < 8) errorMsg = 'Password must be at least 8 characters';
+    if (!value.trim()) errorMsg = t('auth.login.requiredPassword');
+    else if (value.length < 8) errorMsg = t('auth.login.shortPassword');
     setErrors(prev => ({ ...prev, password: errorMsg }));
     return errorMsg === '';
   };
 
   const validateConfirmPassword = (value: string) => {
     let errorMsg = '';
-    if (!value.trim()) errorMsg = 'Please confirm your password';
-    else if (value !== password) errorMsg = 'Passwords do not match';
+    if (!value.trim()) errorMsg = t('auth.login.requiredPassword');
+    else if (value !== password) errorMsg = t('auth.resetPassword.pwdMismatch');
     setErrors(prev => ({ ...prev, confirmPassword: errorMsg }));
     return errorMsg === '';
   };
@@ -116,14 +116,14 @@ function ResetPasswordContent() {
   const handleSubmit = async () => {
     setTouched({ password: true, confirmPassword: true });
     const valid = validatePassword(password) && validateConfirmPassword(confirmPassword) && password === confirmPassword;
-    if (!valid) { setError('Please fix the errors before submitting'); return; }
+    if (!valid) { setError(t('auth.login.fillRequired')); return; }
     setIsLoading(true);
     setError('');
     try {
       await authService.resetPassword(token, password);
       setSuccess(true);
     } catch (error: any) {
-      setError(error.message || 'Failed to reset password. Please try again.');
+      setError(error.message || t('auth.resetPassword.resetFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -133,7 +133,6 @@ function ResetPasswordContent() {
     if (e.key === 'Enter' && !isLoading) handleSubmit();
   };
 
-  // ── Shared lang UI ──
   const langMobile = (
     <div className="fixed top-4 right-4 z-50 md:hidden">
       <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
@@ -145,7 +144,6 @@ function ResetPasswordContent() {
     </div>
   );
 
-  // ── Validating ──
   if (isValidatingToken) {
     return (
       <div className="min-h-screen flex pt-11 relative">
@@ -155,7 +153,6 @@ function ResetPasswordContent() {
             {langDesktop}
             <div className="text-center">
               <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-              <p className="text-gray-600">Validating reset link...</p>
             </div>
           </div>
         </div>
@@ -165,7 +162,6 @@ function ResetPasswordContent() {
     );
   }
 
-  // ── Invalid token ──
   if (!isTokenValid) {
     return (
       <div className="min-h-screen flex pt-11 relative">
@@ -177,37 +173,22 @@ function ResetPasswordContent() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
                 <AlertCircle className="w-8 h-8 text-red-600" aria-hidden="true" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">Invalid Reset Link</h1>
-              <p className="text-gray-600 text-sm mb-4">
-                {tokenError || 'This password reset link is invalid or has expired.'}
-              </p>
-              {process.env.NODE_ENV === 'development' && (
-                <div className="mb-6 p-3 bg-gray-100 rounded text-left text-xs">
-                  <p className="font-semibold mb-1">Debug Info:</p>
-                  <p>Token: {token ? token.substring(0, 20) + '...' : 'None'}</p>
-                  <p>URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}</p>
-                </div>
-              )}
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">{t('auth.resetPassword.invalidLink')}</h1>
+              <p className="text-gray-600 text-sm mb-4">{tokenError}</p>
               <div className="space-y-3">
-                <button onClick={() => router.push('/auth/forgot-password')}
+                <button onClick={() => router.push(`/${language}/auth/forgot-password`)}
                   className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
                   Request New Reset Link
-                </button>
-                <button onClick={() => router.push('/auth/login')}
-                  className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                  Back to Sign In
                 </button>
               </div>
             </div>
           </div>
         </div>
         <ForgotPasswordPromoSection />
-        <LanguageCurrencyModal isOpen={showLangModal} onClose={() => setShowLangModal(false)} />
       </div>
     );
   }
 
-  // ── Success ──
   if (success) {
     return (
       <div className="min-h-screen flex pt-11 relative">
@@ -219,24 +200,19 @@ function ResetPasswordContent() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
                 <CheckCircle2 className="w-8 h-8 text-green-600" aria-hidden="true" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">Password Reset Successful!</h1>
-              <p className="text-gray-600 text-sm mb-8">
-                Your password has been reset successfully. You can now sign in with your new password.
-              </p>
-              <button onClick={() => router.push('/auth/login')}
-                className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                Sign In Now
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">{t('auth.resetPassword.resetSuccess')}</h1>
+              <button onClick={() => router.push(`/${language}/auth/login`)}
+                className="mt-4 w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                {t('auth.login.signIn')}
               </button>
             </div>
           </div>
         </div>
         <ForgotPasswordPromoSection />
-        <LanguageCurrencyModal isOpen={showLangModal} onClose={() => setShowLangModal(false)} />
       </div>
     );
   }
 
-  // ── Form ──
   return (
     <div className="min-h-screen flex pt-11 relative">
       {langMobile}
@@ -244,17 +220,9 @@ function ResetPasswordContent() {
         <div className="w-full max-w-md">
           {langDesktop}
 
-          <button onClick={() => router.push('/auth/login')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium text-sm mb-8 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded px-1 -ml-1">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Sign In
-          </button>
-
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">Set New Password</h1>
-            <p className="text-gray-600 md:text-left text-center text-sm">
-              {email ? `For ${email}` : 'Enter your new password below'}
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">{t('auth.resetPassword.title')}</h1>
+            <p className="text-gray-600 md:text-left text-center text-sm">{t('auth.resetPassword.desc')}</p>
           </div>
 
           {error && (
@@ -264,9 +232,8 @@ function ResetPasswordContent() {
           )}
 
           <div className="space-y-5">
-            {/* New Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.resetPassword.newPassword')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input ref={passwordInputRef} id="password" type={showPassword ? 'text' : 'password'}
@@ -287,9 +254,8 @@ function ResetPasswordContent() {
               )}
             </div>
 
-            {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.resetPassword.confirmPassword')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'}
@@ -310,20 +276,12 @@ function ResetPasswordContent() {
               )}
             </div>
 
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-900">
-              <p className="font-semibold mb-1">Password must:</p>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Be at least 8 characters long</li>
-                <li>Match in both fields</li>
-              </ul>
-            </div>
-
             <button type="button" onClick={handleSubmit} disabled={isLoading}
               className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
                 ${!isLoading ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 active:scale-[0.98]' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}>
               {isLoading ? (
-                <span className="flex items-center justify-center gap-2"><Loader2 className="h-5 w-5 animate-spin" />Resetting Password...</span>
-              ) : 'Reset Password'}
+                <span className="flex items-center justify-center gap-2"><Loader2 className="h-5 w-5 animate-spin" />{t('auth.resetPassword.resetting')}</span>
+              ) : t('auth.resetPassword.resetPasswordBtn')}
             </button>
           </div>
         </div>
@@ -335,7 +293,7 @@ function ResetPasswordContent() {
   );
 }
 
-export default function ResetPassword() {
+export default function ResetPasswordClient() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-white">

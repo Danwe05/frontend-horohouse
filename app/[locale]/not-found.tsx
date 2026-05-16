@@ -1,6 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { getLocalizedHref } from '@/lib/i18n';
 
 export default function NotFound() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'en';
   return (
     <div className="flex flex-col items-center justify-center min-h-[100dvh] w-full bg-white px-6 font-sans selection:bg-blue-100">
       <div className="max-w-md w-full text-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -23,7 +29,7 @@ export default function NotFound() {
         {/* Primary Action */}
         <div className="pt-6">
           <Link
-            href="/"
+            href={getLocalizedHref("/", locale as any)}
             className="inline-flex items-center justify-center px-10 py-4 bg-blue-600 text-white rounded-full font-semibold text-base hover:bg-blue-700 transition-all active:scale-[0.98]"
           >
             Back to Home

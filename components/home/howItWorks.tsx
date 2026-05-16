@@ -30,7 +30,7 @@ export default function HowItWorks() {
 
   return (
     <section className="bg-white py-20 px-6 lg:px-10" dir={isRtl ? 'rtl' : 'ltr'}>
-      <div className="max-w-[1100px] mx-auto">
+      <div className="max-w-[1600px] mx-auto">
 
         {/* Heading */}
         <div className="text-center mb-16 md:mb-20">

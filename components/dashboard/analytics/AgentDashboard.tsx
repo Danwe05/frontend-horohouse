@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { KPICard } from './KPICard';
 import { LoadingSkeleton } from './LoadingSkeleton';
-import { DashboardProps, KPICardProps } from '@/app/dashboard/analytics/types';
+import { DashboardProps, KPICardProps } from '@/app/[locale]/dashboard/analytics/types';
 import { analyticsService } from '@/lib/services/analyticService';
 
 export const AgentDashboard = ({ data, dateRange, setDateRange, loading, onExport }: DashboardProps) => {

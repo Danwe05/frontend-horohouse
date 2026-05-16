@@ -2,13 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { Home, Users, Shield } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PromoSection() {
   const [isVisible, setIsVisible] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  const features = [
+    { Icon: Home, text: t('auth.promo.register.feature1') },
+    { Icon: Users, text: t('auth.promo.register.feature2') },
+    { Icon: Shield, text: t('auth.promo.register.feature3') },
+  ];
 
   return (
     <div 
@@ -44,26 +52,20 @@ export default function PromoSection() {
 
         {/* Heading */}
         <h2 className="text-4xl font-bold leading-tight tracking-tight">
-          Join the Premier Real Estate Community
+          {t('auth.promo.register.title')}
         </h2>
         
         {/* Description */}
         <p className="text-lg leading-relaxed text-blue-50 font-light">
-          Sign up today to explore exclusive listings, connect with top agents,
-          and find your perfect African home. Become part of HoroHouse and
-          unlock a world of property opportunities!
+          {t('auth.promo.register.desc')}
         </p>
 
         {/* Feature list */}
         <ul className="space-y-4 pt-4" role="list">
-          {[
-            { Icon: Home, text: 'Access exclusive property listings' },
-            { Icon: Users, text: 'Connect with verified agents' },
-            { Icon: Shield, text: 'Secure and trusted platform' },
-          ].map((feature, index) => (
+          {features.map((feature, index) => (
             <li 
               key={index}
-              className={`flex items-start gap-3 transition-all duration-700 ${
+              className={`flex items-start gap-4 transition-all duration-700 ${
                 isVisible ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'
               }`}
               style={{ transitionDelay: `${600 + index * 100}ms` }}
@@ -79,18 +81,18 @@ export default function PromoSection() {
         </ul>
 
         {/* Trust indicators */}
-        <div className="pt-8 flex items-center gap-6 text-blue-100">
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <div className="pt-8 flex items-center gap-8 text-blue-100">
+          <div className="flex items-center gap-2.5">
+            <svg className="w-5 h-5 opacity-80" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
             </svg>
-            <span className="text-sm font-semibold">10k+ Users</span>
+            <span className="text-sm font-semibold tracking-wide uppercase">{t('auth.promo.register.usersCount')}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+          <div className="flex items-center gap-2.5">
+            <svg className="w-5 h-5 opacity-80" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span className="text-sm font-semibold">Verified Listings</span>
+            <span className="text-sm font-semibold tracking-wide uppercase">{t('auth.promo.register.verifiedListings')}</span>
           </div>
         </div>
       </div>

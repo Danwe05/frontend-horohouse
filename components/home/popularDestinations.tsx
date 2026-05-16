@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getLocalizedHref } from '@/lib/i18n';
 import Link from 'next/link';
 
 export default function PopularDestinations() {
@@ -31,7 +32,7 @@ export default function PopularDestinations() {
               Explore the most sought-after cities. Uncover the perfect backdrop for your next stay.
             </p>
           </div>
-          <Link href="/properties" className="text-[15px] font-semibold underline text-[#222222] hover:text-[#717171] transition-colors">
+          <Link href={getLocalizedHref("/properties", language)} className="text-[15px] font-semibold underline text-[#222222] hover:text-[#717171] transition-colors">
             Explore All
           </Link>
         </div>
@@ -39,7 +40,7 @@ export default function PopularDestinations() {
         {/* Bento Grid Layout - Highly polished and modern */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:grid-rows-2 md:h-[600px]">
           {cities.map((city, i) => (
-            <Link href={`/properties?city=${encodeURIComponent(city.name)}`} key={i} className={`group block relative rounded-2xl overflow-hidden ${city.colSpan}`}>
+            <Link href={getLocalizedHref(`/properties?city=${encodeURIComponent(city.name)}`, language)} key={i} className={`group block relative rounded-2xl overflow-hidden ${city.colSpan}`}>
               <div className="absolute inset-0 bg-gray-900/20 group-hover:bg-gray-900/40 transition-colors duration-500 z-10" />
               <img
                 src={city.img}

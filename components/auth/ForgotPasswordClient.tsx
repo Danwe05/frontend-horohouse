@@ -23,10 +23,10 @@ function LangButton({ onClick, lang }: { onClick: () => void; lang: { flag: stri
   );
 }
 
-export default function ForgotPassword() {
+export default function ForgotPasswordClient() {
   const router = useRouter();
   const emailInputRef = useRef<HTMLInputElement>(null);
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [showLangModal, setShowLangModal] = useState(false);
   const [email, setEmail] = useState('');
@@ -42,8 +42,8 @@ export default function ForgotPassword() {
   }, []);
 
   const validateEmail = (value: string) => {
-    if (!value.trim()) return 'Email is required';
-    if (!authService.isValidEmail(value)) return 'Please enter a valid email address';
+    if (!value.trim()) return t('auth.login.requiredEmail');
+    if (!authService.isValidEmail(value)) return t('auth.login.invalidEmail');
     return '';
   };
 
@@ -67,7 +67,7 @@ export default function ForgotPassword() {
       await authService.requestPasswordReset(email);
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to send reset email. Please try again.');
+      setError(err.message || t('auth.forgotPassword.requestFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -77,18 +77,15 @@ export default function ForgotPassword() {
     if (e.key === 'Enter' && !isLoading) handleSubmit();
   };
 
-  // ── Success state ──
   if (success) {
     return (
       <div className="min-h-screen flex pt-11 relative">
-        {/* Mobile floating */}
         <div className="fixed top-4 right-4 z-50 md:hidden">
           <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
         </div>
 
         <div className="w-full md:w-1/2 md:mr-[50%] flex flex-col justify-center items-center px-6 md:px-16 bg-white mb-10">
           <div className="w-full max-w-md">
-            {/* Desktop lang switcher */}
             <div className="hidden md:flex justify-end mb-6">
               <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
             </div>
@@ -97,30 +94,16 @@ export default function ForgotPassword() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
                 <CheckCircle2 className="w-8 h-8 text-green-600" aria-hidden="true" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">Check Your Email</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">{t('auth.forgotPassword.emailSent')}</h1>
               <p className="text-gray-600 text-sm mb-2">We've sent a password reset link to:</p>
               <p className="text-blue-600 font-semibold mb-6">{email}</p>
-              <p className="text-gray-500 text-xs mb-8">
-                Click the link in the email to reset your password. The link will expire in 1 hour.
-              </p>
               <div className="space-y-3">
                 <button
-                  onClick={() => router.push('/auth/login')}
+                  onClick={() => router.push(`/${language}/auth/login`)}
                   className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 >
-                  Back to Sign In
+                  {t('auth.forgotPassword.backToLogin')}
                 </button>
-                <button
-                  onClick={() => { setSuccess(false); setEmail(''); setTouched(false); setError(''); }}
-                  className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                >
-                  Send Another Email
-                </button>
-              </div>
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-xs text-blue-900">
-                  <strong>Didn't receive the email?</strong> Check your spam folder or try sending another reset email.
-                </p>
               </div>
             </div>
           </div>
@@ -132,33 +115,30 @@ export default function ForgotPassword() {
     );
   }
 
-  // ── Form state ──
   return (
     <div className="min-h-screen flex pt-11 relative">
-      {/* Mobile floating */}
       <div className="fixed top-4 right-4 z-50 md:hidden">
         <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
       </div>
 
       <div className="w-full md:w-1/2 md:mr-[50%] flex flex-col justify-center items-center px-6 md:px-16 bg-white mb-10">
         <div className="w-full max-w-md">
-          {/* Desktop: top-right of form panel */}
           <div className="hidden md:flex justify-end mb-4">
             <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
           </div>
 
           <button
-            onClick={() => router.push('/auth/login')}
+            onClick={() => router.push(`/${language}/auth/login`)}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium text-sm mb-8 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded px-1 -ml-1"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Sign In
+            {t('auth.forgotPassword.backToLogin')}
           </button>
 
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">Forgot Password?</h1>
+            <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">{t('auth.forgotPassword.title')}</h1>
             <p className="text-gray-600 md:text-left text-center text-sm">
-              No worries! Enter your email address and we'll send you a link to reset your password.
+              {t('auth.forgotPassword.desc')}
             </p>
           </div>
 
@@ -170,7 +150,7 @@ export default function ForgotPassword() {
 
           <div className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.login.email')}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
@@ -195,15 +175,6 @@ export default function ForgotPassword() {
               )}
             </div>
 
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-900">
-              <p className="font-semibold mb-1">What happens next:</p>
-              <ul className="list-disc list-inside space-y-1">
-                <li>You'll receive an email with a reset link</li>
-                <li>The link expires in 1 hour</li>
-                <li>Click it to set a new password</li>
-              </ul>
-            </div>
-
             <button
               type="button"
               onClick={handleSubmit}
@@ -216,22 +187,10 @@ export default function ForgotPassword() {
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  Sending Reset Link...
+                  {t('auth.forgotPassword.sending')}
                 </span>
-              ) : 'Send Reset Link'}
+              ) : t('auth.forgotPassword.sendResetLink')}
             </button>
-          </div>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Remember your password?{' '}
-              <button
-                onClick={() => router.push('/auth/login')}
-                className="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1"
-              >
-                Sign In
-              </button>
-            </p>
           </div>
         </div>
       </div>

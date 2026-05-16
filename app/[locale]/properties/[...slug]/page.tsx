@@ -39,26 +39,34 @@ export async function generateMetadata(
   const beds = property.amenities?.bedrooms
     ? ` — ${property.amenities.bedrooms} ch.`
     : "";
+  const baths = property.amenities?.bathrooms
+    ? ` — ${property.amenities.bathrooms} sdb.`
+    : "";
+
+  const title = `${property.title}${city} | HoroHouse`;
+  const metaDescription =
+    description ||
+    `${property.title}${city}${price}${beds}${baths}. Annonce vérifiée sur HoroHouse. Trouvez votre prochain chez-vous en quelques clics.`;
 
   return {
-    title: `${property.title} | HoroHouse`,
-    description:
-      description ||
-      `${property.title}${city}${price}${beds}. Annonce vérifiée sur HoroHouse.`,
+    title,
+    description: metaDescription,
     openGraph: {
-      title: property.title,
-      description,
+      title,
+      description: metaDescription,
       images: ogImageEntry,
       type: "website",
+      siteName: "HoroHouse",
     },
     twitter: {
       card: "summary_large_image",
-      title: property.title,
-      description,
+      title,
+      description: metaDescription,
       images: ogImage ? [ogImage] : [],
+      creator: "@HoroHouse",
     },
     alternates: {
-      canonical: `https://www.horohouse.com/properties/${id}`,
+      canonical: `https://www.horohouse.com/${slug[0] || "en"}/properties/${id}`,
     },
   };
 }
@@ -79,6 +87,7 @@ export default async function PropertyPage({ params }: Params) {
           "@type": "PostalAddress",
           "streetAddress": property.address,
           "addressLocality": property.city,
+          "addressRegion": property.neighborhood,
           "addressCountry": property.country || "CM",
         },
         "geo": {
@@ -92,9 +101,30 @@ export default async function PropertyPage({ params }: Params) {
           "priceCurrency": "XAF",
           "availability": "https://schema.org/InStock",
           "url": `https://www.horohouse.com/properties/${id}`,
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "price": property.price,
+            "priceCurrency": "XAF",
+            "valueAddedTaxIncluded": true
+          }
         },
         "numberOfBedrooms": property.amenities?.bedrooms,
         "numberOfBathrooms": property.amenities?.bathrooms,
+        "floorSize": property.area ? {
+          "@type": "QuantitativeValue",
+          "value": property.area,
+          "unitCode": "MTK"
+        } : undefined,
+        "amenityFeature": [
+          property.amenities?.hasPool && { "@type": "LocationFeatureSpecification", "name": "Swimming Pool", "value": true },
+          property.amenities?.hasGym && { "@type": "LocationFeatureSpecification", "name": "Gym", "value": true },
+          property.amenities?.hasSecurity && { "@type": "LocationFeatureSpecification", "name": "Security", "value": true },
+          property.amenities?.hasWifi && { "@type": "LocationFeatureSpecification", "name": "WiFi", "value": true },
+        ].filter(Boolean),
+        "brand": {
+          "@type": "Brand",
+          "name": "HoroHouse"
+        }
       }
     : null;
 
@@ -106,7 +136,7 @@ export default async function PropertyPage({ params }: Params) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
-      <PropertyDetailClient id={id} />
+      <PropertyDetailClient id={id} initialData={property} />
     </>
   );
 }

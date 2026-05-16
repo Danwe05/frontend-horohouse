@@ -6,7 +6,7 @@ import { FaGoogle, FaFacebook, FaApple } from 'react-icons/fa';
 import PromotionSection from '@/components/auth/RightSideSignin';
 import { authService } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Mail, Lock, Eye, EyeOff, ChevronDown, Globe } from 'lucide-react';
+import { Loader2, Mail, Lock, Eye, EyeOff, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { languages } from '@/lib/i18n';
 import LanguageCurrencyModal from '@/components/layout/LanguageCurrencyModal';
@@ -23,7 +23,6 @@ const GoogleIcon = React.memo(() => (
 ));
 GoogleIcon.displayName = 'GoogleIcon';
 
-// Reusable language trigger button
 function LangButton({ onClick, lang, className = '' }: {
   onClick: () => void;
   lang: { flag: string; name: string };
@@ -46,7 +45,7 @@ function SigninContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, login, user } = useAuth();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const emailInputRef = useRef<HTMLInputElement>(null);
 
   const [showLangModal, setShowLangModal] = useState(false);
@@ -65,15 +64,15 @@ function SigninContent() {
   const validateField = useCallback((id: string, value: string) => {
     let errorMsg = '';
     if (id === 'email') {
-      if (!value.trim()) errorMsg = 'Email is required';
-      else if (!EMAIL_REGEX.test(value)) errorMsg = 'Please enter a valid email address';
+      if (!value.trim()) errorMsg = t('auth.login.requiredEmail');
+      else if (!EMAIL_REGEX.test(value)) errorMsg = t('auth.login.invalidEmail');
     } else if (id === 'password') {
-      if (!value.trim()) errorMsg = 'Password is required';
-      else if (value.length < 8) errorMsg = 'Password must be at least 8 characters';
+      if (!value.trim()) errorMsg = t('auth.login.requiredPassword');
+      else if (value.length < 8) errorMsg = t('auth.login.shortPassword');
     }
     setErrors(prev => ({ ...prev, [id]: errorMsg }));
     return errorMsg === '';
-  }, []);
+  }, [t]);
 
   const handleEmailInputChange = useCallback((field: string, value: string) => {
     setEmailData(prev => ({ ...prev, [field]: value }));
@@ -90,7 +89,7 @@ function SigninContent() {
     e.preventDefault();
     setTouched({ email: true, password: true });
     if (!validateField('email', emailData.email) || !validateField('password', emailData.password)) {
-      setError('Please fill in all required fields correctly');
+      setError(t('auth.login.fillRequired'));
       return;
     }
     setIsLoading(true);
@@ -100,17 +99,17 @@ function SigninContent() {
       if (rememberMe) localStorage.setItem('rememberedEmail', emailData.email);
       else localStorage.removeItem('rememberedEmail');
       login(tokens);
-      setSuccess('Login successful! Redirecting...');
+      setSuccess(t('auth.login.loginSuccess'));
       
       const role = (tokens.user as any)?.role || '';
-      const dest = ['host', 'agent', 'landlord', 'admin'].includes(role) ? '/dashboard' : '/';
+      const dest = ['host', 'agent', 'landlord', 'admin'].includes(role) ? `/${language}/dashboard` : `/${language}`;
       setTimeout(() => router.push(dest), 800);
     } catch (error: any) {
-      setError(error.message || 'Login failed. Please check your credentials.');
+      setError(error.message || t('auth.login.loginFailed'));
     } finally {
       setIsLoading(false);
     }
-  }, [emailData, rememberMe, validateField, login, router]);
+  }, [emailData, rememberMe, validateField, login, router, language, t]);
 
   const handleSocialLogin = useCallback(async (provider: 'google' | 'facebook' | 'apple') => {
     setSocialLoading(prev => ({ ...prev, [provider]: true }));
@@ -130,18 +129,18 @@ function SigninContent() {
       if (searchParams?.get('redirect')) {
         router.push(searchParams.get('redirect')!);
       } else if (user) {
-        const dest = ['host', 'agent', 'landlord', 'admin'].includes(user.role) ? '/dashboard' : '/';
+        const dest = ['host', 'agent', 'landlord', 'admin'].includes(user.role) ? `/${language}/dashboard` : `/${language}`;
         router.push(dest);
       } else {
-        router.push('/');
+        router.push(`/${language}`);
       }
       return;
     }
-    if (searchParams?.get('error') === 'oauth_failed') setError('Google authentication failed. Please try again.');
+    if (searchParams?.get('error') === 'oauth_failed') setError(t('auth.login.googleFailed'));
     emailInputRef.current?.focus();
     const savedEmail = localStorage.getItem('rememberedEmail');
     if (savedEmail) { setEmailData(prev => ({ ...prev, email: savedEmail })); setRememberMe(true); }
-  }, [isAuthenticated, user, router, searchParams]);
+  }, [isAuthenticated, user, router, searchParams, language, t]);
 
   const isAnyLoading = useMemo(() =>
     isLoading || Object.values(socialLoading).some(Boolean),
@@ -150,26 +149,20 @@ function SigninContent() {
 
   return (
     <div className="min-h-screen flex pt-11 relative">
-
-      {/* ── Mobile: floating top-right pill ── */}
       <div className="fixed top-4 right-4 z-50 md:hidden">
         <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
       </div>
 
-      {/* ── Left / form panel ── */}
       <div className="w-full md:w-1/2 md:mr-[50%] flex flex-col justify-center items-center px-6 md:px-16 bg-white mb-10">
         <div className="w-full max-w-md">
-
-          {/* ── Desktop: lang switcher top-right of form panel ── */}
           <div className="hidden md:flex justify-end mb-4">
             <LangButton onClick={() => setShowLangModal(true)} lang={currentLang} />
           </div>
 
-          {/* Logo + heading */}
           <div className="mb-8 flex justify-center content-center flex-col items-center">
-            <a href="/"><img src="/horohouse.png" alt="HoroHouse" className="h-[130px] w-[130px] mb-2" loading="eager" /></a>
-            <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">Welcome Back!</h1>
-            <p className="text-gray-600 md:text-left text-center text-sm">Sign in to continue to your account</p>
+            <a href={`/${language}`}><img src="/horohouse.png" alt="HoroHouse" className="h-[130px] w-[130px] mb-2" loading="eager" /></a>
+            <h1 className="text-3xl font-bold text-gray-900 md:text-left text-center mb-2">{t('auth.login.welcomeBack')}</h1>
+            <p className="text-gray-600 md:text-left text-center text-sm">{t('auth.login.signInToContinue')}</p>
           </div>
 
           {error && (
@@ -182,9 +175,8 @@ function SigninContent() {
           )}
 
           <form className="space-y-5" onSubmit={handleEmailLogin} noValidate>
-            {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.login.email')}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
@@ -200,9 +192,8 @@ function SigninContent() {
               {touched.email && errors.email && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.email}</p>}
             </div>
 
-            {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">{t('auth.login.password')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
@@ -210,7 +201,7 @@ function SigninContent() {
                   value={emailData.password}
                   onChange={e => handleEmailInputChange('password', e.target.value)}
                   onBlur={() => handleBlur('password')}
-                  placeholder="Enter your password" disabled={isAnyLoading}
+                  placeholder="********" disabled={isAnyLoading}
                   className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 font-medium text-sm transition-all duration-200 placeholder:text-gray-400
                     ${touched.password && errors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200 bg-white hover:border-gray-300'}`}
                 />
@@ -223,35 +214,33 @@ function SigninContent() {
               {touched.password && errors.password && <p className="text-red-500 text-xs mt-1.5 ml-1">• {errors.password}</p>}
             </div>
 
-            {/* Remember + forgot */}
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)}
                   disabled={isAnyLoading} className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-2 focus:ring-blue-500" />
-                <span className="text-sm text-gray-700 font-medium select-none">Remember me</span>
+                <span className="text-sm text-gray-700 font-medium select-none">{t('auth.login.rememberMe')}</span>
               </label>
-              <a href="/auth/forgot-password" className="text-sm text-blue-600 font-semibold hover:text-blue-700 hover:underline">Forgot password?</a>
+              <a href={`/${language}/auth/forgot-password`} className="text-sm text-blue-600 font-semibold hover:text-blue-700 hover:underline">{t('auth.login.forgotPassword')}</a>
             </div>
 
             <button type="submit" disabled={isAnyLoading}
               className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mt-6
                 ${!isAnyLoading ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 active:scale-[0.98]' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}>
               {isLoading ? (
-                <span className="flex items-center justify-center gap-2"><Loader2 className="h-5 w-5 animate-spin" />Signing In...</span>
-              ) : 'Sign In'}
+                <span className="flex items-center justify-center gap-2"><Loader2 className="h-5 w-5 animate-spin" />{t('auth.login.signingIn')}</span>
+              ) : t('auth.login.signIn')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-600">
-            Don't have an account?{' '}
-            <a href="/auth/register" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">Sign up</a>
+            {t('auth.login.dontHaveAccount')}{' '}
+            <a href={`/${language}/auth/register`} className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">{t('auth.login.signUp')}</a>
           </p>
 
-          {/* Social */}
           <div className="mt-8">
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
-              <div className="relative bg-white px-4"><p className="text-sm text-gray-500 font-medium">Or continue with</p></div>
+              <div className="relative bg-white px-4"><p className="text-sm text-gray-500 font-medium">{t('auth.login.orContinueWith')}</p></div>
             </div>
             <div className="grid lg:grid-cols-3 gap-3">
               {(['google', 'facebook', 'apple'] as const).map(p => (
@@ -270,14 +259,12 @@ function SigninContent() {
       </div>
 
       <PromotionSection />
-
-      {/* Language/Currency modal */}
       <LanguageCurrencyModal isOpen={showLangModal} onClose={() => setShowLangModal(false)} />
     </div>
   );
 }
 
-export default function Signin() {
+export default function LoginClient() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-white">
