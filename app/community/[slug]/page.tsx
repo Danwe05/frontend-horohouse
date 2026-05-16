@@ -203,16 +203,16 @@ function ReplyCard({ reply, rootPostId, postCategory, onAddReply, parentAuthorNa
   };
 
   return (
-    <div className="py-6 border-b border-[#EBEBEB] last:border-0">
-      <div className="flex gap-4">
+    <div className={cn("py-5 md:py-6 border-b border-[#EBEBEB] last:border-0", isNested && "sm:pt-4 sm:pb-6")}>
+      <div className="flex gap-3 md:gap-4">
 
-        {/* Avatar + level badge */}
+        {/* Avatar */}
         <div className="relative shrink-0">
-          <Avatar className="h-12 w-12">
+          <Avatar className="h-10 w-10 md:h-12 md:w-12">
             {reply.authorSnapshot.avatar && (
               <AvatarImage src={reply.authorSnapshot.avatar} alt={reply.authorSnapshot.name} />
             )}
-            <AvatarFallback className="bg-[#484848] text-white text-[14px] font-semibold">
+            <AvatarFallback className="bg-[#484848] text-white text-[13px] md:text-[14px] font-semibold">
               {reply.authorSnapshot.initials}
             </AvatarFallback>
           </Avatar>
@@ -223,16 +223,16 @@ function ReplyCard({ reply, rootPostId, postCategory, onAddReply, parentAuthorNa
 
           {/* Header */}
           <div className="flex items-start justify-between gap-2 mb-0.5">
-            <div>
-              <span className="text-[15px] font-bold text-[#222222] leading-tight">
+            <div className="min-w-0">
+              <span className="text-[14px] md:text-[15px] font-bold text-[#222222] leading-tight block md:inline truncate">
                 {reply.authorSnapshot.name}
               </span>
-              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                <span className="text-[12px] font-semibold text-[#767676] bg-[#F7F7F7] px-2 py-0.5 rounded-full border border-[#EBEBEB]">
+              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                <span className="text-[11px] md:text-[12px] font-semibold text-[#767676] bg-[#F7F7F7] px-2 py-0.5 rounded-full border border-[#EBEBEB]">
                   {reply.authorSnapshot.role}
                 </span>
                 {parentAuthorName && (
-                  <span className="text-[12px] text-[#767676]">
+                  <span className="text-[11px] md:text-[12px] text-[#767676] truncate max-w-[120px] md:max-w-none">
                     In response to <span className="font-semibold text-[#484848]">{parentAuthorName}</span>
                   </span>
                 )}
@@ -243,57 +243,57 @@ function ReplyCard({ reply, rootPostId, postCategory, onAddReply, parentAuthorNa
             <div className="relative shrink-0">
               <button
                 onClick={() => setShowMenu(m => !m)}
-                className="p-1.5 rounded-full text-[#B0B0B0] hover:text-[#222222] hover:bg-[#F7F7F7] transition-colors"
+                className="p-1 md:p-1.5 rounded-full text-[#B0B0B0] hover:text-[#222222] hover:bg-[#F7F7F7] transition-colors"
               >
-                <MoreHorizontal className="w-5 h-5" />
+                <MoreHorizontal className="w-4 h-4 md:w-5 md:h-5" />
               </button>
               {showMenu && (
                 <div
                   onMouseLeave={() => setShowMenu(false)}
-                  className="absolute right-0 top-8 z-20 bg-white border border-[#EBEBEB] rounded-2xl shadow-xl py-1.5 min-w-[140px] overflow-hidden"
+                  className="absolute right-0 top-8 z-20 bg-white border border-[#EBEBEB] rounded-xl md:rounded-2xl shadow-xl py-1 md:py-1.5 min-w-[120px] md:min-w-[140px] overflow-hidden"
                 >
-                  <button className="w-full text-left px-4 py-2.5 text-[14px] text-[#484848] hover:bg-[#F7F7F7] transition-colors">Share</button>
+                  <button className="w-full text-left px-4 py-2 text-[13px] md:text-[14px] text-[#484848] hover:bg-[#F7F7F7]">Share</button>
                   {user?.id === reply.authorId && (
-                    <button className="w-full text-left px-4 py-2.5 text-[14px] text-[#FF385C] hover:bg-[#FFF0F3] transition-colors">Delete</button>
+                    <button className="w-full text-left px-4 py-2 text-[13px] md:text-[14px] text-[#FF385C] hover:bg-[#FFF0F3]">Delete</button>
                   )}
-                  <button className="w-full text-left px-4 py-2.5 text-[14px] text-[#484848] hover:bg-[#F7F7F7] transition-colors">Report</button>
+                  <button className="w-full text-left px-4 py-2 text-[13px] md:text-[14px] text-[#484848] hover:bg-[#F7F7F7]">Report</button>
                 </div>
               )}
             </div>
           </div>
 
           {/* Body */}
-          <p className="text-[15px] text-[#484848] leading-relaxed mt-3 mb-4">
+          <p className="text-[14px] md:text-[15px] text-[#484848] leading-relaxed mt-2.5 md:mt-3 mb-3 md:mb-4">
             {reply.body || reply.excerpt || reply.title}
           </p>
 
-          {/* Actions — right-aligned Airbnb style */}
-          <div className="flex items-center gap-3">
-            <span className="text-[13px] text-[#767676] mr-auto">
+          {/* Actions */}
+          <div className="flex items-center gap-2 md:gap-3">
+            <span className="text-[12px] md:text-[13px] text-[#767676] mr-auto">
               {relativeTime(reply.createdAt)}
             </span>
 
-            {/* Like — outlined pill */}
+            {/* Like */}
             <button
               onClick={toggle}
               disabled={!user || busy}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full border text-[14px] font-semibold transition-all disabled:opacity-40",
+                "flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full border text-[13px] md:text-[14px] font-semibold transition-all disabled:opacity-40",
                 liked
                   ? "border-[#FF385C] text-[#FF385C] bg-[#FFF0F3]"
                   : "border-[#DDDDDD] text-[#222222] hover:border-[#222222]"
               )}
             >
-              <ThumbsUp className={cn("w-4 h-4 stroke-[2]", liked && "fill-[#FF385C]")} />
+              <ThumbsUp className={cn("w-3.5 h-3.5 md:w-4 md:h-4 stroke-[2]", liked && "fill-[#FF385C]")} />
               {count > 0 ? count : ""}
             </button>
 
-            {/* Reply — black pill */}
+            {/* Reply */}
             {user && (
               <button
                 onClick={() => setReplying(r => !r)}
                 className={cn(
-                  "px-5 py-2 rounded-full text-[14px] font-semibold transition-all",
+                  "px-4 md:px-5 py-1.5 md:py-2 rounded-full text-[13px] md:text-[14px] font-semibold transition-all",
                   replying ? "bg-[#484848] text-white" : "bg-[#222222] hover:bg-black text-white"
                 )}
               >
@@ -304,9 +304,9 @@ function ReplyCard({ reply, rootPostId, postCategory, onAddReply, parentAuthorNa
 
           {/* Inline composer */}
           {replying && (
-            <div className="mt-4 flex gap-3 items-start">
-              <Avatar className="h-8 w-8 shrink-0 mt-0.5">
-                <AvatarFallback className="bg-[#222222] text-white text-[11px] font-bold">
+            <div className="mt-4 flex gap-2 md:gap-3 items-start">
+              <Avatar className="h-7 w-7 md:h-8 md:w-8 shrink-0 mt-0.5">
+                <AvatarFallback className="bg-[#222222] text-white text-[10px] md:text-[11px] font-bold">
                   {user?.name?.[0]?.toUpperCase() ?? "U"}
                 </AvatarFallback>
               </Avatar>
@@ -317,19 +317,19 @@ function ReplyCard({ reply, rootPostId, postCategory, onAddReply, parentAuthorNa
                   onChange={e => setReplyText(e.target.value)}
                   placeholder={`Reply to ${reply.authorSnapshot.name}…`}
                   rows={2}
-                  className="w-full resize-none text-[14px] text-[#222222] placeholder:text-[#B0B0B0] focus:outline-none leading-relaxed px-4 py-3 border border-[#DDDDDD] rounded-2xl focus:border-[#222222] focus:ring-1 focus:ring-[#222222] bg-white"
+                  className="w-full resize-none text-[13px] md:text-[14px] text-[#222222] placeholder:text-[#B0B0B0] focus:outline-none leading-relaxed px-3 md:px-4 py-2 md:py-3 border border-[#DDDDDD] rounded-xl md:rounded-2xl focus:border-[#222222] focus:ring-1 focus:ring-[#222222] bg-white"
                 />
                 <div className="flex justify-end gap-2 mt-2">
                   <button
                     onClick={() => { setReplying(false); setReplyText(""); }}
-                    className="px-4 py-2 text-[13px] font-semibold text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] rounded-full transition-colors"
+                    className="px-3 md:px-4 py-1.5 md:py-2 text-[12px] md:text-[13px] font-semibold text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] rounded-full transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={submitReply}
                     disabled={submitting || !replyText.trim()}
-                    className="px-5 py-2 bg-[#222222] hover:bg-black text-white text-[13px] font-semibold rounded-full transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                    className="px-4 md:px-5 py-1.5 md:py-2 bg-[#222222] hover:bg-black text-white text-[12px] md:text-[13px] font-semibold rounded-full transition-colors flex items-center gap-1 disabled:opacity-50"
                   >
                     {submitting && <Loader2 className="w-3 h-3 animate-spin" />}
                     Post
@@ -341,7 +341,7 @@ function ReplyCard({ reply, rootPostId, postCategory, onAddReply, parentAuthorNa
 
           {/* One-level children — only render on top-level cards */}
           {!isNested && reply.children && reply.children.length > 0 && (
-            <div className="mt-6 sm:border-l-2 sm:border-[#EBEBEB] sm:pl-4 sm:ml-14 space-y-0">
+            <div className="mt-5 md:mt-6 sm:border-l-2 sm:border-[#EBEBEB] sm:pl-4 sm:ml-14 space-y-0">
               {reply.children.map((child, ci) => (
                 <ReplyCard
                   key={child.id ?? child._id ?? ci}
@@ -593,29 +593,29 @@ export default function CommunityPostDetailPage() {
 
       {/* ── Breadcrumb bar ───────────────────────────────────────────────── */}
       <div className="border-b border-[#EBEBEB] bg-white sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center gap-3">
-          <Link href="/community" className="flex items-center gap-1.5 text-[14px] font-medium text-[#717171] hover:text-[#222222] transition-colors">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-14 flex items-center gap-2 md:gap-3">
+          <Link href="/community" className="flex items-center gap-1.5 text-[13px] md:text-[14px] font-medium text-[#717171] hover:text-[#222222] transition-colors">
             <ArrowLeft className="w-4 h-4 stroke-[2]" />
             Community
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-[#B0B0B0]" />
-          <span className="text-[14px] font-medium text-[#222222] truncate max-w-xs">{post.title}</span>
+          <span className="text-[13px] md:text-[14px] font-medium text-[#222222] truncate max-w-[150px] md:max-w-xs">{post.title}</span>
         </div>
       </div>
 
       {/* ── Body ─────────────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="flex flex-col lg:flex-row gap-12 items-start">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-10">
+        <div className="flex flex-col lg:flex-row gap-8 md:gap-12 items-start">
 
           {/* ── Main column ────────────────────────────────────────────── */}
           <main className="flex-1 min-w-0">
 
             {/* Tags */}
             {post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-5">
+              <div className="flex flex-wrap gap-1.5 md:gap-2 mb-4 md:mb-5">
                 {post.tags.map(tag => (
                   <Link key={tag} href={`/community?tag=${tag}`}>
-                    <span className="px-3 py-1 rounded-full bg-white border border-[#DDDDDD] text-[13px] font-medium text-[#222222] hover:border-[#222222] transition-colors cursor-pointer">
+                    <span className="px-2.5 py-1 md:px-3 md:py-1 rounded-full bg-white border border-[#DDDDDD] text-[12px] md:text-[13px] font-medium text-[#222222] hover:border-[#222222] transition-colors cursor-pointer">
                       {tag}
                     </span>
                   </Link>
@@ -646,48 +646,50 @@ export default function CommunityPostDetailPage() {
                 value={editTitle}
                 onChange={e => setEditTitle(e.target.value)}
                 placeholder="Post title"
-                className="w-full text-[28px] md:text-[32px] font-bold tracking-tight leading-tight text-[#222222] mb-6 border-b border-[#DDDDDD] focus:outline-none focus:border-[#222222] pb-2"
+                className="w-full text-[24px] md:text-[32px] font-bold tracking-tight leading-tight text-[#222222] mb-6 border-b border-[#DDDDDD] focus:outline-none focus:border-[#222222] pb-2"
               />
             ) : (
-              <h1 className="text-[28px] md:text-[32px] font-bold tracking-tight leading-tight text-[#222222] mb-6 flex items-center flex-wrap gap-3">
+              <h1 className="text-[24px] md:text-[32px] font-bold tracking-tight leading-tight text-[#222222] mb-5 md:mb-6 flex items-center flex-wrap gap-2 md:gap-3">
                 {post.title}
                 {post.pinned && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[13px] font-semibold uppercase tracking-wide border border-blue-100">
-                    <Pin className="w-3.5 h-3.5 fill-blue-600" /> Pinned
+                  <span className="flex items-center gap-1 md:gap-1.5 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] md:text-[13px] font-semibold uppercase tracking-wide border border-blue-100">
+                    <Pin className="w-3 h-3 md:w-3.5 md:h-3.5 fill-blue-600" /> Pinned
                   </span>
                 )}
               </h1>
             )}
 
             {/* Author row */}
-            <div className="flex items-center gap-4 mb-8 pb-8 border-b border-[#EBEBEB] flex-wrap">
-              <Avatar className="h-12 w-12 shrink-0">
+            <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 pb-6 md:pb-8 border-b border-[#EBEBEB] flex-wrap md:flex-nowrap">
+              <Avatar className="h-10 w-10 md:h-12 md:w-12 shrink-0">
                 {post.authorSnapshot.avatar && <AvatarImage src={post.authorSnapshot.avatar} alt={post.authorSnapshot.name} />}
-                <AvatarFallback className="bg-[#222222] text-white text-[15px] font-semibold">
+                <AvatarFallback className="bg-[#222222] text-white text-[13px] md:text-[15px] font-semibold">
                   {post.authorSnapshot.initials}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <Link href={`/community/authors/${post.authorId}`} className="text-[15px] font-semibold text-[#222222] hover:underline">
+              <div className="flex-1 min-w-0">
+                <Link href={`/community/authors/${post.authorId}`} className="text-[14px] md:text-[15px] font-semibold text-[#222222] hover:underline">
                   {post.authorSnapshot.name}
                 </Link>
-                <div className="flex items-center gap-2 text-[13px] text-[#717171] flex-wrap">
-                  <span>{post.authorSnapshot.role}</span>
+                <div className="flex items-center gap-1.5 md:gap-2 text-[12px] md:text-[13px] text-[#717171] flex-wrap">
+                  <span className="truncate max-w-[150px] md:max-w-none">{post.authorSnapshot.role}</span>
                   <span>·</span>
                   <span>{relativeTime(post.createdAt)}</span>
-                  <span>·</span>
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>{post.views.toLocaleString()} views</span>
+                  <span className="hidden md:inline">·</span>
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                    <span>{post.views.toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Post actions */}
-              <div className="max-sm:w-full ml-auto flex items-center gap-2">
+              <div className="w-full md:w-auto flex items-center gap-2 md:mt-0 pt-4 md:pt-0 border-t md:border-none md:ml-auto">
                 {isAdmin && (
                   <button
                     onClick={handlePinToggle}
                     className={cn(
-                      "p-2.5 rounded-full border transition-colors group",
+                      "p-2 md:p-2.5 rounded-full border transition-colors group",
                       post.pinned ? "border-blue-600 text-blue-600 bg-blue-50" : "border-[#DDDDDD] text-[#717171] hover:border-[#222222] hover:text-[#222222]"
                     )}
                     title={post.pinned ? "Unpin post" : "Pin post"}
@@ -703,7 +705,7 @@ export default function CommunityPostDetailPage() {
                         setEditBody(post.body || post.excerpt || "");
                         setIsEditing(true);
                       }}
-                      className="p-2.5 rounded-full border border-[#DDDDDD] text-[#717171] hover:border-[#222222] hover:text-[#222222] transition-colors"
+                      className="p-2 md:p-2.5 rounded-full border border-[#DDDDDD] text-[#717171] hover:border-[#222222] hover:text-[#222222] transition-colors"
                       title="Edit post"
                     >
                       <Edit2 className="w-4 h-4 stroke-[2]" />
@@ -711,7 +713,7 @@ export default function CommunityPostDetailPage() {
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <button
-                          className="p-2.5 rounded-full border border-[#DDDDDD] text-[#717171] hover:text-[#FF385C] hover:border-[#FF385C] transition-colors"
+                          className="p-2 md:p-2.5 rounded-full border border-[#DDDDDD] text-[#717171] hover:text-[#FF385C] hover:border-[#FF385C] transition-colors"
                           title="Delete post"
                         >
                           <Trash2 className="w-4 h-4 stroke-[2]" />
@@ -734,17 +736,6 @@ export default function CommunityPostDetailPage() {
                     </AlertDialog>
                   </>
                 )}
-
-                <button
-                  onClick={() => setSaved(s => !s)}
-                  className={cn(
-                    "p-2.5 rounded-full border transition-colors",
-                    saved ? "border-[#FF385C] text-[#FF385C] bg-rose-50" : "border-[#DDDDDD] text-[#717171] hover:border-[#222222] hover:text-[#222222]"
-                  )}
-                  title="Save post"
-                >
-                  <Bookmark className={cn("w-4 h-4 stroke-[2]", saved && "fill-[#FF385C]")} />
-                </button>
                 <div className="relative">
                   <button
                     className="p-2.5 rounded-full border border-[#DDDDDD] text-[#717171] hover:border-[#222222] hover:text-[#222222] transition-colors"

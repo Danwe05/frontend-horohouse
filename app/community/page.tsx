@@ -117,55 +117,55 @@ function PostCard({ post, onTagClick }: { post: Post; onTagClick: (tag: string) 
   };
 
   return (
-    <div className="py-6 border-b border-[#EBEBEB] last:border-b-0 transition-colors hover:bg-[#F7F9FF] rounded-xl px-3 -mx-3">
-      <div className="flex items-start gap-4">
+    <div className="py-5 md:py-6 border-b border-[#EBEBEB] last:border-b-0 transition-colors hover:bg-[#F7F9FF] rounded-xl px-2 md:px-3 -mx-2 md:-mx-3">
+      <div className="flex items-start gap-3 md:gap-4">
         {/* Avatar with blue ring on hover */}
-        <Avatar className="h-12 w-12 shrink-0 ring-2 ring-transparent hover:ring-[#1A6EF5] transition-all">
+        <Avatar className="h-10 w-10 md:h-12 md:w-12 shrink-0 ring-2 ring-transparent hover:ring-[#1A6EF5] transition-all">
           {post.authorSnapshot.avatar && (
             <AvatarImage src={post.authorSnapshot.avatar} alt={post.authorSnapshot.name} />
           )}
-          <AvatarFallback className="bg-[#1A6EF5] text-white text-[15px] font-semibold">
+          <AvatarFallback className="bg-[#1A6EF5] text-white text-[13px] md:text-[15px] font-semibold">
             {post.authorSnapshot.initials}
           </AvatarFallback>
         </Avatar>
 
         <div className="flex-1 min-w-0">
           {/* Author meta row */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1">
-            <span className="text-[15px] font-semibold text-[#222222]">{post.authorSnapshot.name}</span>
-            <span className="text-[14px] text-[#717171] hidden sm:inline">·</span>
-            <span className="text-[14px] text-[#717171]">{post.authorSnapshot.role}</span>
-            <span className="text-[14px] text-[#717171] hidden sm:inline">·</span>
-            <span className="text-[14px] text-[#717171]">{relTimeLabel(post.createdAt)}</span>
+          <div className="flex flex-wrap items-center gap-x-1.5 md:gap-x-2 gap-y-0.5 mb-1">
+            <span className="text-[14px] md:text-[15px] font-semibold text-[#222222]">{post.authorSnapshot.name}</span>
+            <span className="text-[13px] text-[#717171] hidden sm:inline">·</span>
+            <span className="text-[13px] md:text-[14px] text-[#717171] truncate max-w-[120px] md:max-w-none">{post.authorSnapshot.role}</span>
+            <span className="text-[13px] text-[#717171]">·</span>
+            <span className="text-[13px] text-[#717171]">{relTimeLabel(post.createdAt)}</span>
             {post.pinned && (
-              <span className="ml-auto flex items-center gap-1.5 text-[12px] text-[#1A6EF5] font-semibold uppercase tracking-wide">
-                <Pin className="w-3.5 h-3.5 fill-[#1A6EF5]" /> Pinned
+              <span className="ml-auto flex items-center gap-1 text-[11px] md:text-[12px] text-[#1A6EF5] font-semibold uppercase tracking-wide">
+                <Pin className="w-3 h-3 md:w-3.5 md:h-3.5 fill-[#1A6EF5]" /> Pinned
               </span>
             )}
           </div>
 
           {/* Title */}
           <Link href={`/community/${post.slug}`}>
-            <h3 className="text-[18px] font-semibold text-[#222222] leading-snug mb-2 hover:text-[#1A6EF5] transition-colors cursor-pointer">
+            <h3 className="text-[16px] md:text-[18px] font-semibold text-[#222222] leading-snug mb-1.5 md:mb-2 hover:text-[#1A6EF5] transition-colors cursor-pointer">
               {post.title}
             </h3>
           </Link>
 
           {/* Excerpt */}
           {post.excerpt && (
-            <p className="text-[15px] text-[#717171] leading-relaxed line-clamp-2 mb-4">
+            <p className="text-[14px] md:text-[15px] text-[#717171] leading-relaxed line-clamp-2 mb-3 md:mb-4">
               {post.excerpt}
             </p>
           )}
 
           {/* Tags — blue style */}
           {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3 md:mb-4">
               {post.tags.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => onTagClick(tag)}
-                  className="px-3 py-1 rounded-full bg-[#EBF2FF] border border-[#C5D9FF] text-[13px] font-medium text-[#1A6EF5] hover:bg-[#1A6EF5] hover:text-white hover:border-[#1A6EF5] transition-all cursor-pointer"
+                  className="px-2.5 py-0.5 md:px-3 md:py-1 rounded-full bg-[#EBF2FF] border border-[#C5D9FF] text-[12px] md:text-[13px] font-medium text-[#1A6EF5] hover:bg-[#1A6EF5] hover:text-white hover:border-[#1A6EF5] transition-all cursor-pointer"
                 >
                   {tag}
                 </button>
@@ -174,35 +174,35 @@ function PostCard({ post, onTagClick }: { post: Post; onTagClick: (tag: string) 
           )}
 
           {/* Actions row */}
-          <div className="flex items-center gap-6 text-[14px] font-medium text-[#222222]">
+          <div className="flex items-center gap-4 md:gap-6 text-[13px] md:text-[14px] font-medium text-[#222222]">
             <button
               onClick={toggleLike}
               disabled={!user}
               title={user ? undefined : "Sign in to like"}
               className={cn(
-                "flex items-center gap-2 hover:opacity-70 transition-opacity disabled:opacity-40",
+                "flex items-center gap-1.5 md:gap-2 hover:opacity-70 transition-opacity disabled:opacity-40",
                 liked && "text-[#1A6EF5]"
               )}
             >
-              <ThumbsUp className={cn("w-4 h-4 stroke-[2]", liked && "fill-[#1A6EF5]")} />
+              <ThumbsUp className={cn("w-3.5 h-3.5 md:w-4 md:h-4 stroke-[2]", liked && "fill-[#1A6EF5]")} />
               {likeCount.toLocaleString()}
             </button>
 
             <Link
               href={`/community/${post.slug}`}
-              className="flex items-center gap-2 hover:text-[#1A6EF5] transition-colors"
+              className="flex items-center gap-1.5 md:gap-2 hover:text-[#1A6EF5] transition-colors"
             >
-              <MessageCircle className="w-4 h-4 stroke-[2]" />
+              <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4 stroke-[2]" />
               {post.replyCount.toLocaleString()}
             </Link>
 
-            <span className="flex items-center gap-2 text-[#717171] font-normal">
-              <Eye className="w-4 h-4 stroke-[2]" />
+            <span className="flex items-center gap-1.5 md:gap-2 text-[#717171] font-normal">
+              <Eye className="w-3.5 h-3.5 md:w-4 md:h-4 stroke-[2]" />
               {post.views.toLocaleString()}
             </span>
 
-            <button className="ml-auto hover:bg-[#EBF2FF] p-2 rounded-full transition-colors group">
-              <MoreHorizontal className="w-5 h-5 text-[#717171] group-hover:text-[#1A6EF5]" />
+            <button className="ml-auto hover:bg-[#EBF2FF] p-1.5 md:p-2 rounded-full transition-colors group">
+              <MoreHorizontal className="w-4 h-4 md:w-5 md:h-5 text-[#717171] group-hover:text-[#1A6EF5]" />
             </button>
           </div>
         </div>
@@ -341,37 +341,36 @@ function CommunityFeed() {
     <div className="min-h-screen bg-white text-[#222222] font-sans">
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-b from-[#EBF2FF] to-[#F7F7F7] border-b border-[#EBEBEB] pt-20 pb-16 px-6 mt-10">
+      <div className="bg-gradient-to-b from-[#EBF2FF] to-[#F7F7F7] border-b border-[#EBEBEB] pt-12 md:pt-20 pb-10 md:pb-16 px-4 md:px-6 mt-10">
         <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-[32px] md:text-[44px] font-bold tracking-tight leading-tight text-[#222222] mb-4">
+          <h1 className="text-[28px] md:text-[44px] font-bold tracking-tight leading-tight text-[#222222] mb-3 md:mb-4 px-2">
             Welcome to the Host Community
           </h1>
-          <p className="text-[18px] text-[#717171] mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-[16px] md:text-[18px] text-[#717171] mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed px-4">
             Connect with hosts locally and globally. Ask questions, share advice, and get the latest updates.
           </p>
 
           {/* Search bar — blue accent */}
-          <div className="mx-auto flex items-center bg-white rounded-full border border-[#DDDDDD] shadow-[0_3px_12px_rgb(0,0,0,0.08)] hover:shadow-[0_4px_16px_rgb(26,110,245,0.15)] transition-shadow p-2 w-full max-w-2xl">
-            <div className="flex-1 px-6">
+          <div className="mx-auto flex items-center bg-white rounded-full border border-[#DDDDDD] shadow-[0_3px_12px_rgb(0,0,0,0.08)] hover:shadow-[0_4px_16px_rgb(26,110,245,0.15)] transition-shadow p-1.5 md:p-2 w-full max-w-2xl">
+            <div className="flex-1 px-4 md:px-6">
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search discussions, topics, or keywords"
-                className="w-full text-[15px] font-medium text-[#222222] placeholder:text-[#717171] bg-transparent focus:outline-none"
+                placeholder="Search discussions, topics, keywords"
+                className="w-full text-[14px] md:text-[15px] font-medium text-[#222222] placeholder:text-[#717171] bg-transparent focus:outline-none"
               />
             </div>
             <button
               onClick={() => updateUrl({ search: search || null })}
-              className="bg-[#1A6EF5] hover:bg-[#1459C5] active:bg-[#1047A0] transition-colors p-3.5 rounded-full text-white flex items-center justify-center shrink-0"
+              className="bg-[#1A6EF5] hover:bg-[#1459C5] active:bg-[#1047A0] transition-colors p-3 md:p-3.5 rounded-full text-white flex items-center justify-center shrink-0"
             >
               <Search className="w-4 h-4 stroke-[3]" />
             </button>
           </div>
-
-          {/* Active tag badge — blue */}
+...
           {tagParam && (
-            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#1A6EF5] text-[14px] font-semibold text-[#1A6EF5]">
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#1A6EF5] text-[13px] md:text-[14px] font-semibold text-[#1A6EF5]">
               Tag: {tagParam}
               <button
                 onClick={() => updateUrl({ tag: null })}
@@ -385,42 +384,44 @@ function CommunityFeed() {
       </div>
 
       {/* ── Body ─────────────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="flex flex-col lg:flex-row gap-10 items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+        <div className="flex flex-col lg:flex-row gap-8 md:gap-10 items-start">
 
-          {/* ── Left Sidebar ─────────────────────────────────────────────── */}
+          {/* ── Sidebar (Horizontal on Mobile, Vertical on Large) ────────────────── */}
           <aside className="w-full lg:w-60 shrink-0 lg:sticky lg:top-28">
-            <nav className="space-y-0.5" aria-label="Community categories">
-              {CATEGORIES.map((cat) => {
-                const active = categoryParam === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setCategory(cat.id)}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[15px] transition-all text-left",
-                      active
-                        ? "bg-[#EBF2FF] text-[#1A6EF5] font-semibold"
-                        : "text-[#717171] font-medium hover:bg-[#F7F7F7] hover:text-[#222222]"
-                    )}
-                  >
-                    <cat.icon
+            <div className="lg:block">
+              <nav className="flex lg:flex-col gap-2 lg:gap-0.5 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0 scrollbar-hide snap-x" aria-label="Community categories">
+                {CATEGORIES.map((cat) => {
+                  const active = categoryParam === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setCategory(cat.id)}
                       className={cn(
-                        "w-5 h-5 stroke-[2]",
-                        active ? "text-[#1A6EF5]" : "text-[#717171]"
+                        "flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-[14px] lg:text-[15px] transition-all text-left shrink-0 snap-start border lg:border-none",
+                        active
+                          ? "bg-[#EBF2FF] text-[#1A6EF5] font-bold border-[#C5D9FF] lg:border-none"
+                          : "text-[#717171] font-medium border-[#EBEBEB] lg:border-none hover:bg-[#F7F7F7] hover:text-[#222222]"
                       )}
-                    />
-                    {cat.label}
-                    {active && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1A6EF5]" />
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
+                    >
+                      <cat.icon
+                        className={cn(
+                          "w-4 h-4 lg:w-5 lg:h-5 stroke-[2]",
+                          active ? "text-[#1A6EF5]" : "text-[#717171]"
+                        )}
+                      />
+                      {cat.label}
+                      {active && (
+                        <span className="hidden lg:block ml-auto w-1.5 h-1.5 rounded-full bg-[#1A6EF5]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
 
-            {/* Quick links */}
-            <div className="mt-8 pt-8 border-t border-[#EBEBEB] space-y-0.5">
+            {/* Quick links - Desktop Only */}
+            <div className="hidden lg:block mt-8 pt-8 border-t border-[#EBEBEB] space-y-0.5">
               <p className="text-[13px] font-semibold text-[#717171] uppercase tracking-widest mb-3 px-4">
                 Helpful links
               </p>
@@ -442,31 +443,31 @@ function CommunityFeed() {
 
             {/* New post CTA */}
             {!showNewPost ? (
-              <div className="mb-8">
+              <div className="mb-6 md:mb-8">
                 {user ? (
                   <div
                     onClick={() => setShowNewPost(true)}
-                    className="flex items-center gap-3 p-4 rounded-2xl border border-[#EBEBEB] bg-white hover:border-[#DDDDDD] hover:shadow-md transition-all cursor-pointer group"
+                    className="flex items-center gap-2 md:gap-3 p-3 md:p-4 rounded-xl md:rounded-2xl border border-[#EBEBEB] bg-white hover:border-[#DDDDDD] hover:shadow-md transition-all cursor-pointer group"
                   >
                     {/* User avatar */}
-                    <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarFallback className="bg-[#484848] text-white text-[13px] font-semibold">
+                    <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0">
+                      <AvatarFallback className="bg-[#484848] text-white text-[12px] md:text-[13px] font-semibold">
                         {user.name?.[0]?.toUpperCase() ?? "U"}
                       </AvatarFallback>
                     </Avatar>
                     {/* Ghost input */}
-                    <div className="flex-1 px-4 py-2.5 rounded-xl bg-[#F7F7F7] group-hover:bg-[#EFEFEF] transition-colors text-[15px] text-[#B0B0B0] font-medium select-none">
-                      Start a discussion, ask a question, or share a tip…
+                    <div className="flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl bg-[#F7F7F7] group-hover:bg-[#EFEFEF] transition-colors text-[13px] md:text-[15px] text-[#B0B0B0] font-medium select-none truncate">
+                      Start a discussion or share a tip…
                     </div>
                     {/* CTA chip */}
-                    <span className="shrink-0 px-4 py-2 rounded-xl bg-[#222222] text-white text-[13px] font-semibold group-hover:bg-black transition-colors">
-                      New post
+                    <span className="shrink-0 px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl bg-[#222222] text-white text-[12px] md:text-[13px] font-semibold group-hover:bg-black transition-colors">
+                      Post
                     </span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-4 p-5 rounded-2xl border border-dashed border-[#DDDDDD] bg-[#FAFAFA] text-center justify-center">
-                    <PenLine className="w-5 h-5 text-[#B0B0B0]" />
-                    <span className="text-[15px] text-[#767676] font-medium">
+                  <div className="flex items-center gap-3 p-4 md:p-5 rounded-xl md:rounded-2xl border border-dashed border-[#DDDDDD] bg-[#FAFAFA] text-center justify-center">
+                    <PenLine className="w-4 h-4 md:w-5 md:h-5 text-[#B0B0B0]" />
+                    <span className="text-[14px] md:text-[15px] text-[#767676] font-medium">
                       <Link href="/auth/login" className="font-semibold text-[#222222] hover:underline underline-offset-2">Sign in</Link>
                       {" "}to start a discussion
                     </span>
@@ -475,44 +476,44 @@ function CommunityFeed() {
               </div>
             ) : (
               /* ── Expanded composer ── */
-              <div className="mb-8 rounded-2xl border border-[#DDDDDD] bg-white overflow-hidden shadow-lg ring-2 ring-[#222222] ring-offset-0">
+              <div className="mb-8 rounded-xl md:rounded-2xl border border-[#DDDDDD] bg-white overflow-hidden shadow-lg ring-2 ring-[#222222] ring-offset-0">
                 {/* Composer header */}
-                <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-[#EBEBEB]">
-                  <Avatar className="h-9 w-9 shrink-0">
-                    <AvatarFallback className="bg-[#484848] text-white text-[13px] font-semibold">
+                <div className="flex items-center gap-3 px-4 md:px-5 pt-4 md:pt-5 pb-3 md:pb-4 border-b border-[#EBEBEB]">
+                  <Avatar className="h-8 w-8 md:h-9 md:w-9 shrink-0">
+                    <AvatarFallback className="bg-[#484848] text-white text-[12px] md:text-[13px] font-semibold">
                       {user?.name?.[0]?.toUpperCase() ?? "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="text-[14px] font-semibold text-[#222222] leading-tight">{user?.name ?? "You"}</p>
-                    <p className="text-[12px] text-[#B0B0B0]">Posting to Community</p>
+                  <div className="min-w-0">
+                    <p className="text-[13px] md:text-[14px] font-semibold text-[#222222] leading-tight truncate">{user?.name ?? "You"}</p>
+                    <p className="text-[11px] md:text-[12px] text-[#B0B0B0]">Posting to Community</p>
                   </div>
                   <button
                     onClick={() => setShowNewPost(false)}
                     className="ml-auto text-[#B0B0B0] hover:text-[#222222] transition-colors p-1.5 hover:bg-[#F7F7F7] rounded-full"
                   >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
                       <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
                     </svg>
                   </button>
                 </div>
 
                 {/* Category selector */}
-                <div className="px-5 pt-4 pb-0">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-[#B0B0B0] mb-2.5">Category</p>
-                  <div className="flex gap-2 flex-wrap">
+                <div className="px-4 md:px-5 pt-3 md:pt-4 pb-0">
+                  <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-[#B0B0B0] mb-2 md:mb-2.5">Category</p>
+                  <div className="flex gap-1.5 md:gap-2 flex-wrap">
                     {CATEGORIES.filter(c => c.id !== "popular").map(cat => (
                       <button
                         key={cat.id}
                         onClick={() => setNewPostCategory(cat.id)}
                         className={cn(
-                          "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold border transition-all",
+                          "flex items-center gap-1 md:gap-1.5 px-3 md:px-3.5 py-1 md:py-1.5 rounded-full text-[12px] md:text-[13px] font-semibold border transition-all",
                           newPostCategory === cat.id
                             ? "bg-[#222222] text-white border-[#222222]"
                             : "border-[#DDDDDD] text-[#717171] hover:border-[#222222] hover:text-[#222222]"
                         )}
                       >
-                        <cat.icon className="w-3.5 h-3.5" />
+                        <cat.icon className="w-3 md:w-3.5 h-3 md:h-3.5" />
                         {cat.label}
                       </button>
                     ))}
@@ -520,27 +521,27 @@ function CommunityFeed() {
                 </div>
 
                 {/* Title + body */}
-                <div className="px-5 pt-4 pb-5 space-y-3">
+                <div className="px-4 md:px-5 pt-3 md:pt-4 pb-4 md:pb-5 space-y-3">
                   <input
                     autoFocus
                     value={newPostTitle}
                     onChange={(e) => setNewPostTitle(e.target.value.slice(0, 120))}
                     placeholder="Post title…"
-                    className="w-full text-[22px] font-bold text-[#222222] placeholder:text-[#C0C0C0] focus:outline-none leading-snug"
+                    className="w-full text-[18px] md:text-[22px] font-bold text-[#222222] placeholder:text-[#C0C0C0] focus:outline-none leading-snug"
                   />
-                  <div className="w-12 h-0.5 bg-[#EBEBEB] rounded-full" />
+                  <div className="w-10 md:w-12 h-0.5 bg-[#EBEBEB] rounded-full" />
                   <textarea
                     value={newPostBody}
                     onChange={(e) => setNewPostBody(e.target.value)}
-                    placeholder="Add more context, details, or a question for the community…"
-                    rows={5}
-                    className="w-full resize-none text-[15px] text-[#484848] placeholder:text-[#C0C0C0] focus:outline-none leading-relaxed"
+                    placeholder="Add details or a question…"
+                    rows={4}
+                    className="w-full resize-none text-[14px] md:text-[15px] text-[#484848] placeholder:text-[#C0C0C0] focus:outline-none leading-relaxed"
                   />
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between px-5 py-3.5 border-t border-[#EBEBEB] bg-[#FAFAFA]">
-                  <span className="text-[12px] text-[#B0B0B0] font-medium">
+                <div className="flex items-center justify-between px-4 md:px-5 py-3 md:py-3.5 border-t border-[#EBEBEB] bg-[#FAFAFA]">
+                  <span className="text-[11px] md:text-[12px] text-[#B0B0B0] font-medium">
                     {newPostTitle.length}/120
                   </span>
                   <div className="flex items-center gap-3">
@@ -564,7 +565,7 @@ function CommunityFeed() {
             )}
 
             {/* Tabs */}
-            <div className="flex items-center gap-6 mb-6 border-b border-[#EBEBEB]">
+            <div className="flex items-center gap-4 md:gap-6 mb-6 border-b border-[#EBEBEB] overflow-x-auto scrollbar-hide snap-x whitespace-nowrap">
               {TABS.map((tab) => {
                 const active = tabParam === tab.id;
                 return (
@@ -572,7 +573,7 @@ function CommunityFeed() {
                     key={tab.id}
                     onClick={() => setTab(tab.id)}
                     className={cn(
-                      "pb-4 text-[15px] font-semibold border-b-2 transition-all -mb-px",
+                      "pb-4 text-[14px] md:text-[15px] font-semibold border-b-2 transition-all -mb-px shrink-0 snap-start",
                       active
                         ? "border-[#1A6EF5] text-[#1A6EF5]"
                         : "border-transparent text-[#717171] hover:border-[#C5D9FF] hover:text-[#222222]"
@@ -582,7 +583,7 @@ function CommunityFeed() {
                   </button>
                 );
               })}
-              <span className="ml-auto text-[14px] font-medium text-[#717171] pb-4">
+              <span className="ml-auto text-[13px] md:text-[14px] font-medium text-[#717171] pb-4 sticky right-0 bg-white md:static pl-4 md:pl-0">
                 {total} {total === 1 ? "result" : "results"}
               </span>
             </div>
