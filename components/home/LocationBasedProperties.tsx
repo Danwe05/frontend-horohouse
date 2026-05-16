@@ -259,7 +259,7 @@ export default function LocationBasedProperties() {
   return (
     <section className="w-full bg-white py-12 px-6 lg:px-10 font-sans" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">
-        
+
         {/* Header Area */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -272,7 +272,7 @@ export default function LocationBasedProperties() {
             <h2 className="text-2xl md:text-2xl font-bold text-gray-900 tracking-tight">
               {_t.locationProperties?.title || 'Properties in your area'}
             </h2>
-            
+
             <div className="flex items-center gap-2 mt-2">
               <MapPin className="w-4 h-4 text-[#717171]" />
               {locationLoading ? (
@@ -349,9 +349,8 @@ export default function LocationBasedProperties() {
             {Array.from({ length: maxIndex + 1 }).map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentIndex ? 'w-4 bg-[#222222]' : 'w-1.5 bg-[#DDDDDD]'
-                }`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === currentIndex ? 'w-4 bg-[#222222]' : 'w-1.5 bg-[#DDDDDD]'
+                  }`}
               />
             ))}
           </div>

@@ -18,9 +18,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const CARDS_BY_WIDTH: [number, number][] = [
   [1280, 5],
   [1024, 4],
-  [768,  3],
-  [640,  2],
-  [0,    1],
+  [768, 3],
+  [640, 2],
+  [0, 1],
 ];
 
 function getCardsPerView(): number {
@@ -106,7 +106,7 @@ export default function RecentlyAddedProperties() {
     image: p.images?.[0]?.url || "",
     images: p.images?.map((img: any) => img.url) || [],
     price: typeof p.price === "number" ? formatMoney(p.price) : "",
-    timeAgo: timeAgoFromIso(p.createdAt), 
+    timeAgo: timeAgoFromIso(p.createdAt),
     address: [p.address, p.city, p.country].filter(Boolean).join(", "),
     beds: p.amenities?.bedrooms ?? 0,
     baths: p.amenities?.bathrooms ?? 0,
@@ -117,11 +117,11 @@ export default function RecentlyAddedProperties() {
   const maxIndex = Math.max(0, formattedProperties.length - cardsPerView);
   const showPeek = formattedProperties.length > cardsPerView;
 
-  const handleLeftClick  = isRtl ? () => api?.scrollNext() : () => api?.scrollPrev();
+  const handleLeftClick = isRtl ? () => api?.scrollNext() : () => api?.scrollPrev();
   const handleRightClick = isRtl ? () => api?.scrollPrev() : () => api?.scrollNext();
 
-  const leftDisabled  = isRtl ? currentIndex === maxIndex : currentIndex === 0;
-  const rightDisabled = isRtl ? currentIndex === 0        : currentIndex === maxIndex;
+  const leftDisabled = isRtl ? currentIndex === maxIndex : currentIndex === 0;
+  const rightDisabled = isRtl ? currentIndex === 0 : currentIndex === maxIndex;
 
   if (!loading && formattedProperties.length === 0) {
     return null;
@@ -141,7 +141,7 @@ export default function RecentlyAddedProperties() {
               <h2 className="text-[26px] md:text-[32px] font-bold text-[#222222] tracking-tight">
                 New this week
               </h2>
-              
+
               <div className="flex items-center gap-2 mt-1">
                 {loading ? (
                   <Skeleton className="h-4 w-40 bg-[#EBEBEB]" />
@@ -210,7 +210,7 @@ export default function RecentlyAddedProperties() {
                     <CarouselItem
                       key={property.id}
                       className="pl-4 lg:pl-6"
-                        style={{ flexBasis: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
+                      style={{ flexBasis: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
                     >
                       <PropertyCard {...property} />
                     </CarouselItem>

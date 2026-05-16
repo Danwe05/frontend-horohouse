@@ -19,9 +19,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const CARDS_BY_WIDTH: [number, number][] = [
   [1280, 5],
   [1024, 4],
-  [768,  3],
-  [640,  2],
-  [0,    1],
+  [768, 3],
+  [640, 2],
+  [0, 1],
 ];
 
 function getCardsPerView(): number {
@@ -130,11 +130,11 @@ export default function TopShortTerm() {
   const maxIndex = Math.max(0, formattedProperties.length - cardsPerView);
   const showPeek = formattedProperties.length > cardsPerView;
 
-  const handleLeftClick  = isRtl ? () => api?.scrollNext() : () => api?.scrollPrev();
+  const handleLeftClick = isRtl ? () => api?.scrollNext() : () => api?.scrollPrev();
   const handleRightClick = isRtl ? () => api?.scrollPrev() : () => api?.scrollNext();
 
-  const leftDisabled  = isRtl ? currentIndex === maxIndex : currentIndex === 0;
-  const rightDisabled = isRtl ? currentIndex === 0        : currentIndex === maxIndex;
+  const leftDisabled = isRtl ? currentIndex === maxIndex : currentIndex === 0;
+  const rightDisabled = isRtl ? currentIndex === 0 : currentIndex === maxIndex;
 
   if (!loading && formattedProperties.length === 0) {
     return null;
@@ -155,12 +155,12 @@ export default function TopShortTerm() {
               <h2 className="text-2xl md:text-2xl font-bold text-gray-900 tracking-tight">
                 {_t.topShortTerm?.title || 'Perfect weekend getaways'}
               </h2>
-              
+
               <div className="flex items-center gap-2 mt-2">
                 {loading ? (
                   <Skeleton className="h-4 w-40 bg-[#EBEBEB]" />
                 ) : (
-                  <span className="text-[#717171] text-[15px]">
+                  <span className="hidden md:inline-block text-[#717171] text-[15px]">
                     {_t.topShortTerm?.description || 'Discover our handpicked selection of short-term rentals.'}
                   </span>
                 )}
@@ -226,7 +226,7 @@ export default function TopShortTerm() {
                     <CarouselItem
                       key={property.id}
                       className="pl-4 lg:pl-6"
-                        style={{ flexBasis: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
+                      style={{ flexBasis: `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})` }}
                     >
                       <PropertyCard {...property} />
                     </CarouselItem>
@@ -244,9 +244,8 @@ export default function TopShortTerm() {
               <button
                 key={i}
                 onClick={() => api?.scrollTo(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentIndex ? 'w-4 bg-[#222222]' : 'w-1.5 bg-[#DDDDDD] hover:bg-[#B0B0B0]'
-                }`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === currentIndex ? 'w-4 bg-[#222222]' : 'w-1.5 bg-[#DDDDDD] hover:bg-[#B0B0B0]'
+                  }`}
                 aria-label={`Go to slide ${i + 1}`}
               />
             ))}

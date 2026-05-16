@@ -20,9 +20,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const CARDS_BY_WIDTH: [number, number][] = [
   [1280, 5],
   [1024, 4],
-  [768,  3],
-  [640,  2],
-  [0,    1],
+  [768, 3],
+  [640, 2],
+  [0, 1],
 ];
 
 function getCardsPerView(): number {
@@ -39,17 +39,17 @@ function formatTimeAgo(iso: string): string {
   const cached = timeAgoCache.get(iso);
   if (cached) return cached;
 
-  const diff    = Date.now() - new Date(iso).getTime();
+  const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60_000);
-  const hours   = Math.floor(diff / 3_600_000);
-  const days    = Math.floor(hours / 24);
-  const months  = Math.floor(days / 30);
+  const hours = Math.floor(diff / 3_600_000);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
 
   const result =
-    hours  < 1  ? `${minutes} minute${minutes === 1 ? "" : "s"} ago` :
-    hours  < 24 ? `${hours} hour${hours === 1 ? "" : "s"} ago`       :
-    days   < 30 ? `${days} day${days === 1 ? "" : "s"} ago`          :
-                  `${months} month${months === 1 ? "" : "s"} ago`;
+    hours < 1 ? `${minutes} minute${minutes === 1 ? "" : "s"} ago` :
+      hours < 24 ? `${hours} hour${hours === 1 ? "" : "s"} ago` :
+        days < 30 ? `${days} day${days === 1 ? "" : "s"} ago` :
+          `${months} month${months === 1 ? "" : "s"} ago`;
 
   timeAgoCache.set(iso, result);
   return result;
@@ -77,11 +77,11 @@ export default function RecentlyViewedProperties() {
   const isRtl = language === 'ar';
 
   // ── State
-  const [properties,   setProperties]   = useState<any[]>([]);
-  const [loading,      setLoading]      = useState(true);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(4);
-  const [api,          setApi]          = useState<CarouselApi>();
+  const [api, setApi] = useState<CarouselApi>();
 
   // ── Stable formatMoney ref
   const formatMoneyRef = useRef(formatMoney);
@@ -131,44 +131,44 @@ export default function RecentlyViewedProperties() {
   // ── Memoized derived data
   const formattedProperties = useMemo(() =>
     properties.map((p) => ({
-      id:               p._id || p.id,
-      image:            p.images?.[0]?.url ?? "",
-      images:           p.images?.map((img: any) => img.url) ?? [],
-      price:            typeof p.price === "number" ? formatMoneyRef.current(p.price) : "",
-      timeAgo:          formatTimeAgo(p.viewedAt),
-      address:          [p.address, p.city, p.country].filter(Boolean).join(", "),
-      beds:             p.amenities?.bedrooms  ?? 0,
-      baths:            p.amenities?.bathrooms ?? 0,
-      sqft:             p.area ? `${p.area} ft²` : "",
-      tag:              p.type ? String(p.type).toUpperCase() : undefined,
+      id: p._id || p.id,
+      image: p.images?.[0]?.url ?? "",
+      images: p.images?.map((img: any) => img.url) ?? [],
+      price: typeof p.price === "number" ? formatMoneyRef.current(p.price) : "",
+      timeAgo: formatTimeAgo(p.viewedAt),
+      address: [p.address, p.city, p.country].filter(Boolean).join(", "),
+      beds: p.amenities?.bedrooms ?? 0,
+      baths: p.amenities?.bathrooms ?? 0,
+      sqft: p.area ? `${p.area} ft²` : "",
+      tag: p.type ? String(p.type).toUpperCase() : undefined,
       initialIsFavorite: p.isFavorite || false,
-      listingType:      p.listingType || 'sale',
-      viewedAt:         p.viewedAt,
-      rating:           typeof p.averageRating === "number" && p.averageRating > 0 ? p.averageRating : undefined,
-      reviewCount:      typeof p.reviewCount   === "number" ? p.reviewCount : undefined,
+      listingType: p.listingType || 'sale',
+      viewedAt: p.viewedAt,
+      rating: typeof p.averageRating === "number" && p.averageRating > 0 ? p.averageRating : undefined,
+      reviewCount: typeof p.reviewCount === "number" ? p.reviewCount : undefined,
     })),
     [properties]
   );
 
-  const maxIndex    = useMemo(() => Math.max(0, formattedProperties.length - cardsPerView), [formattedProperties.length, cardsPerView]);
-  const showPeek    = formattedProperties.length > cardsPerView;
-  const itemBasis   = useMemo(() => `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})`, [cardsPerView, showPeek]);
-  const dotArray    = useMemo(() => Array.from({ length: maxIndex + 1 }, (_, i) => i), [maxIndex]);
+  const maxIndex = useMemo(() => Math.max(0, formattedProperties.length - cardsPerView), [formattedProperties.length, cardsPerView]);
+  const showPeek = formattedProperties.length > cardsPerView;
+  const itemBasis = useMemo(() => `calc(100% / ${cardsPerView + (showPeek ? 0.15 : 0)})`, [cardsPerView, showPeek]);
+  const dotArray = useMemo(() => Array.from({ length: maxIndex + 1 }, (_, i) => i), [maxIndex]);
   const skeletonArr = useMemo(() => Array.from({ length: cardsPerView + 1 }, (_, i) => i), [cardsPerView]);
 
   const subtitleLabel = useMemo(() => {
     const template = formattedProperties.length === 1
-      ? (_t.recentlyViewed?.subtitle_one   || '{{count}} property recently viewed')
+      ? (_t.recentlyViewed?.subtitle_one || '{{count}} property recently viewed')
       : (_t.recentlyViewed?.subtitle_other || '{{count}} properties recently viewed');
     return template.replace('{{count}}', String(formattedProperties.length));
   }, [formattedProperties.length, _t]);
 
   // ── Stable callbacks
-  const handleLeftClick  = isRtl ? () => api?.scrollNext() : () => api?.scrollPrev();
+  const handleLeftClick = isRtl ? () => api?.scrollNext() : () => api?.scrollPrev();
   const handleRightClick = isRtl ? () => api?.scrollPrev() : () => api?.scrollNext();
 
-  const leftDisabled  = isRtl ? currentIndex === maxIndex : currentIndex === 0;
-  const rightDisabled = isRtl ? currentIndex === 0        : currentIndex === maxIndex;
+  const leftDisabled = isRtl ? currentIndex === maxIndex : currentIndex === 0;
+  const rightDisabled = isRtl ? currentIndex === 0 : currentIndex === maxIndex;
 
   // ── Early exit
   if (!isAuthenticated || (!loading && formattedProperties.length === 0)) return null;
@@ -189,7 +189,7 @@ export default function RecentlyViewedProperties() {
               <h2 className="text-2xl md:text-2xl font-bold text-gray-900 tracking-tight">
                 {_t.recentlyViewed?.title || 'Recently viewed'}
               </h2>
-              
+
               <div className="flex items-center gap-2 mt-2">
                 {loading ? (
                   <Skeleton className="h-4 w-40 bg-[#EBEBEB]" />
@@ -286,9 +286,8 @@ export default function RecentlyViewedProperties() {
               <button
                 key={i}
                 onClick={() => api?.scrollTo(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentIndex ? 'w-4 bg-[#222222]' : 'w-1.5 bg-[#DDDDDD] hover:bg-[#B0B0B0]'
-                }`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === currentIndex ? 'w-4 bg-[#222222]' : 'w-1.5 bg-[#DDDDDD] hover:bg-[#B0B0B0]'
+                  }`}
                 aria-label={`Go to slide ${i + 1}`}
               />
             ))}
