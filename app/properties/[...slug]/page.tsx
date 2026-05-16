@@ -66,5 +66,47 @@ export async function generateMetadata(
 export default async function PropertyPage({ params }: Params) {
   const { slug } = await params;
   const id = slug.at(-1)!;
-  return <PropertyDetailClient id={id} />;
+  const property = await fetchProperty(id);
+
+  const jsonLd = property
+    ? {
+        "@context": "https://schema.org",
+        "@type": property.listingType === "short_term" ? "Accommodation" : "RealEstateListing",
+        "name": property.title,
+        "description": property.description,
+        "image": property.images?.map((img: any) => img.url) || [],
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": property.address,
+          "addressLocality": property.city,
+          "addressCountry": property.country || "CM",
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": property.location?.coordinates[1],
+          "longitude": property.location?.coordinates[0],
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": property.price,
+          "priceCurrency": "XAF",
+          "availability": "https://schema.org/InStock",
+          "url": `https://www.horohouse.com/properties/${id}`,
+        },
+        "numberOfBedrooms": property.amenities?.bedrooms,
+        "numberOfBathrooms": property.amenities?.bathrooms,
+      }
+    : null;
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <PropertyDetailClient id={id} />
+    </>
+  );
 }

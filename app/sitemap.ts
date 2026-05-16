@@ -28,6 +28,67 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("[Sitemap] Failed to fetch properties:", e);
   }
 
+  // Fetch community posts for the sitemap
+  let communityUrls: MetadataRoute.Sitemap = [];
+  try {
+    const res = await fetch(
+      `${API_URL}/community/posts?limit=500&sortBy=createdAt&sortOrder=desc`,
+      { next: { revalidate: 3600 } }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const posts = Array.isArray(data?.data) ? data.data : [];
+      communityUrls = posts.map((p: any) => ({
+        url: `${BASE_URL}/community/${p.slug}`,
+        lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(p.createdAt),
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      }));
+    }
+  } catch (e) {
+    console.error("[Sitemap] Failed to fetch community posts:", e);
+  }
+
+  // Fetch insights posts for the sitemap
+  let insightsUrls: MetadataRoute.Sitemap = [];
+  try {
+    const res = await fetch(
+      `${API_URL}/insights?limit=500&sortBy=publishedAt&sortOrder=desc`,
+      { next: { revalidate: 3600 } }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const posts = Array.isArray(data?.data) ? data.data : [];
+      insightsUrls = posts.map((p: any) => ({
+        url: `${BASE_URL}/insights/${p.slug}`,
+        lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(p.publishedAt),
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      }));
+    }
+  } catch (e) {
+    console.error("[Sitemap] Failed to fetch insights posts:", e);
+  }
+
+  // Fetch insights categories
+  let insightsCategoryUrls: MetadataRoute.Sitemap = [];
+  try {
+    const res = await fetch(`${API_URL}/insights/categories`, {
+      next: { revalidate: 3600 },
+    });
+    if (res.ok) {
+      const categories = await res.json();
+      insightsCategoryUrls = categories.map((c: any) => ({
+        url: `${BASE_URL}/insights/category/${c.slug}`,
+        lastModified: new Date(),
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      }));
+    }
+  } catch (e) {
+    console.error("[Sitemap] Failed to fetch insights categories:", e);
+  }
+
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
@@ -40,6 +101,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "hourly",
       priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/community`,
+      lastModified: new Date(),
+      changeFrequency: "hourly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/insights`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.8,
     },
     {
       url: `${BASE_URL}/properties?listingType=rent`,
@@ -85,5 +158,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  return [...staticRoutes, ...propertyUrls];
+  return [
+    ...staticRoutes,
+    ...propertyUrls,
+    ...communityUrls,
+    ...insightsUrls,
+    ...insightsCategoryUrls,
+  ];
 }

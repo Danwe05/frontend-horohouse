@@ -24,12 +24,15 @@ import { InsightCategory, InsightPost} from '@/types/insights';
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
-  title: 'HoroHouse Insights — Africa\'s Property Market Intelligence',
+  title: "HoroHouse Insights — Africa's Property Market Intelligence",
   description: "Expert guides, market trends, and investment intelligence for Cameroon and Central Africa's real estate landscape.",
   openGraph: {
-    title: 'HoroHouse Insights',
-    description: 'Expert property guides and market intelligence for Africa.',
-    type: 'website',
+    title: "HoroHouse Insights",
+    description: "Expert property guides and market intelligence for Africa.",
+    type: "website",
+  },
+  alternates: {
+    canonical: "/insights",
   },
 };
 

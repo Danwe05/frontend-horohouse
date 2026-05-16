@@ -27,29 +27,33 @@ export async function generateMetadata({
   try {
     const { slug } = await params;
     const post = await getInsightBySlug(slug);
+    const description = post.seo?.metaDescription ?? post.excerpt;
+    
     return {
-      title: post.seo?.metaTitle ?? post.title,
-      description: post.seo?.metaDescription ?? post.excerpt,
+      title: post.seo?.metaTitle ?? `${post.title} — HoroHouse Insights`,
+      description: description,
       openGraph: {
         title: post.seo?.ogTitle ?? post.title,
-        description: post.seo?.ogDescription ?? post.excerpt,
-        images: [{ url: post.coverImage?.url ?? 'https://horohouse.com/og-fallback.jpg' }],
-        type: 'article',
+        description: post.seo?.ogDescription ?? description,
+        images: [{ url: post.coverImage?.url ?? "https://horohouse.com/og-fallback.jpg" }],
+        type: "article",
         publishedTime: post.publishedAt?.toString(),
-        authors: [post.author?.displayName || 'HoroHouse Author'],
+        modifiedTime: post.updatedAt?.toString(),
+        section: post.category?.name,
+        authors: [post.author?.displayName || "HoroHouse Author"],
       },
       twitter: {
-        card: 'summary_large_image',
+        card: "summary_large_image",
         title: post.title,
-        description: post.excerpt,
-        images: [post.coverImage?.url ?? 'https://horohouse.com/og-fallback.jpg'],
+        description: description,
+        images: [post.coverImage?.url ?? "https://horohouse.com/og-fallback.jpg"],
       },
       alternates: {
         canonical: post.seo?.canonicalUrl ?? `/insights/${post.slug}`,
       },
     };
   } catch {
-    return { title: 'Article | HoroHouse Insights' };
+    return { title: "Article | HoroHouse Insights" };
   }
 }
 

@@ -39,6 +39,9 @@ export async function generateMetadata({
       title: `${cat.name} | HoroHouse Insights`,
       description: cat.description,
     },
+    alternates: {
+      canonical: `/insights/category/${slug}`,
+    },
   };
 }
 
