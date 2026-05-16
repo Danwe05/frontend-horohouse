@@ -139,10 +139,10 @@ interface ReplyCardProps {
 
 function ReplyCard({ reply, depth = 0, rootPostId, postCategory, onAddReply }: ReplyCardProps) {
   const { user } = useAuth();
-  const [liked, setLiked]         = useState(false);
-  const [count, setCount]         = useState(reply.likes);
-  const [busy,  setBusy]          = useState(false);
-  const [replying, setReplying]   = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [count, setCount] = useState(reply.likes);
+  const [busy, setBusy] = useState(false);
+  const [replying, setReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -353,29 +353,29 @@ export default function CommunityPostDetailPage() {
   const router = useRouter();
   const { user } = useAuth();
 
-  const [post,         setPost]         = useState<Post | null>(null);
-  const [replies,      setReplies]      = useState<Reply[]>([]);
-  const [related,      setRelated]      = useState<Post[]>([]);
-  const [loading,      setLoading]      = useState(true);
-  const [notFound,     setNotFound]     = useState(false);
+  const [post, setPost] = useState<Post | null>(null);
+  const [replies, setReplies] = useState<Reply[]>([]);
+  const [related, setRelated] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const [liked,        setLiked]        = useState(false);
-  const [likeCount,    setLikeCount]    = useState(0);
-  const [likeBusy,     setLikeBusy]     = useState(false);
-  const [saved,        setSaved]        = useState(false);
-  const [flagging,     setFlagging]     = useState(false);
-  const [replyText,    setReplyText]    = useState("");
-  const [submitting,   setSubmitting]   = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [likeBusy, setLikeBusy] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [flagging, setFlagging] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   // Edit / Action state
-  const [isEditing,    setIsEditing]    = useState(false);
-  const [editTitle,    setEditTitle]    = useState("");
-  const [editBody,     setEditBody]     = useState("");
-  const [savingEdit,   setSavingEdit]   = useState(false);
-  const [showToast,    setShowToast]    = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editBody, setEditBody] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
-  const [errorMsg,     setErrorMsg]     = useState("");
-  const [successMsg,   setSuccessMsg]   = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   // relativeTime is now a module-level function, removed here
 
@@ -421,8 +421,8 @@ export default function CommunityPostDetailPage() {
     try {
       const newPost = await apiClient.createCommunityPost({
         category: post.category as any,
-        title:    replyText.trim().slice(0, 80),
-        body:     replyText.trim(),
+        title: replyText.trim().slice(0, 80),
+        body: replyText.trim(),
         replyToId: post.id,
         // rootPostId same as replyToId for top-level replies
       });
@@ -779,18 +779,18 @@ export default function CommunityPostDetailPage() {
                   </button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
-                   <AlertDialogHeader>
-                     <AlertDialogTitle>Report this post?</AlertDialogTitle>
-                     <AlertDialogDescription>
-                       Are you sure you want to report this content to the moderators? Our team will review it shortly.
-                     </AlertDialogDescription>
-                   </AlertDialogHeader>
-                   <AlertDialogFooter>
-                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                     <AlertDialogAction onClick={handleFlag} className="bg-blue-600 hover:bg-blue-700 text-white">
-                       Report Post
-                     </AlertDialogAction>
-                   </AlertDialogFooter>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Report this post?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to report this content to the moderators? Our team will review it shortly.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleFlag} className="bg-blue-600 hover:bg-blue-700 text-white">
+                      Report Post
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
             </div>
@@ -802,9 +802,12 @@ export default function CommunityPostDetailPage() {
               </h2>
 
               {replies.length > 0 && (
-                <div className="mb-8 border border-[#EBEBEB] rounded-2xl divide-y divide-[#EBEBEB] overflow-hidden">
-                  {replies.map(r => (
-                    <div key={r.id ?? r._id} className="px-5">
+                <div className="mb-8 border border-[#EBEBEB] rounded-2xl overflow-hidden">
+                  {replies.map((r, i) => (
+                    <div
+                      key={r.id || r._id || i}
+                      className={cn("px-5", i < replies.length - 1 && "border-b border-[#EBEBEB]")}
+                    >
                       <ReplyCard
                         reply={r}
                         depth={0}
@@ -819,35 +822,49 @@ export default function CommunityPostDetailPage() {
 
               {/* Reply composer */}
               {user ? (
-                <div className="rounded-2xl border border-[#DDDDDD] overflow-hidden bg-white shadow-sm">
-                  <div className="flex gap-4 px-5 py-5">
-                    <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarFallback className="bg-blue-600 text-white text-[13px] font-semibold">Me</AvatarFallback>
+                <div className="rounded-2xl border border-[#DDDDDD] overflow-hidden bg-white">
+                  <div className="flex gap-3 sm:gap-4 px-4 sm:px-5 py-4 sm:py-5">
+                    <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 mt-0.5">
+                      <AvatarFallback className="bg-[#222222] text-white text-[12px] sm:text-[13px] font-semibold">
+                        {user.name?.[0]?.toUpperCase() ?? "U"}
+                      </AvatarFallback>
                     </Avatar>
-                    <textarea
-                      value={replyText}
-                      onChange={e => setReplyText(e.target.value)}
-                      placeholder="Share your experience or ask a follow-up question..."
-                      rows={4}
-                      className="flex-1 resize-none text-[15px] text-[#222222] placeholder:text-[#717171] focus:outline-none leading-relaxed"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between px-5 py-3.5 border-t border-[#EBEBEB] bg-[#F7F7F7]">
-                    <p className="text-[12px] text-[#717171]">Be kind, constructive, and on-topic.</p>
-                    <button
-                      onClick={submitReply}
-                      disabled={!replyText.trim() || submitting}
-                      className="px-5 py-2.5 rounded-lg bg-[#222222] hover:bg-black text-white text-[14px] font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                      Post reply
-                    </button>
+                    <div className="flex-1 min-w-0">
+                      <textarea
+                        value={replyText}
+                        onChange={e => setReplyText(e.target.value)}
+                        placeholder="Add a reply…"
+                        rows={3}
+                        className="w-full resize-none text-[15px] text-[#222222] placeholder:text-[#B0B0B0] focus:outline-none leading-relaxed"
+                      />
+                      {replyText.trim() && (
+                        <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-[#EBEBEB]">
+                          <button
+                            onClick={() => setReplyText("")}
+                            className="px-4 py-2 text-[13px] font-semibold text-[#717171] hover:text-[#222222] hover:bg-[#F7F7F7] rounded-lg transition-colors"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={submitReply}
+                            disabled={submitting}
+                            className="px-5 py-2 rounded-lg bg-[#222222] hover:bg-black text-white text-[13px] font-semibold transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                          >
+                            {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                            Post
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-[#DDDDDD] p-8 text-center bg-[#F7F7F7]">
-                  <p className="text-[15px] text-[#717171] mb-4">Sign in to post a reply</p>
-                  <Link href="/auth/login" className="px-6 py-3 rounded-lg bg-[#222222] text-white text-[14px] font-semibold hover:bg-black transition-colors">
+                <div className="rounded-2xl border border-[#DDDDDD] px-6 sm:px-8 py-6 sm:py-8 text-center bg-[#F7F7F7]">
+                  <p className="text-[15px] text-[#717171] mb-4">Sign in to join the discussion</p>
+                  <Link
+                    href="/auth/login"
+                    className="inline-block px-6 py-2.5 rounded-lg bg-[#222222] text-white text-[14px] font-semibold hover:bg-black transition-colors"
+                  >
                     Sign in
                   </Link>
                 </div>
@@ -857,9 +874,9 @@ export default function CommunityPostDetailPage() {
             {/* ── Related posts ────────────────────────────────────────── */}
             {related.length > 0 && (
               <section className="mt-14 pt-10 border-t border-[#EBEBEB]">
-                <h2 className="text-[20px] font-semibold text-[#222222] mb-6">Related discussions</h2>
-                <div className="space-y-5">
-                  {related.map(p => <RelatedPostCard key={p.id} post={p} />)}
+                <h2 className="text-[18px] font-semibold text-[#222222] mb-5">Related discussions</h2>
+                <div className="space-y-4">
+                  {related.map((p, i) => <RelatedPostCard key={p.id || p.slug || i} post={p} />)}
                 </div>
               </section>
             )}
@@ -896,10 +913,10 @@ export default function CommunityPostDetailPage() {
               <p className="text-[14px] font-semibold text-[#222222] mb-4">Post stats</p>
               <div className="space-y-3">
                 {[
-                  { icon: ThumbsUp,      label: "Kudos",   value: likeCount.toLocaleString() },
+                  { icon: ThumbsUp, label: "Kudos", value: likeCount.toLocaleString() },
                   { icon: MessageCircle, label: "Replies", value: post.replyCount.toLocaleString() },
-                  { icon: Eye,           label: "Views",   value: post.views.toLocaleString() },
-                  { icon: Clock,         label: "Posted",  value: relativeTime(post.createdAt) },
+                  { icon: Eye, label: "Views", value: post.views.toLocaleString() },
+                  { icon: Clock, label: "Posted", value: relativeTime(post.createdAt) },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-center justify-between text-[14px]">
                     <span className="flex items-center gap-2 text-[#717171]">
