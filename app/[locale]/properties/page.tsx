@@ -1,3 +1,12 @@
+// app/[locale]/properties/page.tsx — full replacement
+// Fixes:
+//  1. Canonical no longer includes query params (was causing duplicate URL issues)
+//  2. hreflang alternates added
+//  3. ItemList JSON-LD uses prop.slug (falls back to prop._id only as last resort)
+//  4. French metadata is fully translated, not just the title
+//  5. OpenGraph gets locale set correctly
+//  6. ItemList JSON-LD URL uses locale-prefixed slug path
+
 import { Suspense } from "react";
 import { Metadata } from "next";
 import PropertiesClient from "@/components/property/PropertiesClient";
@@ -7,6 +16,16 @@ import { AdvancedFilters } from "@/components/property/FilterSidebar";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL || "https://www.horohouse.com";
+
+const LOCALE_TO_OG: Record<string, string> = {
+  en: "en_US",
+  fr: "fr_FR",
+  ar: "ar_SA",
+};
+
+// ─── Fetch ────────────────────────────────────────────────────────────────────
 
 async function fetchProperties(searchParams: Record<string, any>) {
   const params = new URLSearchParams();
@@ -24,7 +43,7 @@ async function fetchProperties(searchParams: Record<string, any>) {
   });
 
   const res = await fetch(`${API_BASE_URL}/properties?${params.toString()}`, {
-    next: { revalidate: 60 }, // ISR: Revalidate every 60 seconds
+    next: { revalidate: 60 },
   });
 
   if (!res.ok) {
@@ -35,6 +54,66 @@ async function fetchProperties(searchParams: Record<string, any>) {
   return res.json();
 }
 
+// ─── Metadata strings ─────────────────────────────────────────────────────────
+
+type ListingType = "rent" | "sale" | undefined;
+
+function buildTitle(locale: string, city?: string, listingType?: ListingType): string {
+  if (locale === "fr") {
+    if (city) {
+      if (listingType === "sale") return `Propriétés à vendre à ${city} | HoroHouse`;
+      if (listingType === "rent") return `Appartements à louer à ${city} | HoroHouse`;
+      return `Immobilier à ${city} | HoroHouse`;
+    }
+    if (listingType === "sale") return `Propriétés à vendre en Afrique | HoroHouse`;
+    if (listingType === "rent") return `Appartements à louer en Afrique | HoroHouse`;
+    return `Annonces immobilières | HoroHouse`;
+  }
+
+  // English (default)
+  if (city) {
+    if (listingType === "sale") return `Properties for Sale in ${city} | HoroHouse`;
+    if (listingType === "rent") return `Apartments for Rent in ${city} | HoroHouse`;
+    return `Real Estate in ${city} | HoroHouse`;
+  }
+  if (listingType === "sale") return `Properties for Sale in Africa | HoroHouse`;
+  if (listingType === "rent") return `Properties for Rent in Africa | HoroHouse`;
+  return `Property Listings | HoroHouse`;
+}
+
+function buildDescription(locale: string, city?: string, listingType?: ListingType): string {
+  if (locale === "fr") {
+    if (city) {
+      if (listingType === "sale")
+        return `Trouvez les meilleures maisons et appartements à vendre à ${city}. Annonces vérifiées sur HoroHouse. Contact direct avec les agents.`;
+      if (listingType === "rent")
+        return `Explorez une large gamme de locations à ${city}. Contact direct avec les propriétaires et agents sur HoroHouse.`;
+      return `Découvrez les biens immobiliers à ${city} — maisons, appartements, terrains et plus sur HoroHouse.`;
+    }
+    if (listingType === "sale")
+      return `Parcourez des milliers de maisons et appartements à vendre en Afrique. Annonces vérifiées sur HoroHouse.`;
+    if (listingType === "rent")
+      return `Trouvez votre prochain chez-vous parmi des milliers de locations vérifiées en Afrique sur HoroHouse.`;
+    return `Parcourez des milliers d'annonces immobilières vérifiées — maisons, appartements, terrains et logements étudiants sur HoroHouse.`;
+  }
+
+  // English
+  if (city) {
+    if (listingType === "sale")
+      return `Find the best houses and apartments for sale in ${city}. Verified listings with direct agent contact on HoroHouse.`;
+    if (listingType === "rent")
+      return `Explore a wide range of rental properties in ${city}. Direct contact with landlords and agents on HoroHouse.`;
+    return `Discover properties in ${city} — houses, apartments, land and more on HoroHouse.`;
+  }
+  if (listingType === "sale")
+    return `Browse thousands of verified homes and apartments for sale across Africa on HoroHouse.`;
+  if (listingType === "rent")
+    return `Find your next home among thousands of verified rental listings across Africa on HoroHouse.`;
+  return `Browse thousands of verified homes, apartments, land, and student housing on HoroHouse.`;
+}
+
+// ─── generateMetadata ─────────────────────────────────────────────────────────
+
 export async function generateMetadata({
   params,
   searchParams,
@@ -42,58 +121,69 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
-  const [resolvedParams, resolvedSearchParams] = await Promise.all([
-    params,
-    searchParams,
-  ]);
-  const { locale } = resolvedParams;
+  const [{ locale }, resolvedSearchParams] = await Promise.all([params, searchParams]);
 
-  const city = resolvedSearchParams.city;
-  const listingType = resolvedSearchParams.listingType;
+  const city =
+    typeof resolvedSearchParams.city === "string"
+      ? resolvedSearchParams.city
+      : undefined;
+  const listingType =
+    resolvedSearchParams.listingType === "rent" ||
+    resolvedSearchParams.listingType === "sale"
+      ? (resolvedSearchParams.listingType as ListingType)
+      : undefined;
 
-  let title = "Property Listings | HoroHouse";
-  let description =
-    "Browse thousands of verified homes, apartments, and land on HoroHouse.";
+  const title = buildTitle(locale, city, listingType);
+  const description = buildDescription(locale, city, listingType);
 
-  if (typeof city === "string" && city) {
-    if (listingType === "sale") {
-      title = `Properties for Sale in ${city} | HoroHouse`;
-      description = `Find the best houses and apartments for sale in ${city}. Verified listings on HoroHouse.`;
-    } else if (listingType === "rent") {
-      title = `Apartments for Rent in ${city} | HoroHouse`;
-      description = `Explore a wide range of rental properties in ${city}. Direct contact with agents.`;
-    } else {
-      title = `Real Estate in ${city} | HoroHouse`;
-      description = `Discover properties in ${city}. Houses, apartments, and more on HoroHouse.`;
-    }
-  } else if (listingType === "sale") {
-    title = "Properties for Sale | HoroHouse";
-  } else if (listingType === "rent") {
-    title = "Properties for Rent | HoroHouse";
-  }
-
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.horohouse.com";
+  // ── Canonical — NO query params ──────────────────────────────────────────
+  // Query-param canonicals cause duplicate-URL issues. The canonical always
+  // points to the clean path; Google discovers filtered variants via internal links.
   const canonicalPath = `/${locale}/properties`;
-  const url = new URL(`${baseUrl}${canonicalPath}`);
-  
-  // Keep important filters in canonical if they significantly change content
-  if (typeof city === "string") url.searchParams.set("city", city);
-  if (typeof listingType === "string") url.searchParams.set("listingType", listingType);
+  const canonical = `${BASE_URL}${canonicalPath}`;
 
   return {
     title,
     description,
+
     alternates: {
-      canonical: url.toString(),
+      canonical,
+      languages: {
+        en: `${BASE_URL}/en/properties`,
+        fr: `${BASE_URL}/fr/properties`,
+        ar: `${BASE_URL}/ar/properties`,
+        "x-default": `${BASE_URL}/fr/properties`,
+      },
     },
+
     openGraph: {
       title,
       description,
-      url: url.toString(),
+      url: canonical,
       type: "website",
+      locale: LOCALE_TO_OG[locale] ?? "en_US",
+      alternateLocale: Object.values(LOCALE_TO_OG).filter((l) => !l.startsWith(locale)),
+      siteName: "HoroHouse",
+      images: [
+        {
+          url: `${BASE_URL}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      site: "@HoroHouse",
+      title,
+      description,
     },
   };
 }
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function PropertyPage({
   params,
@@ -102,25 +192,35 @@ export default async function PropertyPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const [resolvedParams, resolvedSearchParams] = await Promise.all([
+  const [{ locale }, resolvedSearchParams] = await Promise.all([
     params,
     searchParams,
   ]);
 
   const data = await fetchProperties(resolvedSearchParams);
 
+  // ── ItemList JSON-LD ─────────────────────────────────────────────────────
+  // Uses slug in URLs. Falls back to _id only if slug is absent (shouldn't happen).
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: (data.properties || []).map((prop: any, index: number) => {
+      const identifier = prop.slug || prop._id;
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${BASE_URL}/${locale}/properties/${identifier}`,
+        name: prop.title,
+        image: prop.images?.[0]?.url,
+      };
+    }),
+  };
+
+  // ── Parse searchParams into typed filter objects ──────────────────────────
   const initialFilters: QuickSearchFilters = {};
-  const city = resolvedSearchParams.city;
-  const listingType = resolvedSearchParams.listingType;
-  const minPrice = resolvedSearchParams.minPrice;
-  const maxPrice = resolvedSearchParams.maxPrice;
-  const bedrooms = resolvedSearchParams.bedrooms;
-  const bathrooms = resolvedSearchParams.bathrooms;
-  const checkIn = resolvedSearchParams.checkIn;
-  const checkOut = resolvedSearchParams.checkOut;
-  const guests = resolvedSearchParams.guests;
-  const propertyType = resolvedSearchParams.propertyType;
-  const amenities = resolvedSearchParams.amenities;
+
+  const { city, listingType, minPrice, maxPrice, bedrooms, bathrooms,
+          checkIn, checkOut, guests, propertyType, amenities } = resolvedSearchParams;
 
   if (typeof city === "string") initialFilters.city = city;
   if (typeof listingType === "string") initialFilters.listingType = listingType;
@@ -135,28 +235,13 @@ export default async function PropertyPage({
   if (typeof amenities === "string") initialFilters.amenities = amenities.split(",");
 
   const initialAdvancedFilters: AdvancedFilters = {};
-  const minBedrooms = resolvedSearchParams.minBedrooms;
-  const minBathrooms = resolvedSearchParams.minBathrooms;
-  const minGuests = resolvedSearchParams.minGuests;
-  const hasPool = resolvedSearchParams.hasPool;
+  const { minBedrooms, minBathrooms, minGuests, hasPool } = resolvedSearchParams;
 
   if (initialFilters.propertyTypes) initialAdvancedFilters.propertyTypes = initialFilters.propertyTypes;
   if (typeof minBedrooms === "string") initialAdvancedFilters.minBedrooms = parseInt(minBedrooms, 10);
   if (typeof minBathrooms === "string") initialAdvancedFilters.minBathrooms = parseInt(minBathrooms, 10);
   if (typeof minGuests === "string") initialAdvancedFilters.minGuests = parseInt(minGuests, 10);
   if (typeof hasPool === "string") initialAdvancedFilters.hasPool = hasPool === "true";
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "itemListElement": (data.properties || []).map((prop: any, index: number) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "url": `${process.env.NEXT_PUBLIC_BASE_URL || "https://www.horohouse.com"}/${resolvedParams.locale}/properties/${prop._id}`,
-      "name": prop.title,
-      "image": prop.images?.[0]?.url,
-    })),
-  };
 
   return (
     <>
