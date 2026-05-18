@@ -448,7 +448,7 @@ const SaveSearchModal = ({ isOpen, onClose, onSave, initialData, currentFilters 
             </div>
           )}
         </div>
-
+        
         {/* ── Footer ── */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-[#DDDDDD] bg-white rounded-b-2xl">
           <button

@@ -484,6 +484,17 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
   const activeFilters = getActiveFilters();
   const hasActiveFilters = activeFilters.length > 0;
 
+  const advancedFilterCount = [
+    advancedFilters.propertyTypes?.length ? 1 : 0,
+    advancedFilters.minBedrooms ? 1 : 0,
+    advancedFilters.minBathrooms ? 1 : 0,
+    advancedFilters.minGuests ? 1 : 0,
+    advancedFilters.hasPool !== undefined ? 1 : 0,
+    advancedFilters.amenities?.length ? 1 : 0,
+    advancedFilters.minPrice ? 1 : 0,
+    advancedFilters.maxPrice ? 1 : 0,
+  ].reduce((a, b) => a + b, 0);
+
   // Today's date for date input min
   const today = new Date().toISOString().split("T")[0];
 
@@ -493,7 +504,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
       <div className="hidden lg:block">
         {/* One-Line Unified Search Pill */}
         <div className="flex justify-center relative z-20 w-full mt-2">
-          <div className="flex items-center bg-white border border-slate-200 -[0_8px_20px_-8px_rgba(37,99,235,0.1)] hover:-[0_12px_24px_-8px_rgba(37,99,235,0.15)] transition-all duration-300 rounded-full pl-2 pr-2 py-2 w-full max-w-[1100px] mx-auto divide-x divide-slate-200">
+          <div className="flex items-center bg-white border border-slate-200 -[0_8px_20px_-8px_rgba(37,99,235,0.1)] hover:-[0_12px_24px_-8px_rgba(37,99,235,0.15)] transition-all duration-300 rounded-full pl-2 pr-2 py-2 w-full max-w-[1200px] mx-auto divide-x divide-slate-200">
 
             {/* 1. Stay Type */}
             <Popover open={stayTypeOpen} onOpenChange={setStayTypeOpen}>
@@ -501,32 +512,32 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
                 <div className="flex flex-col relative flex-[1.2] pl-6 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors group">
                   <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{(t.quickSearchExtras as any).lookingFor || "Looking for"}</label>
                   <div className="text-[15px] font-medium text-slate-800 flex items-center justify-between">
-                     {listingType === "rent" ? t.quickSearchExtras.rent : listingType === "sale" ? t.quickSearchExtras.buy : t.quickSearchExtras.stay}
+                    {listingType === "rent" ? t.quickSearchExtras.rent : listingType === "sale" ? t.quickSearchExtras.buy : t.quickSearchExtras.stay}
                   </div>
                 </div>
               </PopoverTrigger>
               <PopoverContent className="w-[280px] p-2 rounded-3xl border-slate-100 -[0_10px_40px_-10px_rgba(0,0,0,0.15)] flex flex-col gap-1 mt-4" align="start">
-                  {TYPE_TABS.map((tab) => {
-                      const isActive = tab.value === listingType;
-                      return (
-                          <button key={tab.value} onClick={() => { setListingType(tab.value); setStayTypeOpen(false); }} className={`flex items-center gap-3 px-3 py-3 rounded-2xl transition-all text-left ${isActive ? "bg-slate-50 border-1 border-slate-900" : "bg-white border-1 border-transparent hover:border-slate-200 hover:bg-slate-50/50"}`}>
-                              <div className={`p-2.5 rounded-full flex shrink-0 ${isActive ? "bg-white -sm" : "bg-slate-100"}`}>
-                                  <tab.icon className={`h-5 w-5 ${isActive ? "text-slate-900 stroke-[2.5px]" : "text-slate-500"}`} />
-                              </div>
-                              <div className="flex flex-col">
-                                  <span className={`text-[15px] font-bold ${isActive ? "text-slate-900" : "text-slate-600"}`}>{tab.value === "rent" ? t.quickSearchExtras.rent : tab.value === "sale" ? t.quickSearchExtras.buy : t.quickSearchExtras.stay}</span>
-                                  <span className="text-[12px] text-slate-500 font-medium leading-tight">
-                                      {tab.value === "rent" ? "Find places to rent" : tab.value === "sale" ? "Purchase a property" : "Book a short stay"}
-                                  </span>
-                              </div>
-                          </button>
-                      )
-                  })}
+                {TYPE_TABS.map((tab) => {
+                  const isActive = tab.value === listingType;
+                  return (
+                    <button key={tab.value} onClick={() => { setListingType(tab.value); setStayTypeOpen(false); }} className={`flex items-center gap-3 px-3 py-3 rounded-2xl transition-all text-left ${isActive ? "bg-slate-50 border-1 border-slate-900" : "bg-white border-1 border-transparent hover:border-slate-200 hover:bg-slate-50/50"}`}>
+                      <div className={`p-2.5 rounded-full flex shrink-0 ${isActive ? "bg-white -sm" : "bg-slate-100"}`}>
+                        <tab.icon className={`h-5 w-5 ${isActive ? "text-slate-900 stroke-[2.5px]" : "text-slate-500"}`} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className={`text-[15px] font-bold ${isActive ? "text-slate-900" : "text-slate-600"}`}>{tab.value === "rent" ? t.quickSearchExtras.rent : tab.value === "sale" ? t.quickSearchExtras.buy : t.quickSearchExtras.stay}</span>
+                        <span className="text-[12px] text-slate-500 font-medium leading-tight">
+                          {tab.value === "rent" ? "Find places to rent" : tab.value === "sale" ? "Purchase a property" : "Book a short stay"}
+                        </span>
+                      </div>
+                    </button>
+                  )
+                })}
               </PopoverContent>
             </Popover>
 
             {/* Location */}
-            <div className="flex flex-col relative flex-[1.5] pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors" ref={suggestionsRef} onClick={() => cityInputRef.current?.focus()}>
+            <div className="flex flex-col relative flex-[1.5] pl-4 pr-4 py-1.5 hover:bg-slate-50/80 rounded-full cursor-pointer transition-colors" ref={suggestionsRef} onClick={() => cityInputRef.current?.focus()}>
               <label className="text-[10px] font-extrabold text-slate-800 tracking-wider uppercase mb-0.5 pointer-events-none">{t.quickSearchExtras.where}</label>
               <Input
                 ref={cityInputRef}
@@ -667,12 +678,22 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
 
             {/* Search Button Area */}
             <div className="pl-4 border-l-0 flex items-center gap-2">
-              <Button variant="ghost" className="rounded-full w-12 h-12 p-0 hover:bg-slate-100 text-slate-700 transition-colors shrink-0" onClick={() => setShowFiltersSidebar(true)} aria-label="Filters" title="Filters">
+              <Button variant="ghost" className="rounded-full w-12 h-12 p-0 hover:bg-slate-100 text-slate-700 transition-colors shrink-0 relative" onClick={() => setShowFiltersSidebar(true)} aria-label="Filters" title="Filters">
                 <SlidersHorizontal className="h-5 w-5" />
+                {advancedFilterCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 h-[18px] min-w-[18px] bg-blue-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+                    {advancedFilterCount}
+                  </span>
+                )}
               </Button>
               {hasActiveFilters && (
                 <Button variant="ghost" className="rounded-full w-10 h-10 p-0 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors shrink-0 tooltip-trigger" onClick={clearAllFilters} aria-label="Clear filters" title="Clear all filters">
                   <X className="h-4 w-4" />
+                </Button>
+              )}
+              {hasActiveFilters && (
+                <Button variant="outline" className="rounded-full gap-1.5 h-9 px-4 text-xs font-semibold border-slate-200 text-slate-600 hover:text-slate-900 transition-all hover:border-slate-300 bg-white shrink-0" onClick={handleSaveButtonClick}>
+                  <Bookmark className="h-3.5 w-3.5" /> {t.quickSearchExtras.saveThisSearch}
                 </Button>
               )}
               <Button className="rounded-full h-[52px] px-6 bg-blue-600 hover:bg-blue-700 hover:-[0_8px_20px_-8px_rgba(37,99,235,0.6)] active:scale-95 transition-all duration-300 text-white border-0" onClick={handleSearch} disabled={isSearching}>
@@ -683,14 +704,7 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
           </div>
         </div>
 
-        {/* Small Save button */}
-        {hasActiveFilters && (
-          <div className="flex justify-center mt-5 opacity-80 hover:opacity-100 transition-opacity">
-            <Button variant="outline" className="rounded-full gap-2 h-9 px-4 text-xs font-semibold border-slate-200 text-slate-600 hover:text-slate-900  transition-all hover:border-slate-300 bg-white" onClick={handleSaveButtonClick}>
-              <Bookmark className="h-3.5 w-3.5" /> {t.quickSearchExtras.saveThisSearch}
-            </Button>
-          </div>
-        )}
+
       </div>
 
       {/* ── MOBILE ── */}
@@ -712,10 +726,15 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
             </div>
             <Button
               variant="outline"
-              className="rounded-full h-[52px] w-[52px] border border-slate-200/80 -[0_8px_20px_-8px_rgba(0,0,0,0.12)] shrink-0 bg-white"
+              className="rounded-full h-[52px] w-[52px] border border-slate-200/80 -[0_8px_20px_-8px_rgba(0,0,0,0.12)] shrink-0 bg-white relative"
               onClick={() => setShowFiltersSidebar(true)}
             >
               <SlidersHorizontal className="h-5 w-5 text-slate-800" />
+              {advancedFilterCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 h-[18px] min-w-[18px] bg-blue-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+                  {advancedFilterCount}
+                </span>
+              )}
             </Button>
           </div>
         ) : (
@@ -729,8 +748,13 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
               <div className="flex -mx-2">
                 <ListingTypeTabs value={listingType} onChange={setListingType} t={t} />
               </div>
-              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 bg-slate-50 hover:bg-slate-100 text-slate-600 focus-visible:ring-0 shrink-0" onClick={() => setShowFiltersSidebar(true)}>
+              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 bg-slate-50 hover:bg-slate-100 text-slate-600 focus-visible:ring-0 shrink-0 relative" onClick={() => setShowFiltersSidebar(true)}>
                 <SlidersHorizontal className="h-4 w-4" />
+                {advancedFilterCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 h-[16px] min-w-[16px] bg-blue-600 text-white text-[8px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
+                    {advancedFilterCount}
+                  </span>
+                )}
               </Button>
             </div>
 

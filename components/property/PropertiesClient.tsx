@@ -538,27 +538,7 @@ const PropertiesClient = ({
                   </div>
                 </div>
 
-                {/* Filter chips */}
-                {filterChips.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {filterChips.map((chip) => (
-                      <button
-                        key={chip.key}
-                        onClick={() => removeFilter(chip.key)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#222222] border border-blue-600 rounded-full hover:bg-[#F7F7F7] transition-colors"
-                      >
-                        {chip.label}
-                        <X className="h-3 w-3" />
-                      </button>
-                    ))}
-                    <button
-                      onClick={clearAllFilters}
-                      className="text-[12px] font-semibold text-[#222222] underline underline-offset-2 hover:text-[#717171] px-1"
-                    >
-                      Clear all
-                    </button>
-                  </div>
-                )}
+
 
                 {/* Cluster banner */}
                 {clusterFilterIds && (
@@ -680,38 +660,18 @@ const PropertiesClient = ({
     <div className="min-h-screen flex flex-col bg-white mt-[70px]">
 
       {/* Search bar */}
-      <div className="w-full px-6 py-4 border-b border-[#EBEBEB] bg-white">
+      <div className="sticky top-[70px] z-40 w-full px-6 py-2 borcder-b bodrder-[#EBEBEB] bg-white">
         <QuickSearch onSearch={handleQuickSearch} initialFilters={initialFilters} />
       </div>
 
-      {/* Filter chips */}
-      {filterChips.length > 0 && (
-        <div className="px-6 py-3 border-b border-[#EBEBEB] bg-white flex flex-wrap gap-2 items-center">
-          {filterChips.map((chip) => (
-            <button
-              key={chip.key}
-              onClick={() => removeFilter(chip.key)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-[13px] font-medium text-[#222222] border border-blue-600 rounded-full hover:bg-[#F7F7F7] transition-colors"
-            >
-              {chip.label}
-              <X className="h-3 w-3" />
-            </button>
-          ))}
-          <button
-            onClick={clearAllFilters}
-            className="text-[13px] font-semibold text-[#222222] underline underline-offset-2 hover:text-[#717171] px-1 transition-colors"
-          >
-            Clear all
-          </button>
-        </div>
-      )}
+
 
       <main className="flex-1 flex h-[calc(100vh-64px-88px)]">
 
         {/* Map panel */}
         {showMap && (
-          <div className="w-[600px] h-full p-4 sticky top-[70px] overflow-hidden">
-            <div className="h-[calc(100vh-90px-5px)] relative rounded-2xl overflow-hidden">
+          <div className="w-[600px] h-full p-4 sticky top-[160px] overflow-hidden">
+            <div className="h-[calc(100vh-170px-5px)] relative rounded-2xl overflow-hidden">
               <MapView
                 properties={mapProperties}
                 onPropertyClick={handlePropertyClick}
