@@ -51,12 +51,12 @@ export function middleware(request: NextRequest) {
 
     // e.g. incoming is /products
     // The new URL is now /en/products
-    return NextResponse.redirect(
-      new URL(
-        `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`,
-        request.url
-      )
+    const redirectUrl = new URL(
+      `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`,
+      request.url
     );
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl);
   }
 
   // Extract the locale from the pathname to compute normalized path

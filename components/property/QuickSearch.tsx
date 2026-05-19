@@ -466,8 +466,13 @@ const QuickSearch = ({ onSearch, isSearching = false, initialFilters }: QuickSea
     setShowSuggestions(false);
   };
 
-  // Auto-search when non-city filters change
+  // Auto-search when non-city filters change.
+  // IMPORTANT: skip the very first render — listingType defaults to "rent" (≠ "any") which
+  // would immediately trigger a re-fetch and wipe the SSR-rendered properties list.
+  // After mount, every user-driven change still triggers correctly.
+  const isFirstFilterRender = useRef(true);
   useEffect(() => {
+    if (isFirstFilterRender.current) { isFirstFilterRender.current = false; return; }
     const anyFilterActive = listingType !== "any" || minBudget !== "any" || maxBudget !== "any" ||
       bedrooms !== "any" || bathrooms !== "any" || checkIn || checkOut || guests !== "any";
     if (anyFilterActive) { setHasSearched(true); onSearch?.(getCurrentFilters()); }

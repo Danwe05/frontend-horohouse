@@ -204,7 +204,7 @@ export default async function PropertyPage({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: (data.properties || []).map((prop: any, index: number) => {
+    itemListElement: (data.data || []).map((prop: any, index: number) => {
       const identifier = prop.slug || prop._id;
       return {
         "@type": "ListItem",
@@ -260,7 +260,7 @@ export default async function PropertyPage({
         }
       >
         <PropertiesClient
-          initialProperties={data.properties || []}
+          initialProperties={data.data || []}
           initialTotal={data.total || 0}
           initialFilters={initialFilters}
           initialAdvancedFilters={initialAdvancedFilters}

@@ -13,7 +13,7 @@ interface PlaceSuggestion {
 
 export default function HeroSection() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedTab, setSelectedTab] = useState('rent');
   const [visible, setVisible] = useState(true);
 
@@ -249,7 +249,7 @@ export default function HeroSection() {
     }
 
     // Navigate to properties page with search params
-    router.push(`/properties?${params.toString()}`);
+    router.push(`/${language}/properties?${params.toString()}`);
   };
 
   return (
