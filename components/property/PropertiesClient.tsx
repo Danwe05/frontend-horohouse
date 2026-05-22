@@ -114,7 +114,7 @@ const PropertiesClient = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { formatMoney } = useCurrency();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // ── UI state ──────────────────────────────────────────────────────────────
   const [showFilters, setShowFilters] = useState(false);
@@ -282,8 +282,8 @@ const PropertiesClient = ({
 
   const handleCompareNow = useCallback(() => {
     const ids = Array.from(compareIds).join(",");
-    router.push(`/properties/compare?ids=${ids}`);
-  }, [compareIds, router]);
+    router.push(`/${language}/properties/compare?ids=${ids}`);
+  }, [compareIds, router, language]);
 
   // ── Fetch ─────────────────────────────────────────────────────────────────
   const fetchProperties = useCallback(async (pageNum: number, append = false) => {
@@ -408,8 +408,8 @@ const PropertiesClient = ({
   }, [updateURLParams]);
 
   const handlePropertyClick = useCallback((id: string) => {
-    router.push(`/properties/${id}`);
-  }, [router]);
+    router.push(`/${language}/properties/${id}`);
+  }, [router, language]);
 
   // ── Mapped UI properties ──────────────────────────────────────────────────
   const uiProperties = useMemo(() =>
