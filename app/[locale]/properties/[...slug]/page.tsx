@@ -273,8 +273,8 @@ function buildPropertyJsonLd(property: any, locale: string, propertySlug: string
             value: 1,
             unitCode:
               property.billingCycle === "monthly" ? "MON"
-              : property.billingCycle === "weekly" ? "WEE"
-              : "DAY",
+                : property.billingCycle === "weekly" ? "WEE"
+                  : "DAY",
           },
         }),
       },
