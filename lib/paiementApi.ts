@@ -481,7 +481,7 @@ export const paiementApi = {
   getPropertyBoosts,
   getActiveBoostedProperties,
   trackBoostImpression,
-  trackBoostClick,
+  trackBoostClick,  
   trackBoostInquiry,
   cancelBoost,
 

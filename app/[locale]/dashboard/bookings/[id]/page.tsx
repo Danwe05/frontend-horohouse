@@ -155,18 +155,20 @@ export default function BookingDetailPage() {
     const canPay = isGuest && booking.paymentStatus !== 'paid' && ![BookingStatus.CANCELLED, BookingStatus.REJECTED, BookingStatus.NO_SHOW].includes(booking.status);
 
     // Handlers
-    const handlePay = async () => {
-        try {
-            setPayingNow(true);
-            const res = await apiClient.initiateBookingPayment(id);
-            window.location.href = res.paymentLink;
-        } catch (err: any) {
-            toast.error(sd.payFail || 'Payment failed', {
-                description: err?.response?.data?.message ?? (sd.payInitFail || 'Could not initialize payment. Please try again.'),
-            });
-            setPayingNow(false);
-        }
-    };
+   const handlePay = async () => {
+    try {
+        setPayingNow(true);
+        const res = await apiClient.initiateBookingPayment(id);
+        // ✅ Open CamerPay in a new tab — keeps this page alive for polling/confirmation
+        window.open(res.paymentLink, '_blank', 'noopener,noreferrer');
+        setPayingNow(false);
+    } catch (err: any) {
+        toast.error(sd.payFail || 'Payment failed', {
+            description: err?.response?.data?.message ?? (sd.payInitFail || 'Could not initialize payment. Please try again.'),
+        });
+        setPayingNow(false);
+    }
+};
 
     const handleCancel = async () => {
         setCancelling(true);

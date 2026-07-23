@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Carousel,
@@ -128,17 +127,12 @@ export default function RecentlyAddedProperties() {
   }
 
   return (
-    <section className="w-full bg-white py-12 px-6 lg:px-10 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+    <section className="w-full bg-white py-6 px-6 lg:px-10 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="mb-0">
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-6 gap-4">
             <div>
-              <h2 className="text-[26px] md:text-[32px] font-bold text-[#222222] tracking-tight">
+              <h2 className="text-[22px] font-semibold text-[#222222] tracking-tight">
                 New this week
               </h2>
 
@@ -183,7 +177,7 @@ export default function RecentlyAddedProperties() {
               )}
             </div>
           </div>
-        </motion.div>
+        </div>
 
         <div className="relative">
           {loading ? (

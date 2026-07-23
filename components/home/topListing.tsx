@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Carousel,
@@ -197,18 +196,13 @@ export default function TopListing() {
   }
 
   return (
-    <section className="bg-white py-16 px-6 lg:px-10 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+    <section className="bg-white py-6 px-6 lg:px-10 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="mb-0">
           {/* Header row */}
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 gap-4">
             <div>
-              <h2 className="text-2xl md:text-2xl font-bold text-gray-900 tracking-tight">
+              <h2 className="text-[22px] font-semibold text-[#222222] tracking-tight">
                 {_t.topListing?.topListings || 'Top-rated listings'}
               </h2>
               <div className="flex items-center gap-3 mt-2">
@@ -239,17 +233,16 @@ export default function TopListing() {
               ) : (
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x w-full">
                   {CITIES.map((city) => (
-                    <motion.button
+                    <button
                       key={city}
-                      whileTap={{ scale: 0.95 }}
                       onClick={() => handleCityChange(city)}
                       className={`shrink-0 snap-start px-5 py-2.5 rounded-full text-[14px] font-semibold transition-all duration-200 border ${activeCity === city
                           ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-[#222222] border-[#DDDDDD] hover:border-blue-600'
+                          : 'bg-white text-[#222222] border-[#DDDDDD] hover:border-[#222222] hover:shadow-sm'
                         }`}
                     >
                       {city === 'All' ? _t.common?.all || 'All locations' : city}
-                    </motion.button>
+                    </button>
                   ))}
                 </div>
               )}
@@ -275,7 +268,7 @@ export default function TopListing() {
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Carousel Area */}
         <div className="relative">

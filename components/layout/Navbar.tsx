@@ -153,7 +153,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
     const studentsLink: NavLink = { href: '/students', label: _t.navbar?.students || 'Students', icon: Building };
     const contactLink: NavLink = { href: '/contact', label: t.nav.contact || 'Contact', icon: Globe };
     const aboutLink: NavLink = { href: '/about', label: t.nav.about || 'About Us', icon: Award };
-   
+
     const baseLinks = [rentLink, buyLink, staysLink, studentsLink, contactLink, aboutLink];
     if (!isAuthenticated) return baseLinks;
 
@@ -522,7 +522,7 @@ export default function Navbar({ showOnlyWhenAuthenticated = false }: NavbarProp
                 {/* Add Property CTA — mobile only, for eligible roles */}
                 {canAddProperty && (
                   <button
-                    onClick={() => { handleAddProperty({ preventDefault: () => {} } as any); setIsMobileMenuOpen(false); }}
+                    onClick={() => { handleAddProperty({ preventDefault: () => { } } as any); setIsMobileMenuOpen(false); }}
                     className="relative w-full flex items-center justify-center gap-2 py-3.5 mb-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-[16px] transition-colors"
                   >
                     <Plus className="w-5 h-5" />

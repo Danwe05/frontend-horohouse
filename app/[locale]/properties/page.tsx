@@ -1,12 +1,3 @@
-// app/[locale]/properties/page.tsx — full replacement
-// Fixes:
-//  1. Canonical no longer includes query params (was causing duplicate URL issues)
-//  2. hreflang alternates added
-//  3. ItemList JSON-LD uses prop.slug (falls back to prop._id only as last resort)
-//  4. French metadata is fully translated, not just the title
-//  5. OpenGraph gets locale set correctly
-//  6. ItemList JSON-LD URL uses locale-prefixed slug path
-
 import { Suspense } from "react";
 import { Metadata } from "next";
 import PropertiesClient from "@/components/property/PropertiesClient";

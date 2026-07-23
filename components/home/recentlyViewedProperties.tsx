@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ChevronLeft, ChevronRight, History } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Carousel,
@@ -175,18 +174,13 @@ export default function RecentlyViewedProperties() {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <section className="bg-white py-12 px-6 lg:px-10 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+    <section className="bg-white py-6 px-6 lg:px-10 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="mb-0">
           {/* Header row */}
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 gap-4">
             <div>
-              <h2 className="text-2xl md:text-2xl font-bold text-gray-900 tracking-tight">
+              <h2 className="text-[22px] font-semibold text-[#222222] tracking-tight">
                 {_t.recentlyViewed?.title || 'Recently viewed'}
               </h2>
 
@@ -230,7 +224,7 @@ export default function RecentlyViewedProperties() {
               )}
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Carousel Area */}
         <div className="relative">

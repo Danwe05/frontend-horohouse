@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
-import { motion } from 'framer-motion';
 import {
   Carousel,
   CarouselContent,
@@ -257,19 +256,13 @@ export default function LocationBasedProperties() {
   }
 
   return (
-    <section className="w-full bg-white py-12 px-6 lg:px-10 font-sans" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <section className="w-full bg-white py-6 px-6 lg:px-10 font-sans" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-[1600px] mx-auto relative">
 
         {/* Header Area */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="flex items-end justify-between mb-8"
-        >
+        <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl md:text-2xl font-bold text-gray-900 tracking-tight">
+            <h2 className="text-[22px] font-semibold text-[#222222] tracking-tight">
               {_t.locationProperties?.title || 'Properties in your area'}
             </h2>
 
@@ -311,7 +304,7 @@ export default function LocationBasedProperties() {
               </button>
             </div>
           )}
-        </motion.div>
+        </div>
 
         {/* Carousel Area */}
         <div className="relative">

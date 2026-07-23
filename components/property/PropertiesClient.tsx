@@ -104,9 +104,9 @@ interface PropertiesClientProps {
   initialAdvancedFilters: AdvancedFilters;
 }
 
-const PropertiesClient = ({ 
-  initialProperties, 
-  initialTotal, 
+const PropertiesClient = ({
+  initialProperties,
+  initialTotal,
   initialFilters,
   initialAdvancedFilters
 }: PropertiesClientProps) => {
@@ -465,10 +465,10 @@ const PropertiesClient = ({
     return (
       <div className="min-h-screen flex flex-col bg-white mt-[70px]">
         <div className="w-full px-6 py-4 border-b border-[#EBEBEB] bg-white">
-          <QuickSearch onSearch={() => {}} initialFilters={initialFilters} />
+          <QuickSearch onSearch={() => { }} initialFilters={initialFilters} />
         </div>
         <main className="flex-1 flex px-6 py-5">
-           <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full">
+          <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full">
             {uiProperties.map((property) => (
               <PropertyCard key={property.id} {...property} />
             ))}

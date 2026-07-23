@@ -19,40 +19,46 @@ export default function PopularDestinations() {
     <section className="py-12 px-6 lg:px-10 bg-white" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-[1280px] mx-auto">
 
-        <div className="flex flex-col md:flex-row items-end justify-between mb-12">
-          <div className="max-w-xl">
-            <h2 className="text-[36px] md:text-[44px] font-bold text-gray-900 tracking-tight mb-4 relative inline-block">
-              Trending{' '}
-              <span className="relative z-10 whitespace-nowrap">
-                destinations
-                <span className="absolute bottom-3 left-0 w-full h-4 bg-blue-200/80 -z-10 rounded-sm transform -rotate-1"></span>
-              </span>
-            </h2>
-            <p className="text-[18px] text-gray-500 font-light mt-2">
-              Explore the most sought-after cities. Uncover the perfect backdrop for your next stay.
-            </p>
-          </div>
-          <Link href={getLocalizedHref("/properties", language)} className="text-[15px] font-semibold underline text-[#222222] hover:text-[#717171] transition-colors">
-            Explore All
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-[22px] font-semibold text-[#222222] tracking-tight">
+            Explore nearby destinations
+          </h2>
+          <Link
+            href={getLocalizedHref("/properties", language)}
+            className="text-[14px] font-semibold underline text-[#222222] hover:text-[#717171] transition-colors hidden md:block"
+          >
+            Explore all
           </Link>
         </div>
 
-        {/* Bento Grid Layout - Highly polished and modern */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:grid-rows-2 md:h-[600px]">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:grid-rows-2 md:h-[560px]">
           {cities.map((city, i) => (
-            <Link href={getLocalizedHref(`/properties?city=${encodeURIComponent(city.name)}`, language)} key={i} className={`group block relative rounded-2xl overflow-hidden ${city.colSpan}`}>
-              <div className="absolute inset-0 bg-gray-900/20 group-hover:bg-gray-900/40 transition-colors duration-500 z-10" />
+            <Link
+              href={getLocalizedHref(`/properties?city=${encodeURIComponent(city.name)}`, language)}
+              key={i}
+              className={`group block relative rounded-xl overflow-hidden ${city.colSpan}`}
+            >
+              <div className="absolute inset-0 bg-gray-900/20 group-hover:bg-gray-900/30 transition-colors duration-300 z-10" />
               <img
                 src={city.img}
                 alt={city.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
               />
-              <div className="absolute bottom-0 left-0 p-8 z-20">
-                <h3 className="text-[28px] font-bold text-white leading-none mb-2">{city.name}</h3>
-                <p className="text-[15px] font-medium text-white/80">{city.sub}</p>
+              <div className="absolute bottom-0 left-0 p-6 z-20">
+                <h3 className="text-[20px] font-semibold text-white leading-none mb-1">{city.name}</h3>
+                <p className="text-[13px] text-white/75">{city.sub}</p>
               </div>
             </Link>
           ))}
+        </div>
+
+        <div className="mt-6 md:hidden">
+          <Link
+            href={getLocalizedHref("/properties", language)}
+            className="text-[14px] font-semibold underline text-[#222222] hover:text-[#717171] transition-colors"
+          >
+            Explore all
+          </Link>
         </div>
 
       </div>

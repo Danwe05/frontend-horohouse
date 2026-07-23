@@ -15,13 +15,13 @@ const formatDateSeparator = (dateString: string) => {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  
+
   if (date.toDateString() === today.toDateString()) return 'Today';
   if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
-  
-  return date.toLocaleDateString([], { 
-    weekday: 'short', month: 'short', day: 'numeric', 
-    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined 
+
+  return date.toLocaleDateString([], {
+    weekday: 'short', month: 'short', day: 'numeric',
+    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
   });
 };
 
@@ -50,7 +50,7 @@ export function ChatMessageList({
         <>
           {messages.map((message, index) => {
             const previousMessage = index > 0 ? messages[index - 1] : null;
-            const isNewDay = !previousMessage || 
+            const isNewDay = !previousMessage ||
               new Date(message.createdAt).toDateString() !== new Date(previousMessage.createdAt).toDateString();
 
             const senderId = typeof message.senderId === 'object'
@@ -92,8 +92,8 @@ export function ChatMessageList({
                     <div
                       className={cn(
                         "px-4 py-3 text-[15px] leading-relaxed shadow-sm",
-                        isOwn 
-                          ? "bg-[#222222] text-white rounded-2xl rounded-br-sm" 
+                        isOwn
+                          ? "bg-[#222222] text-white rounded-2xl rounded-br-sm"
                           : "bg-[#F7F7F7] text-[#222222] border border-[#EBEBEB] rounded-2xl rounded-bl-sm",
                         isVoiceMessage ? 'min-w-[200px]' : '',
                         isOptimistic ? 'opacity-70' : 'opacity-100'
